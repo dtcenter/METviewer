@@ -191,8 +191,15 @@ public final class MVOrderedMap extends Hashtable {
     return MVUtil.getRDecl(this);
   }
 
+  public Map<String, Object> getYamlDecl() {
+    return MVUtil.getYamlDecl(this);
+  }
+
   public String getRDeclSeries() {
     return MVUtil.getRDecl(convertFromSeriesMap());
+  }
+  public Map<String, Object> getYamlDeclSeries() {
+    return MVUtil.getYamlDecl(convertFromSeriesMap());
   }
 }
 

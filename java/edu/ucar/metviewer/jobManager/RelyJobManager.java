@@ -74,7 +74,7 @@ public class RelyJobManager extends JobManager {
                       mvBatch.getPrintStream(),
                       mvBatch.getPrintStreamSql());
 
-      Map<String, String> info = createInfoMap(job, intNumDepSeries);
+      Map<String, Object> info = createInfoMap(job, intNumDepSeries);
       info.put("agg_pct", "TRUE");
       info.put("indy_var", "thresh_i");
       info.put("indy_list", "c(0, 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9)");

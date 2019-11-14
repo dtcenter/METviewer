@@ -35,10 +35,12 @@ public abstract class RscriptStatManager {
   }
 
   public abstract void prepareDataFileAndRscript(MVPlotJob job, MVOrderedMap mvMap,
-                                                 Map<String, String> info,
+                                                 Map<String, Object> info,
                                                  List<String> listQuery) throws ValidationException, IOException, StopWatchException;
 
-  public abstract boolean runRscript(MVPlotJob job, Map<String, String> info);
 
+
+  public abstract boolean runRscript(MVPlotJob job, Map<String, Object> info);
+  public abstract boolean runPythonScript(MVPlotJob job, Map<String, Object> info);
 
 }

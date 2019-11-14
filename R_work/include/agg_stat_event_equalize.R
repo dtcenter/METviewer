@@ -16,7 +16,6 @@ library(reticulate)
 use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
 source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
 
-py_config()
 
 sys = import('sys')
 

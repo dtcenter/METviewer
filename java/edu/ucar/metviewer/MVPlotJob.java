@@ -1885,6 +1885,7 @@ public class MVPlotJob {
     return _strDiffSeries1;
   }
 
+
   public void setDiffSeries1(String _strDiffSeries1) {
     this._strDiffSeries1 = _strDiffSeries1;
   }
@@ -2144,6 +2145,39 @@ public class MVPlotJob {
             || this.getCalcVl1l2()
             || this.getCalcVal1l2()
             || this.getCalcGrad();
+  }
+  public String getLineType(){
+    if(this.getAggCtc()){
+      return "ctc";
+    }
+    if(this.getAggSl1l2()){
+      return "sl1l2";
+    }
+    if(this.getAggSal1l2()){
+      return "sal1l2";
+    }
+    if(this.getAggNbrCnt()){
+      return "nbr_cnt";
+    }
+    if(this.getAggSsvar()){
+      return "ssvar";
+    }
+    if(this.getAggVl1l2()){
+      return "vl1l2";
+    }
+    if(this.getAggVal1l2()){
+      return "val1l2";
+    }
+    if(this.getAggGrad()){
+      return "grad";
+    }
+    if(this.getAggPct()){
+      return "pct";
+    }
+    if(this.getAggEcnt()){
+      return "ecnt";
+    }
+    return "N/A";
   }
 }
 

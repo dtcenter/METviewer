@@ -1,5 +1,14 @@
 package edu.ucar.metviewer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
+import org.w3c.dom.Document;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,41 +18,17 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.io.StringWriter;
+import java.io.*;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
-import org.w3c.dom.Document;
 
 public class MVUtil {
 
@@ -1465,6 +1450,22 @@ public class MVUtil {
     return strRDecl;
   }
 
+  public static Map<String, Object> getYamlDecl(final MVOrderedMap map) {
+    Map<String, Object> result = new HashMap<>();
+    List<String> keys = map.getListKeys();
+    for (String key : keys) {
+      Object objVal = map.get(key);
+      if (objVal instanceof String) {
+        result.put(key, new String[]{(String) objVal});
+      } else if (objVal instanceof String[]) {
+        result.put(key, objVal);
+      } else if (objVal instanceof MVOrderedMap) {
+        result.put(key, ((MVOrderedMap) objVal).getYamlDecl());
+      }
+    }
+    return result;
+  }
+
 
   public static String[] parseModeStat(final String stat) {
     Matcher mat = _patModeStat.matcher(stat);
@@ -1548,9 +1549,13 @@ public class MVUtil {
   public static MvResponse runRscript(
           final String rscript,
           final String script) {
-    return runRscript(rscript, script, new String[]{});
+    return runRscript(rscript, script, new String[]{}, null);
   }
-
+  public static MvResponse runRscript(
+          final String rscriptCommand, final String scriptName,
+          final String[] args){
+    return runRscript(rscriptCommand, scriptName, args, null);
+  }
 
   /**
    * Run the input R script named r using the Rscript command.  The output and error output will be
@@ -1563,7 +1568,7 @@ public class MVUtil {
    */
   public static MvResponse runRscript(
           final String rscriptCommand, final String scriptName,
-          final String[] args) {
+          final String[] args, final String[] env) {
 
     MvResponse mvResponse = new MvResponse();
 
@@ -1590,9 +1595,11 @@ public class MVUtil {
       String rscriptCommandClean = cleanString(rscriptCommand);
       String scriptNameClean = cleanString(scriptName);
       String strArgListClean = cleanString(argList.toString());
+
+
       proc = Runtime.getRuntime()
               .exec(rscriptCommandClean + " " + scriptNameClean + strArgListClean,
-                      null,
+                      env,
                       new File(System.getProperty("user.home")));
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
@@ -1679,7 +1686,7 @@ public class MVUtil {
    */
   public static void populateTemplateFile(
           final String tmpl, final String output,
-          final Map<String, String> vals) throws IOException {
+          final Map<String, Object> vals) throws IOException {
     try (FileReader fileReader = new FileReader(tmpl);
          BoundedBufferedReader reader = new BoundedBufferedReader(fileReader);
          PrintStream writer = new PrintStream(output)) {
@@ -1693,7 +1700,7 @@ public class MVUtil {
           if (!vals.containsKey(strRtmplTag)) {
             continue;
           }
-          String strRTagVal = vals.get(strRtmplTag);
+          String strRTagVal = (String) vals.get(strRtmplTag);
           if (strRTagVal != null) {
             strOutputLine = strOutputLine.replace("#<" + strRtmplTag + ">#", strRTagVal);
           }
@@ -1844,9 +1851,9 @@ public class MVUtil {
   }
 
   public static String buildTemplateInfoString(final String tmpl, final MVOrderedMap vals,
-                                             final MVOrderedMap tmplMaps,
-                                             final PrintStream printStream)throws ValidationException {
-    return buildTemplate(tmpl, vals,tmplMaps,printStream, "infoString");
+                                               final MVOrderedMap tmplMaps,
+                                               final PrintStream printStream) throws ValidationException {
+    return buildTemplate(tmpl, vals, tmplMaps, printStream, "infoString");
   }
 
   public static String buildTemplateString(
@@ -1854,7 +1861,7 @@ public class MVUtil {
           final MVOrderedMap tmplMaps,
           final PrintStream printStream) throws ValidationException {
 
-    return buildTemplate(tmpl, vals,tmplMaps,printStream, "fileName");
+    return buildTemplate(tmpl, vals, tmplMaps, printStream, "fileName");
   }
 
   /**
@@ -1894,7 +1901,7 @@ public class MVUtil {
       }
 
       String strVal = (String) vals.get(strTmplTagName);
-      if( stringType.equals("fileName")) {
+      if (stringType.equals("fileName")) {
         strVal = strVal.replace(">", "gt").replace("<", "lt").replaceAll("=", "e");
       }
 
@@ -2139,6 +2146,23 @@ public class MVUtil {
     return rStr.toString();
   }
 
+  /**
+   * Creates a string representation of an R collection containing the list of values in the input
+   * list, val.
+   *
+   * @param val List of values to print in the R collection
+   * @return String representation of the R collection
+   */
+  public static String[] printYamlCol(final Object[] val) {
+    List<String> result = new ArrayList<>();
+    for (Object o : val) {
+      String value = o.toString().replace("&#38;", "&").replace("&gt;", ">")
+              .replace("&lt;", "<");
+      result.add(value);
+    }
+    return result.toArray(new String[0]);
+  }
+
   public static String printRCol(final Object[] val) {
     return printRCol(val, true);
   }
@@ -2180,7 +2204,7 @@ public class MVUtil {
    * @param tableRTags template value table to receive plot formatting values
    * @param job        source for plot formatting values
    */
-  public static void populatePlotFmtTmpl(Map<String, String> tableRTags, MVPlotJob job) {
+  public static void populatePlotFmtTmpl(Map<String, Object> tableRTags, MVPlotJob job) {
     tableRTags.put("plot_type", job.getPlotType());
     tableRTags.put("plot_width", job.getPlotWidth());
     tableRTags.put("plot_height", job.getPlotHeight());
@@ -2458,6 +2482,33 @@ public class MVUtil {
 
   public static synchronized String formatPerf(double val) {
     return DECIMAL_FORMAT.format(val);
+  }
+
+  public static String[][] getDiffSeriesArr(String diffSeriesTemplate) {
+    if (diffSeriesTemplate.equals("list()")) {
+      return new String[][]{};
+    }
+    String diffSeries = diffSeriesTemplate.replace("list(", "");
+    String[] diffSeriesArr = diffSeries.split("c\\(");
+    List<String[]> result = new ArrayList<>();
+    for (String serie : diffSeriesArr) {
+      if (!serie.isEmpty()) {
+        serie = serie.replaceAll("\"", "").replaceAll("\\(", "").replaceAll("\\)", "");
+        String[] args = serie.split(",");
+        result.add(args);
+      }
+    }
+    return result.toArray(new String[0][]);
+  }
+
+  public static synchronized void createYmlFile(final String fileName, final Map<String, Object> info) throws IOException {
+    DumperOptions options = new DumperOptions();
+    //options.setDefaultScalarStyle(DumperOptions.ScalarStyle.SINGLE_QUOTED);
+    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    Yaml yaml = new Yaml(options);
+    try(FileWriter writer = new FileWriter(fileName)) {
+      yaml.dump(info, writer);
+    }
   }
 
 }

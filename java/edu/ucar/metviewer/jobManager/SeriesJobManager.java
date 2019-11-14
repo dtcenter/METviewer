@@ -6,27 +6,17 @@
 
 package edu.ucar.metviewer.jobManager;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-
-import edu.ucar.metviewer.DatabaseException;
-import edu.ucar.metviewer.MVBatch;
-import edu.ucar.metviewer.MVOrderedMap;
-import edu.ucar.metviewer.MVPlotDep;
-import edu.ucar.metviewer.MVPlotJob;
-import edu.ucar.metviewer.MVPlotJobParser;
-import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.MvResponse;
-import edu.ucar.metviewer.StopWatchException;
-import edu.ucar.metviewer.ValidationException;
+import edu.ucar.metviewer.*;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.rscriptManager.RscriptAggStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptNoneStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptSumStatManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * @author : tatiana $
@@ -204,7 +194,68 @@ public class SeriesJobManager extends JobManager {
         throw new ValidationException("revision series don't produce plots on Y2 axis");
       }
 
-      Map<String, String> info = createInfoMap(job, intNumDepSeries);
+      Map<String, Object> info = createInfoMap(job, intNumDepSeries);
+
+      Map<String, Object> yamlInfo = new HashMap<>();
+      yamlInfo.put("method", job.getAggBootCI());
+      yamlInfo.put("num_iterations", MVUtil.isNumeric(job.getAggBootRepl()) ? Integer.parseInt(job.getAggBootRepl()) : 1);
+      yamlInfo.put("num_threads", -1);
+      yamlInfo.put("alpha", MVUtil.isNumeric(job.getCIAlpha()) ? Double.parseDouble(job.getCIAlpha()) : 0.05);
+      yamlInfo.put("random_seed", job.getAggBootRandomSeed().equals("NA") ? null : job.getAggBootRandomSeed());
+      yamlInfo.put("line_type", job.getLineType());
+      yamlInfo.put("indy_var", job.getIndyVar());
+      yamlInfo.put("event_equal", job.getEventEqual() ? "True" : "False");
+      String[] listIndyValFmt = job.getIndyVal();
+      if (job.getIndyVar().matches(".*_hour")) {
+        for (int i = 0; i < listIndyValFmt.length; i++) {
+          listIndyValFmt[i] = String.valueOf(Integer.parseInt(listIndyValFmt[i]));
+        }
+      }
+      yamlInfo.put("indy_vals", listIndyValFmt);
+      yamlInfo.put("series_val", job.getSeries1Val().getYamlDeclSeries());
+      List<String> listAggStats1 = new ArrayList<>();
+      MVOrderedMap mapDep;
+      if (job.getDepGroups().length > 0) {
+        mapDep = job.getDepGroups()[0];
+      } else {
+        mapDep = new MVOrderedMap();
+      }
+      String strFcstVar = "";
+      for (int intY = 1; intY <= 2; intY++) {
+        MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
+        if (mapDepY != null) {
+          MVOrderedMap mapStat = new MVOrderedMap();
+
+          String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
+          for (String[] aListFcstVarStat : listFcstVarStat) {
+            String strFcstVarCur = aListFcstVarStat[0];
+            if (strFcstVar.isEmpty()) {
+              strFcstVar = strFcstVarCur;
+            } else if (!strFcstVar.equals(strFcstVarCur)) {
+              //check if this is a mode/mtd/agg/sum stat job
+              if (job.isModeJob() || job.isMtdJob() || isAggStat || job.getEventEqual()) {
+                throw new ValidationException("fcst_var must remain constant for MODE, MTD, Aggregation "
+                        + "statistics, Event Equalizer");
+              }
+            }
+            mapStat.put(aListFcstVarStat[1], aListFcstVarStat[0]);
+          }
+          if (1 == intY) {
+            listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
+          }
+        }
+      }
+
+      yamlInfo.put("list_stat", MVUtil.printYamlCol(listAggStats1.toArray(new String[0])));
+      yamlInfo.put("fcst_var_val", mapDep.get("dep1"));
+      MVOrderedMap mapAggStatStatic = new MVOrderedMap();
+      mapAggStatStatic.put("fcst_var", strFcstVar);
+      yamlInfo.put("list_static_val", mapAggStatStatic);
+      yamlInfo.put("fixed_vars_vals_input", job.getPlotFixValEq());
+      String diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries1(), MVUtil.addTmplValDep(job),
+              job.getTmplMaps(), mvBatch.getPrintStream());
+
+      yamlInfo.put("derived_series", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
 
 
       RscriptStatManager rscriptStatManager = null;
@@ -216,11 +267,14 @@ public class SeriesJobManager extends JobManager {
 
       //run summary or agg stats Rscripts - if needed
       if (rscriptStatManager != null) {
-        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
-        rscriptStatManager.runRscript(job, info);
+        //rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
+        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
+        //rscriptStatManager.runRscript(job, info);
+        rscriptStatManager.runPythonScript(job, yamlInfo);
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
         info.put("event_equal", "FALSE");
+        yamlInfo.put("event_equal", "False");
         listQuery.clear();
       }
 
@@ -253,6 +307,7 @@ public class SeriesJobManager extends JobManager {
 
       rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
       info.put("data_file", dataFileName);
+      yamlInfo.put("data_file", dataFileName);
 
       rscriptStatManager.runRscript(job, info);
 
@@ -268,8 +323,8 @@ public class SeriesJobManager extends JobManager {
 
       for (String[] aListFcstVarStat : listFcstVarStat) {
         String[] arr = aListFcstVarStat[1].split("_");
-        String stat = arr[arr.length-2];
-        String type = arr[arr.length-1];
+        String stat = arr[arr.length - 2];
+        String type = arr[arr.length - 1];
         //validate for all attr stats except for those
         if (!stat.equals("CNT")
                 && !stat.equals("CNTSUM")

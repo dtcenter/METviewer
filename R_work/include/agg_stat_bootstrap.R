@@ -1,14 +1,4 @@
 library(boot);
-library(reticulate)
-
-#use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
-#use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
-#source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
-
-use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
-source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize_against_values.py')
-sys = import('sys')
-py_config()
 
 # parse the command line arguments
 strInputInfoFile = "/d1/pgoldenb/var/gfs_nam/R_work/data/plot_fss_ci_NAM_15km.agg_stat.info";
@@ -27,6 +17,16 @@ dfStatsRec = read.delim(strInputDataFile);
 dfPlot1 = data.frame();
 
 if(boolEventEqual){
+  library(reticulate)
+
+  #use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
+  #use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
+  #source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
+
+  use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
+  source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize_against_values.py')
+  sys = import('sys')
+
   eeStats = read.delim(strInputEeDataFile);
   dfPlot1 = data.frame();
 

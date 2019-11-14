@@ -3,18 +3,7 @@ setwd("#<r_work>#");
 source("include/Compute_STDerr.R");
 source("include/util_plot.R");
 
-library(reticulate)
 
-#use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
-#use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
-#source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
-
-use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
-source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
-
-py_config()
-
-sys = import('sys')
 
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
@@ -76,7 +65,16 @@ if ( nrow(sampleData) > 0){
 
   # run event equalizer, if requested
   if( FALSE != boolEventEqual  ){
-    #run event equalizer on Y1
+    library(reticulate)
+
+    #use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
+    #use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
+    #source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
+
+    use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
+    source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
+
+    sys = import('sys')
     dfPlot1 = data.frame();
     #list all fixed variables
     listFixVars=c();

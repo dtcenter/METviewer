@@ -42,7 +42,25 @@ public class MVBatch {
   private int numPlotsRun = 0;
   private AppDatabaseManager databaseManager;
   private String dbType;
+  private String metCalcpyHome;
+  private String pythonEnv;
 
+
+  public String getMetCalcpyHome() {
+    return metCalcpyHome;
+  }
+
+  public void setMetCalcpyHome(String metCalcpyHome) {
+    this.metCalcpyHome = metCalcpyHome;
+  }
+
+  public String getPythonEnv() {
+    return pythonEnv;
+  }
+
+  public void setPythonEnv(String pythonEnv) {
+    this.pythonEnv = pythonEnv;
+  }
 
   public MVBatch(
           PrintStream log, PrintStream printStreamSql, PrintStream printStreamEr,
@@ -217,13 +235,14 @@ public class MVBatch {
 
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
-    MVBatch bat = new MVBatch();
-    bat.print("----  MVBatch  ----\n");
+    MVBatch mvBatch = new MVBatch();
+
+    mvBatch.print("----  MVBatch  ----\n");
     try {
       MVPlotJob[] jobs;
       // if no input file is present, bail
       if (1 > argv.length) {
-        bat.print(getUsage() + "\n----  MVBatch Done  ----");
+        mvBatch.print(getUsage() + "\n----  MVBatch Done  ----");
         return;
       }
       //  parse the command line options
@@ -233,18 +252,21 @@ public class MVBatch {
         if (argv[intArg].equals("-list")) {
           boolList = true;
         } else if (argv[intArg].equals("-printSql")) {
-          bat.setVerbose(true);
+          mvBatch.setVerbose(true);
         } else {
-          bat.print(
+          mvBatch.print(
                   "  **  ERROR: unrecognized option '"
                           + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
           return;
         }
       }
 
+      mvBatch.setPythonEnv(System.getProperty("python.env"));
+      mvBatch.setMetCalcpyHome(System.getProperty("metcalcpy.home"));
+
       //  parse the input file
       String xmlInput = argv[intArg++];
-      bat.print("input file: " + xmlInput + "\n");
+      mvBatch.print("input file: " + xmlInput + "\n");
 
       MVPlotJobParser parser = new MVPlotJobParser(xmlInput);
       MVOrderedMap mapJobs = parser.getJobsMap();
@@ -258,15 +280,15 @@ public class MVBatch {
       if (!listJobNamesInput.isEmpty()) {
         listJobNames = MVUtil.toArray(listJobNamesInput);
       }
-      bat.print((boolList ? "" : "processing ") + listJobNames.length + " jobs:");
+      mvBatch.print((boolList ? "" : "processing ") + listJobNames.length + " jobs:");
       for (String listJobName : listJobNames) {
-        bat.print("  " + listJobName);
+        mvBatch.print("  " + listJobName);
       }
 
 
       //  if only a list of plot jobs is requested, return
       if (boolList) {
-        bat.print("\n----  MVBatch Done  ----");
+        mvBatch.print("\n----  MVBatch Done  ----");
         return;
       }
 
@@ -277,28 +299,28 @@ public class MVBatch {
         ArrayList listJobs = new ArrayList();
         for (String listJobName : listJobNames) {
           if (!mapJobs.containsKey(listJobName)) {
-            bat.printStream.println("  **  WARNING: unrecognized job \"" + listJobName + "\"");
+            mvBatch.printStream.println("  **  WARNING: unrecognized job \"" + listJobName + "\"");
             continue;
           }
           listJobs.add(mapJobs.get(listJobName));
         }
         jobs = (MVPlotJob[]) listJobs.toArray(new MVPlotJob[listJobs.size()]);
       }
-      bat.setDatabaseManager((AppDatabaseManager) DatabaseManager.getAppManager(parser.dbManagementSystem, parser.dbHost, parser.dbUser, parser.dbPass,
+      mvBatch.setDatabaseManager((AppDatabaseManager) DatabaseManager.getAppManager(parser.dbManagementSystem, parser.dbHost, parser.dbUser, parser.dbPass,
               jobs[0].getCurrentDBName().get(0)));
-      bat.setRtmplFolder(parser.getRtmplFolder()
+      mvBatch.setRtmplFolder(parser.getRtmplFolder()
               + (parser.getRtmplFolder()
               .endsWith(File.separator) ? "" : File.separator));
-      bat.setRworkFolder(parser.getRworkFolder()
+      mvBatch.setRworkFolder(parser.getRworkFolder()
               + (parser.getRworkFolder()
               .endsWith(File.separator) ? "" : File.separator));
-      bat.setPlotsFolder(parser.getPlotsFolder()
+      mvBatch.setPlotsFolder(parser.getPlotsFolder()
               + (parser.getPlotsFolder()
               .endsWith(File.separator) ? "" : File.separator));
-      bat.setDataFolder(parser.getDataFolder());
+      mvBatch.setDataFolder(parser.getDataFolder());
 
 
-      bat.setScriptsFolder(parser.getScriptsFolder()
+      mvBatch.setScriptsFolder(parser.getScriptsFolder()
               + (parser.getScriptsFolder().endsWith(File.separator) ? "" :
               File.separator));
 
@@ -318,66 +340,66 @@ public class MVBatch {
           }
         }
 
-        bat.setNumPlots(bat.getNumPlots() + intNumJobPlots);
+        mvBatch.setNumPlots(mvBatch.getNumPlots() + intNumJobPlots);
       }
       StopWatch jobsStopWatch = new StopWatch();
-      bat.print("Running " + bat.numPlots + " plots");
+      mvBatch.print("Running " + mvBatch.numPlots + " plots");
 
 
       for (int intJob = 0; intJob < jobs.length; intJob++) {
         jobsStopWatch.start();
         if (0 < intJob) {
-          bat.print(
+          mvBatch.print(
                   "\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
         }
         JobManager jobManager;
         switch (jobs[intJob].getPlotTmpl()) {
           case "rhist.R_tmpl":
-            jobManager = new RhistJobManager(bat);
+            jobManager = new RhistJobManager(mvBatch);
             break;
           case "phist.R_tmpl":
-            jobManager = new RhistJobManager(bat);
+            jobManager = new RhistJobManager(mvBatch);
             break;
           case "relp.R_tmpl":
-            jobManager = new RelpJobManager(bat);
+            jobManager = new RelpJobManager(mvBatch);
             break;
           case "roc.R_tmpl":
-            jobManager = new RocJobManager(bat);
+            jobManager = new RocJobManager(mvBatch);
             break;
           case "rely.R_tmpl":
-            jobManager = new RelyJobManager(bat);
+            jobManager = new RelyJobManager(mvBatch);
             break;
           case "eclv.R_tmpl":
-            jobManager = new EclvJobManager(bat);
+            jobManager = new EclvJobManager(mvBatch);
             break;
           case "taylor_plot.R_tmpl":
-            jobManager = new TaylorJobManager(bat);
+            jobManager = new TaylorJobManager(mvBatch);
             break;
           case "performance.R_tmpl":
-            jobManager = new PerformanceJobManager(bat);
+            jobManager = new PerformanceJobManager(mvBatch);
             break;
           case "ens_ss.R_tmpl":
-            jobManager = new EnsSsJobManager(bat);
+            jobManager = new EnsSsJobManager(mvBatch);
             break;
           case "contour_plot.R_tmpl":
-            jobManager = new ContourJobManager(bat);
+            jobManager = new ContourJobManager(mvBatch);
             break;
           default:
-            jobManager = new SeriesJobManager(bat);
+            jobManager = new SeriesJobManager(mvBatch);
             break;
         }
         jobManager.runJob(jobs[intJob]);
 
-        bat.numPlotsRun++;
+        mvBatch.numPlotsRun++;
         jobsStopWatch.stop();
-        bat.print("\n" + "Job " + (intJob + 1) + " execution time " + jobsStopWatch.getFormattedDuration());
+        mvBatch.print("\n" + "Job " + (intJob + 1) + " execution time " + jobsStopWatch.getFormattedDuration());
 
       }
       stopWatch.stop();
-      long plotAvg = (jobsStopWatch.getTotalDuration() / 1000000) / (long) bat.numPlots;
+      long plotAvg = (jobsStopWatch.getTotalDuration() / 1000000) / (long) mvBatch.numPlots;
 
-      bat.print("\n"
-              + MVUtil.padBegin("Plots run: ") + bat.getNumPlotsRun() + " of " + bat.getNumPlots()
+      mvBatch.print("\n"
+              + MVUtil.padBegin("Plots run: ") + mvBatch.getNumPlotsRun() + " of " + mvBatch.getNumPlots()
               + "\n"
               + MVUtil.padBegin("Total time: ") + jobsStopWatch.getFormattedTotalDuration() + "\n"
               + MVUtil.padBegin("Avg plot time: ") + MVUtil.formatTimeSpan(plotAvg) + "\n");
@@ -385,13 +407,13 @@ public class MVBatch {
 
     } catch (Exception e) {
       stopWatch.stop();
-      bat.print("  **  ERROR:  " + e.getMessage());
+      mvBatch.print("  **  ERROR:  " + e.getMessage());
     }
-    bat.closeDataSource();
+    mvBatch.closeDataSource();
 
-    bat.print("----  MVBatch Done  ----");
+    mvBatch.print("----  MVBatch Done  ----");
 
-    bat.print("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
+    mvBatch.print("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
 
   }
 

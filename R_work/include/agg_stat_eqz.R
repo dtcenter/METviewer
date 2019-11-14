@@ -1,10 +1,5 @@
 library(boot);
-library(reticulate)
 
-use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
-source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize_against_values.py')
-sys = import('sys')
-py_config()
 #event equalisation against previously calculated cases for boolModeRatioPlot
 
 # parse the command line arguments
@@ -41,6 +36,11 @@ if ( nrow(sampleData) > 0){
   dfStatsRec = read.delim(strInputDataFile,colClasses = classes);
 
   if(boolEventEqual){
+    library(reticulate)
+
+    use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
+    source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize_against_values.py')
+    sys = import('sys')
     eeStats = read.delim(strInputEeDataFile);
     dfPlot1 = data.frame();
 

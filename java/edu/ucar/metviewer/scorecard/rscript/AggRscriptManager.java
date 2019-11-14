@@ -91,7 +91,7 @@ public class AggRscriptManager extends RscriptManager {
     initModels();
     if (models != null) {
 
-      Map<String, String> tableAggStatInfo = new HashMap<>(tableAggStatInfoCommon);
+      Map<String, Object> tableAggStatInfo = new HashMap<>(tableAggStatInfoCommon);
       init(mapRow);
       initAggBool(tableAggStatInfo, Util.getAggTypeForStat(stat));
 
@@ -112,7 +112,7 @@ public class AggRscriptManager extends RscriptManager {
       tableAggStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
 
       //check id output file exists and its length not 0
-      File output = new File(tableAggStatInfo.get("agg_stat_output"));
+      File output = new File((String) tableAggStatInfo.get("agg_stat_output"));
       boolean isAppend = false;
       if (output.exists() && output.length() > 0) {
         isAppend = true;
@@ -161,7 +161,7 @@ public class AggRscriptManager extends RscriptManager {
     }
   }
 
-  private void initAggBool(Map<String, String> tableAggStatInfo, String stat) {
+  private void initAggBool(Map<String, Object> tableAggStatInfo, String stat) {
     if (stat.equals(MVUtil.CTC)) {
       tableAggStatInfo.put("agg_ctc", String.valueOf(Boolean.TRUE).toUpperCase());
     } else {

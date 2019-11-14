@@ -6,28 +6,24 @@
 
 package edu.ucar.metviewer.rscriptManager;
 
+import edu.ucar.metviewer.*;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.io.IoBuilder;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
-import edu.ucar.metviewer.MVBatch;
-import edu.ucar.metviewer.MVOrderedMap;
-import edu.ucar.metviewer.MVPlotJob;
-import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.MvResponse;
-import edu.ucar.metviewer.StopWatch;
-import edu.ucar.metviewer.StopWatchException;
-import edu.ucar.metviewer.ValidationException;
-import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.io.IoBuilder;
+import static edu.ucar.metviewer.MVUtil.createYmlFile;
 
 /**
  * @author : tatiana $
  * @version : 1.0 : 22/12/17 10:15 $
  */
 public class RscriptAggStatManager extends RscriptStatManager {
+  private static final String PYTHON_SCRIPT = "/metcalcpy/agg_stat.py";
 
   private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
           .setLevel(org.apache
@@ -43,7 +39,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
   @Override
   public void prepareDataFileAndRscript(
           MVPlotJob job, MVOrderedMap mvMap,
-          Map<String, String> info,
+          Map<String, Object> info,
           List<String> listQuery) throws ValidationException, IOException, StopWatchException {
 
 
@@ -157,7 +153,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
   }
 
   @Override
-  public boolean runRscript(MVPlotJob job, Map<String, String> info) {
+  public boolean runRscript(MVPlotJob job, Map<String, Object> info) {
     String aggInfo;
     String aggOutput;
     String tmplFileName;
@@ -219,5 +215,72 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
     return mvResponse.isSuccess();
   }
+
+  @Override
+  public boolean runPythonScript(MVPlotJob job, Map<String, Object> info) {
+    String aggInfo;
+    String aggOutput;
+    if (job.isModeJob() || job.isMtdJob()) {
+      if (job.isModeRatioJob() || job.isMtdRatioJob()) {
+        aggInfo = dataFile.replaceFirst("\\.data.agg_stat_bootstrap$",
+                ".agg_stat_bootstrap.info");
+        aggOutput = dataFile.replaceFirst("\\.agg_stat_bootstrap$", "");
+        info.put("agg_stat_input_ee",
+                dataFile.replaceFirst("\\.agg_stat_bootstrap$", ".ee"));
+      } else {
+        aggInfo = dataFile.replaceFirst("\\.data.agg_stat_eqz$", ".agg_stat_eqz.info");
+        aggOutput = dataFile.replaceFirst("\\.agg_stat_eqz$", "");
+        info
+                .put("agg_stat_input_ee", dataFile.replaceFirst("\\.agg_stat_eqz$", ".ee"));
+      }
+
+    } else {
+      aggInfo = dataFile.replaceFirst("\\.data.agg_stat$", ".agg_stat.info");
+      aggOutput = dataFile.replaceFirst("\\.agg_stat$", "");
+    }
+    File fileAggOutput = new File(aggOutput);
+
+    info.put("agg_stat_input", dataFile);
+    info.put("agg_stat_output", aggOutput);
+    MvResponse mvResponse = new MvResponse();
+
+    try {
+      createYmlFile(aggInfo, info);
+
+      if (!fileAggOutput.exists() || !job.getCacheAggStat()) {
+        fileAggOutput.getParentFile().mkdirs();
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+
+        mvBatch.getPrintStream().println("\nRunning "
+                + mvBatch.getPythonEnv()
+                + " "
+                + mvBatch.getMetCalcpyHome() + PYTHON_SCRIPT
+                + " "
+                + aggInfo);
+
+        mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
+                mvBatch.getMetCalcpyHome() + PYTHON_SCRIPT,
+                new String[]{aggInfo},
+                new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
+        stopWatch.stop();
+        if (mvResponse.getInfoMessage() != null) {
+          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+        }
+        if (mvResponse.getErrorMessage() != null) {
+          mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
+        }
+        mvBatch.getPrintStream().println("Python script execution time " + stopWatch.getFormattedTotalDuration());
+      }
+    } catch (IOException | StopWatchException e) {
+      errorStream.print(e.getMessage());
+    }
+
+
+    return mvResponse.isSuccess();
+  }
+
 
 }

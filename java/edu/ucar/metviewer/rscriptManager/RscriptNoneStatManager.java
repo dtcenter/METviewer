@@ -42,7 +42,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
   @Override
   public void prepareDataFileAndRscript(
           MVPlotJob job, MVOrderedMap mvMap,
-          Map<String, String> info,
+          Map<String, Object> info,
           List<String> listQuery) throws ValidationException {
 
     //  use the map of all plot values to populate the template strings
@@ -88,7 +88,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
   }
 
   @Override
-  public boolean runRscript(MVPlotJob job, Map<String, String> info) {
+  public boolean runRscript(MVPlotJob job, Map<String, Object> info) {
     MvResponse mvResponse;
     try {
       info.put("plot_file", plotFile);
@@ -118,6 +118,11 @@ public class RscriptNoneStatManager extends RscriptStatManager {
     }
 
     return mvResponse.isSuccess();
+  }
+
+  @Override
+  public boolean runPythonScript(MVPlotJob job, Map<String, Object> info) {
+    return false;
   }
 
 }

@@ -43,7 +43,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
   @Override
   public void prepareDataFileAndRscript(
           MVPlotJob job, MVOrderedMap mvMap,
-          Map<String, String> info,
+          Map<String, Object> info,
           List<String> listQuery) throws ValidationException {
 
     //  run the plot SQL against the database connection
@@ -71,7 +71,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
   }
 
   @Override
-  public boolean runRscript(MVPlotJob job, Map<String, String> info) {
+  public boolean runRscript(MVPlotJob job, Map<String, Object> info) {
 
     String sumInfo = dataFile.replaceFirst("\\.data.sum_stat$", ".sum_stat.info");
     String sumOutput = dataFile.replaceFirst("\\.sum_stat$", "");
@@ -103,5 +103,10 @@ public class RscriptSumStatManager extends RscriptStatManager {
     }
 
     return mvResponse.isSuccess();
+  }
+
+  @Override
+  public boolean runPythonScript(MVPlotJob job, Map<String, Object> info) {
+    return false;
   }
 }

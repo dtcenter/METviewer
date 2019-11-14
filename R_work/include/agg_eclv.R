@@ -3,18 +3,7 @@ library(boot);
 library(gsl);
 library(stats);
 
-library(reticulate)
 
-#use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
-#use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
-#source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
-
-use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
-source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
-
-py_config()
-
-sys = import('sys')
 
 # parse the command line arguments
 strInputInfoFile = "~/plot_00124_20130923_082001.agg_stat.info";
@@ -78,6 +67,17 @@ if ( nrow(sampleData) > 0){
 
   # run event equalizer, if requested
   if( boolEventEqual  ){
+    library(reticulate)
+
+    #use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
+    #use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
+    #source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
+
+    use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
+    source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
+
+
+    sys = import('sys')
     boolMulti=FALSE;
     #run event equalizer on Y1
     #list all fixed variables

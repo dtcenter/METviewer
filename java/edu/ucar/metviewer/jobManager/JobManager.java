@@ -120,7 +120,7 @@ public abstract class JobManager {
     return intNumDep1Series + intNumDep2Series;
   }
 
-  protected Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws ValidationException {
+  protected Map<String, Object> createInfoMap(MVPlotJob job, int intNumDepSeries) throws ValidationException {
 
 
     MVOrderedMap mapDep;
@@ -205,7 +205,7 @@ public abstract class JobManager {
     MVOrderedMap mapDep1Plot = (MVOrderedMap) mapDep.get("dep1");
     MVOrderedMap mapDep2Plot = (MVOrderedMap) mapDep.get("dep2");
 
-    Map<String, String> info = new HashMap<>();
+    Map<String, Object> info = new HashMap<>();
 
     //  populate the plot settings in the R script template
     info.put("r_work", mvBatch.getRworkFolder());
