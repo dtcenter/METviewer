@@ -7165,12 +7165,141 @@ function initPage() {
         search: false,
         refresh: false
     });
+
+    var addDiffCurveDialogForm = $("#addDiffCurveDialogForm").dialog({
+        autoOpen: false,
+        height: "auto",
+        width: "auto",
+        modal: true,
+        buttons: {
+            "Create Derived Curve": function () {
+                var valid = false;
+                var yAxisValue = $('input:radio[name=yAxisDiff]:checked').val();
+                var oper = jQuery('input[name=derive_oper]:checked').val();
+                if (yAxisValue.indexOf("1") !== -1) {
+                    if ($('#series1Y1').val() && $('#series2Y1').val()) {
+                        seriesDiffY1.push($('#series1Y1').val() + "," + $('#series2Y1').val() + "," + oper);
+                        valid = true;
+                    }
+                } else {
+                    if ($('#series1Y2').val() && $('#series2Y2').val()) {
+                        seriesDiffY2.push($('#series1Y2').val() + "," + $('#series2Y2').val() + "," + oper);
+                        valid = true;
+                    }
+                }
+                addDiffCurveDialogForm.dialog("close");
+                if (valid) {
+                    updateSeries();
+                    //force Event Equalizer
+                    $("#event_equal").prop('checked', true).trigger("change");
+                }
+
+            },
+            Cancel: function () {
+                $("#addDiffCurveDialogForm").dialog("close");
+            }
+        },
+        open: function () {
+
+            $("input[name=derive_oper][value=DIFF]").prop('checked', true);
+            var allSeries = $("#listdt").jqGrid('getRowData');
+            for (var i = 0; i < allSeries.length; i++) {
+                $("#listdt").jqGrid('setCell', allSeries[i].id, 'order', i + 1);
+                $("#listdt").jqGrid('getLocalRow', allSeries[i].id).order = i + 1;
+            }
+            var selected_mode = $("#plot_data").multiselect("getChecked").val();
+            $('#series1Y2').empty();
+            $('#series1Y1').empty();
+            $('#series2Y2').empty();
+            $('#series2Y1').empty();
+
+            $("#y1AxisDiff").prop("checked", true);
+            $("#y2AxisDiff").removeAttr("checked");
+
+            $('#series1Y2').prop("disabled", true);
+            $('#series2Y2').prop("disabled", true);
+            $('#series1Y1').removeProp('disabled');
+            $('#series2Y1').removeProp('disabled');
+            $('#y2AxisDiff').removeProp("disabled");
+            $('#y1AxisDiff').removeProp("disabled");
+            series1Names = [];
+            series2Names = [];
+
+
+            for (var i = 0; i < allSeries.length; i++) {
+                var isInclude = false;
+                if (allSeries[i].title.indexOf('DIFF') != 0 && allSeries[i].title.indexOf('RATIO') != 0 && allSeries[i].title.indexOf('SS') != 0) {
+                    // curve can be included ONLY if it is MODE Ratio stat or any of Stat stats
+                    if (selected_mode == "mode") {
+                        var desc = allSeries[i].title.split(" ");
+                        if (listStatModeRatio.indexOf(desc[desc.length - 1]) > -1) {
+                            isInclude = true;
+                        }
+                    } else {
+                        isInclude = true;
+                    }
+                }
+
+
+                if (isInclude) {
+                    var yAxisText = allSeries[i].y_axis;
+
+                    if (yAxisText.indexOf("2") !== -1) {
+                        $('#series1Y2')
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
+                        $('#series1Y2')
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
+                        series2Names.push(allSeries[i].title);
+                    } else {
+                        $('#series1Y1')
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
+                        $('#series2Y1')
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
+
+                        series1Names.push(allSeries[i].title);
+                    }
+                }
+            }
+
+
+            if ($("#series1Y2 option").length > 0 && $("#series1Y1 option").length > 0) {
+                createNewDerivedSeriesName(1);
+            } else {
+                if ($("#series1Y2 option").length == 0) {
+                    $('#y2AxisDiff').attr("disabled", true);
+                    createNewDerivedSeriesName(1);
+                }
+                if ($("#series1Y1 option").length == 0) {
+                    $('#y1AxisDiff').attr("disabled", true);
+                    $("#y1AxisDiff").removeAttr("checked");
+                    $("#y2AxisDiff").prop("checked", true);
+                    $('#series1Y2').removeAttr('disabled');
+                    $('#series2Y2').removeAttr('disabled');
+                    $('#series1Y1').attr("disabled", true);
+                    $('#series2Y1').attr("disabled", true);
+                    createNewDerivedSeriesName(2);
+                }
+            }
+
+
+        },
+        close: function () {
+        }
+    });
     $("#listdt").jqGrid('navButtonAdd', '#pagerdt', {
         caption: "Add Derived Curve",
         title: "Add Derived Curve",
         buttonicon: "ui-icon-plus",
         onClickButton: function () {
-            if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Ens_ss' || currentTab == 'Perf' || currentTab === "Hist" || currentTab === "Eclv") {
+            if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Ens_ss' || currentTab === 'Perf' || currentTab === "Hist" || currentTab === "Eclv") {
                 $("#unavailableDiffCurveDialogForm").dialog("open");
             } else {
                 var allSeries = $("#listdt").jqGrid('getRowData');
@@ -7287,134 +7416,7 @@ function initPage() {
             }
         }
     });
-    var addDiffCurveDialogForm = $("#addDiffCurveDialogForm").dialog({
-        autoOpen: false,
-        height: "auto",
-        width: "auto",
-        modal: true,
-        buttons: {
-            "Create Derived Curve": function () {
-                var valid = false;
-                var yAxisValue = $('input:radio[name=yAxisDiff]:checked').val();
-                var oper = jQuery('input[name=derive_oper]:checked').val();
-                if (yAxisValue.indexOf("1") !== -1) {
-                    if ($('#series1Y1').val() && $('#series2Y1').val()) {
-                        seriesDiffY1.push($('#series1Y1').val() + "," + $('#series2Y1').val() + "," + oper);
-                        valid = true;
-                    }
-                } else {
-                    if ($('#series1Y2').val() && $('#series2Y2').val()) {
-                        seriesDiffY2.push($('#series1Y2').val() + "," + $('#series2Y2').val() + "," + oper);
-                        valid = true;
-                    }
-                }
-                addDiffCurveDialogForm.dialog("close");
-                if (valid) {
-                    updateSeries();
-                    //force Event Equalizer
-                    $("#event_equal").prop('checked', true).trigger("change");
-                }
 
-            },
-            Cancel: function () {
-                $(this).dialog("close");
-            }
-        },
-        open: function () {
-
-            $("input[name=derive_oper][value=DIFF]").prop('checked', true);
-            var allSeries = $("#listdt").jqGrid('getRowData');
-            for (var i = 0; i < allSeries.length; i++) {
-                $("#listdt").jqGrid('setCell', allSeries[i].id, 'order', i + 1);
-                $("#listdt").jqGrid('getLocalRow', allSeries[i].id).order = i + 1;
-            }
-            var selected_mode = $("#plot_data").multiselect("getChecked").val();
-            $('#series1Y2').empty();
-            $('#series1Y1').empty();
-            $('#series2Y2').empty();
-            $('#series2Y1').empty();
-
-            $("#y1AxisDiff").prop("checked", true);
-            $("#y2AxisDiff").removeAttr("checked");
-
-            $('#series1Y2').prop("disabled", true);
-            $('#series2Y2').prop("disabled", true);
-            $('#series1Y1').removeProp('disabled');
-            $('#series2Y1').removeProp('disabled');
-            $('#y2AxisDiff').removeProp("disabled");
-            $('#y1AxisDiff').removeProp("disabled");
-            series1Names = [];
-            series2Names = [];
-
-
-            for (var i = 0; i < allSeries.length; i++) {
-                var isInclude = false;
-                if (allSeries[i].title.indexOf('DIFF') != 0 && allSeries[i].title.indexOf('RATIO') != 0 && allSeries[i].title.indexOf('SS') != 0) {
-                    // curve can be included ONLY if it is MODE Ratio stat or any of Stat stats
-                    if (selected_mode == "mode") {
-                        var desc = allSeries[i].title.split(" ");
-                        if (listStatModeRatio.indexOf(desc[desc.length - 1]) > -1) {
-                            isInclude = true;
-                        }
-                    } else {
-                        isInclude = true;
-                    }
-                }
-
-
-                if (isInclude) {
-                    var yAxisText = allSeries[i].y_axis;
-
-                    if (yAxisText.indexOf("2") !== -1) {
-                        $('#series1Y2')
-                            .append($("<option></option>")
-                                .attr("value", allSeries[i].title)
-                                .text(allSeries[i].title));
-                        $('#series1Y2')
-                            .append($("<option></option>")
-                                .attr("value", allSeries[i].title)
-                                .text(allSeries[i].title));
-                        series2Names.push(allSeries[i].title);
-                    } else {
-                        $('#series1Y1')
-                            .append($("<option></option>")
-                                .attr("value", allSeries[i].title)
-                                .text(allSeries[i].title));
-                        $('#series2Y1')
-                            .append($("<option></option>")
-                                .attr("value", allSeries[i].title)
-                                .text(allSeries[i].title));
-
-                        series1Names.push(allSeries[i].title);
-                    }
-                }
-            }
-
-
-            if ($("#series1Y2 option").length > 0 && $("#series1Y1 option").length > 0) {
-                createNewDerivedSeriesName(1);
-            } else {
-                if ($("#series1Y2 option").length == 0) {
-                    $('#y2AxisDiff').attr("disabled", true);
-                    createNewDerivedSeriesName(1);
-                }
-                if ($("#series1Y1 option").length == 0) {
-                    $('#y1AxisDiff').attr("disabled", true);
-                    $("#y1AxisDiff").removeAttr("checked");
-                    $("#y2AxisDiff").prop("checked", true);
-                    $('#series1Y2').removeAttr('disabled');
-                    $('#series2Y2').removeAttr('disabled');
-                    $('#series1Y1').attr("disabled", true);
-                    $('#series2Y1').attr("disabled", true);
-                    createNewDerivedSeriesName(2);
-                }
-            }
-
-
-        },
-        close: function () {
-        }
-    });
 
     $(window).bind('resize', function () {
         $("#listdt").setGridWidth($(window).width() - 20);
