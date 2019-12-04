@@ -125,7 +125,9 @@ public class MVBatch {
   }
 
   public void closeDataSource(){
-    this.databaseManager.closeDataSource();
+    if(this.databaseManager != null) {
+      this.databaseManager.closeDataSource();
+    }
   }
 
 
