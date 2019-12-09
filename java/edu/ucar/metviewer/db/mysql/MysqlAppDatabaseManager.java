@@ -508,7 +508,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         logger.error(ERROR_MARKER, e.getMessage());
       }
     }
-    Collections.sort(listRes);
+    //Collections.sort(listRes);
     return listRes;
   }
 
