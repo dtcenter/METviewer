@@ -23,4 +23,5 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
-$JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.MVBatch $@
+$JAVA -classpath $CLASSPATH -Xmx2048M -Dpython.env=/d3/projects/METViewer/METviewer_py3.6.3/bin/python -Dmetcalcpy.home=/d3/projects/METViewer/METcalcpy edu.ucar.metviewer.MVBatch $@
+
