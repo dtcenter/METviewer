@@ -626,7 +626,7 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_OVAR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_SPEED_ERR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_RMSVE", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_SPEED_DIFF", new String[]{VL1L2});
+    statsVl1l2.put("VL1L2_MSVE", new String[]{VL1L2});
   }
 
   public static final String COUNT = "COUNT(*)";
