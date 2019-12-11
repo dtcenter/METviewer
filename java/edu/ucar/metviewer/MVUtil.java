@@ -1029,31 +1029,47 @@ public class MVUtil {
    * @return Sorted threshold list, by value
    */
   public static List<String> sortThresh(List<String> thresh) {
+    thresh.sort(
+            new Comparator<CharSequence>() {
+              private final Pattern PATTERN_WITH_FLOAT = Pattern.compile("(\\D*)([-+]?\\d*\\.?\\d+)");
+              public int compare(CharSequence s1, CharSequence s2) {
+                Matcher m1 = PATTERN_WITH_FLOAT.matcher(s1);
+                Matcher m2 = PATTERN_WITH_FLOAT.matcher(s2);
 
-    thresh.sort(new Comparator<String>() {
-      public int compare(String o1, String o2) {
+                // The only way find() could fail is at the end of a string
+                while (m1.find() && m2.find()) {
 
-        String o1StringPart = o1.replaceAll("\\d", "");
-        String o2StringPart = o2.replaceAll("\\d", "");
 
-        if (o1StringPart.equalsIgnoreCase(o2StringPart)) {
-          return (int) (extractFloat(o1) - extractFloat(o2));
-        }
-        return o1.compareTo(o2);
-      }
+                  // matcher.group(2) fetches any digits captured by the
+                  // second parentheses in PATTERN.
+                  if (m1.group(2).isEmpty()) {
+                    return m2.group(2).isEmpty() ? 0 : -1;
+                  } else if (m2.group(2).isEmpty()) {
+                    return +1;
+                  }
 
-      float extractFloat(String s) {
-        Pattern pattern = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
-        Matcher matcher = pattern.matcher(s);
-        String num = "";
-        if (matcher.find()) {
-          num = matcher.group(0);
-        }
-        // return 0 if no digits found
-        return num.isEmpty() ? 0 : Float.parseFloat(num);
-      }
-    });
-    //return sortVals(thresh, MVUtil.thresh);
+                  Float n1 = new Float(m1.group(2));
+                  Float n2 = new Float(m2.group(2));
+                  int numberCompare = n1.compareTo(n2);
+                  if (0 != numberCompare) {
+                    return numberCompare;
+                  }
+                  // matcher.group(1) fetches any non-digits captured by the
+                  // first parentheses in PATTERN.
+                  int nonDigitCompare = m1.group(1).compareTo(m2.group(1));
+                  if (0 != nonDigitCompare) {
+                    return nonDigitCompare;
+                  }
+                }
+
+                // Handle if one string is a prefix of the other.
+                // Nothing comes before something.
+                return m1.hitEnd() && m2.hitEnd() ? 0 :
+                        m1.hitEnd() ? -1 : +1;
+              }
+            }
+    );
+
     return thresh;
   }
 
