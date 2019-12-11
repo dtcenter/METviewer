@@ -267,10 +267,15 @@ public class SeriesJobManager extends JobManager {
 
       //run summary or agg stats Rscripts - if needed
       if (rscriptStatManager != null) {
-        //rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
-        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
-        //rscriptStatManager.runRscript(job, info);
-        rscriptStatManager.runPythonScript(job, yamlInfo);
+        if (job.isModeJob() || job.isMtdJob()) {
+          rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
+          rscriptStatManager.runRscript(job, info);
+        }else {
+          rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
+          rscriptStatManager.runPythonScript(job, yamlInfo);
+        }
+
+        //rscriptStatManager.runPythonScript(job, yamlInfo);
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
         info.put("event_equal", "FALSE");
