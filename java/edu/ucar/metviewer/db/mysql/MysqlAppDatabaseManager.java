@@ -1352,7 +1352,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             statField = strStat.replace("ENS_", "").toLowerCase();
           } else if (MVUtil.statsNbrcts.containsKey(strStat)) {
             tableStats = MVUtil.statsNbrcts;
-            MVUtil.isAggTypeValid(MVUtil.statsNbrcts, strStat, aggType);
             statTable = "line_data_nbrcts ld\n";
             statField = strStat.replace("NBR_", "").toLowerCase();
           } else if (MVUtil.statsPstd.containsKey(strStat)) {
