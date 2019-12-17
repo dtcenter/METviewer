@@ -55,7 +55,7 @@ if ( nrow(sampleData) > 0){
     listIndyVal = unique(sort(dfStatsRec$thresh_i));
   }
 
-  lineTypes = list(boolCtc=boolAggCtc, boolSl1l2=boolAggSl1l2, boolGrad=boolAggGrad, boolVl1l2=boolAggVl1l2,
+  lineTypes = list(boolCtc=boolAggCtc, boolNbrCtc=boolAggNbrCtc, boolSl1l2=boolAggSl1l2, boolGrad=boolAggGrad, boolVl1l2=boolAggVl1l2,
   boolVal1l2=boolAggVal1l2, boolSal1l2=boolAggSal1l2, boolSsvar=boolAggSsvar,boolEcnt=boolAggEcnt,
   boolNbrCnt=boolAggNbrCnt, boolPct=boolAggPct)
 

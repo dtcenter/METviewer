@@ -74,6 +74,7 @@ public class MVUtil {
    */
   public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
   public static final String CTC = "ctc"; //Contingency Table Statistics
+  public static final String NBRCTC = "nbrctc"; //Contingency Table Statistics
   public static final String SL1L2 = "sl1l2"; //Scalar partial sums
   public static final String GRAD = "grad"; //Gradient partial sums
   public static final String SAL1L2 = "sal1l2"; //  Scalar anomaly  partial sums
@@ -575,19 +576,19 @@ public class MVUtil {
   }
 
   static {
-    statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_FMEAN", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_ACC", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_FBIAS", new String[]{"bc"});
-    statsNbrcts.put("NBR_PODY", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_PODN", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_POFD", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_FAR", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_CSI", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_GSS", new String[]{"bc"});
-    statsNbrcts.put("NBR_HK", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_HSS", new String[]{"bc"});
-    statsNbrcts.put("NBR_ODDS", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_FMEAN", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_ACC", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_FBIAS", new String[]{"bc", NBRCTC});
+    statsNbrcts.put("NBR_PODY", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_PODN", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_POFD", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_FAR", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_CSI", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_GSS", new String[]{"bc", NBRCTC});
+    statsNbrcts.put("NBR_HK", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_HSS", new String[]{"bc", NBRCTC});
+    statsNbrcts.put("NBR_ODDS", new String[]{"nc", "bc", NBRCTC});
   }
 
   static {

@@ -622,3 +622,47 @@ calcECNT_SPREAD_PLUS_OERR = function(d){
   return ( round(d$spread_plus_oerr, digits=5) )
 }
 
+# NBR_CTC stat calculations
+calcNBR_BASER    = function(d){
+  return( calcBASER(d) );
+}
+calcNBR_ACC      = function(d){
+  return( calcACC(d) );
+}
+calcNBR_FBIAS    = function(d){
+  return( calcFBIAS(d) );
+}
+calcNBR_FMEAN    = function(d){
+  return( calcFMEAN(d) );
+}
+calcNBR_PODY    = function(d){
+  return( calcPODY(d) );
+}
+calcNBR_POFD    = function(d){
+  return( calcPOFD(d) );
+}
+calcNBR_PODN    = function(d){
+  return( calcPODN(d) );
+}
+calcNBR_FAR      = function(d){
+  return( calcFAR(d) );
+}
+calcNBR_CSI      = function(d){
+  return( calcCSI(d) );
+}
+calcNBR_GSS = function(d){
+  return( calcGSS(d) );
+}
+calcNBR_HK = function(d){
+  return( calcHK(d) );
+}
+calcNBR_HSS = function(d){
+  return( calcHSS(d) );
+}
+calcNBR_ODDS = function(d){
+  return( calcODDS(d) );
+}
+
+
+
+

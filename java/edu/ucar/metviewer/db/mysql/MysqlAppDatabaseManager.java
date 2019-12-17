@@ -1293,6 +1293,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             aggType = MVUtil.CTC;
           } else if (job.getCalcSl1l2() || job.getAggSl1l2()) {
             aggType = MVUtil.SL1L2;
+          } else if ( job.getAggNbrCtc()) {
+            aggType = MVUtil.NBRCTC;
           } else if (job.getCalcGrad() || job.getAggGrad()) {
             aggType = MVUtil.GRAD;
           } else if (job.getCalcSal1l2() || job.getAggSal1l2()) {
@@ -1352,7 +1354,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             statField = strStat.replace("ENS_", "").toLowerCase();
           } else if (MVUtil.statsNbrcts.containsKey(strStat)) {
             tableStats = MVUtil.statsNbrcts;
-            statTable = "line_data_nbrcts ld\n";
+            if (aggType != null) {
+              MVUtil.isAggTypeValid(MVUtil.statsNbrcts, strStat, aggType);
+              statTable = "line_data_nbrctc" + " ld\n";
+            } else {
+              statTable = "line_data_nbrcts" + " ld\n";
+            }
             statField = strStat.replace("NBR_", "").toLowerCase();
           } else if (MVUtil.statsPstd.containsKey(strStat)) {
             tableStats = MVUtil.statsPstd;
@@ -1454,7 +1461,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
           //  add the appropriate stat table members, depending
           // on the use of aggregation and stat calculation
-          if (job.getAggCtc()) {
+          if (job.getAggCtc() || job.getAggNbrCtc()) {
             selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  "
                     + "ld.fn_oy,\n  ld.fn_on";
           } else if (job.getAggSl1l2()) {
