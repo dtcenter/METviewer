@@ -1270,7 +1270,11 @@ public final class MVPlotJobParser {
               MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
               listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
             }
-            mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+            if(job.getAggNbrCtc()){
+              mapFarPody.put(listFcstVar[0], new String[]{"NBR_FAR", "NBR_PODY"});
+            }else {
+              mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+            }
             mapDep.put("dep1", mapFarPody);
             mapDep.put("dep2", new MVOrderedMap());
             job.addDepGroup(mapDep);

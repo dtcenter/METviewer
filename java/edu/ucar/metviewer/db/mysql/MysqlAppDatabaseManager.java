@@ -864,7 +864,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
           listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
         }
-        mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+        if (job.getAggNbrCtc()){
+          mapFarPody.put(listFcstVar[0], new String[]{"NBR_FAR", "NBR_PODY"});
+        }else {
+          mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+        }
         for (MVOrderedMap map : listDep) {
           map.put("dep1", mapFarPody);
         }
@@ -1224,9 +1228,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int intFcstVarStat = 0; intFcstVarStat < intNumQueries; intFcstVarStat++) {
         String fcstVarClause = "";
         String strStat = "";
+        String strFcstVar = "";
         if (listFcstVarStat.length > 0) {
           //  get the current fcst_var/stat pair
-          String strFcstVar = listFcstVarStat[intFcstVarStat][0];
+          strFcstVar = listFcstVarStat[intFcstVarStat][0];
           strStat = listFcstVarStat[intFcstVarStat][1];
 
           //  build the fcst_var where clause criteria
@@ -1243,16 +1248,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         } else {
           if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
             strStat = "ECLV";
+            if (mapPlotFixVal.get("fcst_var") instanceof MVOrderedMap ) {
+              MVOrderedMap m = (MVOrderedMap) mapPlotFixVal.get("fcst_var");
+              strFcstVar = ((String[]) m.get(m.getKeyList()[0]))[0];
+            }
           }
         }
         if (!selectList.contains("fcst_var")) {
-          selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
+          selectList += ",\n'" + strFcstVar + "' fcst_var";
         } else if (intFcstVarStat > 0 && selectList.contains(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var")) {
           selectList = selectList.replace(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var"
-                  , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
+                  , strFcstVar + "' fcst_var");
         } else {
           selectList = selectList.replace("fcst_var"
-                  , "'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
+                  , "'" + strFcstVar + "' fcst_var");
         }
 
         //  determine the table containing the current stat

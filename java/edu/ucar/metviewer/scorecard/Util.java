@@ -6,14 +6,14 @@
 
 package edu.ucar.metviewer.scorecard;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author : tatiana $
@@ -23,7 +23,8 @@ public class Util {
 
   private static final Logger logger = LogManager.getLogger("Util");
   private static final String[] aggTypes = new String[]{MVUtil.CTC, MVUtil.SL1L2, MVUtil.SAL1L2,
-          MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT, MVUtil.GRAD, MVUtil.NBR_CNT, MVUtil.ECNT};
+          MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT, MVUtil.GRAD, MVUtil.NBR_CNT, MVUtil.ECNT,
+          MVUtil.NBRCTC};
 
   private Util() {
 
@@ -48,6 +49,8 @@ public class Util {
 
     if (MVUtil.statsCnt.containsKey(stat)) {
       orderedMap = MVUtil.statsCnt;
+    } else if (MVUtil.statsNbrcts.containsKey(stat)) {
+      orderedMap = MVUtil.statsNbrcts;
     } else if (MVUtil.statsSsvar.containsKey(stat)) {
       orderedMap = MVUtil.statsSsvar;
     } else if (MVUtil.statsCts.containsKey(stat)) {

@@ -158,8 +158,13 @@ if(length(listSeries1Val) > 0){
 
      for(indyValInd in 1:length(listIndy)){
        indyVal = listIndy[indyValInd];
-       far = dfPerm[dfPerm[["stat_name"]] == 'FAR' & dfPerm[[strIndyVar]] == indyVal,];
-       pody = dfPerm[dfPerm[["stat_name"]] == 'PODY' & dfPerm[[strIndyVar]] == indyVal,];
+       if ('NBR_FAR' %in% listDep1Plot[[names(listDep1Plot)[1]]]){
+        far = dfPerm[dfPerm[["stat_name"]] == 'NBR_FAR' & dfPerm[[strIndyVar]] == indyVal,];
+        pody = dfPerm[dfPerm[["stat_name"]] == 'NBR_PODY' & dfPerm[[strIndyVar]] == indyVal,];
+       }else{
+        far = dfPerm[dfPerm[["stat_name"]] == 'FAR' & dfPerm[[strIndyVar]] == indyVal,];
+        pody = dfPerm[dfPerm[["stat_name"]] == 'PODY' & dfPerm[[strIndyVar]] == indyVal,];
+       }
 
        #if aggregation statistics were calculated use bsu and bcl
            if('stat_ncl' %in% names(far) == TRUE){
