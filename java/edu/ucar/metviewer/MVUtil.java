@@ -172,7 +172,8 @@ public class MVUtil {
           "grad",
           "vcnt",
           "relp",
-          "ecnt"
+          "ecnt",
+          "dmap"
   };
 
   static {
@@ -416,6 +417,7 @@ public class MVUtil {
     alphaLineTypes.put("MCTS", Boolean.TRUE);
     alphaLineTypes.put("SSVAR", Boolean.TRUE);
     alphaLineTypes.put("VCNT", Boolean.TRUE);
+    alphaLineTypes.put("DMAP", Boolean.TRUE);
   }
 
 

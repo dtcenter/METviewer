@@ -2054,3 +2054,47 @@ CREATE TABLE line_data_perc
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
 ) ENGINE = MyISAM CHARACTER SET=latin1;
+
+DROP TABLE IF EXISTS line_data_dmap;
+CREATE TABLE line_data_dmap
+(
+    stat_header_id INT UNSIGNED NOT NULL,
+    data_file_id   INT UNSIGNED NOT NULL,
+    line_num       INT UNSIGNED,
+    fcst_lead      INT,
+    fcst_valid_beg DATETIME,
+    fcst_valid_end DATETIME,
+    fcst_init_beg  DATETIME,
+    obs_lead       INT UNSIGNED,
+    obs_valid_beg  DATETIME,
+    obs_valid_end  DATETIME,
+    alpha          DOUBLE,
+    total          INT UNSIGNED,
+    fy INT ,
+    oy INT ,
+    fbias DOUBLE,
+    baddeley DOUBLE,
+    hausdorff DOUBLE,
+    med_fo DOUBLE,
+    med_of DOUBLE,
+    med_min DOUBLE,
+    med_max DOUBLE,
+    med_mean DOUBLE,
+    fom_fo DOUBLE,
+    fom_of DOUBLE,
+    fom_min DOUBLE,
+    fom_max DOUBLE,
+    fom_mean DOUBLE,
+    zhu_fo DOUBLE,
+    zhu_of DOUBLE,
+    zhu_min DOUBLE,
+    zhu_max DOUBLE,
+    zhu_mean DOUBLE,
+    CONSTRAINT line_data_dmap_data_file_id_pk
+        FOREIGN KEY (data_file_id)
+            REFERENCES data_file (data_file_id),
+    CONSTRAINT line_data_dmap_stat_header_id_pk
+        FOREIGN KEY (stat_header_id)
+            REFERENCES stat_header (stat_header_id),
+    INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM CHARACTER SET=latin1;
