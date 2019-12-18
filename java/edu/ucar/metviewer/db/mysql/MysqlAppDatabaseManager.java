@@ -193,14 +193,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ecnt'  FROM "
             + "line_data_ecnt  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'perc'  FROM "
-            + "line_data_perc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) perc)\n";
+            + "line_data_perc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) perc)\n"
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'dmap'  FROM "
+            + "line_data_dmap  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) dmap)\n";
 
     for (String database : currentDBName) {
       ResultSet res = null;
       try (Connection con = getConnection(database);
            PreparedStatement stmt = con.prepareStatement(strSql, ResultSet.TYPE_FORWARD_ONLY,
                    ResultSet.CONCUR_READ_ONLY)) {
-        for (int i = 1; i <= 21; i++) {
+        for (int i = 1; i <= 22; i++) {
           stmt.setString(i, strFcstVar);
         }
         res = stmt.executeQuery();
@@ -277,6 +279,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 20:
                 listStatName.addAll(MVUtil.statsPerc.keySet());
+                break;
+              case 21:
+                listStatName.addAll(MVUtil.statsDmap.keySet());
                 break;
               default:
 
@@ -1411,6 +1416,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsMpr.containsKey(strStat)) {
             tableStats = MVUtil.statsMpr;
             statTable = "line_data_mpr ld\n";
+          } else if (MVUtil.statsDmap.containsKey(strStat)) {
+            tableStats = MVUtil.statsDmap;
+            statTable = "line_data_dmap ld\n";
+            statField = strStat.replace("DMAP_", "").toLowerCase();
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
             statTable = "line_data_orank ld\n";

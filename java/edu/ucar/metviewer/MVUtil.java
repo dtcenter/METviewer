@@ -86,6 +86,7 @@ public class MVUtil {
   public static final String ECNT = "ecnt"; // Ensemble Continuous Statistics
   public static final Map<String, String[]> statsEnscnt = new HashMap<>();
   public static final Map<String, String[]> statsMpr = new HashMap<>();
+  public static final Map<String, String[]> statsDmap = new HashMap<>();
   public static final Map<String, String[]> statsOrank = new HashMap<>();
   public static final Map<String, String[]> statsCnt = new HashMap<>();
   public static final Map<String, String[]> statsVcnt = new HashMap<>();
@@ -448,6 +449,27 @@ public class MVUtil {
     statsMpr.put("MPR_FCST", new String[]{""});
     statsMpr.put("MPR_OBS", new String[]{""});
     statsMpr.put("MPR_CLIMO", new String[]{""});
+  }
+
+  static {
+    statsDmap.put("DMAP_FBIAS", new String[]{""});
+    statsDmap.put("DMAP_BADDELEY", new String[]{""});
+    statsDmap.put("DMAP_HAUSDORFF", new String[]{""});
+    statsDmap.put("DMAP_MED_FO", new String[]{""});
+    statsDmap.put("DMAP_MED_OF", new String[]{""});
+    statsDmap.put("DMAP_MED_MIN", new String[]{""});
+    statsDmap.put("DMAP_MED_MAX", new String[]{""});
+    statsDmap.put("DMAP_MED_MEAN", new String[]{""});
+    statsDmap.put("DMAP_FOM_FO", new String[]{""});
+    statsDmap.put("DMAP_FOM_OF", new String[]{""});
+    statsDmap.put("DMAP_FOM_MIN", new String[]{""});
+    statsDmap.put("DMAP_FOM_MAX", new String[]{""});
+    statsDmap.put("DMAP_FOM_MEAN", new String[]{""});
+    statsDmap.put("DMAP_ZHU_FO", new String[]{""});
+    statsDmap.put("DMAP_ZHU_OF", new String[]{""});
+    statsDmap.put("DMAP_ZHU_MIN", new String[]{""});
+    statsDmap.put("DMAP_ZHU_MAX", new String[]{""});
+    statsDmap.put("DMAP_ZHU_MEAN", new String[]{""});
   }
 
   static {
@@ -1558,6 +1580,8 @@ public class MVUtil {
       return "line_data_ecnt";
     } else if (statsPerc.containsKey(strStat)) {
       return "line_data_perc";
+    } else if (statsDmap.containsKey(strStat)) {
+      return "line_data_dmap";
     } else {
       return "";
     }
