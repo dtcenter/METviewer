@@ -3597,7 +3597,7 @@ function sendXml() {
             plot.append($('<contour_intervals />').text($('#contour_intervals').val()));
             plot.append($('<color_palette />').text($('#color_palette').val()));
             plot.append($('<add_color_bar />').text($('#add_color_bar').is(':checked')));
-            plot.append($('<reverse_y />').text($('#reverse_y').is(':checked')));xf
+            plot.append($('<reverse_y />').text($('#reverse_y').is(':checked')));
             plot.append($('<reverse_x />').text($('#reverse_x').is(':checked')));
             plot.append($('<add_contour_overlay />').text($('#add_contour_overlay').is(':checked')));
 

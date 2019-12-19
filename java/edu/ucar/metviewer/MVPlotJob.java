@@ -144,6 +144,7 @@ public class MVPlotJob {
   protected String _strEnsSsPtsDisp = "TRUE";
 
   protected boolean _boolAggCtc = false;
+  protected boolean _boolAggNbrCtc = false;
   protected boolean _boolAggSl1l2 = false;
   protected boolean _boolAggGrad = false;
   protected boolean _boolAggSal1l2 = false;
@@ -344,6 +345,7 @@ public class MVPlotJob {
     job._strEnsSsPtsDisp = _strEnsSsPtsDisp;
 
     job._boolAggCtc = _boolAggCtc;
+    job._boolAggNbrCtc = _boolAggNbrCtc;
     job._boolAggSl1l2 = _boolAggSl1l2;
     job._boolAggGrad = _boolAggGrad;
     job._boolAggSal1l2 = _boolAggSal1l2;
@@ -1885,7 +1887,6 @@ public class MVPlotJob {
     return _strDiffSeries1;
   }
 
-
   public void setDiffSeries1(String _strDiffSeries1) {
     this._strDiffSeries1 = _strDiffSeries1;
   }
@@ -2135,7 +2136,9 @@ public class MVPlotJob {
             || this.getAggVal1l2()
             || this.getAggGrad()
             || this.getAggPct()
-            || this.getAggEcnt();
+            || this.getAggEcnt()
+            || this.getAggNbrCtc();
+
   }
 
   public boolean isCalcStat() {
@@ -2145,6 +2148,15 @@ public class MVPlotJob {
             || this.getCalcVl1l2()
             || this.getCalcVal1l2()
             || this.getCalcGrad();
+  }
+
+
+  public boolean getAggNbrCtc() {
+    return _boolAggNbrCtc;
+  }
+
+  public void setAggNbrCtc(boolean  nbrCtc) {
+     _boolAggNbrCtc = nbrCtc;
   }
   public String getLineType(){
     if(this.getAggCtc()){

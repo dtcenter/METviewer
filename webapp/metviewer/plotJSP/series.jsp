@@ -964,6 +964,7 @@
                             <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
                             <option value="pct">Probability methods output (PCT)</option>
                             <option value="nbrcnt">Nbrhood method count (NBR_CNT)</option>
+                            <option value="nbrctc">Nbrhood method CTC (NBR_CTC)</option>
                             <option value="ssvar">Spread/Skill Variance (SSVAR)</option>
                             <option value="vl1l2">Vector partial sums (VL1L2)</option>
                             <option value="val1l2">Vector anomaly partial sums (VAL1L2)</option>

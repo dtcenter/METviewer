@@ -58,6 +58,7 @@ public class MVUtil {
    */
   public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
   public static final String CTC = "ctc"; //Contingency Table Statistics
+  public static final String NBRCTC = "nbrctc"; //Contingency Table Statistics
   public static final String SL1L2 = "sl1l2"; //Scalar partial sums
   public static final String GRAD = "grad"; //Gradient partial sums
   public static final String SAL1L2 = "sal1l2"; //  Scalar anomaly  partial sums
@@ -69,6 +70,7 @@ public class MVUtil {
   public static final String ECNT = "ecnt"; // Ensemble Continuous Statistics
   public static final Map<String, String[]> statsEnscnt = new HashMap<>();
   public static final Map<String, String[]> statsMpr = new HashMap<>();
+  public static final Map<String, String[]> statsDmap = new HashMap<>();
   public static final Map<String, String[]> statsOrank = new HashMap<>();
   public static final Map<String, String[]> statsCnt = new HashMap<>();
   public static final Map<String, String[]> statsVcnt = new HashMap<>();
@@ -155,7 +157,8 @@ public class MVUtil {
           "grad",
           "vcnt",
           "relp",
-          "ecnt"
+          "ecnt",
+          "dmap"
   };
 
   static {
@@ -399,6 +402,7 @@ public class MVUtil {
     alphaLineTypes.put("MCTS", Boolean.TRUE);
     alphaLineTypes.put("SSVAR", Boolean.TRUE);
     alphaLineTypes.put("VCNT", Boolean.TRUE);
+    alphaLineTypes.put("DMAP", Boolean.TRUE);
   }
 
 
@@ -429,6 +433,27 @@ public class MVUtil {
     statsMpr.put("MPR_FCST", new String[]{""});
     statsMpr.put("MPR_OBS", new String[]{""});
     statsMpr.put("MPR_CLIMO", new String[]{""});
+  }
+
+  static {
+    statsDmap.put("DMAP_FBIAS", new String[]{""});
+    statsDmap.put("DMAP_BADDELEY", new String[]{""});
+    statsDmap.put("DMAP_HAUSDORFF", new String[]{""});
+    statsDmap.put("DMAP_MED_FO", new String[]{""});
+    statsDmap.put("DMAP_MED_OF", new String[]{""});
+    statsDmap.put("DMAP_MED_MIN", new String[]{""});
+    statsDmap.put("DMAP_MED_MAX", new String[]{""});
+    statsDmap.put("DMAP_MED_MEAN", new String[]{""});
+    statsDmap.put("DMAP_FOM_FO", new String[]{""});
+    statsDmap.put("DMAP_FOM_OF", new String[]{""});
+    statsDmap.put("DMAP_FOM_MIN", new String[]{""});
+    statsDmap.put("DMAP_FOM_MAX", new String[]{""});
+    statsDmap.put("DMAP_FOM_MEAN", new String[]{""});
+    statsDmap.put("DMAP_ZHU_FO", new String[]{""});
+    statsDmap.put("DMAP_ZHU_OF", new String[]{""});
+    statsDmap.put("DMAP_ZHU_MIN", new String[]{""});
+    statsDmap.put("DMAP_ZHU_MAX", new String[]{""});
+    statsDmap.put("DMAP_ZHU_MEAN", new String[]{""});
   }
 
   static {
@@ -559,19 +584,19 @@ public class MVUtil {
   }
 
   static {
-    statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_FMEAN", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_ACC", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_FBIAS", new String[]{"bc"});
-    statsNbrcts.put("NBR_PODY", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_PODN", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_POFD", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_FAR", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_CSI", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_GSS", new String[]{"bc"});
-    statsNbrcts.put("NBR_HK", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_HSS", new String[]{"bc"});
-    statsNbrcts.put("NBR_ODDS", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_FMEAN", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_ACC", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_FBIAS", new String[]{"bc", NBRCTC});
+    statsNbrcts.put("NBR_PODY", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_PODN", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_POFD", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_FAR", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_CSI", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_GSS", new String[]{"bc", NBRCTC});
+    statsNbrcts.put("NBR_HK", new String[]{"nc", "bc", NBRCTC});
+    statsNbrcts.put("NBR_HSS", new String[]{"bc", NBRCTC});
+    statsNbrcts.put("NBR_ODDS", new String[]{"nc", "bc", NBRCTC});
   }
 
   static {
@@ -1556,6 +1581,8 @@ public class MVUtil {
       return "line_data_ecnt";
     } else if (statsPerc.containsKey(strStat)) {
       return "line_data_perc";
+    } else if (statsDmap.containsKey(strStat)) {
+      return "line_data_dmap";
     } else {
       return "";
     }

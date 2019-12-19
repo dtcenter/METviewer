@@ -331,6 +331,7 @@ public abstract class JobManager {
     info.put("dep1_plot", null != mapDep1Plot ? mapDep1Plot.getRDecl() : "c()");
     info.put("dep2_plot", null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()");
     info.put("agg_ctc", job.getAggCtc() ? "TRUE" : "FALSE");
+    info.put("agg_nbrctc", job.getAggNbrCtc() ? "TRUE" : "FALSE");
     info.put("agg_sl1l2", job.getAggSl1l2() ? "TRUE" : "FALSE");
     info.put("agg_sal1l2", job.getAggSal1l2() ? "TRUE" : "FALSE");
     info.put("agg_grad", job.getAggGrad() ? "TRUE" : "FALSE");

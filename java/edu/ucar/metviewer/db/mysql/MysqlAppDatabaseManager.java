@@ -193,14 +193,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ecnt'  FROM "
             + "line_data_ecnt  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'perc'  FROM "
-            + "line_data_perc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) perc)\n";
+            + "line_data_perc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) perc)\n"
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'dmap'  FROM "
+            + "line_data_dmap  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) dmap)\n";
 
     for (String database : currentDBName) {
       ResultSet res = null;
       try (Connection con = getConnection(database);
            PreparedStatement stmt = con.prepareStatement(strSql, ResultSet.TYPE_FORWARD_ONLY,
                    ResultSet.CONCUR_READ_ONLY)) {
-        for (int i = 1; i <= 21; i++) {
+        for (int i = 1; i <= 22; i++) {
           stmt.setString(i, strFcstVar);
         }
         res = stmt.executeQuery();
@@ -277,6 +279,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 20:
                 listStatName.addAll(MVUtil.statsPerc.keySet());
+                break;
+              case 21:
+                listStatName.addAll(MVUtil.statsDmap.keySet());
                 break;
               default:
 
@@ -864,7 +869,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
           listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
         }
-        mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+        if (job.getAggNbrCtc()){
+          mapFarPody.put(listFcstVar[0], new String[]{"NBR_FAR", "NBR_PODY"});
+        }else {
+          mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+        }
         for (MVOrderedMap map : listDep) {
           map.put("dep1", mapFarPody);
         }
@@ -1224,9 +1233,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int intFcstVarStat = 0; intFcstVarStat < intNumQueries; intFcstVarStat++) {
         String fcstVarClause = "";
         String strStat = "";
+        String strFcstVar = "";
         if (listFcstVarStat.length > 0) {
           //  get the current fcst_var/stat pair
-          String strFcstVar = listFcstVarStat[intFcstVarStat][0];
+          strFcstVar = listFcstVarStat[intFcstVarStat][0];
           strStat = listFcstVarStat[intFcstVarStat][1];
 
           //  build the fcst_var where clause criteria
@@ -1243,16 +1253,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         } else {
           if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
             strStat = "ECLV";
+            if (mapPlotFixVal.get("fcst_var") instanceof MVOrderedMap ) {
+              MVOrderedMap m = (MVOrderedMap) mapPlotFixVal.get("fcst_var");
+              strFcstVar = ((String[]) m.get(m.getKeyList()[0]))[0];
+            }
           }
         }
         if (!selectList.contains("fcst_var")) {
-          selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
+          selectList += ",\n'" + strFcstVar + "' fcst_var";
         } else if (intFcstVarStat > 0 && selectList.contains(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var")) {
           selectList = selectList.replace(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var"
-                  , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
+                  , strFcstVar + "' fcst_var");
         } else {
           selectList = selectList.replace("fcst_var"
-                  , "'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
+                  , "'" + strFcstVar + "' fcst_var");
         }
 
         //  determine the table containing the current stat
@@ -1293,6 +1307,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             aggType = MVUtil.CTC;
           } else if (job.getCalcSl1l2() || job.getAggSl1l2()) {
             aggType = MVUtil.SL1L2;
+          } else if ( job.getAggNbrCtc()) {
+            aggType = MVUtil.NBRCTC;
           } else if (job.getCalcGrad() || job.getAggGrad()) {
             aggType = MVUtil.GRAD;
           } else if (job.getCalcSal1l2() || job.getAggSal1l2()) {
@@ -1352,7 +1368,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             statField = strStat.replace("ENS_", "").toLowerCase();
           } else if (MVUtil.statsNbrcts.containsKey(strStat)) {
             tableStats = MVUtil.statsNbrcts;
-            statTable = "line_data_nbrcts ld\n";
+            if (aggType != null) {
+              MVUtil.isAggTypeValid(MVUtil.statsNbrcts, strStat, aggType);
+              statTable = "line_data_nbrctc" + " ld\n";
+            } else {
+              statTable = "line_data_nbrcts" + " ld\n";
+            }
             statField = strStat.replace("NBR_", "").toLowerCase();
           } else if (MVUtil.statsPstd.containsKey(strStat)) {
             tableStats = MVUtil.statsPstd;
@@ -1395,6 +1416,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsMpr.containsKey(strStat)) {
             tableStats = MVUtil.statsMpr;
             statTable = "line_data_mpr ld\n";
+          } else if (MVUtil.statsDmap.containsKey(strStat)) {
+            tableStats = MVUtil.statsDmap;
+            statTable = "line_data_dmap ld\n";
+            statField = strStat.replace("DMAP_", "").toLowerCase();
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
             statTable = "line_data_orank ld\n";
@@ -1454,7 +1479,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
           //  add the appropriate stat table members, depending
           // on the use of aggregation and stat calculation
-          if (job.getAggCtc()) {
+          if (job.getAggCtc() || job.getAggNbrCtc()) {
             selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  "
                     + "ld.fn_oy,\n  ld.fn_on";
           } else if (job.getAggSl1l2()) {

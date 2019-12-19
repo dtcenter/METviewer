@@ -102,7 +102,8 @@
                     $('#series_var_val_y1_date_period_start_1').empty();
                     $('#series_var_val_y1_date_period_end_1').empty();
 
-                    if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                    if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg"
+                        || ui.value === "fcst_valid" || ui.value === "fcst_init") {
                         $("#series_var_val_y1_date_period_button_1").css("display", "block");
                     } else {
                         $("#series_var_val_y1_date_period_button_1").css("display", "none");
@@ -530,6 +531,7 @@
                             <select id="agg_stat">
                                 <option value="none">None</option>
                                 <option value="ctc">Contingency table count (CTC)</option>
+                                <option value="nbrctc">Nbrhood method CTC (NBR_CTC)</option>
                             </select>
                         </td>
 

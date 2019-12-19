@@ -6,40 +6,7 @@
 
 package edu.ucar.metviewer.db.mysql;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import edu.ucar.metviewer.BoundedBufferedReader;
-import edu.ucar.metviewer.DataFileInfo;
-import edu.ucar.metviewer.DatabaseException;
-import edu.ucar.metviewer.MVLoadJob;
-import edu.ucar.metviewer.MVLoadStatInsertData;
-import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.StopWatch;
-import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.*;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.LoadDatabaseManager;
 import org.apache.logging.log4j.LogManager;
@@ -47,7 +14,17 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
-import static java.lang.String.valueOf;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.sql.*;
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author : tatiana $
@@ -229,6 +206,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     tableToInsert.put("mode_obj_pair", "INSERT INTO mode_obj_pair VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
             + "?,?,?,?,?,?,?,?,?)");//21
 
+    tableToInsert.put("line_data_dmap", "INSERT INTO line_data_dmap VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,"
+            + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//32
+
     dropIndexesQueries = new String[]{
             "DROP INDEX stat_header_model_idx ON stat_header",
             "DROP INDEX stat_header_fcst_var_idx ON stat_header",
@@ -328,7 +308,11 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             "DROP INDEX line_data_enscnt_fcst_init_beg_idx ON line_data_enscnt",
             "DROP INDEX line_data_grad_fcst_lead_idx ON line_data_grad",
             "DROP INDEX line_data_grad_fcst_valid_beg_idx ON line_data_grad",
-            "DROP INDEX line_data_grad_fcst_init_beg_idx ON line_data_grad"
+            "DROP INDEX line_data_grad_fcst_init_beg_idx ON line_data_grad",
+            "DROP INDEX line_data_dmap_fcst_lead_idx ON line_data_edmap",
+            "DROP INDEX line_data_dmap_fcst_valid_beg_idx ON line_data_dmap",
+            "DROP INDEX line_data_dmap_fcst_init_beg_idx ON line_data_dmap"
+
     };
 
     createIndexesQueries = new String[]{
@@ -430,7 +414,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             "CREATE INDEX line_data_enscnt_fcst_init_beg_idx ON line_data_enscnt (fcst_init_beg)",
             "CREATE INDEX line_data_grad_fcst_lead_idx ON line_data_grad (fcst_lead)",
             "CREATE INDEX line_data_grad_fcst_valid_beg_idx ON line_data_grad (fcst_valid_beg)",
-            "CREATE INDEX line_data_grad_fcst_init_beg_idx ON line_data_grad (fcst_init_beg)"
+            "CREATE INDEX line_data_grad_fcst_init_beg_idx ON line_data_grad (fcst_init_beg)",
+            "CREATE INDEX line_data_dmap_fcst_lead_idx ON line_data_dmap (fcst_lead)",
+            "CREATE INDEX line_data_dmap_fcst_valid_beg_idx ON line_data_dmap (fcst_valid_beg)",
+            "CREATE INDEX line_data_dmap_fcst_init_beg_idx ON line_data_dmap (fcst_init_beg)"
     };
 
 
@@ -3033,9 +3020,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
     int revisionLines = 0;
 
-    if(!mtd2dLines.isEmpty()) {
-      revisionLines = processMtdRevision(mtd2dLines,info, headerNames,timeStats, headerInserts,
-              obj3dSingleInserts, obj3dPairInserts, obj2dInserts,intMtdHeaderIdNext,mtd3dSingle,mtd3dPair,mtd2d);
+    if (!mtd2dLines.isEmpty()) {
+      revisionLines = processMtdRevision(mtd2dLines, info, headerNames, timeStats, headerInserts,
+              obj3dSingleInserts, obj3dPairInserts, obj2dInserts, intMtdHeaderIdNext, mtd3dSingle, mtd3dPair, mtd2d);
       line = line + revisionLines;
     }
 
@@ -3095,7 +3082,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     for (String[] arr : mtd2dLines) {
       if (!arr[indFV].equals(tokenFV) || !arr[indOV].equals(tokenOV)
               || !arr[indM].equals(tokenM) || !arr[indFR].equals(tokenFR)
-              || !arr[indD].equals(tokenD)|| !arr[indOR].equals(tokenOR)
+              || !arr[indD].equals(tokenD) || !arr[indOR].equals(tokenOR)
               || !arr[indFT].equals(tokenFT) || !arr[indOT].equals(tokenOT)
               || !arr[indFL].equals(tokenFL) || !arr[indOL].equals(tokenOL)) {
         return 0;
@@ -3116,7 +3103,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           latestRevisionId = -1;
         }
       }
-    } catch ( SQLException e) {
+    } catch (SQLException e) {
       logger.error(ERROR_MARKER, e.getMessage());
     } finally {
       if (res != null) {
@@ -3127,7 +3114,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
       }
     }
-    latestRevisionId = latestRevisionId +1;
+    latestRevisionId = latestRevisionId + 1;
 
     //calculate revisions
 
@@ -3151,16 +3138,16 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
     List<String[]> dataForObjId = new ArrayList<>();
     for (String[] arr : mtd2dLines) {
-      if(arr[indObjId].equals(objId)){
+      if (arr[indObjId].equals(objId)) {
         dataForObjId.add(arr);
-      }else {
+      } else {
         //check if this is revision
-        int expectedSize = Integer.parseInt(dataForObjId.get(dataForObjId.size()-1)[indTimeInd])
-                - Integer.parseInt(dataForObjId.get(0)[indTimeInd]) +1;
-        if(expectedSize == dataForObjId.size()){
-          for(int i= 1; i<dataForObjId.size()-1; i++){
+        int expectedSize = Integer.parseInt(dataForObjId.get(dataForObjId.size() - 1)[indTimeInd])
+                - Integer.parseInt(dataForObjId.get(0)[indTimeInd]) + 1;
+        if (expectedSize == dataForObjId.size()) {
+          for (int i = 1; i < dataForObjId.size() - 1; i++) {
             String[] dataFirst = dataForObjId.get(i);
-            String[] dataSecond = dataForObjId.get(i-1);
+            String[] dataSecond = dataForObjId.get(i - 1);
             String[] revisionLine = new String[dataFirst.length];
             System.arraycopy(dataFirst, 0, revisionLine, 0, revisionLine.length);
             revisionLine[indFVAR] = "REV_" + revisionLine[indFVAR];
@@ -3191,23 +3178,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             intMtdHeaderIdNext = processMtdLine.getIntMtdHeaderIdNext();
           }
 
-        }else {
+        } else {
           System.out.println("not revision - skip");
         }
 
         dataForObjId = new ArrayList<>();
         dataForObjId.add(arr);
         objId = arr[indObjId];
-        latestRevisionId = latestRevisionId +1;
+        latestRevisionId = latestRevisionId + 1;
       }
     }
 
-    int expectedSize = Integer.parseInt(dataForObjId.get(dataForObjId.size()-1)[indTimeInd])
-            - Integer.parseInt(dataForObjId.get(0)[indTimeInd]) +1;
-    if(expectedSize == dataForObjId.size()){
-      for(int i= 1; i<dataForObjId.size()-1; i++){
+    int expectedSize = Integer.parseInt(dataForObjId.get(dataForObjId.size() - 1)[indTimeInd])
+            - Integer.parseInt(dataForObjId.get(0)[indTimeInd]) + 1;
+    if (expectedSize == dataForObjId.size()) {
+      for (int i = 1; i < dataForObjId.size() - 1; i++) {
         String[] dataFirst = dataForObjId.get(i);
-        String[] dataSecond = dataForObjId.get(i-1);
+        String[] dataSecond = dataForObjId.get(i - 1);
         String[] revisionLine = new String[dataFirst.length];
         System.arraycopy(dataFirst, 0, revisionLine, 0, revisionLine.length);
         revisionLine[indFVAR] = "REV_" + revisionLine[indFVAR];
@@ -3238,10 +3225,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         intMtdHeaderIdNext = processMtdLine.getIntMtdHeaderIdNext();
       }
 
-    }else {
+    } else {
       System.out.println("not revision - skip");
     }
-
 
 
     return 0;
@@ -3808,7 +3794,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
 
 
-      String mtdHeaderValueList = this.revisionId +",'" + MVUtil.findValue(listToken, headerNames, "VERSION")
+      String mtdHeaderValueList = this.revisionId + ",'" + MVUtil.findValue(listToken, headerNames, "VERSION")
               + "', " + "'"
               + MVUtil.findValue(listToken, headerNames, "MODEL")
               + "', " + "'"
@@ -3864,9 +3850,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               + "  AND " + BINARY + "obs_units = ?"
               + "  AND " + BINARY + "obs_lev = ?";
 
-      if(this.revisionId == null){
-        mtdHeaderWhereClause = mtdHeaderWhereClause + "  AND " +  "revision_id is ?";
-      }else {
+      if (this.revisionId == null) {
+        mtdHeaderWhereClause = mtdHeaderWhereClause + "  AND " + "revision_id is ?";
+      } else {
         mtdHeaderWhereClause = mtdHeaderWhereClause + "  AND " + "revision_id = ?";
       }
 
@@ -3910,9 +3896,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             stmt.setString(17, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
             stmt.setString(18, MVUtil.findValue(listToken, headerNames, "OBS_UNITS"));
             stmt.setString(19, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
-            if(this.revisionId == null){
+            if (this.revisionId == null) {
               stmt.setNull(20, Types.INTEGER);
-            }else {
+            } else {
               stmt.setInt(20, this.revisionId);
             }
 
@@ -3958,9 +3944,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             stmt.setInt(1, mtdHeaderId);
             stmt.setInt(2, lineTypeLuId);
             stmt.setInt(3, info.fileId);
-            if(this.revisionId == null){
+            if (this.revisionId == null) {
               stmt.setNull(4, Types.INTEGER);
-            }else {
+            } else {
               stmt.setInt(4, this.revisionId);
             }
             stmt.setInt(5, line);
@@ -4063,7 +4049,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
         obj3dSingleInserts++;
       } else if (mtd2d == lineTypeLuId) {
-        if(mtd2dLines != null) {
+        if (mtd2dLines != null) {
           mtd2dLines.add(listToken);
         }
 

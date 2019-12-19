@@ -167,6 +167,11 @@ public class AggRscriptManager extends RscriptManager {
     } else {
       tableAggStatInfo.put("agg_ctc", String.valueOf(Boolean.FALSE).toUpperCase());
     }
+    if (stat.equals(MVUtil.NBRCTC)) {
+      tableAggStatInfo.put("agg_nbrctc", String.valueOf(Boolean.TRUE).toUpperCase());
+    } else {
+      tableAggStatInfo.put("agg_nbrctc", String.valueOf(Boolean.FALSE).toUpperCase());
+    }
     if (stat.equals(MVUtil.SL1L2)) {
       tableAggStatInfo.put("agg_sl1l2", String.valueOf(Boolean.TRUE).toUpperCase());
     } else {

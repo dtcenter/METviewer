@@ -1,6 +1,7 @@
 # script configuration
 
 boolAggCtc = #<agg_ctc>#;
+boolAggNbrCtc = #<agg_nbrctc>#;
 boolAggSl1l2 = #<agg_sl1l2>#;
 boolAggGrad = #<agg_grad>#;
 boolAggSal1l2 = #<agg_sal1l2>#;

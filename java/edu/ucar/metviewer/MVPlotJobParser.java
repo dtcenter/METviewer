@@ -1,5 +1,13 @@
 package edu.ucar.metviewer;
 
+import edu.ucar.metviewer.db.DatabaseInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -9,23 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-
-import edu.ucar.metviewer.db.DatabaseInfo;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import java.util.*;
 
 public final class MVPlotJobParser {
 
@@ -817,6 +809,7 @@ public final class MVPlotJobParser {
       xmlStr.append(
               "<agg_stat>"
                       + "<agg_ctc>" + (job.getAggCtc() ? "TRUE" : "FALSE") + "</agg_ctc>"
+                      + "<agg_nbrctc>" + (job.getAggNbrCtc() ? "TRUE" : "FALSE") + "</agg_nbrctc>"
                       + "<agg_sl1l2>" + (job.getAggSl1l2() ? "TRUE" : "FALSE") + "</agg_sl1l2>"
                       + "<agg_grad>" + (job.getAggGrad() ? "TRUE" : "FALSE") + "</agg_grad>"
                       + "<agg_sal1l2>" + (job.getAggSal1l2() ? "TRUE" : "FALSE") + "</agg_sal1l2>"
@@ -1277,7 +1270,11 @@ public final class MVPlotJobParser {
               MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
               listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
             }
-            mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+            if(job.getAggNbrCtc()){
+              mapFarPody.put(listFcstVar[0], new String[]{"NBR_FAR", "NBR_PODY"});
+            }else {
+              mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+            }
             mapDep.put("dep1", mapFarPody);
             mapDep.put("dep2", new MVOrderedMap());
             job.addDepGroup(mapDep);
@@ -1725,6 +1722,8 @@ public final class MVPlotJobParser {
           boolean val = nodeAggStat.value.equalsIgnoreCase("true");
           if (nodeAggStat.tag.equals("agg_ctc")) {
             job.setAggCtc(val);
+          } else if (nodeAggStat.tag.equals("agg_nbrctc")) {
+            job.setAggNbrCtc(val);
           } else if (nodeAggStat.tag.equals("agg_sl1l2")) {
             job.setAggSl1l2(val);
           } else if (nodeAggStat.tag.equals("agg_grad")) {
