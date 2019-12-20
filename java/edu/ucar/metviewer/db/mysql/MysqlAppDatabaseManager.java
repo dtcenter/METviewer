@@ -1523,7 +1523,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                       + " ldt.on_i";
             }
           } else if (job.getAggNbrCnt()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss";
+            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss, ld.afss, ld.ufss, ld.f_rate, ld.o_rate ";
           } else if (job.getAggVl1l2()) {
             selectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,"
                     + "\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar,"
