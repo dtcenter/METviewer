@@ -48,7 +48,7 @@ public class SumDatabaseManagerMySQL extends DatabaseManagerSql {
               + "o_speed_bar,";
     } else if (table.endsWith(MVUtil.VAL1L2)) {
       result = "total, ufabar, vfabar, uoabar, voabar, uvfoabar, uvffabar, uvooabar, ";
-    } else if (table.endsWith(MVUtil.NBR_CNT)) {
+    } else if (table.endsWith(MVUtil.NBRCNT)) {
       //result = "calc" + stat + "(total,fbs,fss)";
       result = "total,fbs,fss, ";
     }

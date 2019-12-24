@@ -80,7 +80,7 @@ public class MVUtil {
   public static final String SAL1L2 = "sal1l2"; //  Scalar anomaly  partial sums
   public static final String SSVAR = "ssvar"; //  Spread/Skill Variance
   public static final String PCT = "pct";
-  public static final String NBR_CNT = "nbr_cnt"; //  Neighborhood Continuous Statistics
+  public static final String NBRCNT = "nbrcnt"; //  Neighborhood Continuous Statistics
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
   public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial Sum
   public static final String ECNT = "ecnt"; // Ensemble Continuous Statistics
@@ -616,12 +616,12 @@ public class MVUtil {
   }
 
   static {
-    statsNbrcnt.put("NBR_FBS", new String[]{"bc", NBR_CNT});
-    statsNbrcnt.put("NBR_FSS", new String[]{"bc", NBR_CNT});
-    statsNbrcnt.put("NBR_AFSS", new String[]{"bc", NBR_CNT});
-    statsNbrcnt.put("NBR_UFSS", new String[]{"bc", NBR_CNT});
-    statsNbrcnt.put("NBR_F_RATE", new String[]{"bc", NBR_CNT});
-    statsNbrcnt.put("NBR_O_RATE", new String[]{"bc", NBR_CNT});
+    statsNbrcnt.put("NBR_FBS", new String[]{"bc", NBRCNT});
+    statsNbrcnt.put("NBR_FSS", new String[]{"bc", NBRCNT});
+    statsNbrcnt.put("NBR_AFSS", new String[]{"bc", NBRCNT});
+    statsNbrcnt.put("NBR_UFSS", new String[]{"bc", NBRCNT});
+    statsNbrcnt.put("NBR_F_RATE", new String[]{"bc", NBRCNT});
+    statsNbrcnt.put("NBR_O_RATE", new String[]{"bc", NBRCNT});
   }
 
   static {
@@ -631,12 +631,9 @@ public class MVUtil {
     statsPstd.put("PSTD_UNCERTAINTY", new String[]{PCT});
     statsPstd.put("PSTD_ROC_AUC", new String[]{PCT});
     statsPstd.put("PSTD_BRIER", new String[]{"nc", PCT});
-    statsPstd.put("PSTD_BRIERCL", new String[]{"nc", PCT});
-    statsPstd.put("PSTD_INF", new String[]{"nc", PCT});
+    statsPstd.put("PSTD_BRIERCL", new String[]{});
     statsPstd.put("PSTD_BSS", new String[]{});
-    statsPstd.put("PSTD_BRIER10", new String[]{"nc", PCT});
-    statsPstd.put("PSTD_BRIER90", new String[]{"nc", PCT});
-    statsPstd.put("PSTD_BSS_SMPL", new String[]{PCT});
+    statsPstd.put("PSTD_BSS_SMPL", new String[]{"nc", PCT});
   }
 
   static {
