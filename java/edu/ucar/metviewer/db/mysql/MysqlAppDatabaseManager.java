@@ -1314,7 +1314,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (job.getCalcSal1l2() || job.getAggSal1l2()) {
             aggType = MVUtil.SAL1L2;
           } else if (job.getAggNbrCnt()) {
-            aggType = MVUtil.NBR_CNT;
+            aggType = MVUtil.NBRCNT;
           } else if (job.getAggPct()) {
             aggType = MVUtil.PCT;
           } else if (job.getAggSsvar()) {
