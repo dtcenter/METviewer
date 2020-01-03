@@ -196,7 +196,7 @@ public class SeriesJobManager extends JobManager {
 
       Map<String, Object> info = createInfoMap(job, intNumDepSeries);
 
-      Map<String, Object> yamlInfo = new HashMap<>();
+      Map<String, Object> yamlInfo = new TreeMap<>();
       yamlInfo.put("method", job.getAggBootCI());
       yamlInfo.put("num_iterations", MVUtil.isNumeric(job.getAggBootRepl()) ? Integer.parseInt(job.getAggBootRepl()) : 1);
       yamlInfo.put("num_threads", -1);
@@ -212,8 +212,10 @@ public class SeriesJobManager extends JobManager {
         }
       }
       yamlInfo.put("indy_vals", listIndyValFmt);
-      yamlInfo.put("series_val", job.getSeries1Val().getYamlDeclSeries());
+      yamlInfo.put("series_val_1", job.getSeries1Val().getYamlDeclSeries());
+      yamlInfo.put("series_val_2", job.getSeries2Val().getYamlDeclSeries());
       List<String> listAggStats1 = new ArrayList<>();
+      List<String> listAggStats2 = new ArrayList<>();
       MVOrderedMap mapDep;
       if (job.getDepGroups().length > 0) {
         mapDep = job.getDepGroups()[0];
@@ -242,12 +244,16 @@ public class SeriesJobManager extends JobManager {
           }
           if (1 == intY) {
             listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
+          }else {
+            listAggStats2.addAll(Arrays.asList(mapStat.getKeyList()));
           }
         }
       }
 
-      yamlInfo.put("list_stat", MVUtil.printYamlCol(listAggStats1.toArray(new String[0])));
-      yamlInfo.put("fcst_var_val", mapDep.get("dep1"));
+      yamlInfo.put("list_stat_1", MVUtil.printYamlCol(listAggStats1.toArray(new String[0])));
+      yamlInfo.put("list_stat_2", MVUtil.printYamlCol(listAggStats2.toArray(new String[0])));
+      yamlInfo.put("fcst_var_val_1", mapDep.get("dep1"));
+      yamlInfo.put("fcst_var_val_2", mapDep.get("dep2"));
       MVOrderedMap mapAggStatStatic = new MVOrderedMap();
       mapAggStatStatic.put("fcst_var", strFcstVar);
       yamlInfo.put("list_static_val", mapAggStatStatic);
@@ -255,7 +261,12 @@ public class SeriesJobManager extends JobManager {
       String diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries1(), MVUtil.addTmplValDep(job),
               job.getTmplMaps(), mvBatch.getPrintStream());
 
-      yamlInfo.put("derived_series", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
+      yamlInfo.put("derived_series_1", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
+
+      diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries2(), MVUtil.addTmplValDep(job),
+              job.getTmplMaps(), mvBatch.getPrintStream());
+
+      yamlInfo.put("derived_series_2", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
 
 
       RscriptStatManager rscriptStatManager = null;
