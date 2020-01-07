@@ -1,12 +1,10 @@
 #!/bin/bash
 
-if [ -z ${JAVA_HOME+x} ]; then
-    JAVA_HOME=/usr/local/jdk
-fi
+
 JAVA=${JAVA_HOME}/bin/java
 
 if [ -z ${MV_HOME+x} ]; then
-    MV_HOME=/d3/projects/METViewer/src/apps/METviewer
+    MV_HOME=/Users/tatiana/git/METviewer
 fi
 # construct the classpath for MVBatch
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.4.0.jar
@@ -21,6 +19,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-1.25.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
 $JAVA -classpath $CLASSPATH -Xmx2048M -Dpython.env=/d3/projects/METViewer/METviewer_py3.6.3/bin/python -Dmetcalcpy.home=/d3/projects/METViewer/METcalcpy edu.ucar.metviewer.MVBatch $@
