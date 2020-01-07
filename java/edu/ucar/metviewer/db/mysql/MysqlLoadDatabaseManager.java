@@ -67,14 +67,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           "CDIST_TRAVELLED", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75",
           "INTENSITY_90"
   };
-  private final String[] listLineDataTables = {
-          "line_data_fho", "line_data_ctc", "line_data_cts", "line_data_cnt", "line_data_pct",
-          "line_data_pstd", "line_data_pjc", "line_data_prc", "line_data_sl1l2", "line_data_sal1l2",
-          "line_data_vl1l2", "line_data_val1l2", "line_data_mpr", "line_data_nbrctc", "line_data_nbrcts",
-          "line_data_nbrcnt", "line_data_isc", "line_data_mctc", "line_data_rhist", "line_data_orank",
-          "line_data_relp", "line_data_eclv",
-          "line_data_ssvar", "line_data_enscnt", "line_data_grad"
-  };
+
   /*
    * variable length table names for each variable length output line type
    */
@@ -474,7 +467,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       sqlArray = createIndexesQueries;
       operation = "creating";
     }
-    logger.info("    ==== indexes ====" + operation);
+    logger.info("    ==== indexes ===={}", operation);
 
     for (String sql : sqlArray) {
       try (Connection con = getConnection();
@@ -492,7 +485,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
     try {
       stopWatch.stop();
-      logger.info("Indexes " + operation + " " + stopWatch.getFormattedTotalDuration());
+      logger.info("Indexes {} {}", operation, stopWatch.getFormattedTotalDuration());
 
     } catch (StopWatchException e) {
       logger.error(ERROR_MARKER, e.getMessage());
@@ -762,8 +755,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         double fcstPerc = -9999;
         String fcstThreshStr;
         if (fcstThresh.contains("(") && fcstThresh.contains(")")) {
-          String percStr = fcstThresh.substring(fcstThresh.indexOf("(") + 1, fcstThresh.indexOf(")"));
-          fcstThreshStr = fcstThresh.substring(0, fcstThresh.indexOf("("));
+          String percStr = fcstThresh.substring(fcstThresh.indexOf('(') + 1, fcstThresh.indexOf(')'));
+          fcstThreshStr = fcstThresh.substring(0, fcstThresh.indexOf('('));
           try {
             fcstPerc = Double.parseDouble(percStr);
           } catch (NumberFormatException e) {
@@ -778,8 +771,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         double obsPerc = -9999;
         String obsThreshStr;
         if (obsThresh.contains("(") && obsThresh.contains(")")) {
-          String percStr = obsThresh.substring(obsThresh.indexOf("(") + 1, obsThresh.indexOf(")"));
-          obsThreshStr = obsThresh.substring(0, obsThresh.indexOf("("));
+          String percStr = obsThresh.substring(obsThresh.indexOf('(') + 1, obsThresh.indexOf(')'));
+          obsThreshStr = obsThresh.substring(0, obsThresh.indexOf('('));
           try {
             obsPerc = Double.parseDouble(percStr);
           } catch (NumberFormatException e) {
@@ -937,9 +930,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
             if (1 != statHeaderInsert) {
-              logger.warn(
-                      "  **  WARNING: unexpected result from stat_header INSERT: "
-                              + statHeaderInsert + "\n        " + fileLine);
+              logger.warn("  **  WARNING: unexpected result from stat_header INSERT: {} \n     {}", statHeaderInsert, fileLine);
               statHeaderId = null;
             } else {
               headerInserts++;
@@ -1037,10 +1028,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
             lineDataValues.add(replaceInvalidValues(alpha));
           } else if (!alpha.equals("NA")) {
-            logger.warn(
-                    "  **  WARNING: unexpected alpha value '" + alpha + "' in line type '"
-                            + insertData.getLineType() + "'\n        "
-                            + insertData.getFileLine());
+            logger.warn("  **  WARNING: unexpected alpha value '{}' in line type '{}'\n      {}", alpha, insertData.getLineType(), insertData.getFileLine());
           }
 
           //  add total and all of the stats on the rest of the line to the value list
@@ -1262,7 +1250,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
     } catch
     (NegativeArraySizeException | IOException | ArrayIndexOutOfBoundsException | NumberFormatException | DatabaseException e) {
-      logger.error(ERROR_MARKER, "ERROR for file " + filename + " : " + e.getMessage());
+      logger.error(ERROR_MARKER, "ERROR for file {} : {}", filename, e.getMessage());
     }
 
     //  commit all the remaining stored data
@@ -1585,9 +1573,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   + "  AND " + BINARY + "obs_thresh =?";
 
           //  build the value list for the stat_header insert
-          String statHeaderValueList = "";
+          StringBuilder statHeaderValueList = new StringBuilder();
           for (int i = 0; i < statHeaderValue.length; i++) {
-            statHeaderValueList += (0 < i ? ", " : "") + "'" + statHeaderValue[i] + "'";
+            statHeaderValueList.append(0 < i ? ", " : "").append("'").append(statHeaderValue[i]).append("'");
           }
 
 
@@ -1667,7 +1655,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             if (!foundStatHeader) {
 
               statHeaderId = intStatHeaderIdNext++;
-              statHeaders.put(statHeaderValueList, statHeaderId);
+              statHeaders.put(statHeaderValueList.toString(), statHeaderId);
 
               //  insert the record into the stat_header database table
               String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -1703,14 +1691,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
               if (1 != intStatHeaderInsert) {
                 logger.warn(
-                        "  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
+                        "  **  WARNING: unexpected result from stat_header INSERT: {}\n        {}", intStatHeaderInsert, strFileLine);
                 statHeaderId = null;
               } else {
                 headerInserts++;
               }
 
             } else {
-              statHeaders.put(statHeaderValueList, statHeaderId);
+              statHeaders.put(statHeaderValueList.toString(), statHeaderId);
             }
           }
           if (statHeaderId != null) {
@@ -2209,13 +2197,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
           }
         } catch (NumberFormatException e) {
-          logger.info("ERROR: line:" + line + " has errors and would be ignored.");
+          logger.info("ERROR: line:{} has errors and would be ignored.", line);
           logger.error(ERROR_MARKER, e.getMessage());
         }
 
-      }  // end: while( reader.ready() )
-      fileReader.close();
-      reader.close();
+      }
+
     } catch (IOException e) {
       logger.error(ERROR_MARKER, e.getMessage());
     }
@@ -2426,7 +2413,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         try {
           fcstaccum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
         } catch (NumberFormatException e) {
-          logger.info("FCST_ACCUM " + MVUtil.findValue(listToken, headerNames, "FCST_ACCUM") + " is invalid");
+          logger.info("FCST_ACCUM {}  is invalid", MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
         }
         String isfcstaccum = "=";
         if (fcstaccum == null) {
@@ -2437,7 +2424,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         try {
           obsaccum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"));
         } catch (NumberFormatException e) {
-          logger.info("OBS_ACCUM " + MVUtil.findValue(listToken, headerNames, "OBS_ACCUM") + " is invalid");
+          logger.info("OBS_ACCUM {}  is invalid", MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"));
         }
         String isobsaccum = "=";
         if (obsaccum == null) {
@@ -2536,8 +2523,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 modeHeaderId = Integer.parseInt(modeHeaderIdDup);
                 foundModeHeader = true;
                 logger.warn(
-                        "  **  WARNING: found duplicate mode_header record with id " + modeHeaderIdDup
-                                + "\n        " + strFileLine);
+                        "  **  WARNING: found duplicate mode_header record with id {}\n        {}", modeHeaderIdDup, strFileLine);
               }
             } catch (SQLException e) {
               logger.error(ERROR_MARKER, e.getMessage());
@@ -2591,7 +2577,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               try {
                 accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
               } catch (NumberFormatException e) {
-                logger.info("FCST_ACCUM " + MVUtil.findValue(listToken, headerNames, "FCST_ACCUM") + " is invalid");
+                logger.info("FCST_ACCUM {} is invalid", MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
               }
               if (accum == null) {
                 stmt.setNull(12, Types.INTEGER);
@@ -2631,8 +2617,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
             if (1 != modeHeaderInsertCount) {
-              logger.warn("  **  WARNING: unexpected result from mode_header INSERT: "
-                      + modeHeaderInsertCount + "\n        " + strFileLine);
+              logger.warn("  **  WARNING: unexpected result from mode_header INSERT: {} \n        {}", modeHeaderInsertCount, strFileLine);
             }
             headerInserts++;
           }
@@ -2680,8 +2665,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
 
           if (1 != modeCtsInsertCount) {
-            logger.warn("  **  WARNING: unexpected result from mode_cts INSERT: "
-                    + modeCtsInsertCount + "\n        " + strFileLine);
+            logger.warn("  **  WARNING: unexpected result from mode_cts INSERT: {}\n        {}", modeCtsInsertCount, strFileLine);
           }
           ctsInserts++;
 
@@ -2811,8 +2795,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           if (1 != intModeObjSingleInsert) {
             logger.warn(
-                    "  **  WARNING: unexpected result from mode_obj_single INSERT: "
-                            + intModeObjSingleInsert + "\n        " + strFileLine);
+                    "  **  WARNING: unexpected result from mode_obj_single INSERT: {}\n        {}", intModeObjSingleInsert, strFileLine);
           }
           objSingleInserts++;
 
@@ -2895,8 +2878,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                     "caught SQLException calling executeUpdate: " + se.getMessage());
           }
           if (1 != intModeObjPairInsert) {
-            logger.warn("  **  WARNING: unexpected result from mode_obj_pair INSERT: "
-                    + intModeObjPairInsert + "\n        " + strFileLine);
+            logger.warn("  **  WARNING: unexpected result from mode_obj_pair INSERT: {}\n        {}", intModeObjPairInsert, strFileLine);
           }
           objPairInserts++;
 
@@ -3011,10 +2993,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         line++;
       }
-
-
-      fileReader.close();
-      reader.close();
     } catch (IOException e) {
       logger.error(ERROR_MARKER, e.getMessage());
     }
@@ -3472,7 +3450,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       logger.error(ERROR_MARKER, e.getMessage());
     }
     if (lines == 0) {
-      logger.warn("  **  WARNING: file " + file.getAbsolutePath() + " is empty and will be ignored");
+      logger.warn("  **  WARNING: file {} is empty and will be ignored", file.getAbsolutePath());
       return null;
     }
 
@@ -3579,7 +3557,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               "caught SQLException calling executeUpdate: " + se.getMessage());
     }
     if (1 != resCounter) {
-      logger.warn("  **  WARNING: unexpected result from data_file INSERT: " + resCounter);
+      logger.warn("  **  WARNING: unexpected result from data_file INSERT: {}", resCounter);
     }
 
     return new DataFileInfo(dataFileId, fileName, filePath,
@@ -3639,7 +3617,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     if (1 != insert) {
       throw new DatabaseException("unexpected number of instance_info rows inserted: " + insert);
     }
-    logger.info("Done\n");
+    logger.info("Done%n");
   }
 
 
@@ -3763,7 +3741,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         fcstLeadSec += Integer.parseInt(fcstLead.substring(fcstLeadLen - 6,
                 fcstLeadLen - 4)) * 3600;
       } catch (NumberFormatException e) {
-        logger.debug("fcstLead " + fcstLead + " is invalid");
+        logger.debug("fcstLead {} is invalid", fcstLead);
       }
       String fcstLeadInsert = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
       if (fcstLeadInsert.equals("NA")) {
@@ -3816,9 +3794,39 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 + MVUtil.findValue(listToken, headerNames, "T_DELTA")
                 + ", ";
       }
+      if ("NA".equals(MVUtil.findValue(listToken, headerNames, "FCST_T_BEG"))) {
+        mtdHeaderValueList = mtdHeaderValueList + "NULL" + ", ";
+      } else {
+        mtdHeaderValueList = mtdHeaderValueList
+                + MVUtil.findValue(listToken, headerNames, "FCST_T_BEG")
+                + ", ";
+      }
+      if ("NA".equals(MVUtil.findValue(listToken, headerNames, "FCST_T_END"))) {
+        mtdHeaderValueList = mtdHeaderValueList + "NULL" + ", ";
+      } else {
+        mtdHeaderValueList = mtdHeaderValueList
+                + MVUtil.findValue(listToken, headerNames, "FCST_T_END")
+                + ", ";
+      }
       mtdHeaderValueList = mtdHeaderValueList
               + MVUtil.findValue(listToken, headerNames, "FCST_RAD") + ", "
-              + "'" + MVUtil.findValue(listToken, headerNames, "FCST_THR") + "', "
+              + "'" + MVUtil.findValue(listToken, headerNames, "FCST_THR") + "', ";
+      if ("NA".equals(MVUtil.findValue(listToken, headerNames, "OBS_T_BEG"))) {
+        mtdHeaderValueList = mtdHeaderValueList + "NULL" + ", ";
+      } else {
+        mtdHeaderValueList = mtdHeaderValueList
+                + MVUtil.findValue(listToken, headerNames, "OBS_T_BEG")
+                + ", ";
+      }
+      if ("NA".equals(MVUtil.findValue(listToken, headerNames, "OBS_T_END"))) {
+        mtdHeaderValueList = mtdHeaderValueList + "NULL" + ", ";
+      } else {
+        mtdHeaderValueList = mtdHeaderValueList
+                + MVUtil.findValue(listToken, headerNames, "OBS_T_END")
+                + ", ";
+      }
+
+      mtdHeaderValueList = mtdHeaderValueList
               + MVUtil.findValue(listToken, headerNames, "OBS_RAD") + ", "
               + "'" + MVUtil.findValue(listToken, headerNames, "OBS_THR") + "', "
               + "'" + MVUtil.findValue(listToken, headerNames, "FCST_VAR") + "', "
@@ -3908,8 +3916,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               String strMtdHeaderIdDup = res.getString(1);
               mtdHeaderId = Integer.parseInt(strMtdHeaderIdDup);
               foundMtdHeader = true;
-              logger.warn("  **  WARNING: found duplicate mtd_header record with id " +
-                      strMtdHeaderIdDup + "\n        " + strFileLine);
+              logger.warn("  **  WARNING: found duplicate mtd_header record with id {}\n        {}", strMtdHeaderIdDup, strFileLine);
             }
           } catch (NumberFormatException | SQLException e) {
             logger.error(ERROR_MARKER, e.getMessage());
@@ -3937,7 +3944,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
           //  insert the record into the mtd_header database table
-          String sql = "INSERT INTO mtd_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+          String sql = "INSERT INTO mtd_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
           int mtdHeaderInsert;
           try (Connection con = getConnection();
                PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -3958,21 +3965,48 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             stmt.setObject(11, fcstInitStr, Types.TIMESTAMP);
             stmt.setObject(12, obsLeadInsert, Types.INTEGER);
             stmt.setObject(13, obsValidBegStr, Types.TIMESTAMP);
+
             if ("NA".equals(MVUtil.findValue(listToken, headerNames, "T_DELTA"))) {
               stmt.setNull(14, Types.INTEGER);
             } else {
               stmt.setObject(14, MVUtil.findValue(listToken, headerNames, "T_DELTA"), Types.INTEGER);
             }
-            stmt.setObject(15, MVUtil.findValue(listToken, headerNames, "FCST_RAD"), Types.INTEGER);
-            stmt.setString(16, MVUtil.findValue(listToken, headerNames, "FCST_THR"));
-            stmt.setObject(17, MVUtil.findValue(listToken, headerNames, "OBS_RAD"), Types.INTEGER);
-            stmt.setString(18, MVUtil.findValue(listToken, headerNames, "OBS_THR"));
-            stmt.setString(19, MVUtil.findValue(listToken, headerNames, "FCST_VAR"));
-            stmt.setString(20, MVUtil.findValue(listToken, headerNames, "FCST_UNITS"));
-            stmt.setString(21, MVUtil.findValue(listToken, headerNames, "FCST_LEV"));
-            stmt.setString(22, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
-            stmt.setString(23, MVUtil.findValue(listToken, headerNames, "OBS_UNITS"));
-            stmt.setString(24, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
+
+            if ("NA".equals(MVUtil.findValue(listToken, headerNames, "FCST_T_BEG"))) {
+              stmt.setNull(15, Types.INTEGER);
+            } else {
+              stmt.setObject(15, MVUtil.findValue(listToken, headerNames, "FCST_T_BEG"), Types.INTEGER);
+            }
+
+            if ("NA".equals(MVUtil.findValue(listToken, headerNames, "FCST_T_END"))) {
+              stmt.setNull(16, Types.INTEGER);
+            } else {
+              stmt.setObject(16, MVUtil.findValue(listToken, headerNames, "FCST_T_END"), Types.INTEGER);
+            }
+
+            stmt.setObject(17, MVUtil.findValue(listToken, headerNames, "FCST_RAD"), Types.INTEGER);
+            stmt.setString(18, MVUtil.findValue(listToken, headerNames, "FCST_THR"));
+
+
+            if ("NA".equals(MVUtil.findValue(listToken, headerNames, "OBS_T_BEG"))) {
+              stmt.setNull(19, Types.INTEGER);
+            } else {
+              stmt.setObject(19, MVUtil.findValue(listToken, headerNames, "OBS_T_BEG"), Types.INTEGER);
+            }
+            if ("NA".equals(MVUtil.findValue(listToken, headerNames, "OBS_T_END"))) {
+              stmt.setNull(20, Types.INTEGER);
+            } else {
+              stmt.setObject(20, MVUtil.findValue(listToken, headerNames, "OBS_T_END"), Types.INTEGER);
+            }
+
+            stmt.setObject(21, MVUtil.findValue(listToken, headerNames, "OBS_RAD"), Types.INTEGER);
+            stmt.setString(22, MVUtil.findValue(listToken, headerNames, "OBS_THR"));
+            stmt.setString(23, MVUtil.findValue(listToken, headerNames, "FCST_VAR"));
+            stmt.setString(24, MVUtil.findValue(listToken, headerNames, "FCST_UNITS"));
+            stmt.setString(25, MVUtil.findValue(listToken, headerNames, "FCST_LEV"));
+            stmt.setString(26, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
+            stmt.setString(27, MVUtil.findValue(listToken, headerNames, "OBS_UNITS"));
+            stmt.setString(28, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
             mtdHeaderInsert = stmt.executeUpdate();
 
           } catch (SQLException se) {
@@ -3981,8 +4015,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
 
           if (1 != mtdHeaderInsert) {
-            logger.warn("  **  WARNING: unexpected result from mtd_header INSERT: " + mtdHeaderInsert
-                    + "\n        " + strFileLine);
+            logger.warn("  **  WARNING: unexpected result from mtd_header INSERT: {}\n        {}", mtdHeaderInsert, strFileLine);
           }
           headerInserts++;
         }
@@ -4008,7 +4041,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         try {
           num = Integer.valueOf(objCat.substring(objCat.length() - 3));
         } catch (NumberFormatException e) {
-          logger.info(" objCat " + objCat + " is invalid");
+          logger.info(" objCat {}} is invalid", objCat);
         }
         if (num != null && num != 0) {
           matchedFlag = 1;
@@ -4044,8 +4077,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         if (1 != mtd3dObjSingleInsert) {
           logger.warn(
-                  "  **  WARNING: unexpected result from mtd_3d_obj_single INSERT: "
-                          + mtd3dObjSingleInsert + "\n        " + strFileLine);
+                  "  **  WARNING: unexpected result from mtd_3d_obj_single INSERT: {}\n        {}", mtd3dObjSingleInsert, strFileLine);
         }
         obj3dSingleInserts++;
       } else if (mtd2d == lineTypeLuId) {
@@ -4069,7 +4101,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         try {
           num = Integer.valueOf(objCat.substring(objCat.length() - 3));
         } catch (NumberFormatException e) {
-          logger.info("objCat " + objCat + " is invalid");
+          logger.info("objCat {} is invalid", objCat);
         }
         if (num != null && num != 0) {
           matchedFlag = 1;
@@ -4102,8 +4134,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         if (1 != mtd2dObjInsert) {
           logger.warn(
-                  "  **  WARNING: unexpected result from mtd_2d_obj INSERT: "
-                          + mtd2dObjInsert + "\n        " + strFileLine);
+                  "  **  WARNING: unexpected result from mtd_2d_obj INSERT: {}\n        {}", mtd2dObjInsert, strFileLine);
         }
         obj2dInserts++;
       } else if (mtd3dPair == lineTypeLuId) {
@@ -4177,8 +4208,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         if (1 != mtd3dObjPairInsert) {
           logger.warn(
-                  "  **  WARNING: unexpected result from mtd_3d_obj_pair INSERT: " +
-                          mtd3dObjPairInsert + "\n        " + strFileLine);
+                  "  **  WARNING: unexpected result from mtd_3d_obj_pair INSERT: {}\n        {}", mtd3dObjPairInsert, strFileLine);
         }
         obj3dPairInserts++;
 
