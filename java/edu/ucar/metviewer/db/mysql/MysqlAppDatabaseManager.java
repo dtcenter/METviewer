@@ -143,6 +143,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     mtdHeaderSqlType.add("fcst_lev");
     mtdHeaderSqlType.add("obs_var");
     mtdHeaderSqlType.add("obs_lev");
+    mtdHeaderSqlType.add("fcst_t_beg");
+    mtdHeaderSqlType.add("fcst_t_end");
+    mtdHeaderSqlType.add("obs_t_beg");
+    mtdHeaderSqlType.add("obs_t_end");
 
   }
 

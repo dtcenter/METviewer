@@ -491,6 +491,25 @@ fix_var_value_to_title_mode_map['fcst_rad'] = 'FCST_RAD';
 fix_var_value_to_title_mode_map['fcst_thr'] = 'FCST_THR';
 fix_var_value_to_title_mode_map['fcst_lev'] = 'FCST_LEV';
 
+
+var fix_var_value_to_title_mtd_map = {};
+fix_var_value_to_title_mtd_map['fcst_lead'] = 'FCST_LEAD';
+fix_var_value_to_title_mtd_map['model'] = 'MODEL';
+fix_var_value_to_title_mtd_map['descr'] = 'DESC';
+fix_var_value_to_title_mtd_map['fcst_valid'] = 'FCST_VALID';
+fix_var_value_to_title_mtd_map['valid_hour'] = 'VALID_HOUR';
+fix_var_value_to_title_mtd_map['fcst_init'] = 'FCST_INIT';
+fix_var_value_to_title_mtd_map['init_hour'] = 'INIT_HOUR';
+fix_var_value_to_title_mtd_map['fcst_accum'] = 'FCST_ACCUM';
+fix_var_value_to_title_mtd_map['fcst_rad'] = 'FCST_RAD';
+fix_var_value_to_title_mtd_map['fcst_thr'] = 'FCST_THR';
+fix_var_value_to_title_mtd_map['fcst_lev'] = 'FCST_LEV';
+fix_var_value_to_title_mtd_map['fcst_t_beg'] = 'FCST_T_BEG';
+fix_var_value_to_title_mtd_map['fcst_t_end'] = 'FCST_T_END';
+fix_var_value_to_title_mtd_map['obs_t_beg'] = 'OBS_T_BEG';
+fix_var_value_to_title_mtd_map['obs_t_end'] = 'OBS_T_END';
+
+
 var indy_var_value_to_title_stat_map = {};
 indy_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
 indy_var_value_to_title_stat_map['model'] = 'MODEL';
@@ -517,6 +536,26 @@ indy_var_value_to_title_mode_map['fcst_init'] = 'FCST_INIT';
 indy_var_value_to_title_mode_map['init_hour'] = 'INIT_HOUR';
 indy_var_value_to_title_mode_map['fcst_rad'] = 'FCST_RAD';
 indy_var_value_to_title_mode_map['vx_mask'] = 'VX_MASK';
+
+
+var indy_var_value_to_title_mtd_map = {};
+indy_var_value_to_title_mtd_map['fcst_lead'] = 'FCST_LEAD';
+indy_var_value_to_title_mtd_map['model'] = 'MODEL';
+indy_var_value_to_title_mtd_map['descr'] = 'DESC';
+indy_var_value_to_title_mtd_map['fcst_lev'] = 'FCST_LEV';
+indy_var_value_to_title_mtd_map['fcst_thr'] = 'FCST_THR';
+indy_var_value_to_title_mtd_map['fcst_valid'] = 'FCST_VALID';
+indy_var_value_to_title_mtd_map['valid_hour'] = 'VALID_HOUR';
+indy_var_value_to_title_mtd_map['fcst_init'] = 'FCST_INIT';
+indy_var_value_to_title_mtd_map['init_hour'] = 'INIT_HOUR';
+indy_var_value_to_title_mtd_map['fcst_rad'] = 'FCST_RAD';
+indy_var_value_to_title_mtd_map['vx_mask'] = 'VX_MASK';
+indy_var_value_to_title_mtd_map['fcst_t_beg'] = 'FCST_T_BEG';
+indy_var_value_to_title_mtd_map['fcst_t_end'] = 'FCST_T_END';
+indy_var_value_to_title_mtd_map['obs_t_beg'] = 'OBS_T_BEG';
+indy_var_value_to_title_mtd_map['obs_t_end'] = 'OBS_T_END';
+
+
 
 var phist_fixed_var_map = {};
 phist_fixed_var_map['fcst_var'] = 'FCST_VAR';
@@ -666,7 +705,7 @@ function isMtdStat(stat) {
         var stat1 = "";
         for (var i = 0; i < statArr.length - 1; i++) {
             stat1 = stat1 + statArr[i];
-            if (i != statArr.length - 2) {
+            if (i !== statArr.length - 2) {
                 stat1 = stat1 + '_';
             }
         }
@@ -1121,7 +1160,7 @@ function updateMode(y_axis, index, selectedVals) {
     }
 
 
-    if (selectedVariable == "N/A") {
+    if (selectedVariable === "N/A") {
         try {
             select.multiselect("disable");
         } catch (err) {
@@ -1195,7 +1234,7 @@ function updateMtd(y_axis, index, selectedVals) {
         var statArr = selectedVals.split("_");
         for (var i = 0; i < statArr.length - 1; i++) {
             selectedModeStat = selectedModeStat + statArr[i];
-            if (i != statArr.length - 2) {
+            if (i !== statArr.length - 2) {
                 selectedModeStat = selectedModeStat + '_';
             }
         }
@@ -1212,7 +1251,7 @@ function updateMtd(y_axis, index, selectedVals) {
 
     for (i = 0; i < listStatMtd.length; i++) {
         t = listStatMtd[i];
-        selected = (t == selectedModeStat);
+        selected = (t === selectedModeStat);
         if (selected) {
             is_fcst_stat_mode = true;
         }
@@ -1336,7 +1375,7 @@ function updateMtd(y_axis, index, selectedVals) {
     }
 
 
-    if (selectedVariable == "N/A") {
+    if (selectedVariable === "N/A") {
         try {
             select.multiselect("disable");
         } catch (err) {
@@ -1358,8 +1397,10 @@ function updateMtd(y_axis, index, selectedVals) {
 
     //update series_var
     select = $("#series_var_" + y_axis + "_" + index);
+    console.log("in updateMtd");
     select.empty();
-    $.each(fix_var_value_to_title_mode_map, function (key, val) {
+    $.each(fix_var_value_to_title_mtd_map, function (key, val) {
+        console.log(key + " " + val);
         select.append('<option value="' + key + '">' + val + '</option>');
     });
     try {
@@ -1382,7 +1423,7 @@ function updateStatVal() {
             type: "POST",
             dataType: 'xml',
             contentType: "application/xml",
-            data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_stat>><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
+            data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_stat><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
             error: function () {
             },
             success: function (data) {
@@ -1567,6 +1608,7 @@ function updateStats(y_axis, index, selectedVals) {
     //update series_var
     var select = $("#series_var_" + y_axis + "_" + index);
     select.empty();
+    console.log("jfjfjfjfjf");
     $.each(series_var_value_to_title_stat_map, function (key, val) {
         select.append('<option value="' + key + '">' + val + '</option>');
     });
@@ -2050,7 +2092,6 @@ function updateFixedVarVal(index, selectedVals, equalize) {
     } catch (err) {
         selectedFixedVariable = $("#fixed_var_" + index + ' option:first-child').val();
     }
-    console.log(selectedVals);
     $.ajax({
         async: false,
         url: "servlet",
@@ -4761,7 +4802,7 @@ function addFixedVarHist() {
         selectedList: 1,
         header: false,
         minWidth: 'auto',
-        height: 'auto',
+        height: 300,
         click: function (event, ui) {
             $('#fixed_var_val_date_period_start_' + new_index).empty();
             $('#fixed_var_val_date_period_end_' + new_index).empty();
@@ -4871,8 +4912,12 @@ function addFixedVar() {
                     $.each(fix_var_value_to_title_stat_map, function (key, val) {
                         fixed_var.append('<option value="' + key + '">' + val + '</option>');
                     });
-                } else {
+                } else if (selected_mode === "mode"){
                     $.each(fix_var_value_to_title_mode_map, function (key, val) {
+                        fixed_var.append('<option value="' + key + '">' + val + '</option>');
+                    });
+                }else{
+                    $.each(fix_var_value_to_title_mtd_map, function (key, val) {
                         fixed_var.append('<option value="' + key + '">' + val + '</option>');
                     });
                 }
@@ -4903,8 +4948,6 @@ function addFixedVar() {
     }
 
     if (!is_not_visible) {
-        // remove_var = $("#remove_fixed_var_" + last_index).clone()
-        //         .prop("id", 'remove_fixed_var_' + new_index);
         remove_var = $('<button id="remove_fixed_var_' + new_index + '" class="remove_fixed_var">Remove</button>');
 
 
@@ -4982,7 +5025,7 @@ function addFixedVar() {
         selectedList: 1,
         header: false,
         minWidth: 'auto',
-        height: 'auto',
+        height: 300,
         click: function (event, ui) {
             $('#fixed_var_val_date_period_start_' + new_index).empty();
             $('#fixed_var_val_date_period_end_' + new_index).empty();
@@ -6403,7 +6446,7 @@ function loadXMLContour() {
         $("#indy_var").val(value).multiselect("refresh");
     } catch (e) {
     }
-    if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+    if (value === "fcst_init_beg" || value === "fcst_valid_beg" || value === "fcst_valid" || value === "fcst_init") {
         $("#date_period_button").css("display", "block");
     } else {
         $("#date_period_button").css("display", "none");
@@ -6515,8 +6558,12 @@ function updateFixVar(selected_mode) {
             $.each(fix_var_value_to_title_stat_map, function (key, val) {
                 $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
             });
-        } else {
+        } else if (selected_mode === "mode"){
             $.each(fix_var_value_to_title_mode_map, function (key, val) {
+                $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
+            });
+        } else {
+            $.each(fix_var_value_to_title_mtd_map, function (key, val) {
                 $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
             });
         }
@@ -6531,14 +6578,20 @@ function updateFixVar(selected_mode) {
 }
 
 function updateIndyVar(selected_mode) {
+    console.log("in updateIndyVar");
+    console.log(selected_mode);
 
     $('#indy_var').empty();
-    if (selected_mode == "stat") {
+    if (selected_mode === "stat") {
         $.each(indy_var_value_to_title_stat_map, function (key, val) {
             $('#indy_var').append('<option value="' + key + '">' + val + '</option>');
         });
-    } else {
+    } else if (selected_mode === "mode"){
         $.each(indy_var_value_to_title_mode_map, function (key, val) {
+            $('#indy_var').append('<option value="' + key + '">' + val + '</option>');
+        });
+    }else {
+        $.each(indy_var_value_to_title_mtd_map, function (key, val) {
             $('#indy_var').append('<option value="' + key + '">' + val + '</option>');
         });
     }
@@ -7789,15 +7842,21 @@ function updatePages() {
     seriesDiffY1 = [];
     seriesDiffY2 = [];
     var values, i;
+    console.log("in updatePages");
     if (currentTab === 'Series' || currentTab === 'Box' || currentTab === 'Bar') {
         $('#listdt').jqGrid('clearGridData');
         var mode = $('#plot_data').multiselect('getChecked')[0].value;
+        console.log("1 " + mode);
         updateForecastVariables();
+        console.log("1 " + $('#plot_data').multiselect('getChecked')[0].value);
         if ($('#plot_data').multiselect('getChecked')[0].value !== mode) {
             mode = $('#plot_data').multiselect('getChecked')[0].value;
+            console.log("2 " + mode);
             updateForecastVariables();
+            console.log("2 " + $('#plot_data').multiselect('getChecked')[0].value);
             if ($('#plot_data').multiselect('getChecked')[0].value !== mode) {
                 updateForecastVariables();
+                console.log("3 " + $('#plot_data').multiselect('getChecked')[0].value);
             }
         }
         mode = $('#plot_data').multiselect('getChecked')[0].value;

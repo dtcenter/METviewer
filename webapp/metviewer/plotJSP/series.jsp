@@ -163,7 +163,14 @@
 
                 click: function () {
                     var id_array = this.id.split("_");
-                    updateStats(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+                    var selected_mode = $("#plot_data").multiselect("getChecked").val();
+                    if (selected_mode === 'stat') {
+                        updateStats(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+                    } else if (selected_mode === 'mode') {
+                        updateMode(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+                    } else {
+                        updateMtd(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+                    }
                     var selectedSeriesVarVal = $("#series_var_val_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("getChecked").val();
                     if (selectedSeriesVarVal == null) {
                         selectedSeriesVarVal = [];
