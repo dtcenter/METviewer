@@ -2,3 +2,6 @@
 **/dist/
 **/.idea/
 ./mvservlet.log
+
+# Sphinx documentation
+docs/_build/
