@@ -55,17 +55,17 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           "OBJECT_CAT", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT", "CENTROID_LON", "AXIS_ANG",
           "LENGTH", "WIDTH", "AREA", "AREA_THRESH", "CURVATURE", "CURVATURE_X", "CURVATURE_Y",
           "COMPLEXITY", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90",
-          "INTENSITY_50", "INTENSITY_SUM"};
+          "INTENSITY_nn", "INTENSITY_SUM"};
 
   private final String[] mtdObj2dColumns = new String[]{
           "OBJECT_CAT", "TIME_INDEX", "AREA", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT",
-          "CENTROID_LON", "AXIS_ANG", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90"
+          "CENTROID_LON", "AXIS_ANG", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90", "INTENSITY_nn"
   };
   private final String[] mtdObj3dSingleColumns = new String[]{
           "OBJECT_CAT", "CENTROID_X", "CENTROID_Y", "CENTROID_T", "CENTROID_LAT",
           "CENTROID_LON", "X_DOT", "Y_DOT ", "AXIS_ANG", "VOLUME", "START_TIME", "END_TIME",
           "CDIST_TRAVELLED", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75",
-          "INTENSITY_90"
+          "INTENSITY_90", "INTENSITY_nn"
   };
 
   /*
@@ -2767,7 +2767,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             } else {
               stmt.setObject(22, value, Types.DOUBLE);
             }
-            value = MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[19]);
+            // get value for INTENSITY_nn - it should be the next column after INTENSITY_90
+            int pos = headerNames.indexOf(modeObjSingleColumns[18]) + 1;
+            try {
+              value = listToken[pos];
+            } catch (Exception e) {
+              value = "NA";
+            }
             if ("NA".equals(value)) {
               stmt.setNull(23, Types.DOUBLE);
             } else {
@@ -4023,7 +4029,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
       if (mtd3dSingle == lineTypeLuId) {
-        String sql = "INSERT INTO mtd_3d_obj_single VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO mtd_3d_obj_single VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 
         //set flags
@@ -4041,7 +4047,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         try {
           num = Integer.valueOf(objCat.substring(objCat.length() - 3));
         } catch (NumberFormatException e) {
-          logger.info(" objCat {}} is invalid", objCat);
+          logger.info(" objCat {} is invalid", objCat);
         }
         if (num != null && num != 0) {
           matchedFlag = 1;
@@ -4056,15 +4062,26 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           stmt.setString(2, objectId);
           stmt.setString(3, replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
                   mtdObj3dSingleColumns[0])));
-
-          for (int i = 0; i < 17; i++) {
+          int i;
+          for (i = 0; i < 17; i++) {
             stmt.setObject(4 + i,
                     replaceInvalidValues(MVUtil.findValue(listToken, headerNames, mtdObj3dSingleColumns[i + 1])),
                     Types.DOUBLE);
           }
-          stmt.setInt(21, fcstFlag);
-          stmt.setInt(22, simpleFlag);
-          stmt.setInt(23, matchedFlag);
+          // get value for INTENSITY_nn - it should be the next column after INTENSITY_90
+          int pos = headerNames.indexOf("INTENSITY_90") + 1;
+          Object value;
+          try {
+            value = listToken[pos];
+          } catch (Exception e) {
+            value = "-9999";
+          }
+          stmt.setObject(4 + i,value, Types.DOUBLE);
+
+
+          stmt.setInt(22, fcstFlag);
+          stmt.setInt(23, simpleFlag);
+          stmt.setInt(24, matchedFlag);
 
           mtd3dObjSingleInsert = stmt.executeUpdate();
 
@@ -4108,7 +4125,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
 
         //  insert the record into the mtd_obj_single database table
-        String sql = "INSERT INTO mtd_2d_obj VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO mtd_2d_obj VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         int mtd2dObjInsert;
         try (Connection con = getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -4116,14 +4133,24 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           stmt.setString(2, objectId);
           stmt.setString(3, replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
                   mtdObj2dColumns[0])));
-          for (int i = 0; i < 12; i++) {
+          int i;
+          for (i = 0; i < 12; i++) {
             stmt.setObject(4 + i,
                     replaceInvalidValues(MVUtil.findValue(listToken, headerNames, mtdObj2dColumns[i + 1])),
                     Types.DOUBLE);
           }
-          stmt.setInt(16, fcstFlag);
-          stmt.setInt(17, simpleFlag);
-          stmt.setInt(18, matchedFlag);
+          // get value for INTENSITY_nn - it should be the next column after INTENSITY_90
+          int pos = headerNames.indexOf("INTENSITY_90") + 1;
+          Object value;
+          try {
+            value = listToken[pos];
+          } catch (Exception e) {
+            value = "-9999";
+          }
+          stmt.setObject(4 + i,value, Types.DOUBLE);
+          stmt.setInt(17, fcstFlag);
+          stmt.setInt(18, simpleFlag);
+          stmt.setInt(19, matchedFlag);
 
           mtd2dObjInsert = stmt.executeUpdate();
         } catch (SQLException se) {
@@ -4157,10 +4184,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         String[] objCatArr = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT")
                 .split("_");
         Integer num1;
-        Integer num2;
+        int num2;
         try {
           num1 = Integer.valueOf(objCatArr[0].substring(objCatArr[0].length() - 3));
-          num2 = Integer.valueOf(objCatArr[1].substring(objCatArr[1].length() - 3));
+          num2 = Integer.parseInt(objCatArr[1].substring(objCatArr[1].length() - 3));
           if (num1.equals(num2) && num1 != 0) {
             matchedFlag = 1;
           }

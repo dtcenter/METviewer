@@ -731,6 +731,7 @@ public class MVUtil {
     mtd2dStatField.put("2D_INTENSITY_50", "intensity_50");
     mtd2dStatField.put("2D_INTENSITY_75", "intensity_75");
     mtd2dStatField.put("2D_INTENSITY_90", "intensity_90");
+    mtd2dStatField.put("2D_INTENSITY_N", "intensity_nn");
   }
 
   static {
@@ -752,6 +753,7 @@ public class MVUtil {
     mtd3dSingleStatField.put("3D_INTENSITY_50", "intensity_50");
     mtd3dSingleStatField.put("3D_INTENSITY_75", "intensity_75");
     mtd3dSingleStatField.put("3D_INTENSITY_90", "intensity_90");
+    mtd3dSingleStatField.put("3D_INTENSITY_N", "intensity_nn");
   }
 
   static {

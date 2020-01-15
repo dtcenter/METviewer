@@ -404,7 +404,8 @@ var listStatMtd2d = [
     '2D_INTENSITY_25',
     '2D_INTENSITY_50',
     '2D_INTENSITY_75',
-    '2D_INTENSITY_90'
+    '2D_INTENSITY_90',
+    '2D_INTENSITY_N'
 ];
 
 var listStatMtd3dSingle = [
@@ -425,7 +426,8 @@ var listStatMtd3dSingle = [
     '3D_INTENSITY_25',
     '3D_INTENSITY_50',
     '3D_INTENSITY_75',
-    '3D_INTENSITY_90'
+    '3D_INTENSITY_90',
+    '3D_INTENSITY_N'
 ];
 
 var listStatMtd3dPair = [
