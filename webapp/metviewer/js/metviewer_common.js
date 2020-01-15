@@ -404,7 +404,8 @@ var listStatMtd2d = [
     '2D_INTENSITY_25',
     '2D_INTENSITY_50',
     '2D_INTENSITY_75',
-    '2D_INTENSITY_90'
+    '2D_INTENSITY_90',
+    '2D_INTENSITY_N'
 ];
 
 var listStatMtd3dSingle = [
@@ -425,7 +426,8 @@ var listStatMtd3dSingle = [
     '3D_INTENSITY_25',
     '3D_INTENSITY_50',
     '3D_INTENSITY_75',
-    '3D_INTENSITY_90'
+    '3D_INTENSITY_90',
+    '3D_INTENSITY_N'
 ];
 
 var listStatMtd3dPair = [
@@ -973,8 +975,9 @@ function updateForecastVariables() {
                     } else if (selected_mode === 'mtd') {
                         $('#plot_data').val("stat");
                     }
+                    $("#plot_data").multiselect('refresh');
                 }
-                $("#plot_data").multiselect('refresh');
+
 
             }
         });
@@ -1397,10 +1400,8 @@ function updateMtd(y_axis, index, selectedVals) {
 
     //update series_var
     select = $("#series_var_" + y_axis + "_" + index);
-    console.log("in updateMtd");
     select.empty();
     $.each(fix_var_value_to_title_mtd_map, function (key, val) {
-        console.log(key + " " + val);
         select.append('<option value="' + key + '">' + val + '</option>');
     });
     try {
@@ -1608,7 +1609,6 @@ function updateStats(y_axis, index, selectedVals) {
     //update series_var
     var select = $("#series_var_" + y_axis + "_" + index);
     select.empty();
-    console.log("jfjfjfjfjf");
     $.each(series_var_value_to_title_stat_map, function (key, val) {
         select.append('<option value="' + key + '">' + val + '</option>');
     });
@@ -2115,9 +2115,7 @@ function updateFixedVarVal(index, selectedVals, equalize) {
             if (values.length > 0) {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
-                    console.log(t.text());
                     selected = $.inArray(t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&"), selectedVals) >= 0;
-                    console.log(selected);
                     if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
                         var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
@@ -2126,7 +2124,7 @@ function updateFixedVarVal(index, selectedVals, equalize) {
                             selected: selected
                         });
                         options.push(opt);
-                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                    } else if (i !== 0 && t.text() === $(values[i - 1]).text()) {
                         options[options.length - 1].text(options[options.length - 1].text() + '*');
                     }
                 }
@@ -6578,8 +6576,6 @@ function updateFixVar(selected_mode) {
 }
 
 function updateIndyVar(selected_mode) {
-    console.log("in updateIndyVar");
-    console.log(selected_mode);
 
     $('#indy_var').empty();
     if (selected_mode === "stat") {
@@ -7842,21 +7838,15 @@ function updatePages() {
     seriesDiffY1 = [];
     seriesDiffY2 = [];
     var values, i;
-    console.log("in updatePages");
     if (currentTab === 'Series' || currentTab === 'Box' || currentTab === 'Bar') {
         $('#listdt').jqGrid('clearGridData');
         var mode = $('#plot_data').multiselect('getChecked')[0].value;
-        console.log("1 " + mode);
         updateForecastVariables();
-        console.log("1 " + $('#plot_data').multiselect('getChecked')[0].value);
         if ($('#plot_data').multiselect('getChecked')[0].value !== mode) {
             mode = $('#plot_data').multiselect('getChecked')[0].value;
-            console.log("2 " + mode);
             updateForecastVariables();
-            console.log("2 " + $('#plot_data').multiselect('getChecked')[0].value);
             if ($('#plot_data').multiselect('getChecked')[0].value !== mode) {
                 updateForecastVariables();
-                console.log("3 " + $('#plot_data').multiselect('getChecked')[0].value);
             }
         }
         mode = $('#plot_data').multiselect('getChecked')[0].value;
