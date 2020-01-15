@@ -2,3 +2,27 @@
 **/dist/
 **/.idea/
 ./mvservlet.log
+/sql/update_for_1_0_1.sql
+/sql/update_for_1_1.sql
+/sql/update_for_1_3.sql
+/sql/update_for_1_4.sql
+/sql/update_for_1_6.sql
+/sql/update_for_1_8.sql
+/sql/update_for_1_9.sql
+/sql/update_for_1_11.sql
+/sql/update_for_1_12.sql
+/sql/update_for_2_2.sql
+/sql/update_for_2_3.sql
+/sql/update_for_2_3_1.sql
+/sql/update_for_2_4.sql
+/sql/update_for_2_6.sql
+/sql/update_for_2_8.sql
+/sql/update_for_2_8_second.sql
+/sql/update_for_2_9.sql
+/sql/update_for_2_10.sql
+/sql/update_for_2_11.sql
+/sql/update_for_2_12.sql
+/sql/update_for_5_0.sql
+
+# Sphinx documentation
+docs/_build/
