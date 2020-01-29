@@ -159,6 +159,8 @@ Foundation (NSF).
    overview
    installation
    seriesplots
+   barplots
+   boxplot
 
 Indices and tables
 ==================
