@@ -158,6 +158,7 @@ Foundation (NSF).
 
    overview
    installation
+   seriesplots
 
 Indices and tables
 ==================
