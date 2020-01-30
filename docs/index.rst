@@ -165,6 +165,7 @@ Foundation (NSF).
    reliabilityplots
    perfdiag
    taylordiag
+   contourplot
 
 Indices and tables
 ==================
