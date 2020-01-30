@@ -163,6 +163,7 @@ Foundation (NSF).
    boxplot
    rocplot
    reliabilityplots
+   perfdiag
 
 Indices and tables
 ==================
