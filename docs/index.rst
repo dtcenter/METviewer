@@ -161,6 +161,7 @@ Foundation (NSF).
    seriesplots
    barplots
    boxplot
+   rocplot
 
 Indices and tables
 ==================
