@@ -28,7 +28,7 @@ source("util_plot.R");
 #if fcst_var is a special char - read it as-is and do not convert
 sampleData = read.delim(strInputDataFile,nrows=5);
 classes <- sapply(sampleData, class);
-numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss');
+numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss','afss', 'ufss', 'f_rate', 'o_rate');
 integer_columns <- c('fcst_lead','nstats');
 character_columns <- c('fcst_var', 'model', 'stat_name')
 for(col in 1:ncol(sampleData)){

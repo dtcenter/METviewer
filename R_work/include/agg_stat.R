@@ -33,7 +33,7 @@ sampleData = read.delim(strInputDataFile,nrows=5);
 listStat = NA;
 if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
-  numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss',
+  numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss','afss', 'ufss', 'f_rate', 'o_rate',
 'fbar',	'obar',	'fobar',	'ffbar',	'oobar',	'var_mean','total', 'me', 'rmse', 'crps',
   'crpss', 'ign', 'spread', 'me_oerr','rmse_oerr','spread_oerr', 'spread_plus_oerr', 'mae'
 );
@@ -633,7 +633,7 @@ if ( nrow(sampleData) > 0){
         } else if( boolAggEcnt  ){
           listFields = c("total", "me", "rmse", "crps","crpss", "ign", "spread", "me_oerr","rmse_oerr","spread_oerr", "spread_plus_oerr");
         } else if( boolAggNbrCnt ){
-          listFields = c("total", "fbs", "fss");
+          listFields = c("total", "fbs", "fss",'afss', 'ufss', 'f_rate', 'o_rate');
         }else if( boolAggPct ){
           #calc T abd o_bar for pct
           n_i = dfStatsPermAllIndy$oy_i + dfStatsPermAllIndy$on_i;

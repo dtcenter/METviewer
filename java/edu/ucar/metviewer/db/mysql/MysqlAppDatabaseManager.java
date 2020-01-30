@@ -6,46 +6,21 @@
 
 package edu.ucar.metviewer.db.mysql;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import edu.ucar.metviewer.BuildMysqlQueryStrings;
-import edu.ucar.metviewer.EmptyResultSetException;
-import edu.ucar.metviewer.MVNode;
-import edu.ucar.metviewer.MVOrderedMap;
-import edu.ucar.metviewer.MVPlotJob;
-import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.MvResponse;
-import edu.ucar.metviewer.StopWatch;
-import edu.ucar.metviewer.StopWatchException;
-import edu.ucar.metviewer.ValidationException;
+import edu.ucar.metviewer.*;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+
+import java.io.*;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author : tatiana $
@@ -199,14 +174,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'perc'  FROM "
             + "line_data_perc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) perc)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'dmap'  FROM "
-            + "line_data_dmap  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) dmap)\n";
+            + "line_data_dmap  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) dmap)\n"
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'erps'  FROM "
+            + "line_data_erps  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) erps)\n";
+
 
     for (String database : currentDBName) {
       ResultSet res = null;
       try (Connection con = getConnection(database);
            PreparedStatement stmt = con.prepareStatement(strSql, ResultSet.TYPE_FORWARD_ONLY,
                    ResultSet.CONCUR_READ_ONLY)) {
-        for (int i = 1; i <= 22; i++) {
+        for (int i = 1; i <= 23; i++) {
           stmt.setString(i, strFcstVar);
         }
         res = stmt.executeQuery();
@@ -286,6 +264,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 21:
                 listStatName.addAll(MVUtil.statsDmap.keySet());
+                break;
+              case 22:
+                listStatName.addAll(MVUtil.statsErps.keySet());
                 break;
               default:
 
@@ -873,9 +854,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
           listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
         }
-        if (job.getAggNbrCtc()){
+        if (job.getAggNbrCtc()) {
           mapFarPody.put(listFcstVar[0], new String[]{"NBR_FAR", "NBR_PODY"});
-        }else {
+        } else {
           mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
         }
         for (MVOrderedMap map : listDep) {
@@ -1257,7 +1238,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         } else {
           if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
             strStat = "ECLV";
-            if (mapPlotFixVal.get("fcst_var") instanceof MVOrderedMap ) {
+            if (mapPlotFixVal.get("fcst_var") instanceof MVOrderedMap) {
               MVOrderedMap m = (MVOrderedMap) mapPlotFixVal.get("fcst_var");
               strFcstVar = ((String[]) m.get(m.getKeyList()[0]))[0];
             }
@@ -1311,7 +1292,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             aggType = MVUtil.CTC;
           } else if (job.getCalcSl1l2() || job.getAggSl1l2()) {
             aggType = MVUtil.SL1L2;
-          } else if ( job.getAggNbrCtc()) {
+          } else if (job.getAggNbrCtc()) {
             aggType = MVUtil.NBRCTC;
           } else if (job.getCalcGrad() || job.getAggGrad()) {
             aggType = MVUtil.GRAD;
@@ -1424,6 +1405,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             tableStats = MVUtil.statsDmap;
             statTable = "line_data_dmap ld\n";
             statField = strStat.replace("DMAP_", "").toLowerCase();
+          } else if (MVUtil.statsErps.containsKey(strStat)) {
+            tableStats = MVUtil.statsErps;
+            statTable = "line_data_erps ld\n";
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
             statTable = "line_data_orank ld\n";

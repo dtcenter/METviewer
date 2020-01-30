@@ -2104,3 +2104,36 @@ CREATE TABLE line_data_dmap
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
 ) ENGINE = MyISAM CHARACTER SET=latin1;
+
+
+DROP TABLE IF EXISTS line_data_erps;
+CREATE TABLE line_data_erps
+(
+    stat_header_id   INT UNSIGNED NOT NULL,
+    data_file_id     INT UNSIGNED NOT NULL,
+    line_num         INT UNSIGNED,
+    fcst_lead        INT,
+    fcst_valid_beg   DATETIME,
+    fcst_valid_end   DATETIME,
+    fcst_init_beg    DATETIME,
+    obs_lead         INT UNSIGNED,
+    obs_valid_beg    DATETIME,
+    obs_valid_end    DATETIME,
+    alpha            DOUBLE,
+    total            INT UNSIGNED,
+    n_ens            INT,
+    rps_rel          DOUBLE,
+    rps_res          DOUBLE,
+    rps_unc          DOUBLE,
+    rps              DOUBLE,
+    rpss             DOUBLE,
+    rpss_smpl        DOUBLE,
+
+    CONSTRAINT line_data_erps_data_file_id_pk
+        FOREIGN KEY (data_file_id)
+            REFERENCES data_file (data_file_id),
+    CONSTRAINT line_data_erps_stat_header_id_pk
+        FOREIGN KEY (stat_header_id)
+            REFERENCES stat_header (stat_header_id),
+    INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM CHARACTER SET=latin1;

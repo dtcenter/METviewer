@@ -202,6 +202,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     tableToInsert.put("line_data_dmap", "INSERT INTO line_data_dmap VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,"
             + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//32
 
+    tableToInsert.put("line_data_erps", "INSERT INTO line_data_erps VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//19
+
     dropIndexesQueries = new String[]{
             "DROP INDEX stat_header_model_idx ON stat_header",
             "DROP INDEX stat_header_fcst_var_idx ON stat_header",
@@ -302,9 +304,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             "DROP INDEX line_data_grad_fcst_lead_idx ON line_data_grad",
             "DROP INDEX line_data_grad_fcst_valid_beg_idx ON line_data_grad",
             "DROP INDEX line_data_grad_fcst_init_beg_idx ON line_data_grad",
-            "DROP INDEX line_data_dmap_fcst_lead_idx ON line_data_edmap",
+            "DROP INDEX line_data_dmap_fcst_lead_idx ON line_data_dmap",
             "DROP INDEX line_data_dmap_fcst_valid_beg_idx ON line_data_dmap",
-            "DROP INDEX line_data_dmap_fcst_init_beg_idx ON line_data_dmap"
+            "DROP INDEX line_data_dmap_fcst_init_beg_idx ON line_data_dmap",
+            "DROP INDEX line_data_erps_fcst_lead_idx ON line_data_erps",
+            "DROP INDEX line_data_erps_fcst_valid_beg_idx ON line_data_erps",
+            "DROP INDEX line_data_erps_fcst_init_beg_idx ON line_data_erps"
 
     };
 
@@ -410,7 +415,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             "CREATE INDEX line_data_grad_fcst_init_beg_idx ON line_data_grad (fcst_init_beg)",
             "CREATE INDEX line_data_dmap_fcst_lead_idx ON line_data_dmap (fcst_lead)",
             "CREATE INDEX line_data_dmap_fcst_valid_beg_idx ON line_data_dmap (fcst_valid_beg)",
-            "CREATE INDEX line_data_dmap_fcst_init_beg_idx ON line_data_dmap (fcst_init_beg)"
+            "CREATE INDEX line_data_dmap_fcst_init_beg_idx ON line_data_dmap (fcst_init_beg)",
+            "CREATE INDEX line_data_erps_fcst_lead_idx ON line_data_erps (fcst_lead)",
+            "CREATE INDEX line_data_erps_fcst_valid_beg_idx ON line_data_erps (fcst_valid_beg)",
+            "CREATE INDEX line_data_erps_fcst_init_beg_idx ON line_data_erps (fcst_init_beg)"
     };
 
 
@@ -4076,7 +4084,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           } catch (Exception e) {
             value = "-9999";
           }
-          stmt.setObject(4 + i,value, Types.DOUBLE);
+          stmt.setObject(4 + i, value, Types.DOUBLE);
 
 
           stmt.setInt(22, fcstFlag);
@@ -4147,7 +4155,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           } catch (Exception e) {
             value = "-9999";
           }
-          stmt.setObject(4 + i,value, Types.DOUBLE);
+          stmt.setObject(4 + i, value, Types.DOUBLE);
           stmt.setInt(17, fcstFlag);
           stmt.setInt(18, simpleFlag);
           stmt.setInt(19, matchedFlag);

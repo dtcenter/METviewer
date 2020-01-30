@@ -89,6 +89,8 @@ public class MVUtil {
   public static final Map<String, String> modeSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd3dSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd2dStatField = new HashMap<>();
+  public static final Map<String, String[]> statsErps = new HashMap<>();
+
 
   public static final int MAX_STR_LEN = 500;
 
@@ -158,7 +160,8 @@ public class MVUtil {
           "vcnt",
           "relp",
           "ecnt",
-          "dmap"
+          "dmap",
+          "erps"
   };
 
   static {
@@ -454,6 +457,15 @@ public class MVUtil {
     statsDmap.put("DMAP_ZHU_MIN", new String[]{""});
     statsDmap.put("DMAP_ZHU_MAX", new String[]{""});
     statsDmap.put("DMAP_ZHU_MEAN", new String[]{""});
+  }
+
+  static {
+    statsErps.put("RPS_REL", new String[]{""});
+    statsErps.put("RPS_RES", new String[]{""});
+    statsErps.put("RPS_UNC", new String[]{""});
+    statsErps.put("RPS", new String[]{""});
+    statsErps.put("RPSS", new String[]{""});
+    statsErps.put("RPSS_SMPL", new String[]{""});
   }
 
   static {
@@ -1040,6 +1052,7 @@ public class MVUtil {
     thresh.sort(
             new Comparator<CharSequence>() {
               private final Pattern PATTERN_WITH_FLOAT = Pattern.compile("(\\D*)([-+]?\\d*\\.?\\d+)");
+
               public int compare(CharSequence s1, CharSequence s2) {
                 Matcher m1 = PATTERN_WITH_FLOAT.matcher(s1);
                 Matcher m2 = PATTERN_WITH_FLOAT.matcher(s2);
@@ -1582,6 +1595,8 @@ public class MVUtil {
       return "line_data_perc";
     } else if (statsDmap.containsKey(strStat)) {
       return "line_data_dmap";
+    } else if (statsErps.containsKey(strStat)) {
+      return "line_data_erps";
     } else {
       return "";
     }
