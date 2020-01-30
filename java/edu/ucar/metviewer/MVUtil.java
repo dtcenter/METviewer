@@ -1,5 +1,12 @@
 package edu.ucar.metviewer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
+import org.w3c.dom.Document;
+
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,41 +16,16 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
-import org.w3c.dom.Document;
 
 public class MVUtil {
 
@@ -105,6 +87,8 @@ public class MVUtil {
   public static final Map<String, String> modeSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd3dSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd2dStatField = new HashMap<>();
+  public static final Map<String, String[]> statsErps = new HashMap<>();
+
 
   public static final int MAX_STR_LEN = 500;
 
@@ -174,7 +158,8 @@ public class MVUtil {
           "vcnt",
           "relp",
           "ecnt",
-          "dmap"
+          "dmap",
+          "erps"
   };
 
   static {
@@ -419,6 +404,7 @@ public class MVUtil {
     alphaLineTypes.put("SSVAR", Boolean.TRUE);
     alphaLineTypes.put("VCNT", Boolean.TRUE);
     alphaLineTypes.put("DMAP", Boolean.TRUE);
+    alphaLineTypes.put("ERPS", Boolean.TRUE);
   }
 
 
@@ -470,6 +456,15 @@ public class MVUtil {
     statsDmap.put("DMAP_ZHU_MIN", new String[]{""});
     statsDmap.put("DMAP_ZHU_MAX", new String[]{""});
     statsDmap.put("DMAP_ZHU_MEAN", new String[]{""});
+  }
+
+  static {
+    statsErps.put("RPS_REL", new String[]{""});
+    statsErps.put("RPS_RES", new String[]{""});
+    statsErps.put("RPS_UNC", new String[]{""});
+    statsErps.put("RPS", new String[]{""});
+    statsErps.put("RPSS", new String[]{""});
+    statsErps.put("RPSS_SMPL", new String[]{""});
   }
 
   static {
@@ -1056,6 +1051,7 @@ public class MVUtil {
     thresh.sort(
             new Comparator<CharSequence>() {
               private final Pattern PATTERN_WITH_FLOAT = Pattern.compile("(\\D*)([-+]?\\d*\\.?\\d+)");
+
               public int compare(CharSequence s1, CharSequence s2) {
                 Matcher m1 = PATTERN_WITH_FLOAT.matcher(s1);
                 Matcher m2 = PATTERN_WITH_FLOAT.matcher(s2);
@@ -1581,6 +1577,8 @@ public class MVUtil {
       return "line_data_perc";
     } else if (statsDmap.containsKey(strStat)) {
       return "line_data_dmap";
+    } else if (statsErps.containsKey(strStat)) {
+      return "line_data_erps";
     } else {
       return "";
     }
@@ -1886,9 +1884,9 @@ public class MVUtil {
   }
 
   public static String buildTemplateInfoString(final String tmpl, final MVOrderedMap vals,
-                                             final MVOrderedMap tmplMaps,
-                                             final PrintStream printStream)throws ValidationException {
-    return buildTemplate(tmpl, vals,tmplMaps,printStream, "infoString");
+                                               final MVOrderedMap tmplMaps,
+                                               final PrintStream printStream) throws ValidationException {
+    return buildTemplate(tmpl, vals, tmplMaps, printStream, "infoString");
   }
 
   public static String buildTemplateString(
@@ -1896,7 +1894,7 @@ public class MVUtil {
           final MVOrderedMap tmplMaps,
           final PrintStream printStream) throws ValidationException {
 
-    return buildTemplate(tmpl, vals,tmplMaps,printStream, "fileName");
+    return buildTemplate(tmpl, vals, tmplMaps, printStream, "fileName");
   }
 
   /**
@@ -1936,7 +1934,7 @@ public class MVUtil {
       }
 
       String strVal = (String) vals.get(strTmplTagName);
-      if( stringType.equals("fileName")) {
+      if (stringType.equals("fileName")) {
         strVal = strVal.replace(">", "gt").replace("<", "lt").replaceAll("=", "e");
       }
 
