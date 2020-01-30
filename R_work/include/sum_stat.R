@@ -67,7 +67,7 @@ write.table(newColumns, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\
 
 if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
-  numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss', 'fbar',  'obar',  'fobar',  'ffbar',  'oobar',  'var_mean');
+  numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss', 'afss', 'ufss', 'f_rate', 'o_rate','fbar',  'obar',  'fobar',  'ffbar',  'oobar',  'var_mean');
   integer_columns <- c('fcst_lead','nstats');
   character_columns <- c('fcst_var', 'model', 'stat_name')
   for(col in 1:ncol(sampleData)){
