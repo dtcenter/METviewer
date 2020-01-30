@@ -18,6 +18,9 @@ Bar plots often represent counts or frequencies. However, bar plots can represen
 
 | The example below shows a barplot.
 | ?? Missing  barplot.png in github or in lyx.  Where is this image located?
-.. figure:: barplot.png
-| Figure 4.1 Example Barplot created by METviewer.
+
+.. .. figure:: barplot.png
+
+Figure 4.1 Example Barplot created by METviewer.
+
 
