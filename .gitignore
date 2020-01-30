@@ -21,7 +21,7 @@
 /sql/update_for_2_9.sql
 /sql/update_for_2_10.sql
 /sql/update_for_2_11.sql
-/sql/update_for_2_12.sql
+/sql/update_for_3_0.sql
 /sql/update_for_5_0.sql
 
 # Sphinx documentation
