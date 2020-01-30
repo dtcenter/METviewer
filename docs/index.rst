@@ -164,6 +164,8 @@ Foundation (NSF).
    rocplot
    reliabilityplots
    perfdiag
+   taylordiag
+   contourplot
 
 Indices and tables
 ==================
