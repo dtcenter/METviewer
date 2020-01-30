@@ -162,6 +162,7 @@ Foundation (NSF).
    barplots
    boxplot
    rocplot
+   reliabilityplots
 
 Indices and tables
 ==================
