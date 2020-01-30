@@ -1637,8 +1637,8 @@ public class MVUtil {
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
-      readerProcStd = new BoundedBufferedReader(inputStreamReader);
-      readerProcErr = new BoundedBufferedReader(errorInputStreamReader);
+      readerProcStd = new BoundedBufferedReader(inputStreamReader, 10000, 2048);
+      readerProcErr = new BoundedBufferedReader(errorInputStreamReader,10000, 2048);
       while (!boolExit) {
         try {
           intExitStatus = proc.exitValue();
