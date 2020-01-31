@@ -168,6 +168,7 @@ Foundation (NSF).
    contourplot
    spreadskillplot
    eclvplots
+   scorecard
    
 Indices and tables
 ==================
