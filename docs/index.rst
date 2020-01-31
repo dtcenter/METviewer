@@ -166,6 +166,7 @@ Foundation (NSF).
    perfdiag
    taylordiag
    contourplot
+   spreadskillplot
 
 Indices and tables
 ==================
