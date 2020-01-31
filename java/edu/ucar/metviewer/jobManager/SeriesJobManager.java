@@ -6,27 +6,18 @@
 
 package edu.ucar.metviewer.jobManager;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-
-import edu.ucar.metviewer.DatabaseException;
-import edu.ucar.metviewer.MVBatch;
-import edu.ucar.metviewer.MVOrderedMap;
-import edu.ucar.metviewer.MVPlotDep;
-import edu.ucar.metviewer.MVPlotJob;
-import edu.ucar.metviewer.MVPlotJobParser;
-import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.MvResponse;
-import edu.ucar.metviewer.StopWatchException;
-import edu.ucar.metviewer.ValidationException;
+import edu.ucar.metviewer.*;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.rscriptManager.RscriptAggStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptNoneStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptSumStatManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author : tatiana $
@@ -60,8 +51,7 @@ public class SeriesJobManager extends JobManager {
     for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
       job.setEventEqual(isEE);
 
-      mvBatch
-              .print("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
+      mvBatch.print("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
 
       //    insert set values for this permutation
       MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(),
@@ -268,8 +258,8 @@ public class SeriesJobManager extends JobManager {
 
       for (String[] aListFcstVarStat : listFcstVarStat) {
         String[] arr = aListFcstVarStat[1].split("_");
-        String stat = arr[arr.length-2];
-        String type = arr[arr.length-1];
+        String stat = arr[arr.length - 2];
+        String type = arr[arr.length - 1];
         //validate for all attr stats except for those
         if (!stat.equals("CNT")
                 && !stat.equals("CNTSUM")
