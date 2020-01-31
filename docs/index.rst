@@ -167,7 +167,8 @@ Foundation (NSF).
    taylordiag
    contourplot
    spreadskillplot
-
+   eclvplots
+   
 Indices and tables
 ==================
 
