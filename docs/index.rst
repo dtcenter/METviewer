@@ -155,6 +155,8 @@ Foundation (NSF).
 .. toctree::
    :hidden: 
    :caption: Table of Contents
+   :numbered:
+		
 
    overview
    installation
