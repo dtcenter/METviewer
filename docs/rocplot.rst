@@ -24,4 +24,4 @@ The plot shown below is for two different probability of precipitation forecasts
 
 .. figure:: Example_ROC_plot.png
 
-Figure 6.1: Example ROC diagram showing POD vs. POFD for two different POP forecasts at thresholds of (0%, 25%, 50%, and 75%).
+	    Figure 6.1: Example ROC diagram showing POD vs. POFD for two different POP forecasts at thresholds of (0%, 25%, 50%, and 75%).

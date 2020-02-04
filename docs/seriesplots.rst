@@ -28,5 +28,5 @@ The image below shows an example of the plot and set-up options for a series plo
 
 .. figure:: SeriesPlot_MV_Capture.png
 
-Screen capture of METviewer configured to produce a series plot of frequency bias by lead time for 3-hour accumulated precipitation for seven ensemble members.
+	    Figure 3.1 Screen capture of METviewer configured to produce a series plot of frequency bias by lead time for 3-hour accumulated precipitation for seven ensemble members.
 	    

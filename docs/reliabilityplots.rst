@@ -33,6 +33,7 @@ Reliability diagrams can be used to make adjustments to the conditional bias of 
 The histograms show the relative frequency with which the event has been predicted (typically over the reference period and at all gridpoints) with different levels of probability. In the example the majority of forecasts predict low probabilities of precipitation (near the climatological probability of ~9%). The forecast system is also capable of predicting relatively high probabilities of the event (e.g. greater than 40%), but such forecasts are less common.
 
 .. figure:: reliability.png
-Figure 7.1 Example reliability (attributes diagram) with histogram of observation counts and bootstrap confidence intervals.
+
+	    Figure 7.1 Example reliability (attributes diagram) with histogram of observation counts and bootstrap confidence intervals.
 
 ??Several optional   Did you want more figures?? 

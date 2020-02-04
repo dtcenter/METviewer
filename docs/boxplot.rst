@@ -17,4 +17,5 @@ Boxplots work best for comparing a set of continuous values (e.g. some verificat
 The example below shows a boxplot of the RMSE for 2m temperature over the CONUS. Many of the standard METviewer plotting options are available for the boxplot. However, the boxplot has some special options than only apply.
 
 .. figure:: boxplot.png
-Figure 5.1: Example Boxplot created by METviewer for RMSE of 2m temperature over the CONUS by lead time.
+
+	    Figure 5.1: Example Boxplot created by METviewer for RMSE of 2m temperature over the CONUS by lead time.
