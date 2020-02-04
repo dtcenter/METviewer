@@ -33,7 +33,7 @@ METviewer requires installation of Java, Apache / Tomcat, MySQL, and R statistic
 
 .. figure:: MV_flowchart.png
 	    
-Figure 1.1 METviewer flowchart, showing types if input data, output types, and options for use. 
+	    Figure 1.1 METviewer flowchart, showing types if input data, output types, and options for use. 
 
 
 
