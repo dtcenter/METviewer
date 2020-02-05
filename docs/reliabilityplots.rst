@@ -1,13 +1,13 @@
-Chapter 7 Reliability Plots in METviewer
-========================================
+Reliability Plots in METviewer
+==============================
 
-7.1 Description
----------------
+Description
+-----------
 
 Reliability (or attributes) diagrams are used to show the conditional bias of probabilistic forecasts. If a probability forecast is reliable, then the relative frequency of events for a certain category of probability forecasts will be approximately the same as the forecast probability. In other words, when a 50% probability of precipitation is forecast, approximately half of the corresponding observations should indicate that precipitation fell. 
 
-7.2 Details
------------
+Details
+-------
 
 Selection of options to produce your plot proceeds approxately counter-clockwise around the METviewer window. Select your database from the pulldown menus at the top margin of the METviewer window. Make sure the Reliability tab is selected near the top left, just under the database pulldown menu. The statistics for this type of plot are fixed, so you much only choose your set of cases. The reliability diagram only makes sense for probability forecasts, but these can be from ensemble forecasts or from a traditional forecast. There are several reference lines on the reliability diagram. 
 
@@ -21,8 +21,8 @@ Reference line: This line (typically dashed) denotes the sample climatology or b
 
 Generate Plot button at top of METviewer window with the red text. 
 
-7.3 Examples
-------------
+Examples
+--------
 
 The reliability diagram groups the forecasts into bins according to the issued probability (x axis). The frequency with which the event was observed to occur for this sub-group of forecasts is then plotted against the y axis. For perfect reliability the forecast probability and the frequency of occurrence should be equal, and the plotted points should lie on the diagonal (by default a solid grey line in the figure). In other words, when a 50% probability of precipitation is forecast, approximately half of the corresponding observations should indicate that precipitation fell. 
 

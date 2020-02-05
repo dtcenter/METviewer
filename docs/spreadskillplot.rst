@@ -1,20 +1,20 @@
-Chapter 11 Spread vs. Skill Plots in METviewer
-==============================================
+Spread vs. Skill Plots in METviewer
+===================================
 
-11.1 Description
-----------------
+Description
+-----------
 
 Spread vs. Skill plots are widely used to evaluate the quality of ensemble forecasting systems. One goal of ensemble forecasting is to have the ensemble members represent the range of possible outcomes, which suggests that the ensemble spread shoud approsimately equal the skill of the ensemble mean (as measured by RMSE). Spread and skill will be plotted on the y-axis, and the user may select the x axis variable. 
 
-11.2 Details
-------------
+Details
+-------
 
 Selection of options to produce your plot proceeds approxately counter-clockwise around the METviewer window. Select your database from the pulldown menus at the top margin of the METviewer window. Make sure the 'Series' tab is selected near the top left, just under the database pulldown menu. Next, you must select the type of MET statistics that will be used to create the plot. In the “Plot Data” menu, the list contains “Stat”, “MODE”, or “MODE-TD”. For details about these types of output statistics in MET, please see the most recent version of the MET Users' Guide (www.dtcenter.org/met/users/docs).
 
 Generate Plot button at top of METviewer window with the red text. 
 
-11.3 Examples
--------------
+Examples
+--------
 
 The primary goal ??More detail please??
 

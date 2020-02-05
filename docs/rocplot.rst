@@ -1,13 +1,13 @@
-Chapter 6 Receiver Operating Characteristic (ROC) Plots in METviewer
-====================================================================
+Receiver Operating Characteristic (ROC) Plots in METviewer
+==========================================================
 
-6.1 Description
----------------
+Description
+-----------
 
 MET produces hit rate (POD) and probability of false detection (POFD) values for each user-specied threshold of a forecast, or from each category of a probabilistic forecast. This information can be used to create a scatter plot of POFD vs. POD. When the points are connected, the plot is generally referred to as the receiver operating characteristic (ROC) curve (also called the "relative operating characteristic" curve). An ROC plot is shown for an example set of forecasts, with a solid line connecting the points for six user specified thresholds. The diagonal dashed line indicates no skill while the dash-dot line shows the ROC for a perfect forecast. An ROC curve shows how well the forecast discriminates between two outcomes, so it is a measure of resolution. The ROC is invariant to linear transformations of the forecast, and is thus unaffected by bias. An unbiased (i.e., well-calibrated) forecast can have the same ROC as a biased forecast, though most would agree that an unbiased forecast is "better". Since the ROC is conditioned on the observations, it is often paired with the reliability diagram, which is conditioned on the forecasts.
 
-6.2 Details
------------
+Details
+-------
 
 Selection of options to produce your plot proceeds approxately counter-clockwise around the METviewer window. Select your database from the pulldown menus at the top margin of the METviewer window. Make sure the ROC tab is selected near the top left, just under the database pulldown menu. Next, you must choose the “Stat” option in the “Plot Data” menu, as this type of diagram can only use information from the CTC and PCT line types available in the “Stat” output. For details about these types of statistics from MET, please see the most recent version of the MET Users' Guide (www.dtcenter.org/met/users/docs). The method for creating the plot from each type of data is included below:
 
@@ -17,8 +17,8 @@ Selection of options to produce your plot proceeds approxately counter-clockwise
 
 In both of the above cases, the observation threshold must be identical for all points on the plot. Otherwise, this is not an ROC plot at all. 
 
-6.3 Examples
-------------
+Examples
+--------
 
 The plot shown below is for two different probability of precipitation forecasts. The dashed diagonal line represents the no-skill line. Idea forecasts would have a point at the top left of the graphic, thus better forecasts are closer to the top left of the plot. In this example, the red line is closer than the purple line to ideal. However, this small difference is probably not statistically significant. 
 

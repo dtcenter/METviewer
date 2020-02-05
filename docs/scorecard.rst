@@ -1,13 +1,13 @@
-Chapter 13 Scorecards in METviewer
-==================================
+Scorecards in METviewer
+=======================
 
-13.1 Description
-----------------
+Description
+-----------
 
 The scorecard can only be produced using xml code. The xml code specifications are listed in the detail below. There is no GUI interface. 
 
-13.2 Details
-------------
+Details
+-------
 
 The scorecard Module is used to generate a scorecard image and HTML table using data in the METviewer database. The usage statement:
 
@@ -125,8 +125,8 @@ The your_scorecard_spec_file.xml passed to the scorecard module contains informa
 
 **<title>** title of the scorecard displayed on the image. Default value: Verification Scorecard 
 
-13.3 Examples
--------------
+Examples
+--------
 
 The image below shows an example an output scorecard. 
 

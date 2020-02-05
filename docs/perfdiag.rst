@@ -1,13 +1,13 @@
-Chapter 8 Performance Diagrams in METviewer
-===========================================
+Performance Diagrams in METviewer
+=================================
 
-8.1 Description
----------------
+Description
+-----------
 
 Performance diagrams are used to show the relationship between categorical statistics, with axes representing detection and success (1 - false alarm) rates (Roebber, 2009). Frequency bias and the critical success index (CSI) are also shown on the diagram. The simplest input to the performance diagram is the MET contingency table statistics (cts) output. This output can be produced by many of the MET tools (Point Stat, Grid Stat, etc.). In METviewer, contingency tables can be accumulated over some time period but kept separate for different models, lead times, observation sources, domains, etc. 
 
-8.2 Details
------------
+Details
+-------
 
 Selection of options to produce your plot proceeds approxately counter-clockwise around the METviewer window. Select your database from the pulldown menus at the top margin of the METviewer window. Make sure the “Perf” tab is selected near the top left, just under the database pulldown menu. The statistics for this type of plot are fixed, so you must only choose your set of cases. 
 
@@ -15,8 +15,8 @@ There are several reference lines on the performance diagram. The dashed lines t
 
 Generate Plot button at top of METviewer window with the red text. 
 
-8.3 Examples
-------------
+Examples
+--------
  
 .. figure:: PerfDiag_Example.png
 

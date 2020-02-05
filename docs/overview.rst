@@ -1,33 +1,33 @@
-Chapter 1 Overview of METviewer
-===============================
+Overview of METviewer
+=====================
 
 
-1.1 Purpose and organization of the User's Guide
-------------------------------------------------
+Purpose and organization of the User's Guide
+--------------------------------------------
 
 The goal of this User's Guide is to provide basic information for users of the METviewer database and display system to enable users to create plots from their MET output statistics. 
 
 The METviewer User's Guide is organized as follows.
 
 
-1.2 The Developmental Testbed Center (DTC)
-------------------------------------------
+The Developmental Testbed Center (DTC)
+--------------------------------------
 
 METviewer has been developed, and will be maintained and enhanced, by the Developmental Testbed Center (DTC; http://www.dtcenter.org/ ). The main goal of the DTC is to serve as a bridge between operations and research, to facilitate the activities of these two important components of the numerical weather prediction (NWP) community. The DTC provides an environment that is functionally equivalent to the operational environment in which the research community can test model enhancements; the operational community benefits from DTC testing and evaluation of models before new models are implemented operationally. METviewer serves both the research and operational communities in this way - offering capabilities for researchers to test their own enhancements to models and providing a capability for the DTC to evaluate the strengths and weaknesses of advances in NWP prior to operational implementation.
 
 The METviewer package will also be available to DTC visitors and to the modeling community for testing and evaluation of new model capabilities, applications in new environments, and so on.
 
 
-1.3 METviewer goals and design philosophy
------------------------------------------
+METviewer goals and design philosophy
+-------------------------------------
 
 The METviewer tool reads MET verification statistics output from a database and creates plots using the R statistical package. The tool includes a web application that can be accessed from a web browser to create a single plot. The specification for each plot is built using a series of controls which are then serialized into XML. The controls are found in the left half, lower panel, and lower right quadrant of the METviewer browser. Details about these controls are found in :ref:`userspec`. For each plot, METviewer generates output in the form of a SQL query, an R script to create the plot, a flat file containing the data that will be plotted and the plot itself. This output populates the upper right quadrant of the METviewer database. 
 
 The METviewer code and documentation is maintained by the DTC in Boulder, Colorado. The MET package is freely available to the modeling, verification, and operational communities, including universities, governments, the private sector, and operational modeling and prediction centers.
 
 
-1.4 METviewer Requirements
---------------------------
+METviewer Requirements
+----------------------
 
 METviewer requires installation of Java, Apache / Tomcat, MySQL, and R statistics.
 
@@ -39,8 +39,8 @@ METviewer requires installation of Java, Apache / Tomcat, MySQL, and R statistic
 
 .. _userspec:
 
-1.5 METviewer User Specifications
----------------------------------
+METviewer User Specifications
+-----------------------------
 
 The top menu allows the user to select a database and type for the plot. 
 
@@ -83,8 +83,8 @@ To really compare the difference of these lines, I'd suggest plotting their pair
 This shows that at GFS has a statistically significant higher GSS score than FV3GFS at the lowest threshold. But the results are not statistically significant at higher thresholds. Visually, when the confidence interval for the pairwise difference line does not include 0, the difference is significant and METviewer plots the CI in bold. That's the effect of turning on "Show Significance".
 
 
-1.6 METviewer Output
---------------------
+METviewer Output
+----------------
 
 METviewer output all appears in the tabbed boxes at the top right quadrant of the web browser. The plot will show by default, but the user can click any of the tabs along the top to see the other windows. The tabs include:
 
@@ -104,8 +104,8 @@ Y2 Points - See above.
 
 The rightmost tab is a small square. Clicking here will save the contents of the current window to your default (usually 'Downloads') folder. It is recommended that the user click through at least the plot and xml windows and save this output.
 
-1.7 METviewer Plot Formatting Specifications
---------------------------------------------
+METviewer Plot Formatting Specifications
+----------------------------------------
 
 METviewer plot formatting options appear in the tabbed boxes at the bottom right quadrant of the web browser. The “Titles & Labels” tab will show by default, but the user can click any of the tabs along the top to see the other windows. The tabs include:
 
@@ -122,27 +122,27 @@ Legend & Caption: Options for the Legend and Caption include text size, position
 Reset: This button, shown to the far right with a circular arrow icon, will reset all options to the defaults.
 
 
-1.8 METviewer Series Formatting Specifications
-----------------------------------------------
+METviewer Series Formatting Specifications
+------------------------------------------
 
 At the bottom of the METviewer window is the series formatting box. It allows the user to control the minute details of each line on a plot, including title, color, symbol, line type, line width, legend text.
 
 Four radio buttons along the bottom of this menu allow users to create a derived curve or remove one, apply default values or lock the formatting in place (so subsequent plots are identical in format). 
 
 
-1.9 METviewer History Menu
---------------------------
+METviewer History Menu
+----------------------
 
 Along the left of the METviewer GUI, hidden by default, is the history menu. To open this menu, click the arrow at the top left side right underneath the “METviewer 2.6” label. This menu provides a list of all (or all successful) recent plotting attempts using the METviewer GUI. Users can select items from this menu to recover plots they may have neglected to save. Clicking on the button showing loads the plot. 
 
-1.10 Future development plans
------------------------------
+Future development plans
+------------------------
 
 METviewer is an evolving verification database and display software package. New capabilities are planned in controlled, successive version releases. Bug fixes and user-identified problems will be addressed as they are found. Plans are also in place to incorporate many new capabilities and options in future releases of METviewer. Additionally, updates to accommodate new features of the MET software are often required. 
 
 
-1.11 Code support
------------------
+Code support
+------------
 
 METviewer support is provided through a MET-help e-mail address: met_help@ucar.edu. We will endeavor to respond to requests for help in a timely fashion. 
 
