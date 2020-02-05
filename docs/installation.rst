@@ -101,7 +101,7 @@ Deploy the web app to tomcat:
 2.2.3 Create a METviewer database:
 ----------------------------------
 
-Create a database to store MET data, which has the prefix 'mv_', e.g. mv_met_data:
+Create a database to store MET data, which has the prefix \'\mv_\'\, e.g. mv_met_data:
 
 .. code-block:: none
 
