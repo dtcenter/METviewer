@@ -31,7 +31,7 @@ public abstract class RscriptStatManager {
   }
 
   public abstract void prepareDataFileAndRscript(MVPlotJob job, MVOrderedMap mvMap,
-                                                 Map<String, String> info,
+                                                 Map<String, Object> info,
                                                  List<String> listQuery)
           throws ValidationException, IOException, StopWatchException;
 

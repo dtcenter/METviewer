@@ -80,8 +80,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
         info.put("agg_stat_output", dataFile + ".ee");
         String eeInfo = dataFile.replaceFirst("\\.data$", ".agg_stat_event_equalize.info");
 
-        MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + "/" + tmplFileName, eeInfo,
-                info);
+        MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + "/" + tmplFileName, eeInfo, info);
         String scriptName = mvBatch.getRworkFolder() + "/include/agg_stat_event_equalize.R";
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();

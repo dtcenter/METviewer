@@ -406,6 +406,7 @@ public class MVUtil {
     alphaLineTypes.put("SSVAR", Boolean.TRUE);
     alphaLineTypes.put("VCNT", Boolean.TRUE);
     alphaLineTypes.put("DMAP", Boolean.TRUE);
+    alphaLineTypes.put("ERPS", Boolean.TRUE);
   }
 
 
@@ -660,7 +661,7 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_OVAR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_SPEED_ERR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_RMSVE", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_MSVE", new String[]{VL1L2});
+    statsVl1l2.put("VL1L2_SPEED_DIFF", new String[]{VL1L2});
   }
 
   public static final String COUNT = "COUNT(*)";
@@ -1662,8 +1663,8 @@ public class MVUtil {
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
-      readerProcStd = new BoundedBufferedReader(inputStreamReader);
-      readerProcErr = new BoundedBufferedReader(errorInputStreamReader);
+      readerProcStd = new BoundedBufferedReader(inputStreamReader, 10000, 2048);
+      readerProcErr = new BoundedBufferedReader(errorInputStreamReader,10000, 2048);
       while (!boolExit) {
         try {
           intExitStatus = proc.exitValue();
