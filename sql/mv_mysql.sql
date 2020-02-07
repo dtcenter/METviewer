@@ -2106,8 +2106,8 @@ CREATE TABLE line_data_dmap
 ) ENGINE = MyISAM CHARACTER SET=latin1;
 
 
-DROP TABLE IF EXISTS line_data_erps;
-CREATE TABLE line_data_erps
+DROP TABLE IF EXISTS line_data_rps;
+CREATE TABLE line_data_rps
 (
     stat_header_id   INT UNSIGNED NOT NULL,
     data_file_id     INT UNSIGNED NOT NULL,
@@ -2121,7 +2121,7 @@ CREATE TABLE line_data_erps
     obs_valid_end    DATETIME,
     alpha            DOUBLE,
     total            INT UNSIGNED,
-    n_ens            INT,
+    n_prob           INT,
     rps_rel          DOUBLE,
     rps_res          DOUBLE,
     rps_unc          DOUBLE,
@@ -2129,10 +2129,10 @@ CREATE TABLE line_data_erps
     rpss             DOUBLE,
     rpss_smpl        DOUBLE,
 
-    CONSTRAINT line_data_erps_data_file_id_pk
+    CONSTRAINT line_data_rps_data_file_id_pk
         FOREIGN KEY (data_file_id)
             REFERENCES data_file (data_file_id),
-    CONSTRAINT line_data_erps_stat_header_id_pk
+    CONSTRAINT line_data_rps_stat_header_id_pk
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)

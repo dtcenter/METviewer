@@ -175,8 +175,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "line_data_perc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) perc)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'dmap'  FROM "
             + "line_data_dmap  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) dmap)\n"
-            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'erps'  FROM "
-            + "line_data_erps  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) erps)\n";
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rps'  FROM "
+            + "line_data_rps  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) rps)\n";
 
 
     for (String database : currentDBName) {
@@ -266,7 +266,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 listStatName.addAll(MVUtil.statsDmap.keySet());
                 break;
               case 22:
-                listStatName.addAll(MVUtil.statsErps.keySet());
+                listStatName.addAll(MVUtil.statsRps.keySet());
                 break;
               default:
 
@@ -1405,9 +1405,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             tableStats = MVUtil.statsDmap;
             statTable = "line_data_dmap ld\n";
             statField = strStat.replace("DMAP_", "").toLowerCase();
-          } else if (MVUtil.statsErps.containsKey(strStat)) {
-            tableStats = MVUtil.statsErps;
-            statTable = "line_data_erps ld\n";
+          } else if (MVUtil.statsRps.containsKey(strStat)) {
+            tableStats = MVUtil.statsRps;
+            statTable = "line_data_rps ld\n";
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
             statTable = "line_data_orank ld\n";

@@ -87,7 +87,7 @@ public class MVUtil {
   public static final Map<String, String> modeSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd3dSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd2dStatField = new HashMap<>();
-  public static final Map<String, String[]> statsErps = new HashMap<>();
+  public static final Map<String, String[]> statsRps = new HashMap<>();
 
 
   public static final int MAX_STR_LEN = 500;
@@ -159,7 +159,7 @@ public class MVUtil {
           "relp",
           "ecnt",
           "dmap",
-          "erps"
+          "rps"
   };
 
   static {
@@ -404,7 +404,7 @@ public class MVUtil {
     alphaLineTypes.put("SSVAR", Boolean.TRUE);
     alphaLineTypes.put("VCNT", Boolean.TRUE);
     alphaLineTypes.put("DMAP", Boolean.TRUE);
-    alphaLineTypes.put("ERPS", Boolean.TRUE);
+    alphaLineTypes.put("RPS", Boolean.TRUE);
   }
 
 
@@ -459,12 +459,12 @@ public class MVUtil {
   }
 
   static {
-    statsErps.put("RPS_REL", new String[]{""});
-    statsErps.put("RPS_RES", new String[]{""});
-    statsErps.put("RPS_UNC", new String[]{""});
-    statsErps.put("RPS", new String[]{""});
-    statsErps.put("RPSS", new String[]{""});
-    statsErps.put("RPSS_SMPL", new String[]{""});
+    statsRps.put("RPS_REL", new String[]{""});
+    statsRps.put("RPS_RES", new String[]{""});
+    statsRps.put("RPS_UNC", new String[]{""});
+    statsRps.put("RPS", new String[]{""});
+    statsRps.put("RPSS", new String[]{""});
+    statsRps.put("RPSS_SMPL", new String[]{""});
   }
 
   static {
@@ -1577,8 +1577,8 @@ public class MVUtil {
       return "line_data_perc";
     } else if (statsDmap.containsKey(strStat)) {
       return "line_data_dmap";
-    } else if (statsErps.containsKey(strStat)) {
-      return "line_data_erps";
+    } else if (statsRps.containsKey(strStat)) {
+      return "line_data_rps";
     } else {
       return "";
     }
