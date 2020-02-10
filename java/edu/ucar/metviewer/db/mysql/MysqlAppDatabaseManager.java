@@ -175,8 +175,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "line_data_perc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) perc)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'dmap'  FROM "
             + "line_data_dmap  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) dmap)\n"
-            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'erps'  FROM "
-            + "line_data_erps  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) erps)\n";
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rps'  FROM "
+            + "line_data_rps  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) rps)\n";
 
 
     for (String database : currentDBName) {
@@ -266,7 +266,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 listStatName.addAll(MVUtil.statsDmap.keySet());
                 break;
               case 22:
-                listStatName.addAll(MVUtil.statsErps.keySet());
+                listStatName.addAll(MVUtil.statsRps.keySet());
                 break;
               default:
 
@@ -728,6 +728,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return result;
   }
 
+
   private List<String> getNumbers(String query, String currentDBName) {
     List<String> result = new ArrayList<>();
     try (Connection con = getConnection(currentDBName);
@@ -1089,6 +1090,89 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
       }
 
+      if (job.getAggRps()) {
+        /*
+         *  For agg_stat RPS plots, retrieve N_PROB is constant for each series
+         */
+        MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap())
+                .getRows();
+        MVOrderedMap[] forecastVars = MVUtil.permute((MVOrderedMap) job.getDepGroups()[0].get("dep" + intY))
+                .getRows();
+        for (int forecastVarsInd = 0; forecastVarsInd < forecastVars.length; forecastVarsInd++) {
+          MVOrderedMap stats = forecastVars[forecastVarsInd];
+          String[] vars = stats.getKeyList();
+          for (int varsInd = 0; varsInd < vars.length; varsInd++) {
+            int[] seriesNprob = new int[series.length];
+            for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
+              MVOrderedMap ser = series[seriesInd];
+              String[] serName = ser.getKeyList();
+              for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
+                String selRpsProb = "SELECT DISTINCT ld.n_prob\nFROM\n  "
+                        + "stat_header h,\n  line_data_rps ld\n";
+                selRpsProb = selRpsProb + "WHERE\n";
+                if (indyVarFormatted.length() > 0 && job.getIndyVal().length > 0) {
+                  selRpsProb = selRpsProb + BINARY + indyVarFormatted
+                          + " IN (" + MVUtil.buildValueList(
+                          job.getIndyVal()) + ")\n  AND ";
+                  selRpsProb = selRpsProb + BINARY + serName[serNameInd]
+                          + " = '" + ser.getStr(serName[serNameInd]) + "'";
+                  if (!vars[varsInd].equals("NA")) {
+                    selRpsProb = selRpsProb + " AND" + BINARY + " fcst_var='" + vars[varsInd] + "' ";
+                  }
+                  if (plotFixWhere.length() > 0) {
+                    selRpsProb = selRpsProb + "  AND  " + plotFixWhere;
+                  }
+                  selRpsProb = selRpsProb + "  AND ld.stat_header_id = h.stat_header_id;";
+                  printStreamSql.println(selRpsProb + "\n");
+                  printStreamSql.flush();
+                  //  run the PCT thresh query
+                  List<String> errors = new ArrayList<>();
+                  for (int i = 0; i < job.getCurrentDBName().size(); i++) {
+                    Map<String, Integer> rpsProbInfo = getPctThreshInfo(selRpsProb, job.getCurrentDBName().get(i));
+                    if (1 != rpsProbInfo.get("numPctThresh")) {
+                      String error = "number of RPS PROBs (" + rpsProbInfo.get(
+                              "numPctThresh") + ") not distinct for " + serName[serNameInd]
+                              + " = '" + ser.getStr(serName[serNameInd])
+                              + "' AND database  " + job.getCurrentDBName().get(i) + "'";
+                      if (!vars[varsInd].equals("NA")) {
+                        error = error + "' AND fcst_var='" + vars[varsInd] + "'";
+                      }
+                      errors.add(error);
+                    } else if (1 > rpsProbInfo.get("numPctThresh")) {
+                      String error = "invalid number of RPS PROBs ("
+                              + rpsProbInfo.get("numPctThresh") + ") found for "
+                              + serName[serNameInd] + " = '"
+                              + ser.getStr(serName[serNameInd])
+                              + "' AND database " + job.getCurrentDBName().get(i) + "'";
+                      if (!vars[varsInd].equals("NA")) {
+                        error = error + "' AND fcst_var='" + vars[varsInd] + "'";
+                      }
+                      errors.add(error);
+                    } else {
+                      errors.add(null);
+                    }
+                  }
+                  boolean noErrors = false;
+                  for (String error : errors) {
+                    if (error == null) {
+                      noErrors = true;
+                      break;
+                    }
+                  }
+                  if (!noErrors) {
+                    for (String error : errors) {
+                      if (error != null) {
+                        throw new ValidationException(error);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
       /*
        *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists for each series
        */
@@ -1310,6 +1394,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             aggType = MVUtil.VAL1L2;
           } else if (job.getAggEcnt()) {
             aggType = MVUtil.ECNT;
+          } else if (job.getAggRps()) {
+            aggType = MVUtil.RPS;
           }
 
 
@@ -1405,9 +1491,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             tableStats = MVUtil.statsDmap;
             statTable = "line_data_dmap ld\n";
             statField = strStat.replace("DMAP_", "").toLowerCase();
-          } else if (MVUtil.statsErps.containsKey(strStat)) {
-            tableStats = MVUtil.statsErps;
-            statTable = "line_data_erps ld\n";
+          } else if (MVUtil.statsRps.containsKey(strStat)) {
+            tableStats = MVUtil.statsRps;
+            statTable = "line_data_rps ld\n";
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
             statTable = "line_data_orank ld\n";
@@ -1512,6 +1598,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             }
           } else if (job.getAggNbrCnt()) {
             selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss, ld.afss, ld.ufss, ld.f_rate, ld.o_rate ";
+          } else if (job.getAggRps()) {
+            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.rps,\n  ld.rpss ";
           } else if (job.getAggVl1l2()) {
             selectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,"
                     + "\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar,"

@@ -154,6 +154,7 @@ public class MVPlotJob {
   protected boolean _boolAggVl1l2 = false;
   protected boolean _boolAggVal1l2 = false;
   protected boolean _boolAggEcnt = false;
+  protected boolean _boolAggRps = false;
   protected String _strAggBootRepl = "1";
   protected String _strAggBootRandomSeed = "NA";
 
@@ -353,6 +354,7 @@ public class MVPlotJob {
     job._boolAggNbrCnt = _boolAggNbrCnt;
     job._boolAggSsvar = _boolAggSsvar;
     job._boolAggEcnt = _boolAggEcnt;
+    job._boolAggRps = _boolAggRps;
     job._strAggBootRepl = _strAggBootRepl;
     job._strAggBootRandomSeed = _strAggBootRandomSeed;
     job.cl_step = cl_step;
@@ -1495,6 +1497,14 @@ public class MVPlotJob {
     _boolAggEcnt = aggEcnt;
   }
 
+  public boolean getAggRps() {
+    return _boolAggRps;
+  }
+
+  public void setAggRps(boolean aggRps) {
+    _boolAggRps = aggRps;
+  }
+
   public String getAggBootRepl() {
     return _strAggBootRepl;
   }
@@ -2137,7 +2147,8 @@ public class MVPlotJob {
             || this.getAggGrad()
             || this.getAggPct()
             || this.getAggEcnt()
-            || this.getAggNbrCtc();
+            || this.getAggNbrCtc()
+            || this.getAggRps();
 
   }
 

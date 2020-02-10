@@ -663,6 +663,20 @@ calcNBR_ODDS = function(d){
   return( calcODDS(d) );
 }
 
+# RPS stat calculations
+calcRPS = function(d){
+  return  (d$rps);
+}
+
+calcRPSS = function(d){
+  #RPSS = 1.0 - ( RPS / RPS_CLIMO )
+  if( is.na(d$rps_climo) || d$rps_climo == 0  )
+      return ( NA );
+  rpss = 1 - d$rps / d$rps_climo
+  return ( round(rpss, digits=5) )
+}
+
+
 
 
 

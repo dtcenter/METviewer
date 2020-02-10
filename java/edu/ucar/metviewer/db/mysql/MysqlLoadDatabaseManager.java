@@ -202,7 +202,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     tableToInsert.put("line_data_dmap", "INSERT INTO line_data_dmap VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,"
             + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//32
 
-    tableToInsert.put("line_data_erps", "INSERT INTO line_data_erps VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//19
+    tableToInsert.put("line_data_rps", "INSERT INTO line_data_rps VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//19
 
     dropIndexesQueries = new String[]{
             "DROP INDEX stat_header_model_idx ON stat_header",
@@ -307,9 +307,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             "DROP INDEX line_data_dmap_fcst_lead_idx ON line_data_dmap",
             "DROP INDEX line_data_dmap_fcst_valid_beg_idx ON line_data_dmap",
             "DROP INDEX line_data_dmap_fcst_init_beg_idx ON line_data_dmap",
-            "DROP INDEX line_data_erps_fcst_lead_idx ON line_data_erps",
-            "DROP INDEX line_data_erps_fcst_valid_beg_idx ON line_data_erps",
-            "DROP INDEX line_data_erps_fcst_init_beg_idx ON line_data_erps"
+            "DROP INDEX line_data_rps_fcst_lead_idx ON line_data_rps",
+            "DROP INDEX line_data_rps_fcst_valid_beg_idx ON line_data_rps",
+            "DROP INDEX line_data_rps_fcst_init_beg_idx ON line_data_rps"
 
     };
 
@@ -416,9 +416,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             "CREATE INDEX line_data_dmap_fcst_lead_idx ON line_data_dmap (fcst_lead)",
             "CREATE INDEX line_data_dmap_fcst_valid_beg_idx ON line_data_dmap (fcst_valid_beg)",
             "CREATE INDEX line_data_dmap_fcst_init_beg_idx ON line_data_dmap (fcst_init_beg)",
-            "CREATE INDEX line_data_erps_fcst_lead_idx ON line_data_erps (fcst_lead)",
-            "CREATE INDEX line_data_erps_fcst_valid_beg_idx ON line_data_erps (fcst_valid_beg)",
-            "CREATE INDEX line_data_erps_fcst_init_beg_idx ON line_data_erps (fcst_init_beg)"
+            "CREATE INDEX line_data_rps_fcst_lead_idx ON line_data_rps (fcst_lead)",
+            "CREATE INDEX line_data_rps_fcst_valid_beg_idx ON line_data_rps (fcst_valid_beg)",
+            "CREATE INDEX line_data_rps_fcst_init_beg_idx ON line_data_rps (fcst_init_beg)"
     };
 
 

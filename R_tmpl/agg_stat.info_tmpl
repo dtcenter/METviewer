@@ -11,6 +11,7 @@ boolAggVl1l2 = #<agg_vl1l2>#;
 boolAggVal1l2 = #<agg_val1l2>#;
 boolAggPct = #<agg_pct>#;
 boolAggEcnt = #<agg_ecnt>#;
+boolAggRps = #<agg_rps>#;
 boolEventEqual = #<event_equal>#;
 boolEveqDis = #<eveq_dis>#;
 intNumReplicates = #<boot_repl>#;

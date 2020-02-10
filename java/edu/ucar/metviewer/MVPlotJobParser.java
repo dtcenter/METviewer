@@ -819,6 +819,7 @@ public final class MVPlotJobParser {
                       + "<agg_vl1l2>" + (job.getAggVl1l2() ? "TRUE" : "FALSE") + "</agg_vl1l2>"
                       + "<agg_val1l2>" + (job.getAggVal1l2() ? "TRUE" : "FALSE") + "</agg_val1l2>"
                       + "<agg_ecnt>" + (job.getAggEcnt() ? "TRUE" : "FALSE") + "</agg_ecnt>"
+                      + "<agg_rps>" + (job.getAggRps() ? "TRUE" : "FALSE") + "</agg_rps>"
                       + "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>"
                       + "<boot_random_seed>" + job.getAggBootRandomSeed() + "</boot_random_seed>"
                       + "<cl_step>" + job.getCl_step() + "</cl_step>"
@@ -1742,6 +1743,8 @@ public final class MVPlotJobParser {
             job.setAggVal1l2(val);
           } else if (nodeAggStat.tag.equals("agg_ecnt")) {
             job.setAggEcnt(val);
+          } else if (nodeAggStat.tag.equals("agg_rps")) {
+            job.setAggRps(val);
           } else if (nodeAggStat.tag.equals("boot_repl")) {
             job.setAggBootRepl(nodeAggStat.value);
           } else if (nodeAggStat.tag.equals("boot_random_seed")) {

@@ -46,6 +46,8 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerSql {
       result = "total,ufabar,vfabar,uoabar,voabar,uvfoabar,uvffabar,uvooabar";
     } else if (table.endsWith(MVUtil.ECNT)) {
       result = "total,me,rmse,crps,crpss,ign,spread,me_oerr,rmse_oerr,spread_oerr,spread_plus_oerr";
+    } else if (table.endsWith(MVUtil.RPS)) {
+      result = "total,rps,rpss";
     } else if (table.endsWith("nbrcnt")) {
       result = "total,fbs,fss";
     } else if (table.endsWith(MVUtil.PCT)) {

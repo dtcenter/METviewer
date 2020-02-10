@@ -3,15 +3,15 @@
 METviewer Installation Guide
 ============================
 
-2.1 Introduction
-----------------
+Introduction
+------------
 
 This chapter describes how to install the MET package. MET has been developed and tested on Linux operating systems. Support for additional platforms and compilers may be added in future releases. The MET package requires many external libraries to be available on the user's computer prior to installation. Required and recommended libraries, how to install MET, the MET directory structure, and sample cases are described in the following sections. 
 
-2.2 Installing METViewer
-------------------------
+Installing METviewer
+--------------------
 
-METViewer relies on the following tools. These must be installed and tested prior to installing METViewer: 
+METviewer relies on the following tools. These must be installed and tested prior to installing METviewer: 
 
 **Java JDK** - download and install version 1.8 
 
@@ -23,19 +23,19 @@ METViewer relies on the following tools. These must be installed and tested prio
 
 **R** - download and install the latest version 
 
-2.2.1 Configure the batch tool, database loader tool and web application:
--------------------------------------------------------------------------
+Configure the batch tool, database loader tool and web application:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Edit [install]/metviewer/bin/mv_batch.sh: 
 
 • set the variable JAVA to point at the jvm instance you would like to run 
 
-• set the variable METVIEWER to point at [install]/metviewer
+• set the variable METvIEWER to point at [install]/metviewer
 
 Edit [install]/metviewer/bin/mv_load.sh: 
 
 • set the variable JAVA to point at the jvm instance you would like to run 
 
-• set the variable METVIEWER to point at [install]/metviewer
+• set the variable METvIEWER to point at [install]/metviewer
 
 Edit [install]/metviewer/webapp/metviewer/WEB-INF/classes/log4j.properties: 
 
@@ -69,10 +69,10 @@ Create output folders: [output_dir]/plots, [output_dir]/data, [output_dir]/scrip
 
 Include [output_dir] to Apache context 
 
-2.2.2 Build and deploy the application:
----------------------------------------
+Build and deploy the application:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Build METViewer and the web application: 
+Build METviewer and the web application: 
 
 .. code-block:: none
 
@@ -98,33 +98,33 @@ Deploy the web app to tomcat:
   tar -zxvf batch_load.tar
 
 		
-2.2.3 Create a METViewer database:
-----------------------------------
+Create a METviewer database:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a database to store MET data, which has the prefix 'mv_', e.g. mv_met_data:
+Create a database to store MET data, which has the prefix \'\mv_\'\, e.g. mv_met_data:
 
 .. code-block:: none
 
   cd [install]/metviewer $ mysql -u[db_username] -p[db_password] -e'create database [db_name];' 
   mysql -u[db_username] -p[db_password] [db_name] < sql/mv_mysql.sql
 
-Create an XML load specification document which contains information about your MET data run the METViewer load tool using the XML load specification as input (called [load_xml] here) and monitor progress: 
+Create an XML load specification document which contains information about your MET data run the METviewer load tool using the XML load specification as input (called [load_xml] here) and monitor progress: 
 
 .. code-block:: none
 		
   cd [install]/metviewer $ bin/mv_load.sh [load_xml] [optional redirection of output, e.g. &> log/load_[date].log &]'
 
-2.2.4 Install test directory (for development, optional):
----------------------------------------------------------
-Check out test_data (.../apps/verif/metviewer_test_data/test_data/) from CVS and move test_data directory to /d3/projects/METViewer/: create links to R script and sql files.
+Install test directory (for development, optional):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Check out test_data (.../apps/verif/metviewer_test_data/test_data/) from CVS and move test_data directory to /d3/projects/METviewer/: create links to R script and sql files.
 
  .. code-block:: none
 		 
-  cd /d3/projects/METViewer/test_data $ ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/R_tmpl R_tmpl $ mkdir R_work 
-  cd R_work $ mkdir data $ mkdir plots $ mkdir scripts $ ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/R_work/include/ include 
-  cd /d3/projects/METViewer/test_data/load_data/load $ ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/sql/mv_mysql.sql mv_mysql.sql
+  cd /d3/projects/METviewer/test_data $ ln -s /d3/projects/METviewer/src_dev/apps/verif/metviewer/R_tmpl R_tmpl $ mkdir R_work 
+  cd R_work $ mkdir data $ mkdir plots $ mkdir scripts $ ln -s /d3/projects/METviewer/src_dev/apps/verif/metviewer/R_work/include/ include 
+  cd /d3/projects/METviewer/test_data/load_data/load $ ln -s /d3/projects/METviewer/src_dev/apps/verif/metviewer/sql/mv_mysql.sql mv_mysql.sql
 
-2.2.5 Making a Database Accessible in the METViewer Web Application
--------------------------------------------------------------------
+Making a Database Accessible in the METviewer Web Application:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To make a new database accessible in the METViewer Web Application click on "Reload list of databases" button in the upper right corner of the main JSP page. The list of available databases should be updated and a new database should be in it.
+To make a new database accessible in the METviewer Web Application click on "Reload list of databases" button in the upper right corner of the main JSP page. The list of available databases should be updated and a new database should be in it.
