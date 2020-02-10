@@ -212,6 +212,11 @@ public class AggRscriptManager extends RscriptManager {
     } else {
       tableAggStatInfo.put("agg_ecnt", String.valueOf(Boolean.FALSE).toUpperCase());
     }
+    if (stat.equals(MVUtil.RPS)) {
+      tableAggStatInfo.put("agg_rps", String.valueOf(Boolean.TRUE).toUpperCase());
+    } else {
+      tableAggStatInfo.put("agg_rps", String.valueOf(Boolean.FALSE).toUpperCase());
+    }
 
   }
 
