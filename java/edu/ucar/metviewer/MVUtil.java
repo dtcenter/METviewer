@@ -66,6 +66,7 @@ public class MVUtil {
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
   public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial Sum
   public static final String ECNT = "ecnt"; // Ensemble Continuous Statistics
+  public static final String RPS = "rps"; // Ranked Probability Score Statistics
   public static final Map<String, String[]> statsEnscnt = new HashMap<>();
   public static final Map<String, String[]> statsMpr = new HashMap<>();
   public static final Map<String, String[]> statsDmap = new HashMap<>();
@@ -462,9 +463,10 @@ public class MVUtil {
     statsRps.put("RPS_REL", new String[]{""});
     statsRps.put("RPS_RES", new String[]{""});
     statsRps.put("RPS_UNC", new String[]{""});
-    statsRps.put("RPS", new String[]{""});
-    statsRps.put("RPSS", new String[]{""});
+    statsRps.put("RPS", new String[]{RPS});
+    statsRps.put("RPSS", new String[]{ RPS});
     statsRps.put("RPSS_SMPL", new String[]{""});
+
   }
 
   static {

@@ -977,6 +977,7 @@
                             <option value="val1l2">Vector anomaly partial sums (VAL1L2)</option>
                             <option value="grad">Gradient partial sums (GRAD)</option>
                             <option value="ecnt">Ensemble Continuous Statistics (ECNT)</option>
+                            <option value="rps">Ranked Probability Score Statistics (RPS)</option>
                             <option value="mode">MODE-ratio</option>
                         </select>
                         </td>

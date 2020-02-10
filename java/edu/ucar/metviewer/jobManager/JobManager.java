@@ -341,6 +341,7 @@ public abstract class JobManager {
     info.put("agg_val1l2", job.getAggVal1l2() ? "TRUE" : "FALSE");
     info.put("agg_pct", job.getAggPct() ? "TRUE" : "FALSE");
     info.put("agg_ecnt", job.getAggEcnt() ? "TRUE" : "FALSE");
+    info.put("agg_rps", job.getAggRps() ? "TRUE" : "FALSE");
     info.put("cache_agg_stat", job.getCacheAggStat() ? "TRUE" : "FALSE");
 
     info.put("boot_repl", job.getAggBootRepl());

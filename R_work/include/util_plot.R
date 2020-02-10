@@ -1255,6 +1255,15 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     varmean	= custom_sum( as.numeric( d[[ paste(strPerm, "var_mean", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
     binn	=  total
     );
+  }  else if ( lineTypes$boolRps ){ # perform the aggregation of the sampled RPS lines
+    listTotal  = d[[ paste(strPerm, "total", sep="_") ]];
+    total    = custom_sum(listTotal, na.rm=TRUE);
+    d_rps_climo = d[[ paste(strPerm, "rps", sep="_") ]] / ( 1 - d[[ paste(strPerm, "rpss", sep="_") ]])
+    dfSeriescustom_sums = data.frame(
+      total  = total,
+      rps	= custom_sum( as.numeric( d[[ paste(strPerm, "rps", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+      rps_climo	= custom_sum( d_rps_climo * listTotal, na.rm=TRUE ) / total
+    );
 
   }  else if ( lineTypes$boolEcnt ){ # perform the aggregation of the sampled ECNT lines
     listTotal  = d[[ paste(strPerm, "total", sep="_") ]];
