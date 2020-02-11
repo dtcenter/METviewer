@@ -10,6 +10,18 @@ calcStdDev    = function(sum, sum_sq, n){
     return( sqrt(v) );
   }
 }
+calcSL1L2_TOTAL    = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return( d$total );
+}
+calcGRAD_TOTAL    = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return( d$total );
+}
 calcFBAR    = function(d){ return( d$fbar ); }
 calcOBAR    = function(d){ return( d$obar ); }
 calcFSTDEV    = function(d){ return( calcStdDev(d$fbar * d$total, d$ffbar * d$total, d$total) ); }
@@ -50,6 +62,12 @@ calcANOM_CORR    = function(d){
   }
 }
 
+calcSAL1L2_TOTAL    = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return ( d$total);
+}
 
 calcRMSFA    = function(d){
   if (is.na(d$ffbar) ||  0 > d$ffbar ){
@@ -101,9 +119,86 @@ calcSSVAR_ESTDEV    = function(d){ return( calcESTDEV(d) ); }
 calcSSVAR_BCMSE    = function(d){ return( calcBCMSE(d)); }
 calcSSVAR_BCRMSE    = function(d){ return( calcBCRMSE(d) ); }
 
+calcSSVAR_TOTAL   = function(d){
+  if(is.na(d$total_tital) ){
+    return (NA);
+  }
+  return( d$total_tital  );
+}
 
+# CTS stat calculations
+calcCTS_TOTAL   = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return( d$total  );
+}
 
 # CTC stat calculations
+
+calcCTC_TOTAL   = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return( d$total  );
+}
+
+calcCTC_FY_OY   = function(d){
+  if(is.na(d$fy_oy) ){
+    return (NA);
+  }
+  return( d$fy_oy  );
+}
+
+calcCTC_FY_ON   = function(d){
+  if(is.na(d$fy_on) ){
+    return (NA);
+  }
+  return( d$fy_om  );
+}
+
+calcCTC_FN_OY   = function(d){
+  if(is.na(d$fn_oy) ){
+    return (NA);
+  }
+  return( d$fn_oy  );
+}
+
+calcCTC_FN_ON   = function(d){
+  if(is.na(d$fn_on) ){
+    return (NA);
+  }
+  return( d$fn_on  );
+}
+
+calcCTC_OY   = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) ){
+    return (NA);
+  }
+  return( d$fy_oy +  d$fn_oy );
+}
+
+calcCTC_ON   = function(d){
+  if(is.na(d$fy_on) || is.na(d$fn_on) ){
+    return (NA);
+  }
+  return( d$fy_on + d$fn_on );
+}
+
+calcCTC_FY   = function(d){
+  if(is.na(d$fy_on) || is.na(d$fy_oy) ){
+    return (NA);
+  }
+  return( d$fy_on + d$fy_oy );
+}
+
+calcCTC_FN   = function(d){
+  if(is.na(d$fn_on) || is.na(d$fn_oy) ){
+    return (NA);
+  }
+  return( d$fn_on + d$fn_oy );
+}
+
 calcBASER    = function(d){
   if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
     return (NA);
@@ -279,6 +374,13 @@ calcNBR_O_RATE = function(d){ return ( d$o_rate ); }
 #VL1L2 "calculations"
 calcVCNT_FS_RMS = function(d){ return ( sqrt(d$uvffbar) ); }
 calcVCNT_OS_RMS = function(d){ return ( sqrt(d$uvoobar) ); }
+
+calcVL1L2_TOTAL = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return ( d$total) ;
+}
 
 calcVL1L2_WIND_DIFF = function(d){
   bias = d$f_speed_bar - d$o_speed_bar;
@@ -468,6 +570,12 @@ calcVCNT_DIR_ERR = function(d){
 calcVAL1L2_ANOM_CORR = function(d){
   return ( calc_wind_corr(d$total, d$ufabar, d$vfabar, d$uoabar, d$voabar, d$uvfoabar, d$uvffabar, d$uvooabar) );
 }
+calcVAL1L2_TOTAL = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return ( d$total) ;
+}
 
 calc_wind_corr = function( total, uf, vf, uo, vo, uvfo, uvff, uvoo ){
   if(  is.na(uvfo) || is.na(uf) || is.na(uo) || is.na(vf) || is.na(vo) ){
@@ -478,8 +586,6 @@ calc_wind_corr = function( total, uf, vf, uo, vo, uvfo, uvff, uvoo ){
     return ( round(corr, digits=5)) ;
   }
 }
-
-
 
 
 calcPSTD_BRIER = function(d){
@@ -622,7 +728,24 @@ calcECNT_SPREAD_PLUS_OERR = function(d){
   return ( round(d$spread_plus_oerr, digits=5) )
 }
 
+calcECNT_TOTAL = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return ( d$total )
+}
+
+
+
 # NBR_CTC stat calculations
+
+calcNBR_CTC_TOTAL    = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return( d$total );
+}
+
 calcNBR_BASER    = function(d){
   return( calcBASER(d) );
 }
@@ -663,6 +786,13 @@ calcNBR_ODDS = function(d){
   return( calcODDS(d) );
 }
 
+calcNBR_CNT_TOTAL = function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return( d$total );
+}
+
 # RPS stat calculations
 calcRPS = function(d){
   return  (d$rps);
@@ -674,6 +804,21 @@ calcRPSS = function(d){
       return ( NA );
   rpss = 1 - d$rps / d$rps_climo
   return ( round(rpss, digits=5) )
+}
+
+calcRPS_TOTAL= function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return ( d$total )
+}
+
+# PCT stat calculations
+calcPCT_TOTAL= function(d){
+  if(is.na(d$total) ){
+    return (NA);
+  }
+  return ( d$total )
 }
 
 

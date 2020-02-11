@@ -1245,8 +1245,12 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
   }  else if ( lineTypes$boolSsvar ){ # perform the aggregation of the sampled SSVAR lines
     listTotal  = d[[ paste(strPerm, "bin_n", sep="_") ]];
     total    = custom_sum(listTotal, na.rm=TRUE);
+    listTotalTotal  = d[[ paste(strPerm, "total", sep="_") ]];
+    total    = custom_sum(listTotal, na.rm=TRUE);
+    totalTotal    = custom_sum(listTotalTotal, na.rm=TRUE);
     dfSeriescustom_sums = data.frame(
     total  = total,
+    total_tital = totalTotal,
     fbar	= custom_sum( as.numeric( d[[ paste(strPerm, "fbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
     obar	= custom_sum( as.numeric( d[[ paste(strPerm, "obar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
     fobar	= custom_sum( as.numeric( d[[ paste(strPerm, "fobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
@@ -1273,6 +1277,7 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     crps_climo = as.numeric( d[[ paste(strPerm, "crps", sep="_") ]] ) / (1.0 - as.numeric( d[[ paste(strPerm, "crpss", sep="_") ]] ))
 
     dfSeriescustom_sums = data.frame(
+    total  = total,
     mse	= custom_sum( mse * listTotal, na.rm=TRUE ) / total,
     mse_oerr	= custom_sum( mse_oerr * listTotal, na.rm=TRUE ) / total,
     crps_climo	= custom_sum( crps_climo * listTotal, na.rm=TRUE ) / total,
@@ -1328,30 +1333,81 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     if( paste(strPerm, "equalize", sep="_") %in% colnames(dfAggPerm) ){
       dfAggPerm = dfAggPerm[ , -which(colnames(dfAggPerm) %in% c(paste(strPerm, "equalize", sep="_")))]
     }
-    oy_i_index = grep("oy_i", colnames(dfAggPerm), value=FALSE);
-    on_i_index = grep("on_i", colnames(dfAggPerm), value=FALSE);
-    thresh_i_index = grep("thresh_i", colnames(dfAggPerm), value=FALSE);
-
-    for(oy_i in oy_i_index){
-      dfAggPerm[1,oy_i] = custom_sum(dfPerm[,oy_i], na.rm = TRUE);
-    }
-    for(on_i in on_i_index){
-      dfAggPerm[1,on_i] = custom_sum(dfPerm[,on_i], na.rm = TRUE);
-    }
-
-
-
-    if(ncol(dfAggPerm) != 0 && !is.na(dfAggPerm[1,thresh_i_index][[1]])){
-      dfPctPerm = data.frame(
-      thresh_i	= c( t( dfAggPerm[1,thresh_i_index] ) ),
-      oy_i		= c( t( dfAggPerm[1,oy_i_index] ) ),
-      on_i		= c( t( dfAggPerm[1, on_i_index] ) )
+    if( paste(strPerm, "total", sep="_") %in% colnames(dfAggPerm) ){
+      listTotal  = d[[ paste(strPerm, "total", sep="_") ]];
+      total    = custom_sum(listTotal, na.rm=TRUE);
+      dfSeriescustom_sums = data.frame(
+        total  = total
       );
+    }else{
 
-      # calculate vectors and constants to use below
-      dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;		# n_j.
-      dfPctPerm = dfPctPerm[0 != dfPctPerm$n_i,];
-      if(nrow(dfPctPerm) == 0){
+      oy_i_index = grep("oy_i", colnames(dfAggPerm), value=FALSE);
+      on_i_index = grep("on_i", colnames(dfAggPerm), value=FALSE);
+      thresh_i_index = grep("thresh_i", colnames(dfAggPerm), value=FALSE);
+
+      for(oy_i in oy_i_index){
+        dfAggPerm[1,oy_i] = custom_sum(dfPerm[,oy_i], na.rm = TRUE);
+      }
+      for(on_i in on_i_index){
+        dfAggPerm[1,on_i] = custom_sum(dfPerm[,on_i], na.rm = TRUE);
+      }
+
+
+
+      if(ncol(dfAggPerm) != 0 && !is.na(dfAggPerm[1,thresh_i_index][[1]])){
+        dfPctPerm = data.frame(
+        thresh_i	= c( t( dfAggPerm[1,thresh_i_index] ) ),
+        oy_i		= c( t( dfAggPerm[1,oy_i_index] ) ),
+        on_i		= c( t( dfAggPerm[1, on_i_index] ) )
+        );
+
+        # calculate vectors and constants to use below
+        dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;		# n_j.
+        dfPctPerm = dfPctPerm[0 != dfPctPerm$n_i,];
+        if(nrow(dfPctPerm) == 0){
+          dfSeriescustom_sums = list(
+          reliability	= NA,
+          resolution	= NA,
+          uncertainty	= NA,
+          baser		    = NA,
+          calibration = NA,
+          n_i         = NA,
+          roc_auc     = NA
+          );
+        } else {
+
+          dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
+
+          # row-based calculations
+          dfPctPerm$oy_tp			= dfPctPerm$oy_i / T[intPerm];
+          dfPctPerm$on_tp			= dfPctPerm$on_i / T[intPerm];
+          dfPctPerm$calibration	= dfPctPerm$oy_i / dfPctPerm$n_i;
+          dfPctPerm$refinement	= dfPctPerm$n_i / T[intPerm];
+          dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total[intPerm];
+          dfPctPerm$baserate		= dfPctPerm$o_bar_i;
+
+
+          # table-based stat calculations
+
+          dfSeriescustom_sums = list(
+          reliability	= custom_sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T[intPerm],
+          resolution	= custom_sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar[intPerm])^2 ) / T[intPerm],
+          uncertainty	= o_bar[intPerm] * (1 - o_bar[intPerm]),
+          baser		= o_bar[intPerm],
+          calibration = dfPctPerm$calibration,
+          n_i = dfPctPerm$n_i
+          );
+
+          # build the dataframe for calculating and use the trapezoidal method roc_auc
+          dfROC = calcPctROC(dfPctPerm);
+          dfAUC = rbind(data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=1, pofd=1), dfROC);
+          dfAUC = rbind(dfAUC, data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=0, pofd=0));
+          dfSeriescustom_sums$roc_auc = 0;
+          for(r in 2:nrow(dfAUC)){
+            dfSeriescustom_sums$roc_auc = dfSeriescustom_sums$roc_auc + 0.5*(dfAUC[r-1,]$pody + dfAUC[r,]$pody)*(dfAUC[r-1,]$pofd - dfAUC[r,]$pofd);
+          }
+        }
+      }else{
         dfSeriescustom_sums = list(
         reliability	= NA,
         resolution	= NA,
@@ -1361,49 +1417,8 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
         n_i         = NA,
         roc_auc     = NA
         );
-      } else {
-
-        dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
-
-        # row-based calculations
-        dfPctPerm$oy_tp			= dfPctPerm$oy_i / T[intPerm];
-        dfPctPerm$on_tp			= dfPctPerm$on_i / T[intPerm];
-        dfPctPerm$calibration	= dfPctPerm$oy_i / dfPctPerm$n_i;
-        dfPctPerm$refinement	= dfPctPerm$n_i / T[intPerm];
-        dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total[intPerm];
-        dfPctPerm$baserate		= dfPctPerm$o_bar_i;
-
-
-        # table-based stat calculations
-       
-        dfSeriescustom_sums = list(
-        reliability	= custom_sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T[intPerm],
-        resolution	= custom_sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar[intPerm])^2 ) / T[intPerm],
-        uncertainty	= o_bar[intPerm] * (1 - o_bar[intPerm]),
-        baser		= o_bar[intPerm],
-        calibration = dfPctPerm$calibration,
-        n_i = dfPctPerm$n_i
-        );
-
-        # build the dataframe for calculating and use the trapezoidal method roc_auc
-        dfROC = calcPctROC(dfPctPerm);
-        dfAUC = rbind(data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=1, pofd=1), dfROC);
-        dfAUC = rbind(dfAUC, data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=0, pofd=0));
-        dfSeriescustom_sums$roc_auc = 0;
-        for(r in 2:nrow(dfAUC)){
-          dfSeriescustom_sums$roc_auc = dfSeriescustom_sums$roc_auc + 0.5*(dfAUC[r-1,]$pody + dfAUC[r,]$pody)*(dfAUC[r-1,]$pofd - dfAUC[r,]$pofd);
-        }
       }
-    }else{
-      dfSeriescustom_sums = list(
-      reliability	= NA,
-      resolution	= NA,
-      uncertainty	= NA,
-      baser		    = NA,
-      calibration = NA,
-      n_i         = NA,
-      roc_auc     = NA
-      );
+
     }
 
   }
