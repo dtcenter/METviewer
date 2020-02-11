@@ -176,7 +176,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'dmap'  FROM "
             + "line_data_dmap  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) dmap)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rps'  FROM "
-            + "line_data_rps  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) rps)\n";
+            + "line_data_rps  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) rps)\n"
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pct'  FROM "
+            + "line_data_pct  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) pct)\n";
 
 
     for (String database : currentDBName) {
@@ -184,7 +186,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       try (Connection con = getConnection(database);
            PreparedStatement stmt = con.prepareStatement(strSql, ResultSet.TYPE_FORWARD_ONLY,
                    ResultSet.CONCUR_READ_ONLY)) {
-        for (int i = 1; i <= 23; i++) {
+        for (int i = 1; i <= 24; i++) {
           stmt.setString(i, strFcstVar);
         }
         res = stmt.executeQuery();
@@ -192,6 +194,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         boolean boolCnt = false;
         boolean boolCts = false;
         boolean boolVcnt = false;
+        boolean boolSl1l2 = false;
+        boolean boolSal1l2 = false;
+        boolean boolGrad = false;
         while (res.next()) {
           int intStatCount = res.getInt(1);
           if (-9999 != intStatCount) {
@@ -202,13 +207,26 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               case 17:
                 if (!boolCnt) {
                   listStatName.addAll(MVUtil.statsCnt.keySet());
+                  boolCnt = true;
                 }
-                boolCnt = true;
+                if (!boolSl1l2) {
+                  listStatName.addAll(MVUtil.statsSl1l2.keySet());
+                  boolSl1l2 = true;
+                }
+                if (!boolSal1l2) {
+                  listStatName.addAll(MVUtil.statsSal1l2.keySet());
+                  boolSal1l2 = true;
+                }
+                if (!boolGrad) {
+                  listStatName.addAll(MVUtil.statsGrad.keySet());
+                  boolGrad = true;
+                }
                 break;
               case 2:
               case 3:
                 if (!boolCts) {
                   listStatName.addAll(MVUtil.statsCts.keySet());
+                  listStatName.addAll(MVUtil.statsCtc.keySet());
                 }
                 boolCts = true;
                 break;
@@ -217,6 +235,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 5:
                 listStatName.addAll(MVUtil.statsNbrcts.keySet());
+                listStatName.addAll(MVUtil.statsNbrctc.keySet());
                 break;
               case 6:
                 listStatName.addAll(MVUtil.statsPstd.keySet());
@@ -267,6 +286,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 22:
                 listStatName.addAll(MVUtil.statsRps.keySet());
+                break;
+              case 23:
+                listStatName.addAll(MVUtil.statsPct.keySet());
                 break;
               default:
 
@@ -1102,7 +1124,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           MVOrderedMap stats = forecastVars[forecastVarsInd];
           String[] vars = stats.getKeyList();
           for (int varsInd = 0; varsInd < vars.length; varsInd++) {
-            int[] seriesNprob = new int[series.length];
             for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
               MVOrderedMap ser = series[seriesInd];
               String[] serName = ser.getKeyList();
@@ -1414,10 +1435,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               statTable = "line_data_" + aggType + " ld\n";
             } else {
               statTable = "line_data_ssvar" + " ld\n";
+              statField = strStat.replace("SSVAR_", "").toLowerCase();
             }
           } else if (MVUtil.statsCts.containsKey(strStat)) {
             tableStats = MVUtil.statsCts;
-            if (aggType != null) {
+            if (aggType != null && aggType.equals(MVUtil.CTC)) {
               MVUtil.isAggTypeValid(MVUtil.statsCts, strStat, aggType);
               statTable = "line_data_ctc" + " ld\n";
             } else {
@@ -1429,7 +1451,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               MVUtil.isAggTypeValid(MVUtil.statsNbrcnt, strStat, aggType);
             }
             statTable = "line_data_nbrcnt ld\n";
-            statField = strStat.replace("NBR_", "").toLowerCase();
+            statField = strStat.replace("NBR_", "").replace("CNT_", "").toLowerCase();
           } else if (MVUtil.statsEnscnt.containsKey(strStat)) {
             tableStats = MVUtil.statsEnscnt;
             if (aggType != null) {
@@ -1449,7 +1471,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsPstd.containsKey(strStat)) {
             tableStats = MVUtil.statsPstd;
             statTable = "line_data_pstd ld\n";
-            if (aggType != null) {
+            if (aggType != null && !strStat.endsWith("_TOTAL")) {
               statTable = "line_data_pct ld";
               MVUtil.isAggTypeValid(MVUtil.statsPstd, strStat, aggType);
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
@@ -1480,7 +1502,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             statTable = "line_data_vl1l2 ld\n";
             statField = strStat.replace("VL1L2_", "").toLowerCase();
           } else if (MVUtil.statsVal1l2.containsKey(strStat)) {
-            MVUtil.isAggTypeValid(MVUtil.statsVal1l2, strStat, aggType);
+            if (aggType != null) {
+              MVUtil.isAggTypeValid(MVUtil.statsVal1l2, strStat, aggType);
+            }
             tableStats = MVUtil.statsVal1l2;
             statTable = "line_data_val1l2 ld\n";
             statField = strStat.replace("VAL1L2_", "").toLowerCase();
@@ -1494,10 +1518,35 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsRps.containsKey(strStat)) {
             tableStats = MVUtil.statsRps;
             statTable = "line_data_rps ld\n";
+            statField = strStat.replace("RPS_", "").toLowerCase();
+          } else if (MVUtil.statsCtc.containsKey(strStat)) {
+            tableStats = MVUtil.statsCtc;
+            statTable = "line_data_ctc ld\n";
+            statField = strStat.replace("CTC_", "").toLowerCase();
+          } else if (MVUtil.statsNbrctc.containsKey(strStat)) {
+            tableStats = MVUtil.statsNbrctc;
+            statTable = "line_data_nbrctc ld\n";
+            statField = strStat.replace("NBR_CTC_", "").toLowerCase();
+          } else if (MVUtil.statsPct.containsKey(strStat)) {
+            tableStats = MVUtil.statsPct;
+            statTable = "line_data_pct ld\n";
+            statField = strStat.replace("PCT_", "").toLowerCase();
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
             statTable = "line_data_orank ld\n";
             statField = strStat.replace("ORANK_", "").toLowerCase();
+          } else if (MVUtil.statsSl1l2.containsKey(strStat)) {
+            tableStats = MVUtil.statsSl1l2;
+            statTable = "line_data_sl1l2 ld\n";
+            statField = strStat.replace("SL1L2_", "").toLowerCase();
+          } else if (MVUtil.statsSal1l2.containsKey(strStat)) {
+            tableStats = MVUtil.statsSal1l2;
+            statTable = "line_data_sal1l2 ld\n";
+            statField = strStat.replace("SAL1L2_", "").toLowerCase();
+          } else if (MVUtil.statsGrad.containsKey(strStat)) {
+            tableStats = MVUtil.statsGrad;
+            statTable = "line_data_grad ld\n";
+            statField = strStat.replace("GRAD_", "").toLowerCase();
           } else if (MVUtil.statsVcnt.containsKey(strStat)) {
             tableStats = MVUtil.statsVcnt;
             statField = strStat.replace("VCNT_", "").toLowerCase();
@@ -1579,7 +1628,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + " \n  ld.spread_oerr,"
                     + "\n ld.spread_plus_oerr";
           } else if (job.getAggPct()) {
-            if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
+
+            if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
+              selectStat += ",\n  0 stat_value,\n  ld.n_thresh,\n ldt.thresh_i,\n ldt.oy_i\n,"
+                      + " ldt.on_i";
+            } else if (strStat.endsWith("_TOTAL")) {
+              selectStat += ",\n  0 stat_value,\n  ld.total ";
+            } else {
               selectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 selectStat += ",\n";
@@ -1592,9 +1647,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 selectStat += "  ldt" + i + ".oy_i,\n"
                         + "  ldt" + i + ".on_i";
               }
-            } else {
-              selectStat += ",\n  0 stat_value,\n  ld.n_thresh,\n ldt.thresh_i,\n ldt.oy_i\n,"
-                      + " ldt.on_i";
             }
           } else if (job.getAggNbrCnt()) {
             selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss, ld.afss, ld.ufss, ld.f_rate, ld.o_rate ";
@@ -1702,13 +1754,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strStatNaClause = "\n  AND ld." + statField + " != -9999";
           }
           if (job.getAggPct()) {
-            if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
+            if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
+              strStatNaClause = "\n  AND ld.line_data_id = ldt.line_data_id\n";
+
+            } else if (!strStat.endsWith("_TOTAL")) {
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 strStatNaClause += "\n  AND ld.line_data_id = ldt" + i + ".line_data_id\n"
                         + "  AND ldt" + i + ".i_value = " + i;
               }
-            } else {
-              strStatNaClause = "\n  AND ld.line_data_id = ldt.line_data_id\n";
             }
           }
 
@@ -2632,7 +2685,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
        */
 
       //  validate and get the type and values for the independent variable
-      String strIndyVarType;
       String strIndyVar = job.getIndyVar();
       String[] listIndyVal = job.getIndyVal();
       if (!headerSql.contains(strIndyVar)) {
@@ -2882,13 +2934,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "  AND h.stat_header_id = ld.stat_header_id\n"
             + "  AND ld.line_data_id = ldr.line_data_id\n";
 
-    //if (listSeries.length > 0) {
-    //  strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
-    //}
-    // for phist plots with bin_size, add to group by as well as select
-    //if (binColumnName != null) {
-    //   strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName;
-    //}
     strPlotDataSelect = strPlotDataSelect + ";";
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
@@ -3371,9 +3416,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
 
-  private String formatField(String field, boolean mode) {
-    return formatField(field, mode, true);
-  }
 
   private BuildMysqlQueryStrings build(
           boolean boolModePlot,
@@ -3391,7 +3433,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String field = entry.getKey().toString();
 
       //  validate the series field and get its type
-      String strTempType;
       if (!headerSql.contains(field)) {
         throw new ValidationException("unrecognized " + (boolModePlot ? "mode" : "stat")
                 + "_header field: " + field);
@@ -3429,9 +3470,5 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return buildMysqlQueryStrings;
   }
 
-  @Override
-  public void closeDataSource() {
-    super.closeDataSource();
-  }
 }
 

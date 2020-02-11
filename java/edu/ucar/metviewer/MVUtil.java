@@ -91,6 +91,12 @@ public class MVUtil {
   public static final Map<String, String> mtd3dSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd2dStatField = new HashMap<>();
   public static final Map<String, String[]> statsRps = new HashMap<>();
+  public static final Map<String, String[]> statsCtc = new HashMap<>();
+  public static final Map<String, String[]> statsNbrctc = new HashMap<>();
+  public static final Map<String, String[]> statsPct = new HashMap<>();
+  public static final Map<String, String[]> statsSl1l2 = new HashMap<>();
+  public static final Map<String, String[]> statsSal1l2 = new HashMap<>();
+  public static final Map<String, String[]> statsGrad = new HashMap<>();
 
 
   public static final int MAX_STR_LEN = 500;
@@ -466,9 +472,21 @@ public class MVUtil {
     statsRps.put("RPS_RES", new String[]{""});
     statsRps.put("RPS_UNC", new String[]{""});
     statsRps.put("RPS", new String[]{RPS});
-    statsRps.put("RPSS", new String[]{ RPS});
+    statsRps.put("RPSS", new String[]{RPS});
     statsRps.put("RPSS_SMPL", new String[]{""});
+    statsRps.put("RPS_TOTAL", new String[]{RPS});
+  }
 
+  static {
+    statsCtc.put("CTC_FY_OY", new String[]{CTC});
+    statsCtc.put("CTC_FY_ON", new String[]{CTC});
+    statsCtc.put("CTC_FN_OY", new String[]{CTC});
+    statsCtc.put("CTC_FN_ON", new String[]{CTC});
+    statsCtc.put("CTC_OY", new String[]{CTC});
+    statsCtc.put("CTC_ON", new String[]{CTC});
+    statsCtc.put("CTC_FY", new String[]{CTC});
+    statsCtc.put("CTC_FN", new String[]{CTC});
+    statsCtc.put("CTC_TOTAL", new String[]{CTC});
   }
 
   static {
@@ -521,6 +539,18 @@ public class MVUtil {
   }
 
   static {
+    statsSl1l2.put("SL1L2_TOTAL", new String[]{SL1L2});
+  }
+
+  static {
+    statsSal1l2.put("SAL1L2_TOTAL", new String[]{SAL1L2});
+  }
+
+  static {
+    statsGrad.put("GRAD_TOTAL", new String[]{GRAD});
+  }
+
+  static {
     statsVcnt.put("VCNT_FBAR", new String[]{"bc", VL1L2});
     statsVcnt.put("VCNT_OBAR", new String[]{"bc", VL1L2});
     statsVcnt.put("VCNT_FS_RMS", new String[]{"bc", VL1L2});
@@ -553,6 +583,7 @@ public class MVUtil {
     statsEcnt.put("ECNT_RMSE_OERR", new String[]{"bc", ECNT});
     statsEcnt.put("ECNT_SPREAD_OERR", new String[]{"bc", ECNT});
     statsEcnt.put("ECNT_SPREAD_PLUS_OERR", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_TOTAL", new String[]{ECNT});
   }
 
   static {
@@ -572,6 +603,7 @@ public class MVUtil {
     statsSsvar.put("SSVAR_ME2", new String[]{"bc", SSVAR});
     statsSsvar.put("SSVAR_MSESS", new String[]{"bc", SSVAR});
     statsSsvar.put("SSVAR_Spread", new String[]{"bc", SSVAR});
+    statsSsvar.put("SSVAR_TOTAL", new String[]{SSVAR});
   }
 
 
@@ -615,12 +647,17 @@ public class MVUtil {
   }
 
   static {
+    statsNbrctc.put("NBR_CTC_TOTAL", new String[]{NBRCTC});
+  }
+
+  static {
     statsNbrcnt.put("NBR_FBS", new String[]{"bc", NBRCNT});
     statsNbrcnt.put("NBR_FSS", new String[]{"bc", NBRCNT});
     statsNbrcnt.put("NBR_AFSS", new String[]{"bc", NBRCNT});
     statsNbrcnt.put("NBR_UFSS", new String[]{"bc", NBRCNT});
     statsNbrcnt.put("NBR_F_RATE", new String[]{"bc", NBRCNT});
     statsNbrcnt.put("NBR_O_RATE", new String[]{"bc", NBRCNT});
+    statsNbrcnt.put("NBR_CNT_TOTAL", new String[]{NBRCNT});
   }
 
   static {
@@ -636,10 +673,15 @@ public class MVUtil {
   }
 
   static {
+    statsPct.put("PCT_TOTAL", new String[]{PCT});
+  }
+
+  static {
     statsMcts.put("MCTS_ACC", new String[]{"nc", "bc"});
     statsMcts.put("MCTS_HK", new String[]{"bc"});
     statsMcts.put("MCTS_HSS", new String[]{"bc"});
     statsMcts.put("MCTS_GER", new String[]{"bc"});
+    //statsMcts.put("MCTS_TOTAL", new String[]{MCTC});
   }
 
   static {
@@ -651,6 +693,7 @@ public class MVUtil {
 
   static {
     statsVal1l2.put("VAL1L2_ANOM_CORR", new String[]{VAL1L2});
+    statsVal1l2.put("VAL1L2_TOTAL", new String[]{VAL1L2});
   }
 
   static {
@@ -664,6 +707,7 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_SPEED_ERR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_RMSVE", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_SPEED_DIFF", new String[]{VL1L2});
+    statsVl1l2.put("VL1L2_TOTAL", new String[]{VL1L2});
   }
 
   public static final String COUNT = "COUNT(*)";
@@ -1072,8 +1116,8 @@ public class MVUtil {
                     return +1;
                   }
 
-                  Float n1 = new Float(m1.group(2));
-                  Float n2 = new Float(m2.group(2));
+                  Float n1 = Float.valueOf(m1.group(2));
+                  Float n2 = Float.valueOf(m2.group(2));
                   int numberCompare = n1.compareTo(n2);
                   if (0 != numberCompare) {
                     return numberCompare;
@@ -1600,6 +1644,18 @@ public class MVUtil {
       return "line_data_dmap";
     } else if (statsRps.containsKey(strStat)) {
       return "line_data_rps";
+    } else if (statsCtc.containsKey(strStat)) {
+      return "line_data_ctc";
+    } else if (statsNbrctc.containsKey(strStat)) {
+      return "line_data_ctc";
+    } else if (statsPct.containsKey(strStat)) {
+      return "line_data_pct";
+    } else if (statsSl1l2.containsKey(strStat)) {
+      return "line_data_sl1l2";
+    } else if (statsSal1l2.containsKey(strStat)) {
+      return "line_data_sal1l2";
+    } else if (statsGrad.containsKey(strStat)) {
+      return "line_data_grad";
     } else {
       return "";
     }
@@ -1666,7 +1722,7 @@ public class MVUtil {
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
       readerProcStd = new BoundedBufferedReader(inputStreamReader, 10000, 2048);
-      readerProcErr = new BoundedBufferedReader(errorInputStreamReader,10000, 2048);
+      readerProcErr = new BoundedBufferedReader(errorInputStreamReader, 10000, 2048);
       while (!boolExit) {
         try {
           intExitStatus = proc.exitValue();
