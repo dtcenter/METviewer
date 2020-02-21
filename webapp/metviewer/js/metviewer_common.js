@@ -769,7 +769,19 @@ function getSelectedDatabases() {
         databases = databases.slice(0, -1);
     }
     if (databases.length === 0) {
+        //try to get it from the URL
         databases = querySt("db");
+    }
+    if (typeof databases === 'undefined' && initXML != null) {
+        //try to get it from response XML
+        databases = initXML.find("database").text();
+        var textnode = document.createTextNode(databases);
+        var item = document.getElementById("categories1").childNodes[0];
+        item.replaceChild(textnode, item.childNodes[0]);
+    }
+    if (typeof databases === 'undefined'){
+        //try to get it from the text field
+        databases = document.getElementById("categories1").childNodes[0].innerText;
     }
     return databases;
 }
@@ -3707,7 +3719,7 @@ function sendXml() {
                 var xml = $(response);
                 var plot = xml.find("plot");
                 var error = xml.find("error");
-                if (error.length == 0) {
+                if (error.length === 0) {
                     updateResult(plot.text());
                     var r_error = xml.find("r_error");
                     if (r_error && r_error.length > 0) {
@@ -6937,7 +6949,7 @@ function updateResult(result) {
         dataType: "xml",
         success: function (data) {
             var xmlString;
-            if (jQuery.browser == "msie") {
+            if (jQuery.browser === "msie") {
                 xmlString = data.xml;
             } else {
                 xmlString = (new XMLSerializer()).serializeToString(data);
@@ -6952,9 +6964,10 @@ function updateResult(result) {
         type: "GET",
         url: urlOutput + "xml/" + resultName + ".sql",
         dataType: "text",
-        success: function (data) {
-
-            document.getElementById('plot_sql').innerHTML = data.replace(/\n/g, '<br />');
+        contentType: 'text/plain',
+        mimeType:'text',
+        complete: function (data) {
+            document.getElementById('plot_sql').innerHTML = (data.responseText).replace(/\n/g, '<br />');
         },
         error: function () {
             document.getElementById('plot_sql').innerHTML = "";
@@ -6964,9 +6977,10 @@ function updateResult(result) {
         type: "GET",
         url: urlOutput + "scripts/" + resultName + ".R",
         dataType: "text",
-        success: function (data) {
-
-            document.getElementById('r_script').innerHTML = data.replace(/\n/g, '<br />');
+        contentType: 'text/plain',
+        mimeType:'text',
+        complete: function (data) {
+            document.getElementById('r_script').innerHTML = (data.responseText).replace(/\n/g, '<br />');
         },
         error: function () {
             document.getElementById('r_script').innerHTML = "";
@@ -6976,9 +6990,10 @@ function updateResult(result) {
         type: "GET",
         url: urlOutput + "xml/" + resultName + ".log",
         dataType: "text",
-        success: function (data) {
-
-            document.getElementById('plot_log').innerHTML = data.replace(/\n/g, '<br />');
+        contentType: 'text/plain',
+        mimeType:'text',
+        complete: function (data) {
+            document.getElementById('plot_log').innerHTML = (data.responseText).replace(/\n/g, '<br />');
         },
         error: function () {
             document.getElementById('plot_log').innerHTML = "";
@@ -6989,7 +7004,7 @@ function updateResult(result) {
     $("#r_data_url").prop("href", urlOutput + "data/" + resultName + ".data");
     $("#y1_points_url").prop("href", urlOutput + "data/" + resultName + ".points1");
     $("#y2_points_url").prop("href", urlOutput + "data/" + resultName + ".points2");
-    $('#plot_display_inner').tabs({active: 0});
+
 
 }
 
@@ -7051,8 +7066,11 @@ function initPage() {
             var pre = $("<pre/>").text(ui.panel.text());
             ui.panel.empty();
             ui.panel.append(pre);
+        },
+        create: function( event, ui ) {
         }
     });
+
     $("#tab-south").tabs({collapsible: false});
 
     innerLayout = $("#plot_display").layout({
