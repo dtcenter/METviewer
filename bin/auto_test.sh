@@ -63,7 +63,7 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T?" o; do
             ;;
         s)
             optarglower=$(echo ${OPTARG} | /bin/tr '[:upper:]' '[:lower:]')
-            if [ "${optarglower}" != "mysql" -a "${optarglower}" != "cb" ]; then
+            if [ "${optarglower}" != "mysql" -a "${optarglower}" != "cb" -a "${optarglower}" != "mariadb" -a "${optarglower}" != "aurora" ]; then
                 echo "db management system ${OPTARG} is not mysql or cb"
                 usage
             fi
