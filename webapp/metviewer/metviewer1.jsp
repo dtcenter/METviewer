@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v2.12-dev</TITLE>
+  <TITLE>METviewer v3.0-dev</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -250,7 +250,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 2.12-dev<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 3.0-dev<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
@@ -347,13 +347,13 @@
 
     <ul style="-moz-border-radius-bottomleft: 0; -moz-border-radius-bottomright: 0;">
       <li><a href="#plot_image" id="plot_image_url">Plot</a></li>
-      <li><a href="#plot_xml" id="plot_xml_url">XML</a></li>
-      <li><a href="#plot_log" id="plot_log_url">Log</a></li>
-      <li><a href="#r_script" id="r_script_url">R script</a></li>
-      <li><a id="r_data_url" href="R_work/data/.data" onerror="alert(1)">R data</a></li>
+      <li><a href="#plot_xml" id="plot_xml_url" >XML</a></li>
+      <li><a href="#plot_log" id="plot_log_url" >Log</a></li>
+      <li><a href="#r_script" id="r_script_url" >R script</a></li>
+      <li><a id="r_data_url" href="R_work/data/.data" onerror="alert(1)" type="text/plain" >R data</a></li>
       <li><a href="#plot_sql" id="plot_sql_url">SQL</a></li>
-      <li><a id="y1_points_url" href="R_work/data/.points1">Y1 Points</a></li>
-      <li><a id="y2_points_url" href="R_work/data/.points2">Y2 Points</a></li>
+      <li><a id="y1_points_url" href="R_work/data/.points1" type="text/plain" >Y1 Points</a></li>
+      <li><a id="y2_points_url" href="R_work/data/.points2" type="text/plain" >Y2 Points</a></li>
     </ul>
     <div class="ui-layout-content ui-widget-content ui-corner-bottom" style="border-top: 0; padding-bottom: 1em;">
 
