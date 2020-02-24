@@ -771,7 +771,7 @@ perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
   na_perf_score_stats <- c('BASER','FMEAN','FBAR','FSTDEV', 'OBAR', 'OSTDEV', 'FRANK_TIES', 'ORANK_TIES',
     'FBAR',  'FSTDEV', 'OBAR', 'OSTDEV', 'RANKS', 'FRANK_TIES', 'ORANK_TIES','VL1L2_FBAR', 'VL1L2_OBAR',
     'VL1L2_FSTDEV','VL1L2_OSTDEV','VL1L2_FOSTDEV', 'PSTD_BASER','PSTD_RESOLUTION', 'PSTD_UNCERTAINTY',
-                           'PSTD_ROC_AUC',  'NBR_UFSS', 'NBR_F_RATE', 'NBR_O_RATE','NBR_BASER','NBR_FMEAN',
+                           'PSTD_ROC_AUC',  'NBR_UFSS', 'NBR_F_RATE', 'NBR_O_RATE','NBR_BASER','NBR_FMEAN'
   );
 
   zero_perf_score_stats <- c('POFD','FAR','ESTDEV','MAE', 'MSE', 'BCMSE', 'RMSE', 'E10', 'E25', 'E50', 'E75',
