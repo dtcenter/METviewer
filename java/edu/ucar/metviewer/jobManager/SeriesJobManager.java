@@ -201,7 +201,7 @@ public class SeriesJobManager extends JobManager {
       yamlInfo.put("num_iterations", MVUtil.isNumeric(job.getAggBootRepl()) ? Integer.parseInt(job.getAggBootRepl()) : 1);
       yamlInfo.put("num_threads", -1);
       yamlInfo.put("alpha", MVUtil.isNumeric(job.getCIAlpha()) ? Double.parseDouble(job.getCIAlpha()) : 0.05);
-      yamlInfo.put("random_seed", job.getAggBootRandomSeed().equals("NA") ? null : job.getAggBootRandomSeed());
+      yamlInfo.put("random_seed", job.getAggBootRandomSeed().equals("NA") ? null : Integer.parseInt(job.getAggBootRandomSeed()));
       yamlInfo.put("line_type", job.getLineType());
       yamlInfo.put("indy_var", job.getIndyVar());
       yamlInfo.put("event_equal", job.getEventEqual() ? "True" : "False");
@@ -278,7 +278,7 @@ public class SeriesJobManager extends JobManager {
 
       //run summary or agg stats Rscripts - if needed
       if (rscriptStatManager != null) {
-        if (job.isModeJob() || job.isMtdJob()) {
+        if (job.isModeJob() || job.isMtdJob() || isCalcStat) {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
           rscriptStatManager.runRscript(job, info);
         }else {
