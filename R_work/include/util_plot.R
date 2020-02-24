@@ -776,12 +776,13 @@ perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
 
   zero_perf_score_stats <- c('POFD','FAR','ESTDEV','MAE', 'MSE', 'BCMSE', 'RMSE', 'E10', 'E25', 'E50', 'E75',
     'E90', 'EIQR', 'MAD', 'ME2', 'ME', 'ESTDEV', 'ODDS','LODDS','VL1L2_MSE','VL1L2_RMSE',
-'VL1L2_RMSVE','PSTD_BRIER', 'PSTD_RELIABILITY', 'NBR_FBS' ,'VL1L2_SPEED_ERR', 'NBR_POFD', 'NBR_FAR','NBR_ODDS' );
+'VL1L2_RMSVE','PSTD_BRIER', 'PSTD_RELIABILITY', 'NBR_FBS' ,'VL1L2_SPEED_ERR', 'NBR_POFD', 'NBR_FAR','NBR_ODDS',
+  'RPS');
 
   one_perf_score_stats <- c('ACC', 'FBIAS', 'PODY','PODN', 'CSI', 'GSS', 'HK', 'HSS', 'ORSS', 'EDS', 'SEDS',
     'EDI', 'SEDI', 'BAGSS','PR_CORR', 'SP_CORR', 'KT_CORR', 'MBIAS', 'ANOM_CORR','VL1L2_BIAS','VL1L2_CORR',
     'PSTD_BSS', 'PSTD_BSS_SMPL', 'NBR_FSS', 'NBR_AFSS',  'VAL1L2_ANOM_CORR', 'NBR_ACC','NBR_FBIAS', 'NBR_PODY',
-  'NBR_PODN', 'NBR_CSI', 'NBR_GSS','NBR_HK','NBR_HSS');
+  'NBR_PODN', 'NBR_CSI', 'NBR_GSS','NBR_HK','NBR_HSS', 'RPSS');
 
   if( statistic %in% na_perf_score_stats ){
     result = NA;
