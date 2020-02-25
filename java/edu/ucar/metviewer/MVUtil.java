@@ -61,7 +61,7 @@ public class MVUtil {
   public static final String GRAD = "grad"; //Gradient partial sums
   public static final String SAL1L2 = "sal1l2"; //  Scalar anomaly  partial sums
   public static final String SSVAR = "ssvar"; //  Spread/Skill Variance
-  public static final String PCT = "pct";
+  public static final String PCT = "pct"; //Contingency Table Counts for Probabilistic forecasts
   public static final String NBRCNT = "nbrcnt"; //  Neighborhood Continuous Statistics
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
   public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial Sum
