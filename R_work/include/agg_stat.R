@@ -444,6 +444,10 @@ if ( nrow(sampleData) > 0){
       for(strStat in listStat){
         # calculate and store the statistic
         dblStat = do.call( paste("calc", strStat, sep=""), list(d=dfSeriescustom_sums) );
+        # if this is 'total' - need to devide to the number of stats in case more than one stat is selected
+        if(endsWith(strStat, "_TOTAL")){
+          dblStat = dblStat/length(listStat)
+        }
         listRet[[strStat]] = append(listRet[[strStat]], dblStat);
 
       }
