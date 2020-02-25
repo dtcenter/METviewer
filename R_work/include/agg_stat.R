@@ -434,6 +434,26 @@ if ( nrow(sampleData) > 0){
 
   }
 
+  SUPER_STAT <- c('CTC_FY_OY',
+'CTC_FY_ON',
+'CTC_FN_OY',
+'CTC_FN_ON',
+'CTC_OY',
+'CTC_ON',
+'CTC_FY',
+'CTC_FN',
+'SL1L2_TOTAL',
+'GRAD_TOTAL',
+'SAL1L2_TOTAL',
+'SSVAR_TOTAL',
+'CTC_TOTAL',
+'VL1L2_TOTAL',
+'VAL1L2_TOTAL',
+'ECNT_TOTAL',
+'NBR_CTC_TOTAL',
+'NBR_CNT_TOTAL',
+'PCT_TOTAL',
+'RPS_TOTAL')
 
   # booter function
   booter.iid = function(d, i){
@@ -462,8 +482,8 @@ if ( nrow(sampleData) > 0){
       for(strStat in listStat){
         # calculate and store the statistic
         dblStat = do.call( paste("calc", strStat, sep=""), list(d=dfSeriescustom_sums) );
-        # if this is 'total' - need to devide to the number of stats in case more than one stat is selected
-        if(endsWith(strStat, "_TOTAL")){
+        # if this is a special stat - need to devide to the number of stats in case more than one stat is selected
+        if (strStat %in% SUPER_STAT){
           dblStat = dblStat/length(listStat)
         }
         listRet[[strStat]] = append(listRet[[strStat]], dblStat);
