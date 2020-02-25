@@ -154,7 +154,7 @@ calcCTC_FY_ON   = function(d){
   if(is.na(d$fy_on) ){
     return (NA);
   }
-  return( d$fy_om  );
+  return( d$fy_on  );
 }
 
 calcCTC_FN_OY   = function(d){
