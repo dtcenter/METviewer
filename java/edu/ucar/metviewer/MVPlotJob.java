@@ -2200,6 +2200,9 @@ public class MVPlotJob {
     if(this.getAggEcnt()){
       return "ecnt";
     }
+    if(this.getAggRps()){
+      return "rps";
+    }
     return "N/A";
   }
 }
