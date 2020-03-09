@@ -532,7 +532,7 @@ buildAllStats = function(dfStats, listSeriesVal, strDepStat,strDepName){
         vectValPerms = valPerm;
       }else{
         vectValPerms= strsplit(valPerm, ",")[[1]];
-        vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
+        vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
       }
 
       dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] %in% vectValPerms,];
