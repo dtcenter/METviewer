@@ -278,7 +278,7 @@ public class SeriesJobManager extends JobManager {
 
       //run summary or agg stats Rscripts - if needed
       if (rscriptStatManager != null) {
-        if (job.isModeJob() || job.isMtdJob() || isCalcStat) {
+        if (job.isMtdJob() || isCalcStat) {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
           rscriptStatManager.runRscript(job, info);
         }else {

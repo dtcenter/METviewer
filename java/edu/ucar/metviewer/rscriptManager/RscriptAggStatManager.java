@@ -23,7 +23,8 @@ import static edu.ucar.metviewer.MVUtil.createYmlFile;
  * @version : 1.0 : 22/12/17 10:15 $
  */
 public class RscriptAggStatManager extends RscriptStatManager {
-  private static final String PYTHON_SCRIPT = "/metcalcpy/agg_stat.py";
+  private static final String AGG_PYTHON_SCRIPT = "/metcalcpy/agg_stat.py";
+  private static final String AGG_BOOT_PYTHON_SCRIPT = "/metcalcpy/agg_stat_bootstrap.py";
 
   private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
           .setLevel(org.apache
@@ -252,18 +253,32 @@ public class RscriptAggStatManager extends RscriptStatManager {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
+        if(job.isModeJob()){
+          mvBatch.getPrintStream().println("\nRunning "
+                  + mvBatch.getPythonEnv()
+                  + " "
+                  + mvBatch.getMetCalcpyHome() + AGG_BOOT_PYTHON_SCRIPT
+                  + " "
+                  + aggInfo);
 
-        mvBatch.getPrintStream().println("\nRunning "
-                + mvBatch.getPythonEnv()
-                + " "
-                + mvBatch.getMetCalcpyHome() + PYTHON_SCRIPT
-                + " "
-                + aggInfo);
+          mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
+                  mvBatch.getMetCalcpyHome() + AGG_BOOT_PYTHON_SCRIPT,
+                  new String[]{aggInfo},
+                  new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
+        }else {
 
-        mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
-                mvBatch.getMetCalcpyHome() + PYTHON_SCRIPT,
-                new String[]{aggInfo},
-                new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
+          mvBatch.getPrintStream().println("\nRunning "
+                  + mvBatch.getPythonEnv()
+                  + " "
+                  + mvBatch.getMetCalcpyHome() + AGG_PYTHON_SCRIPT
+                  + " "
+                  + aggInfo);
+
+          mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
+                  mvBatch.getMetCalcpyHome() + AGG_PYTHON_SCRIPT,
+                  new String[]{aggInfo},
+                  new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
+        }
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
           mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
