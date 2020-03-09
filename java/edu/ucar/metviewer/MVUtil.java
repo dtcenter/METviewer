@@ -403,8 +403,6 @@ public class MVUtil {
 
   static {
     alphaLineTypes.put("CTS", Boolean.TRUE);
-    alphaLineTypes.put("CNT", Boolean.TRUE);
-    alphaLineTypes.put("PSTD", Boolean.TRUE);
     alphaLineTypes.put("NBRCTS", Boolean.TRUE);
     alphaLineTypes.put("NBRCNT", Boolean.TRUE);
     alphaLineTypes.put("MCTS", Boolean.TRUE);
