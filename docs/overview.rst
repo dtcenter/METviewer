@@ -60,27 +60,12 @@ Aggregate statistics – accumulates SL1L2 lines or CTC counts prior to calculat
 
 Revision statistics - Creates a revision series (e.g. the temporal change in a statistic). 
 
-Confidence intervals - METviewer supports two statistical derivation methods... (1) plot the mean of the daily stats with confidence intervals defined by the "standard error"... that uses the standard deviation to add confidence intervals and assumes normality (2) plot the aggregated statistics with confidence intervals defined by bootstrapping that aggregation
+Confidence intervals - METviewer supports two statistical derivation methods... (1) plot the mean of the daily stats with confidence intervals defined by the "standard error"... that uses the standard deviation to add confidence intervals and assumes normality (2) plot the aggregated statistics with confidence intervals defined by bootstrapping that aggregation.
 
-??This is a note in lyx:  This is some text from a MET help question. It needs to be edited, but it covers a lot of the details:??
+Pairwise Differencing – computes the difference in statistics for two models on a pairwise basis (same forecast hour, same initialization, same region, etc…).  Confidence intervals may be applied to determine statistical significance.
 
+Event Equalization – performs the filtering on two datasets to produce a “homogeneous” intersection between the samples (same forecast hour, same initialization, same region, etc…).  Use of this method is recommended when trying to compare the skill of one or more predictions.
 To test, I tried method (1) and it works fine for some of the categorical stats, like BASER and FMEAN. However, applying it to GSS results in this error:
-
-==== Start Rscript error ==== Error in if (0 < sum(listDataInd)) { : missing value where TRUE/FALSE needed Execution halted ==== End Rscript error ====
-
-For high thresholds, GSS is undefined and that missing data is causing this error message. When I restrict the plot to the 2 lowest thresholds for which there are always events, then method (1) works fine.
-
-But you asked about method (2). Here are the details for applying bootstrap confidence intervals... - In the "Statistics" box make sure you have "Aggregation Statistics" selected... and you do. - In the "Statistics" box in the dropdown menu select the line type to be aggregated. For GSS, you aggregate CTC lines, which is what you have selected. - In the "Statistics" box select the number of bootstrapping replicates, using in general, at least 1000. I changed your "1" to "1000". - Note that if you want to make your plot exactly repeatable in subsequent runs, set the boostrapping seed to any number. - In the "Series Formatting" table in the "Conf Interval" column, select "boot".
-
-Some other suggestions... - The default alpha value is 0.05 for 95% confidence interval. You can change that in the "Common" tab. Setting alpha = 0.01 would yield a 99% CI. - On the "Common" tab, select "Y1 Stagger Points". That prevents the CI bars from being plotted on top of each other.
-
-Bootstrapping 1000 times takes longer to generate the plot.
-
-To really compare the difference of these lines, I'd suggest plotting their pairwise difference:
-
-- In the bottom-left corner, select "+Add Derived Curve". - In the pop-up, choose GFS in the first box and FV3GFS in the second, make sure "DIFF" is selected, and click "Create Derived Curve". - We now have a new entry in the "Series Formatting" table. Select "boot" in the "Conf Interval" column. Change the color to black and line width to 3. And set "Show Significance" to Yes. - In "Series Formatting" set the "Legend Text" to FV3GFS, GFS, and GFS-FV3GFS. - In the "Y1" tab get rid of the "Y1 Limits" setting so that R can fit all the data on the plot. - In the "Formatting" tab, set the "Plot Script Commands" to draw a gray dashed reference line at 0: abline(h=0,col="gray",lty=2,lwd=3)
-
-This shows that at GFS has a statistically significant higher GSS score than FV3GFS at the lowest threshold. But the results are not statistically significant at higher thresholds. Visually, when the confidence interval for the pairwise difference line does not include 0, the difference is significant and METviewer plots the CI in bold. That's the effect of turning on "Show Significance".
 
 
 METviewer Output
