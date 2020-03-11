@@ -35,5 +35,3 @@ The histograms show the relative frequency with which the event has been predict
 .. figure:: reliability.png
 
 	    Figure 7.1 Example reliability (attributes diagram) with histogram of observation counts and bootstrap confidence intervals.
-
-??Several optional   Did you want more figures?? 
