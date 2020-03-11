@@ -36,7 +36,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 **The citation for this User's Guide should be:**
 
-| T. Fowler, T. Burek, J. Halley Gotway, T. Jensen, L. Goodrich 2020:  ?? New staff on project
+| T. Burek, T. Fowler, J. Halley Gotway, T. Jensen, L. Goodrich, J. Prestopnik 2020
 | The METviewer User's Guide. Developmental Testbed Center.
 | Available at : https://github.com/NCAR/METviewer/releases. 80 pp.
 
