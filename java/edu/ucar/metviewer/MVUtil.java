@@ -1093,10 +1093,22 @@ public class MVUtil {
    */
   public static List<String> sortThresh(List<String> thresh) {
     thresh.sort(
-            new Comparator<CharSequence>() {
+            new Comparator<String>() {
               private final Pattern PATTERN_WITH_FLOAT = Pattern.compile("(\\D*)([-+]?\\d*\\.?\\d+)");
 
-              public int compare(CharSequence s1, CharSequence s2) {
+              public int compare(String s1, String s2) {
+                // if the threshold contains  a float like this '>.1' -
+                // add a missing 0 -> '>0.1'
+                if (s1.contains(">.") || s1.contains("<.") || s1.contains("=.")
+                        || s1.contains("> .") || s1.contains("< .") || s1.contains("= .")) {
+                  int pos = s1.indexOf('.');
+                  s1 = s1.substring(0, pos) + "0" + s1.substring(pos);
+                }
+                if (s2.contains(">.") || s2.contains("<.") || s2.contains("=.")
+                        || s2.contains("> .") || s2.contains("< .") || s2.contains("= .")) {
+                  int pos = s2.indexOf('.');
+                  s2 = s2.substring(0, pos) + "0" + s2.substring(pos);
+                }
                 Matcher m1 = PATTERN_WITH_FLOAT.matcher(s1);
                 Matcher m2 = PATTERN_WITH_FLOAT.matcher(s2);
 
