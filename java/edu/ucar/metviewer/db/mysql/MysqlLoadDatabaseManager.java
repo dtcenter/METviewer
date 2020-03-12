@@ -1783,36 +1783,37 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
             if (listToken[6].equals("BSS")) {//PSTD line type
-              for (int i = 0; i < 17; i++) {
+              for (int i = 0; i < 18; i++) {
                 switch (i) {
                   case 0:
                   case 1:
+                  case 2:
                     lineDataValueList.append(", '0'");
                     break;
-                  case 2:
                   case 3:
-                  case 8:
-                  case 10:
+                  case 9:
                   case 11:
+                  case 12:
                   case 4:
-                  case 13:
+                  case 5:
                   case 14:
                   case 16:
+                  case 17:
                     lineDataValueList.append(", '-9999'");
                     break;
-                  case 5:
+                  case 6:
                     lineDataValueList.append(", '").append(listToken[12]).append("'");
                     break;
-                  case 6:
+                  case 7:
                     lineDataValueList.append(", '").append(listToken[13]).append("'");
                     break;
-                  case 7:
+                  case 8:
                     lineDataValueList.append(", '").append(listToken[14]).append("'");
                     break;
-                  case 9:
+                  case 10:
                     lineDataValueList.append(", '").append(listToken[9]).append("'");
                     break;
-                  case 12:
+                  case 13:
                     lineDataValueList.append(", '").append(listToken[10]).append("'");
                     break;
                   case 15:
