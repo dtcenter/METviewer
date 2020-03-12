@@ -15,7 +15,7 @@ This plot has three special options:
 
 Event histograms: The histograms allow users to see how often the forecast falls within each probability bin. The sample sizes in each bin are typically different, and some may be too small for conclusions. They also allow users to judge the sharpness of the forecasts. 
 
-Skill line: ??Needs a description??
+Skill line:The skill, or reliability, of a forecast is indicated by the proximity of the plotted curve to the diagonal skill line. The deviation from the diagonal gives the conditional bias. If the curve lies below the line, this indicates over-forecasting (probabilities too high); points above the line indicate under-forecasting (probabilities too low).
 
 Reference line: This line (typically dashed) denotes the sample climatology or base rate, the frequency of the event. 
 
@@ -35,5 +35,3 @@ The histograms show the relative frequency with which the event has been predict
 .. figure:: reliability.png
 
 	    Figure 7.1 Example reliability (attributes diagram) with histogram of observation counts and bootstrap confidence intervals.
-
-??Several optional   Did you want more figures?? 
