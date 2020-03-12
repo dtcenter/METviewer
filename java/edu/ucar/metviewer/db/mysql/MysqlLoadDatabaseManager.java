@@ -1762,18 +1762,18 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
             if (listToken[6].equals("RMSE")) {//CNT line type
-              for (int i = 0; i < 94; i++) {
-                if (i == 53) {
+              for (int i = 0; i < 95; i++) {
+                if (i == 54) {
                   lineDataValueList.append(", '").append(listToken[10]).append("'");
-                } else if (i == 31) {
+                } else if (i == 32) {
                   lineDataValueList.append(", '").append(listToken[11]).append("'");
-                } else if (i == 36) {
+                } else if (i == 37) {
                   lineDataValueList.append(", '").append(listToken[9]).append("'");
-                } else if (i == 44) {
+                } else if (i == 45) {
                   lineDataValueList.append(", '").append(listToken[12]).append("'");
-                } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
+                } else if (i == 0 || i == 1 || i == 29 || i == 30 || i == 31) {//total,ranks, frank_ties, orank_ties
                   lineDataValueList.append(", '0'");
-                } else if (i == 77) {
+                } else if (i == 78) {
                   lineDataValueList.append(", '").append(listToken[13]).append("'");
                 } else {
                   lineDataValueList.append(", '-9999'");
