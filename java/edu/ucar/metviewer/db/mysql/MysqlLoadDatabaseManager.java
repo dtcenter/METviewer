@@ -1029,7 +1029,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           //  if the line data requires an alpha value, add it
           String alpha = MVUtil.findValue(listToken, headerNames, "ALPHA");
           if (MVUtil.alphaLineTypes.containsKey(insertData.getLineType())) {
-            if (alpha.equals("NA")) {
+            if (alpha.equals("NA") && MVUtil.alphaLineTypes.get(insertData.getLineType())) {
               logger.warn("  **  WARNING: alpha value NA with line type '"
                       + insertData.getLineType() + "'\n        "
                       + insertData.getFileLine());
@@ -1753,7 +1753,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             //  if the line data requires an alpha value, add it
             String alpha = "-9999";
             if (MVUtil.alphaLineTypes.containsKey(mvLoadStatInsertData.getLineType())) {
-              if (alpha.equals("NA")) {
+              if (alpha.equals("NA") && MVUtil.alphaLineTypes.get(mvLoadStatInsertData.getLineType())) {
                 logger.warn("  **  WARNING: alpha value NA with line type '"
                         + mvLoadStatInsertData.getLineType()
                         + "'\n        " + mvLoadStatInsertData.getFileLine());

@@ -410,6 +410,9 @@ public class MVUtil {
     alphaLineTypes.put("VCNT", Boolean.TRUE);
     alphaLineTypes.put("DMAP", Boolean.TRUE);
     alphaLineTypes.put("RPS", Boolean.TRUE);
+
+    alphaLineTypes.put("CNT", Boolean.TRUE);
+    alphaLineTypes.put("PSTD", Boolean.TRUE);
   }
 
 
