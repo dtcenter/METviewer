@@ -1762,18 +1762,18 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
             if (listToken[6].equals("RMSE")) {//CNT line type
-              for (int i = 0; i < 95; i++) {
-                if (i == 54) {
+              for (int i = 0; i < 94; i++) {
+                if (i == 53) {
                   lineDataValueList.append(", '").append(listToken[10]).append("'");
-                } else if (i == 32) {
+                } else if (i == 31) {
                   lineDataValueList.append(", '").append(listToken[11]).append("'");
-                } else if (i == 37) {
+                } else if (i == 36) {
                   lineDataValueList.append(", '").append(listToken[9]).append("'");
-                } else if (i == 45) {
+                } else if (i == 44) {
                   lineDataValueList.append(", '").append(listToken[12]).append("'");
-                } else if (i == 0 || i == 1 || i == 29 || i == 30 || i == 31) {//total,ranks, frank_ties, orank_ties
+                } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
                   lineDataValueList.append(", '0'");
-                } else if (i == 78) {
+                } else if (i == 77) {
                   lineDataValueList.append(", '").append(listToken[13]).append("'");
                 } else {
                   lineDataValueList.append(", '-9999'");
@@ -1783,37 +1783,36 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
             if (listToken[6].equals("BSS")) {//PSTD line type
-              for (int i = 0; i < 18; i++) {
+              for (int i = 0; i < 17; i++) {
                 switch (i) {
                   case 0:
                   case 1:
-                  case 2:
                     lineDataValueList.append(", '0'");
                     break;
+                  case 2:
                   case 3:
-                  case 9:
+                  case 8:
+                  case 10:
                   case 11:
-                  case 12:
                   case 4:
-                  case 5:
+                  case 13:
                   case 14:
                   case 16:
-                  case 17:
                     lineDataValueList.append(", '-9999'");
                     break;
-                  case 6:
+                  case 5:
                     lineDataValueList.append(", '").append(listToken[12]).append("'");
                     break;
-                  case 7:
+                  case 6:
                     lineDataValueList.append(", '").append(listToken[13]).append("'");
                     break;
-                  case 8:
+                  case 7:
                     lineDataValueList.append(", '").append(listToken[14]).append("'");
                     break;
-                  case 10:
+                  case 9:
                     lineDataValueList.append(", '").append(listToken[9]).append("'");
                     break;
-                  case 13:
+                  case 12:
                     lineDataValueList.append(", '").append(listToken[10]).append("'");
                     break;
                   case 15:
