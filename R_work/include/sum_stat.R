@@ -39,7 +39,7 @@ stStart      = Sys.time();
 options(stringsAsFactors = FALSE)
 
 lineTypes = list(boolCtc=boolSumCtc, boolSl1l2=boolSumSl1l2, boolGrad=boolSumGrad, boolVl1l2=boolSumVl1l2,
-                 boolVal1l2=boolSumVal1l2, boolSal1l2=boolSumSal1l2)
+                 boolVal1l2=boolSumVal1l2, boolSal1l2=boolSumSal1l2, boolNbrCtc=FALSE)
 
 
 
