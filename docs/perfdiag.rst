@@ -22,5 +22,3 @@ Examples
 
 	    Figure 8.1 Example performance diagram.
 
-
-| ??Several optional ??
