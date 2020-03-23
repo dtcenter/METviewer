@@ -56,7 +56,7 @@ if(boolEventEqual){
           vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
         }
         fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
-        eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
+        eeStatsEqualize = eeStats[eeStats$fcst_var == strDep2Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
         eeStatsEqualizeUnique = unique(eeStatsEqualize$equalize);
         #fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,   eeStatsEqualizeUnique);
         fPlot = event_equalize_against_values(fPlot, strIndyVar,   eeStatsEqualizeUnique);
