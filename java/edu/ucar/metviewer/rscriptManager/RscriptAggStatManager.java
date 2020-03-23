@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static edu.ucar.metviewer.MVUtil.createYmlFile;
 
@@ -80,15 +81,33 @@ public class RscriptAggStatManager extends RscriptStatManager {
         info.put("agg_stat_input", dataFile + "_ee_input");
         info.put("agg_stat_output", dataFile + ".ee");
         String eeInfo = dataFile.replaceFirst("\\.data$", ".agg_stat_event_equalize.info");
-
-        MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + "/" + tmplFileName, eeInfo, info);
-        String scriptName = mvBatch.getRworkFolder() + "/include/agg_stat_event_equalize.R";
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        mvBatch.getPrintStream().print("Running '" + job.getRscript() + " " + scriptName + "'");
-        mvResponse = MVUtil.runRscript(job.getRscript(), scriptName, new String[]{eeInfo});
+        if(info.getClass() == TreeMap.class){
+          //use python
+          createYmlFile(eeInfo, info);
+          mvBatch.getPrintStream().println("\nRunning "
+                  + mvBatch.getPythonEnv()
+                  + " "
+                  + mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py"
+                  + " "
+                  + eeInfo);
+
+          mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
+                  mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py",
+                  new String[]{eeInfo},
+                  new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
 
 
+        }else {
+
+          MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + "/" + tmplFileName, eeInfo, info);
+          String scriptName = mvBatch.getRworkFolder() + "/include/agg_stat_event_equalize.R";
+
+
+          mvBatch.getPrintStream().print("Running '" + job.getRscript() + " " + scriptName + "'");
+          mvResponse = MVUtil.runRscript(job.getRscript(), scriptName, new String[]{eeInfo});
+        }
         stopWatch.stop();
 
         if (mvResponse.getInfoMessage() != null) {
@@ -109,21 +128,39 @@ public class RscriptAggStatManager extends RscriptStatManager {
       if (job.isModeRatioJob()) {
         dataFile = dataFile + ".agg_stat_bootstrap";
         //perform event equalisation against previously calculated cases, ratio statistic calculation and bootstrapping
-        scriptFileName = "include/agg_stat_bootstrap.R";
+        if(info.getClass() == TreeMap.class){
+          scriptFileName =  "/metcalcpy/agg_stat_bootstrap.py";
+        }else {
+          scriptFileName = "include/agg_stat_bootstrap.R";
+        }
       } else {
         dataFile = dataFile + ".agg_stat_eqz";
         //perform event equalisation against previously calculated cases
-        scriptFileName = "include/agg_stat_eqz.R";
+        if(info.getClass() == TreeMap.class){
+          scriptFileName =  "/metcalcpy/agg_stat_eqz.py";
+        }else {
+          scriptFileName = "include/agg_stat_eqz.R";
+        }
+
       }
     } else if (job.isMtdJob()) {
       if (job.isMtdRatioJob()) {
         dataFile = dataFile + ".agg_stat_bootstrap";
         //perform event equalisation against previously calculated cases, ratio statistic calculation and bootstrapping
-        scriptFileName = "include/agg_stat_bootstrap.R";
+        if(info.getClass() == TreeMap.class){
+          scriptFileName =  "/metcalcpy/agg_stat_bootstrap.py";
+        }else {
+          scriptFileName = "include/agg_stat_bootstrap.R";
+        }
+
       } else {
         dataFile = dataFile + ".agg_stat_eqz";
         //perform event equalisation against previously calculated cases
-        scriptFileName = "include/agg_stat_eqz.R";
+        if(info.getClass() == TreeMap.class){
+          scriptFileName =  "/metcalcpy/agg_stat_eqz.py";
+        }else {
+          scriptFileName = "include/agg_stat_eqz.R";
+        }
       }
     } else {
       dataFile = dataFile + ".agg_stat";
@@ -135,8 +172,11 @@ public class RscriptAggStatManager extends RscriptStatManager {
       }
     }
 
-
-    rScriptFile = mvBatch.getRworkFolder() + scriptFileName;
+    if(info.getClass() == TreeMap.class){
+      rScriptFile = scriptFileName;
+    }else {
+      rScriptFile = mvBatch.getRworkFolder() + scriptFileName;
+    }
 
     (new File(dataFile)).getParentFile().mkdirs();
 
@@ -257,12 +297,12 @@ public class RscriptAggStatManager extends RscriptStatManager {
           mvBatch.getPrintStream().println("\nRunning "
                   + mvBatch.getPythonEnv()
                   + " "
-                  + mvBatch.getMetCalcpyHome() + AGG_BOOT_PYTHON_SCRIPT
+                  + mvBatch.getMetCalcpyHome() + rScriptFile
                   + " "
                   + aggInfo);
 
           mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
-                  mvBatch.getMetCalcpyHome() + AGG_BOOT_PYTHON_SCRIPT,
+                  mvBatch.getMetCalcpyHome() + rScriptFile,
                   new String[]{aggInfo},
                   new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
         }else {
