@@ -49,6 +49,9 @@ listLty = #<lty>#;
 listLwd = #<lwd>#;
 listConSeries = #<con_series>#;
 
+strYlabel = "#<y1_label>#"
+strXlabel = "#<x_label>#"
+
 legend=c();
 
 # order the series formatting
@@ -103,7 +106,7 @@ if( "jpeg" == strPlotType ){
 # specify plot window formatting
 par(
   mar=#<mar>#,			# lines of margin in form c(bottom, left, top, right)
-	mgp=#<mgp>#,			# margin line for axis title, axis labels and axis line in form c(title, labels, line)
+	#mgp=#<mgp>#,			# margin line for axis title, axis labels and axis line in form c(title, labels, line)
 	cex=#<cex>#,			# magnification for plot text
 	las=2 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 );
@@ -130,7 +133,7 @@ for(col in 1:ncol(sampleData)){
   }
 }
 
-  performance.diagram(main = "");
+  performance.diagram.custom(main = "", xl=strXlabel, yl=strYlabel);
 
 dfPlot = read.delim(strDataFile,colClasses = classes);
 
