@@ -376,6 +376,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               tableLineDataTables.put("line_data_sal1l2", "true");
             } else if (strLineDataTable.equals("line_data_cts")) {
               tableLineDataTables.put("line_data_ctc", "true");
+            } else if (strLineDataTable.equals("line_data_vcnt")) {
+              tableLineDataTables.put("line_data_vl1l2", "true");
             }
           }
 
