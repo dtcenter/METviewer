@@ -2203,6 +2203,24 @@ public class MVPlotJob {
     if(this.getAggRps()){
       return "rps";
     }
+    if(this.getCalcCtc()){
+      return "ctc";
+    }
+    if(this.getCalcGrad()){
+      return "grad";
+    }
+    if(this.getCalcSal1l2()){
+      return "sal1l2";
+    }
+    if(this.getCalcSl1l2()){
+      return "sl1l2";
+    }
+    if(this.getCalcVal1l2()){
+      return "val1l2";
+    }
+    if(this.getCalcVl1l2()){
+      return "vl1l2";
+    }
     return "N/A";
   }
 }
