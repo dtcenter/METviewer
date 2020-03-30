@@ -91,10 +91,7 @@ class XmlParser {
             scorecard.setStatSymbol(scorecard.getStat());
           }
 
-          //if do not display values - set stat for values to null
-          if( !scorecard.getViewValue() ){
-            scorecard.setStatValue(null);
-          }
+
           //if do not display symbols - set stat for symbols to null
           if( !scorecard.getViewSymbol() ){
             scorecard.setStatSymbol(null);
