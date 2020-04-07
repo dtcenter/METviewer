@@ -130,9 +130,7 @@ public class AggPythonManager extends PythonManager {
               + threadName + strAggInfo.substring(lastDot);
 
 
-      String aggStatTemplScript;
 
-      aggStatTemplScript = aggStatTemplScriptDir + STAT_SCRIPT_FILE_NAME;
       try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
               .setLevel(org.apache.logging.log4j.Level.INFO)
               .buildPrintStream()) {
