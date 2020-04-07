@@ -18,9 +18,7 @@ import edu.ucar.metviewer.scorecard.exceptions.MissingFileException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
-import edu.ucar.metviewer.scorecard.rscript.AggPythonManager;
-import edu.ucar.metviewer.scorecard.rscript.AggRscriptManager;
-import edu.ucar.metviewer.scorecard.rscript.SumRscriptManager;
+import edu.ucar.metviewer.scorecard.rscript.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -134,7 +132,8 @@ public class Scorecard {
           //rscriptManager = new AggRscriptManager(scorecard);
         } else {
           scorecardDbManager = new SumDatabaseManagerMySQL(scorecard, databaseManager);
-          rscriptManager = new SumRscriptManager(scorecard);
+          rscriptManager = new SumPythonManager(scorecard);
+          //rscriptManager = new SumRscriptManager(scorecard);
         }
         int rowCounter = 1;
         stopWatch.stop();
@@ -164,7 +163,9 @@ public class Scorecard {
               ((AggPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
               //((AggRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
             } else {
-              ((SumRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              //((SumRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              ((SumPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
+
             }
 
           } catch (Exception e) {
