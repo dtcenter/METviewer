@@ -33,7 +33,7 @@ public abstract class PythonManager {
   List<Entry> models;
   private StringBuilder diffVals;
   String fcstVar;
-  List<String> diffSeries;
+
   private Map<String, List<String>> fixVars;
   String stat;
   String diffStatValue;
@@ -139,6 +139,7 @@ public abstract class PythonManager {
     for (String pe : columnsPermutationList) {
       for (String st : diffStats) {
         StringBuilder difStr;
+        List<String> diffSeries = new ArrayList<>();
         for (Entry model : models) {
           difStr = new StringBuilder();
           if (diffVals.length() > 0) {
@@ -150,8 +151,9 @@ public abstract class PythonManager {
         }
 
         diffSeries.add(st);
+        seriesDiffList.add(diffSeries);
       }
-      seriesDiffList.add(diffSeries);
+
     }
 
 
@@ -172,7 +174,6 @@ public abstract class PythonManager {
     models = null;
     diffVals = new StringBuilder();
     fcstVar = null;
-    diffSeries = new ArrayList<>();
     fixVars = new HashMap<>();
     stat = null;
   }
