@@ -18,12 +18,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static edu.ucar.metviewer.MVUtil.createYmlFile;
 import static java.time.temporal.ChronoUnit.DAYS;
 
-public class SumPythonManager extends PythonManager{
+public class SumPythonManager extends PythonManager {
   private static final Logger logger = LogManager.getLogger("SumPythonManager");
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
@@ -39,6 +42,11 @@ public class SumPythonManager extends PythonManager{
   private final String sumStatTemplFilePath;
   private final String sumStatTemplScriptDir;
   private final String sumStatDataFilePath;
+  private String plot_file;
+  private String plot_stat;
+  private String r_work;
+  private String stat_flag;
+  private String working_dir;
 
 
   public SumPythonManager(Scorecard scorecard) {
@@ -63,49 +71,24 @@ public class SumPythonManager extends PythonManager{
     } else {
       tableCalcStatInfoCommon.put("event_equal", "True");
     }
-    tableCalcStatInfoCommon.put("alpha", 0.05);
-    tableCalcStatInfoCommon.put("equalize_by_indep", "True");
-    tableCalcStatInfoCommon.put("series2_list", "list()");
-    tableCalcStatInfoCommon.put("fix_val_list_eq", new String[0]);
-    tableCalcStatInfoCommon.put("dep1_scale", new String[0]);
-    tableCalcStatInfoCommon.put("indy_plot_val", new String[0]);
-    tableCalcStatInfoCommon.put("plot_stat", scorecard.getPlotStat());
-    tableCalcStatInfoCommon
-            .put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
+
+
     tableCalcStatInfoCommon.put("data_file", scorecard.getWorkingFolders().getDataDir()
             + scorecard.getDataFile()
             .replaceAll(".data", ".dataFromDb"));
+
     tableCalcStatInfoCommon
             .put("sum_stat_output", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
-    tableCalcStatInfoCommon.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
-    tableCalcStatInfoCommon.put("stat_flag", scorecard.getStatFlag());
-    tableCalcStatInfoCommon
-            .put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
 
-    tableCalcStatInfoCommon.put("eveq_dis", "False");
+
+
     tableCalcStatInfoCommon.put("sum_stat_output", scorecard.getWorkingFolders().getDataDir()
             + scorecard.getDataFile() + "1");
-    long ndays = 0;
-    for (Field fixedField : fixedVars) {
-      if ("fcst_valid_beg".equals(fixedField.getName())
-              || "fcst_init_beg".equals(fixedField.getName())) {
-        int fixedFieldValsSize = fixedField.getValues().size();
-        boolean isSizeEven = fixedFieldValsSize % 2 == 0;
-        if (!isSizeEven) {
-          fixedFieldValsSize = fixedFieldValsSize - 1;
-          ndays = 1;
-        }
-        for (int i = 0; i < fixedFieldValsSize; i = i + 2) {
-          LocalDate localDate1 = LocalDate.parse(fixedField.getValues().get(i).getName().split("\\s")[0]);
-          LocalDate localDate2 = LocalDate.parse(fixedField.getValues().get(i + 1).getName().split("\\s")[0]);
-          ndays = ndays + DAYS.between(localDate1, localDate2) + 1;
-        }
-
-
-        break;
-      }
-    }
-    tableCalcStatInfoCommon.put("ndays", ndays);
+    plot_file = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
+    plot_stat = scorecard.getPlotStat();
+    r_work = scorecard.getWorkingFolders().getrWorkDir();
+    stat_flag = scorecard.getStatFlag();
+    working_dir = scorecard.getWorkingFolders().getrWorkDir() + "/include";
 
   }
 
@@ -125,14 +108,8 @@ public class SumPythonManager extends PythonManager{
       yamlInfo.put("indy_vals", indyList.get(indyVar));
       tableCalcStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
 
-      Map<String, List<String>> fcst_var_val_1 = new HashMap<>();
-      List<String> fcst_var_val_1_list = new ArrayList<>();
-      fcst_var_val_1_list.add(stat);
-      fcst_var_val_1.put(fcstVar, fcst_var_val_1_list);
-      yamlInfo.put("fcst_var_val_1", fcst_var_val_1);
 
       tableCalcStatInfo.put("dep2_plot", "list()");
-      yamlInfo.put("fcst_var_val_2", new HashMap<>());
 
       tableCalcStatInfo.put("series_list", seriesList.toString());
       tableCalcStatInfo.put("series1_list", seriesList.toString());
@@ -140,11 +117,9 @@ public class SumPythonManager extends PythonManager{
 
       yamlInfo.put("series_val_1", seriesList);
 
-      tableCalcStatInfo.put("series2_list", "list()");
       yamlInfo.put("series_val_2", new HashMap<>());
       tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
       tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
-      yamlInfo.put("sum_stat_static", fcstVar );
 
       String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
       tableCalcStatInfo
@@ -163,12 +138,9 @@ public class SumPythonManager extends PythonManager{
 
       boolean isAppend = false;
 
-      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-      yamlInfo.put("append_to_file", "False");
+
       int lastDot = sumStatDataFilePath.lastIndexOf('.');
 
-      tableCalcStatInfo.put("sum_stat_input", tableCalcStatInfoCommon.get("data_file"));
-      yamlInfo.put("sum_stat_input", tableCalcStatInfoCommon.get("data_file"));
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       yamlInfo.put("append_to_file", "False");
       String thredInfoFileName = strSumInfo.substring(0, lastDot)
@@ -205,7 +177,7 @@ public class SumPythonManager extends PythonManager{
 
 
       //check if output file exists and its length is not 0
-      File output = new File((String) tableCalcStatInfo.get("plot_file"));
+      File output = new File(plot_file);
       isAppend = output.exists() && output.length() > 0;
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       yamlInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
@@ -216,11 +188,31 @@ public class SumPythonManager extends PythonManager{
 
       tableCalcStatInfo.put("indy_plot_val", "list()");
       tableCalcStatInfo.put("fix_val_list_eq", "list()");
-      tableCalcStatInfo.put("dep1_scale", "list()");
-      tableCalcStatInfo.put("ndays", String.valueOf(tableCalcStatInfo.get("ndays")));
+
+      long ndays = 0;
+      for (Field fixedField : fixedVars) {
+        if ("fcst_valid_beg".equals(fixedField.getName())
+                || "fcst_init_beg".equals(fixedField.getName())) {
+          int fixedFieldValsSize = fixedField.getValues().size();
+          boolean isSizeEven = fixedFieldValsSize % 2 == 0;
+          if (!isSizeEven) {
+            fixedFieldValsSize = fixedFieldValsSize - 1;
+            ndays = 1;
+          }
+          for (int i = 0; i < fixedFieldValsSize; i = i + 2) {
+            LocalDate localDate1 = LocalDate.parse(fixedField.getValues().get(i).getName().split("\\s")[0]);
+            LocalDate localDate2 = LocalDate.parse(fixedField.getValues().get(i + 1).getName().split("\\s")[0]);
+            ndays = ndays + DAYS.between(localDate1, localDate2) + 1;
+          }
+
+
+          break;
+        }
+      }
+      tableCalcStatInfo.put("ndays", String.valueOf(ndays));
       tableCalcStatInfo.put("equalize_by_indep", "TRUE");
       StringBuilder strForList = new StringBuilder();
-      for( Map.Entry<String, List<String>> entry: indyList.entrySet()){
+      for (Map.Entry<String, List<String>> entry : indyList.entrySet()) {
         strForList.append("`").append(entry.getKey()).append("` = c(");
         for (String val : entry.getValue()) {
           if (strForList.indexOf(val) == -1) {
@@ -234,7 +226,7 @@ public class SumPythonManager extends PythonManager{
       }
       tableCalcStatInfo.put("indy_list", "c(" + strForList + ")");
       strForList = new StringBuilder();
-      for( Map.Entry<String, List<String>> entry: seriesList.entrySet()){
+      for (Map.Entry<String, List<String>> entry : seriesList.entrySet()) {
         strForList.append("`").append(entry.getKey()).append("` = c(");
         for (String val : entry.getValue()) {
           if (strForList.indexOf(val) == -1) {
@@ -254,7 +246,7 @@ public class SumPythonManager extends PythonManager{
       strForList = new StringBuilder();
       for (List<String> diff : seriesDiffList) {
         StringBuilder diffSeries = new StringBuilder("c(");
-        for(String var :diff){
+        for (String var : diff) {
           diffSeries.append("\"").append(var).append("\",");
         }
         if (diffSeries.length() > 0) {
@@ -266,6 +258,13 @@ public class SumPythonManager extends PythonManager{
         strForList.deleteCharAt(strForList.length() - 1);
       }
       tableCalcStatInfo.put("series_diff_list", "list(" + strForList + ")");
+      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+      tableCalcStatInfo.put("plot_file", plot_file);
+      tableCalcStatInfo.put("plot_stat", plot_stat);
+      tableCalcStatInfo.put("r_work", r_work);
+      tableCalcStatInfo.put("stat_flag", stat_flag);
+      tableCalcStatInfo
+              .put("working_dir", working_dir);
 
       try (PrintStream printStream = IoBuilder.forLogger(SumPythonManager.class)
               .setLevel(org.apache.logging.log4j.Level.INFO)
