@@ -18,10 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static edu.ucar.metviewer.MVUtil.createYmlFile;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -31,65 +28,47 @@ public class SumPythonManager extends PythonManager {
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
   private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
-  private static final String SUM_FILE_NAME = "/sum_stat.info_tmpl";
   private static final String PYTHON_SCRIPT = "/metcalcpy/sum_stat.py";
-  private final Map<String, Object> tableCalcStatInfoCommon;
+  private final Map<String, Object> yamlInfo;
+  private final Map<String, Object> tableCalcStatInfo;
   private final String calcStatTemplScript;
-  private final String sumStatTemplScript;
   private final String strRFile;
-  private final String strSumRFile;
   private final String strSumInfo;
-  private final String sumStatTemplFilePath;
-  private final String sumStatTemplScriptDir;
-  private final String sumStatDataFilePath;
-  private String plot_file;
-  private String plot_stat;
-  private String r_work;
-  private String stat_flag;
-  private String working_dir;
 
 
   public SumPythonManager(Scorecard scorecard) {
     super(scorecard);
     calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
-    sumStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SUM_FILE_NAME;
     strRFile = scorecard.getWorkingFolders().getScriptsDir()
             + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
-    strSumRFile = scorecard.getWorkingFolders().getrWorkDir() + "sum_stat.R";
     strSumInfo = scorecard.getWorkingFolders().getDataDir()
             + scorecard.getSumStatDataFile().replaceFirst("\\.data.sum_stat$",
             ".sum_stat.info");
-    sumStatTemplFilePath = scorecard.getWorkingFolders().getrTemplateDir();
-    sumStatTemplScriptDir = scorecard.getWorkingFolders().getrWorkDir();
-    sumStatDataFilePath = scorecard.getWorkingFolders().getDataDir()
-            + scorecard.getSumStatDataFile();
 
 
-    tableCalcStatInfoCommon = new HashMap<>();
+    String sum_stat_output = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
+
+
+    yamlInfo = new HashMap<>();
     if (scorecard.getStatFlag().equals("EMC")) {
-      tableCalcStatInfoCommon.put("event_equal", "False");
+      yamlInfo.put("event_equal", "False");
     } else {
-      tableCalcStatInfoCommon.put("event_equal", "True");
+      yamlInfo.put("event_equal", "True");
     }
-
-
-    tableCalcStatInfoCommon.put("data_file", scorecard.getWorkingFolders().getDataDir()
+    yamlInfo.put("data_file", scorecard.getWorkingFolders().getDataDir()
             + scorecard.getDataFile()
             .replaceAll(".data", ".dataFromDb"));
 
-    tableCalcStatInfoCommon
-            .put("sum_stat_output", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
+    yamlInfo.put("sum_stat_output", sum_stat_output);
 
 
-
-    tableCalcStatInfoCommon.put("sum_stat_output", scorecard.getWorkingFolders().getDataDir()
-            + scorecard.getDataFile() + "1");
-    plot_file = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
-    plot_stat = scorecard.getPlotStat();
-    r_work = scorecard.getWorkingFolders().getrWorkDir();
-    stat_flag = scorecard.getStatFlag();
-    working_dir = scorecard.getWorkingFolders().getrWorkDir() + "/include";
-
+    tableCalcStatInfo = new HashMap<>();
+    tableCalcStatInfo.put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
+    tableCalcStatInfo.put("plot_stat", scorecard.getPlotStat());
+    tableCalcStatInfo.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
+    tableCalcStatInfo.put("stat_flag", scorecard.getStatFlag());
+    tableCalcStatInfo.put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
+    tableCalcStatInfo.put("data_file", sum_stat_output);
   }
 
   @Override
@@ -97,68 +76,38 @@ public class SumPythonManager extends PythonManager {
     clean();
     initModels();
     if (models != null) {
-      Map<String, Object> yamlInfo = new TreeMap<>(tableCalcStatInfoCommon);
-      Map<String, Object> tableCalcStatInfo = new HashMap<>(tableCalcStatInfoCommon);
       init(mapRow);
-      initSumBool(yamlInfo, Util.getAggTypeForStat(stat));
-      tableCalcStatInfo.put("indy_var", indyVar);
-      yamlInfo.put("indy_var", indyVar);
-      tableCalcStatInfo.put("indy_list", "c(" + indyList + ")");
+
+      yamlInfo.put("line_type", getLineType(Util.getAggTypeForStat(stat)));
       yamlInfo.put("indy_var", indyVar);
       yamlInfo.put("indy_vals", indyList.get(indyVar));
-      tableCalcStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
 
 
-      tableCalcStatInfo.put("dep2_plot", "list()");
-
-      tableCalcStatInfo.put("series_list", seriesList.toString());
-      tableCalcStatInfo.put("series1_list", seriesList.toString());
-
-
+      Map<String, List<String>> fcstVarVal1 = new HashMap<>();
+      List<String> fcstVarVal1List = new ArrayList<>();
+      fcstVarVal1List.add(stat);
+      fcstVarVal1.put(fcstVar, fcstVarVal1List);
+      yamlInfo.put("fcst_var_val_1", fcstVarVal1);
+      yamlInfo.put("fcst_var_val_2", new HashMap<>());
       yamlInfo.put("series_val_1", seriesList);
-
       yamlInfo.put("series_val_2", new HashMap<>());
-      tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
-      tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
-
-      String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
-      tableCalcStatInfo
-              .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
-      tableCalcStatInfo.put("sum_sl1l2", String.valueOf(Boolean.valueOf(aggType.equals("sl1l2")))
-              .toUpperCase());
-      tableCalcStatInfo.put("sum_grad", String.valueOf(Boolean.valueOf(aggType.equals("grad")))
-              .toUpperCase());
-      tableCalcStatInfo.put("sum_sal1l2", String.valueOf(Boolean.valueOf(aggType.equals("sal1l2")
-      )).toUpperCase());
-      tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
-              .toUpperCase());
-      tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
-              .toUpperCase());
-
-
-      boolean isAppend = false;
-
-
-      int lastDot = sumStatDataFilePath.lastIndexOf('.');
-
-      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       yamlInfo.put("append_to_file", "False");
-      String thredInfoFileName = strSumInfo.substring(0, lastDot)
-              + threadName + strSumInfo.substring(lastDot);
+
 
       try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
               .setLevel(org.apache.logging.log4j.Level.INFO)
               .buildPrintStream()) {
-        createYmlFile(thredInfoFileName, yamlInfo);
+
+        createYmlFile(strSumInfo, yamlInfo);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.println("Running " + pythonEnv + " " + metCalcpyHome + PYTHON_SCRIPT + " " + thredInfoFileName);
+        printStream.println("Running " + pythonEnv + " " + metCalcpyHome + PYTHON_SCRIPT + " " + strSumInfo);
 
 
         MvResponse mvResponse = MVUtil.runRscript(pythonEnv,
                 metCalcpyHome + PYTHON_SCRIPT,
-                new String[]{thredInfoFileName},
+                new String[]{strSumInfo},
                 new String[]{"PYTHONPATH=" + metCalcpyHome});
 
         stopWatch.stop();
@@ -172,19 +121,46 @@ public class SumPythonManager extends PythonManager {
       } catch (StopWatchException | IOException e) {
         logger.error(ERROR_MARKER, e.getMessage());
       }
+
+      //done with summary aggregation - start with scorecard
+
+
+      tableCalcStatInfo.put("indy_var", indyVar);
+
+
+      tableCalcStatInfo.put("indy_list", "c(" + indyList + ")");
+
+      tableCalcStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
+      tableCalcStatInfo.put("dep2_plot", "list()");
+
+      tableCalcStatInfo.put("series_list", seriesList.toString());
+      tableCalcStatInfo.put("series1_list", seriesList.toString());
+
+      tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
+      tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
+      String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
+      tableCalcStatInfo
+              .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
+      tableCalcStatInfo.put("sum_sl1l2", String.valueOf(Boolean.valueOf(aggType.equals("sl1l2")))
+              .toUpperCase());
+      tableCalcStatInfo.put("sum_grad", String.valueOf(Boolean.valueOf(aggType.equals("grad")))
+              .toUpperCase());
+      tableCalcStatInfo.put("sum_sal1l2", String.valueOf(Boolean.valueOf(aggType.equals("sal1l2")
+      )).toUpperCase());
+      tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
+              .toUpperCase());
+      tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
+              .toUpperCase());
+      boolean isAppend = false;
+      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       tableCalcStatInfo.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
-      yamlInfo.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
 
 
       //check if output file exists and its length is not 0
-      File output = new File(plot_file);
+      File output = new File((String) tableCalcStatInfo.get("plot_file"));
       isAppend = output.exists() && output.length() > 0;
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-      yamlInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-      tableCalcStatInfo.put("data_file",
-              tableCalcStatInfoCommon.get("sum_stat_output"));
-      yamlInfo.put("data_file",
-              tableCalcStatInfoCommon.get("sum_stat_output"));
+
 
       tableCalcStatInfo.put("indy_plot_val", "list()");
       tableCalcStatInfo.put("fix_val_list_eq", "list()");
@@ -259,12 +235,6 @@ public class SumPythonManager extends PythonManager {
       }
       tableCalcStatInfo.put("series_diff_list", "list(" + strForList + ")");
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-      tableCalcStatInfo.put("plot_file", plot_file);
-      tableCalcStatInfo.put("plot_stat", plot_stat);
-      tableCalcStatInfo.put("r_work", r_work);
-      tableCalcStatInfo.put("stat_flag", stat_flag);
-      tableCalcStatInfo
-              .put("working_dir", working_dir);
 
       try (PrintStream printStream = IoBuilder.forLogger(SumPythonManager.class)
               .setLevel(org.apache.logging.log4j.Level.INFO)
@@ -292,28 +262,26 @@ public class SumPythonManager extends PythonManager {
     }
   }
 
-  private void initSumBool(Map<String, Object> tableCalcStatInfo, String stat) {
+  private String getLineType(String stat) {
     String lineType = "N/A";
     if (stat.equals(MVUtil.CTC)) {
-      lineType = "ctc";
+      lineType = MVUtil.CTC;
     }
-
     if (stat.equals(MVUtil.SL1L2)) {
-      lineType = "sl1l2";
+      lineType = MVUtil.SL1L2;
     }
     if (stat.equals(MVUtil.GRAD)) {
-      lineType = "grad";
+      lineType = MVUtil.GRAD;
     }
     if (stat.equals(MVUtil.SAL1L2)) {
-      lineType = "sal1l2";
+      lineType = MVUtil.SAL1L2;
     }
     if (stat.equals(MVUtil.VL1L2)) {
-      lineType = "vl1l2";
+      lineType = MVUtil.VL1L2;
     }
     if (stat.equals(MVUtil.VAL1L2)) {
-      lineType = "val1l2";
+      lineType = MVUtil.VAL1L2;
     }
-    tableCalcStatInfo.put("line_type", lineType);
-
+    return lineType;
   }
 }
