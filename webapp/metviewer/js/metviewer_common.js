@@ -1428,6 +1428,9 @@ function updateStatVal() {
     var selectedVariable = $("#fcst_var_y1_1").multiselect("getChecked").val();
     $("#fcst_stat_y1_1").empty();
     var stat_select = $("#fcst_stat_y1_1");
+    if (selectedVariable) {
+        selectedVariable = selectedVariable.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;");
+    }
 
     stat_select.empty();
     $.ajax({
@@ -1557,6 +1560,9 @@ function updateStats(y_axis, index, selectedVals) {
             fcst_stat_select.multiselect("enable");
         } catch (err) {
             fcst_stat_select.prop('disabled', '');
+        }
+        if (selectedVariable) {
+            selectedVariable = selectedVariable.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;");
         }
         $.ajax({
             async: false,

@@ -227,8 +227,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 if (!boolCts) {
                   listStatName.addAll(MVUtil.statsCts.keySet());
                   listStatName.addAll(MVUtil.statsCtc.keySet());
+                  boolCts = true;
                 }
-                boolCts = true;
+
                 break;
               case 4:
                 listStatName.addAll(MVUtil.statsNbrcnt.keySet());
