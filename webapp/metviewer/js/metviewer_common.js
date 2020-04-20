@@ -4405,7 +4405,7 @@ function createDepElementForAxis(y_axis, fcst_var_indexes, selected_mode) {
 
     var forecast_var_to_stat_map = createMapForForecastVar(y_axis, fcst_var_indexes, selected_mode);
     for (var name in forecast_var_to_stat_map) {
-        var fcst_var = $('<fcst_var />').attr("name", name);
+        var fcst_var = $('<fcst_var />').attr("name", name.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;"));
         for (var i = 0; i < forecast_var_to_stat_map[name].length; i++) {
             fcst_var.append($('<stat />').text(forecast_var_to_stat_map[name][i]));
         }
