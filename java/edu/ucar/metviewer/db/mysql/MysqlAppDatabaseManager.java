@@ -227,8 +227,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 if (!boolCts) {
                   listStatName.addAll(MVUtil.statsCts.keySet());
                   listStatName.addAll(MVUtil.statsCtc.keySet());
+                  boolCts = true;
                 }
-                boolCts = true;
+
                 break;
               case 4:
                 listStatName.addAll(MVUtil.statsNbrcnt.keySet());
@@ -724,6 +725,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       logger.error(ERROR_MARKER,
               "  **  ERROR: Caught " + e.getClass()
                       + " in printFormattedTable(ResultSet res): " + e.getMessage());
+      logger.info("  **  ERROR: Caught " + e.getClass()
+              + " in printFormattedTable(ResultSet res): " + e.getMessage() )  ;
+      System.out.println("  **  ERROR: Caught " + e.getClass()
+              + " in printFormattedTable(ResultSet res): " + e.getMessage() )  ;
     }
   }
 
@@ -1328,7 +1333,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         String strFcstVar = "";
         if (listFcstVarStat.length > 0) {
           //  get the current fcst_var/stat pair
-          strFcstVar = listFcstVarStat[intFcstVarStat][0];
+          strFcstVar = listFcstVarStat[intFcstVarStat][0].replace("&#38;", "&").replace("&gt;", ">")
+                  .replace("&lt;", "<");
           strStat = listFcstVarStat[intFcstVarStat][1];
 
           //  build the fcst_var where clause criteria

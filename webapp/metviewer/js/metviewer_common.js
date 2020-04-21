@@ -1428,6 +1428,9 @@ function updateStatVal() {
     var selectedVariable = $("#fcst_var_y1_1").multiselect("getChecked").val();
     $("#fcst_stat_y1_1").empty();
     var stat_select = $("#fcst_stat_y1_1");
+    if (selectedVariable) {
+        selectedVariable = selectedVariable.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;");
+    }
 
     stat_select.empty();
     $.ajax({
@@ -1557,6 +1560,9 @@ function updateStats(y_axis, index, selectedVals) {
             fcst_stat_select.multiselect("enable");
         } catch (err) {
             fcst_stat_select.prop('disabled', '');
+        }
+        if (selectedVariable) {
+            selectedVariable = selectedVariable.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;");
         }
         $.ajax({
             async: false,
@@ -4399,7 +4405,7 @@ function createDepElementForAxis(y_axis, fcst_var_indexes, selected_mode) {
 
     var forecast_var_to_stat_map = createMapForForecastVar(y_axis, fcst_var_indexes, selected_mode);
     for (var name in forecast_var_to_stat_map) {
-        var fcst_var = $('<fcst_var />').attr("name", name);
+        var fcst_var = $('<fcst_var />').attr("name", name.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;"));
         for (var i = 0; i < forecast_var_to_stat_map[name].length; i++) {
             fcst_var.append($('<stat />').text(forecast_var_to_stat_map[name][i]));
         }

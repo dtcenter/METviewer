@@ -204,7 +204,7 @@
         if( description === -9999 ){
           html += ' /><span>' + 'N/A' + '</span>';
         }else {
-          html += ' /><span>' + description.replace("&gt;", ">").replace("&amp;", "&") + '</span>';
+          html += ' /><span>' + description.replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&") + '</span>';
         }
         if (o.addLabel) {
           var label_old;

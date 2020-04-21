@@ -1115,7 +1115,6 @@ public class MVServlet extends HttpServlet {
         }
       } else {
 
-
         //  instantiate and configure the xml parser
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
@@ -1342,6 +1341,8 @@ public class MVServlet extends HttpServlet {
     } catch (ParserConfigurationException | FileUploadException | IOException | SAXException | ValidationException
             | DatabaseException | ServletException e) {
       errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage());
+      logger.info("doPost() - caught " + e.getClass() + ": " + e.getMessage() )  ;
+      System.out.println("doPost() - caught " + e.getClass() + ": " + e.getMessage() )  ;
     }
   }
 
