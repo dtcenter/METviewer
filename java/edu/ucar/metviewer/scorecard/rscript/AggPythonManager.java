@@ -37,9 +37,7 @@ public class AggPythonManager extends PythonManager {
   private static final Logger logger = LogManager.getLogger("AggRscriptManager");
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
-  private static final String STAT_SCRIPT_FILE_NAME = "/include/agg_stat.R";
   private final String strAggInfo;
-  private final String aggStatTemplScriptDir;
   private final String aggStatDataFilePath;
   private final Map<String, Object> tableAggStatInfoCommon;
   private static final String PYTHON_SCRIPT = "/metcalcpy/agg_stat.py";
@@ -50,7 +48,6 @@ public class AggPythonManager extends PythonManager {
     strAggInfo = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile()
             .replaceFirst("\\.data.agg_stat$",
                     ".agg_stat.info");
-    aggStatTemplScriptDir = scorecard.getWorkingFolders().getrWorkDir();
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard
             .getAggStatDataFile();
 

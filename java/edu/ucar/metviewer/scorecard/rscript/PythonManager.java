@@ -151,7 +151,9 @@ public abstract class PythonManager {
         }
 
         diffSeries.add(st);
-        seriesDiffList.add(diffSeries);
+        if (!seriesDiffList.contains(diffSeries)) {
+          seriesDiffList.add(diffSeries);
+        }
       }
 
     }

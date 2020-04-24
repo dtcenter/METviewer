@@ -46,7 +46,7 @@ public class SumPythonManager extends PythonManager {
             ".sum_stat.info");
 
 
-    String sum_stat_output = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
+    String sum_stat_output = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
 
 
     yamlInfo = new HashMap<>();
@@ -92,6 +92,7 @@ public class SumPythonManager extends PythonManager {
       yamlInfo.put("series_val_1", seriesList);
       yamlInfo.put("series_val_2", new HashMap<>());
       yamlInfo.put("append_to_file", "False");
+      yamlInfo.put("derived_series_1", seriesDiffList);
 
 
       try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
