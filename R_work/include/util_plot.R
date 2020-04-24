@@ -1566,7 +1566,7 @@ performance.diagram.custom <- function(xl="Success Ratio", yl="Probability of De
     yl <- "Probability of Detection"
   }
   if(xl == ''){
-    yl <- "Success Ratio"
+    xl <- "Success Ratio"
   }
   contour(t(TS), xlim = c(0, 1), ylim = c(0, 1), xlab = xl,
           ylab = yl, ...)
