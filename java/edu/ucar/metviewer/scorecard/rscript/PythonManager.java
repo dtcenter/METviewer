@@ -11,8 +11,7 @@ import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 
 /**
  * Constructs and runs Rscript
@@ -22,25 +21,23 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class PythonManager {
 
-  private static final Logger logger = LogManager.getLogger("PythonManager");
-  final Map<String, List<Entry>> listColumns;
-  final List<Field> fixedVars;
-  final String rScriptCommand;
-  String indyVar;
-  Map<String, List<String>> indyList;
-  Map<String, List<String>> seriesList;
-  List<List<String>> seriesDiffList;
-  List<Entry> models;
+  protected final Map<String, List<Entry>> listColumns;
+  protected final List<Field> fixedVars;
+  protected final String rScriptCommand;
+  protected String indyVar;
+  protected Map<String, List<String>> indyList;
+  protected Map<String, List<String>> seriesList;
+  protected List<List<String>> seriesDiffList;
+  protected List<Entry> models;
   private StringBuilder diffVals;
-  String fcstVar;
+  protected String fcstVar;
 
   private Map<String, List<String>> fixVars;
-  String stat;
-  String diffStatValue;
-  String diffStatSymbol;
-  String pythonEnv;
-  String metCalcpyHome;
-
+  protected String stat;
+  protected String diffStatValue;
+  protected String diffStatSymbol;
+  protected String pythonEnv;
+  protected String metCalcpyHome;
 
 
   PythonManager(final Scorecard scorecard) {
@@ -92,9 +89,6 @@ public abstract class PythonManager {
     }
 
 
-
-
-
     List<String> diffStats = new ArrayList<>();
     if (diffStatSymbol != null) {
       diffStats.add(diffStatSymbol);
@@ -104,34 +98,28 @@ public abstract class PythonManager {
     }
 
 
-
-
     for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
       Map<String, List<String>> indyListTemp = new HashMap<>();
       List<String> indyVals = new ArrayList<>();
-      indyListTemp.put(entry.getKey(),indyVals);
-      boolean isAggregatedField = false;
+      indyListTemp.put(entry.getKey(), indyVals);
       for (Entry val : entry.getValue()) {
-        if(val.getName().contains(":")){
-          isAggregatedField = true;
-        }
-        if (!indyVals.contains(val.getName())){
+        if (!indyVals.contains(val.getName())) {
           indyVals.add(val.getName());
         }
       }
 
 
-      if(indyVar.isEmpty()){
+      if (indyVar.isEmpty()) {
         indyVar = entry.getKey();
         indyList = new HashMap<>(indyListTemp);
-      }else {
+      } else {
         seriesList = new HashMap<>(indyListTemp);
       }
     }
     for (int i = 0; i < size; i++) {
       for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
         // do not include indy var
-        if(!entry.getKey().equals(indyVar)) {
+        if (!entry.getKey().equals(indyVar)) {
           columnsPermutationList.set(i, columnsPermutationList.get(i) + entry.getValue().get(i).getName() + " ");
         }
       }

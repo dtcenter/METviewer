@@ -37,41 +37,40 @@ public class AggPythonManager extends PythonManager {
   private static final Logger logger = LogManager.getLogger("AggRscriptManager");
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
-  private final String strAggInfo;
-  private final String aggStatDataFilePath;
-  private final Map<String, Object> tableAggStatInfoCommon;
+  private final String aggInfoFileName;
+  private final Map<String, Object> yamlInfo;
   private static final String PYTHON_SCRIPT = "/metcalcpy/agg_stat.py";
 
 
   public AggPythonManager(final Scorecard scorecard) {
     super(scorecard);
-    strAggInfo = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile()
+    aggInfoFileName = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile()
             .replaceFirst("\\.data.agg_stat$",
                     ".agg_stat.info");
-    aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard
-            .getAggStatDataFile();
 
 
-    tableAggStatInfoCommon = new HashMap<>();
-    tableAggStatInfoCommon.put("event_equal", "True");
-    tableAggStatInfoCommon.put("num_iterations", scorecard.getNumBootReplicates());
-    tableAggStatInfoCommon.put("alpha", 0.05);
-    tableAggStatInfoCommon.put("fixed_vars_vals_input", new HashMap<>());
-    tableAggStatInfoCommon.put("fcst_var_val_2", new HashMap<>());
+    yamlInfo = new HashMap<>();
+    yamlInfo.put("event_equal", "True");
+    yamlInfo.put("num_iterations", scorecard.getNumBootReplicates());
+    yamlInfo.put("alpha", 0.05);
+    yamlInfo.put("fcst_var_val_2", new HashMap<>());
 
-    tableAggStatInfoCommon.put("agg_stat_output",
+    yamlInfo.put("agg_stat_output",
             scorecard.getWorkingFolders().getDataDir() + scorecard
                     .getDataFile());
     Integer seed = null;
     if (scorecard.getBootRandomSeed() != null) {
       seed = scorecard.getBootRandomSeed();
     }
-    tableAggStatInfoCommon.put("random_seed", seed);
-    tableAggStatInfoCommon.put("list_stat_2", new ArrayList<>());
-    tableAggStatInfoCommon.put("method", "perc");
-    tableAggStatInfoCommon.put("num_threads", -1);
-    tableAggStatInfoCommon.put("series_val_2", new HashMap<>());
-    tableAggStatInfoCommon.put("derived_series_2", new ArrayList<>());
+    yamlInfo.put("random_seed", seed);
+    yamlInfo.put("list_stat_2", new ArrayList<>());
+    yamlInfo.put("method", "perc");
+    yamlInfo.put("num_threads", -1);
+    yamlInfo.put("series_val_2", new HashMap<>());
+    yamlInfo.put("derived_series_2", new ArrayList<>());
+    yamlInfo.put("agg_stat_input", scorecard.getWorkingFolders().getDataDir() + scorecard
+            .getAggStatDataFile());
+
   }
 
   @Override
@@ -80,7 +79,6 @@ public class AggPythonManager extends PythonManager {
     initModels();
     if (models != null) {
 
-      Map<String, Object> yamlInfo = new TreeMap<>(tableAggStatInfoCommon);
       init(mapRow);
       initAggBool(yamlInfo, Util.getAggTypeForStat(stat));
 
@@ -96,11 +94,7 @@ public class AggPythonManager extends PythonManager {
       Map<String, String> list_static_val = new HashMap<>();
       list_static_val.put("fcst_var", fcstVar);
       yamlInfo.put("list_static_val", list_static_val);
-
       yamlInfo.put("series_val_1", seriesList);
-
-
-
 
       yamlInfo.put("derived_series_1", seriesDiffList);
       Map<String, List<String>> fcst_var_val_1 = new HashMap<>();
@@ -116,30 +110,19 @@ public class AggPythonManager extends PythonManager {
         isAppend = true;
       }
       yamlInfo.put("append_to_file", isAppend ? "True" : "False");
-      int lastDot = aggStatDataFilePath.lastIndexOf('.');
-      String thredFileName = aggStatDataFilePath
-              .substring(0, lastDot) + threadName + aggStatDataFilePath
-              .substring(lastDot);
-      yamlInfo.put("agg_stat_input", thredFileName);
-
-      lastDot = strAggInfo.lastIndexOf('.');
-      String thredInfoFileName = strAggInfo.substring(0, lastDot)
-              + threadName + strAggInfo.substring(lastDot);
-
-
 
       try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
               .setLevel(org.apache.logging.log4j.Level.INFO)
               .buildPrintStream()) {
-        createYmlFile(thredInfoFileName, yamlInfo);
+        createYmlFile(aggInfoFileName, yamlInfo);
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.println("Running " + pythonEnv + " " + metCalcpyHome + PYTHON_SCRIPT + " " + thredInfoFileName);
+        printStream.println("Running " + pythonEnv + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
 
 
         MvResponse mvResponse = MVUtil.runRscript(pythonEnv,
                 metCalcpyHome + PYTHON_SCRIPT,
-                new String[]{thredInfoFileName},
+                new String[]{aggInfoFileName},
                 new String[]{"PYTHONPATH=" + metCalcpyHome});
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {

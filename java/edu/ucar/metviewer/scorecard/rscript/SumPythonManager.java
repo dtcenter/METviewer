@@ -32,43 +32,40 @@ public class SumPythonManager extends PythonManager {
   private final Map<String, Object> yamlInfo;
   private final Map<String, Object> tableCalcStatInfo;
   private final String calcStatTemplScript;
-  private final String strRFile;
-  private final String strSumInfo;
+  private final String rScriptFileName;
+  private final String sumInfoFileName;
 
 
   public SumPythonManager(Scorecard scorecard) {
     super(scorecard);
     calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
-    strRFile = scorecard.getWorkingFolders().getScriptsDir()
+    rScriptFileName = scorecard.getWorkingFolders().getScriptsDir()
             + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
-    strSumInfo = scorecard.getWorkingFolders().getDataDir()
+    sumInfoFileName = scorecard.getWorkingFolders().getDataDir()
             + scorecard.getSumStatDataFile().replaceFirst("\\.data.sum_stat$",
             ".sum_stat.info");
 
 
-    String sum_stat_output = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
-
+    String sumStatOutput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
 
     yamlInfo = new HashMap<>();
+    String isEe = "True";
     if (scorecard.getStatFlag().equals("EMC")) {
-      yamlInfo.put("event_equal", "False");
-    } else {
-      yamlInfo.put("event_equal", "True");
+      isEe = "False";
     }
-    yamlInfo.put("data_file", scorecard.getWorkingFolders().getDataDir()
+    yamlInfo.put("event_equal", isEe);
+    yamlInfo.put("sum_stat_input", scorecard.getWorkingFolders().getDataDir()
             + scorecard.getDataFile()
             .replaceAll(".data", ".dataFromDb"));
 
-    yamlInfo.put("sum_stat_output", sum_stat_output);
-
-
+    yamlInfo.put("sum_stat_output", sumStatOutput);
     tableCalcStatInfo = new HashMap<>();
     tableCalcStatInfo.put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
     tableCalcStatInfo.put("plot_stat", scorecard.getPlotStat());
     tableCalcStatInfo.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
     tableCalcStatInfo.put("stat_flag", scorecard.getStatFlag());
     tableCalcStatInfo.put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
-    tableCalcStatInfo.put("data_file", sum_stat_output);
+    tableCalcStatInfo.put("data_file", sumStatOutput);
   }
 
   @Override
@@ -99,16 +96,16 @@ public class SumPythonManager extends PythonManager {
               .setLevel(org.apache.logging.log4j.Level.INFO)
               .buildPrintStream()) {
 
-        createYmlFile(strSumInfo, yamlInfo);
+        createYmlFile(sumInfoFileName, yamlInfo);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.println("Running " + pythonEnv + " " + metCalcpyHome + PYTHON_SCRIPT + " " + strSumInfo);
+        printStream.println("Running " + pythonEnv + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
 
 
         MvResponse mvResponse = MVUtil.runRscript(pythonEnv,
                 metCalcpyHome + PYTHON_SCRIPT,
-                new String[]{strSumInfo},
+                new String[]{sumInfoFileName},
                 new String[]{"PYTHONPATH=" + metCalcpyHome});
 
         stopWatch.stop();
@@ -125,12 +122,8 @@ public class SumPythonManager extends PythonManager {
 
       //done with summary aggregation - start with scorecard
 
-
       tableCalcStatInfo.put("indy_var", indyVar);
-
-
       tableCalcStatInfo.put("indy_list", "c(" + indyList + ")");
-
       tableCalcStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
       tableCalcStatInfo.put("dep2_plot", "list()");
 
@@ -240,14 +233,14 @@ public class SumPythonManager extends PythonManager {
       try (PrintStream printStream = IoBuilder.forLogger(SumPythonManager.class)
               .setLevel(org.apache.logging.log4j.Level.INFO)
               .buildPrintStream()) {
-        MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
+        MVUtil.populateTemplateFile(calcStatTemplScript, rScriptFileName, tableCalcStatInfo);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.println("Running " + rScriptCommand + " " + strRFile);
+        printStream.println("Running " + rScriptCommand + " " + rScriptFileName);
 
 
-        MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, strRFile);
+        MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, rScriptFileName);
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
           printStream.println(mvResponse.getInfoMessage());
