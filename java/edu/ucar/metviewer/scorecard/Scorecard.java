@@ -128,8 +128,8 @@ public class Scorecard {
 
         if (scorecard.getAggStat()) {
           scorecardDbManager = new AggDatabaseManagerMySQL(scorecard, databaseManager);
-          //rscriptManager = new AggPythonManager(scorecard);
-          rscriptManager = new AggRscriptManager(scorecard);
+          rscriptManager = new AggPythonManager(scorecard);
+          //rscriptManager = new AggRscriptManager(scorecard);
         } else {
           scorecardDbManager = new SumDatabaseManagerMySQL(scorecard, databaseManager);
           rscriptManager = new SumPythonManager(scorecard);
@@ -160,8 +160,8 @@ public class Scorecard {
 
             //use rscript and data from the db file to calculate stats and append them into the resulting file
             if (scorecard.getAggStat()) {
-              //((AggPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
-              ((AggRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              ((AggPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              //((AggRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
             } else {
               //((SumRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
               ((SumPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
