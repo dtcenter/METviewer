@@ -25,7 +25,6 @@ import static edu.ucar.metviewer.MVUtil.createYmlFile;
  */
 public class RscriptAggStatManager extends RscriptStatManager {
   private static final String AGG_PYTHON_SCRIPT = "/metcalcpy/agg_stat.py";
-  private static final String AGG_BOOT_PYTHON_SCRIPT = "/metcalcpy/agg_stat_bootstrap.py";
 
   private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
           .setLevel(org.apache
@@ -77,14 +76,15 @@ public class RscriptAggStatManager extends RscriptStatManager {
       }
 
       if (mvResponse.isSuccess()) {
-        String tmplFileName = "agg_stat_event_equalize.info_tmpl";
-        info.put("agg_stat_input", dataFile + "_ee_input");
-        info.put("agg_stat_output", dataFile + ".ee");
-        String eeInfo = dataFile.replaceFirst("\\.data$", ".agg_stat_event_equalize.info");
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
+        String eeInfo = dataFile.replaceFirst("\\.data$", ".agg_stat_event_equalize.info");
+
         if(info.getClass() == TreeMap.class){
           //use python
+          info.put("agg_stat_input", dataFile + "_ee_input");
+          info.put("agg_stat_output", dataFile + ".ee");
           createYmlFile(eeInfo, info);
           mvBatch.getPrintStream().println("\nRunning "
                   + mvBatch.getPythonEnv()
@@ -100,7 +100,9 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
 
         }else {
-
+          String tmplFileName = "agg_stat_event_equalize.info_tmpl";
+          info.put("agg_stat_input", dataFile + "_ee_input");
+          info.put("agg_stat_output", dataFile + ".ee");
           MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + "/" + tmplFileName, eeInfo, info);
           String scriptName = mvBatch.getRworkFolder() + "/include/agg_stat_event_equalize.R";
 
