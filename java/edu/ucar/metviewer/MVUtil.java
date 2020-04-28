@@ -2635,9 +2635,11 @@ public class MVUtil {
     DumperOptions options = new DumperOptions();
     //options.setDefaultScalarStyle(DumperOptions.ScalarStyle.SINGLE_QUOTED);
     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    //sort by key
+    Map<String, Object> sortedMap = new TreeMap<>(info);
     Yaml yaml = new Yaml(options);
     try (FileWriter writer = new FileWriter(fileName)) {
-      yaml.dump(info, writer);
+      yaml.dump(sortedMap, writer);
     }
   }
 
