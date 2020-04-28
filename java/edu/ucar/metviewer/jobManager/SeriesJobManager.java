@@ -323,7 +323,7 @@ public class SeriesJobManager extends JobManager {
 
       rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
       info.put("data_file", dataFileName);
-      yamlInfo.put("data_file", dataFileName);
+      yamlInfo.put("sum_stat_input", dataFileName);
 
       rscriptStatManager.runRscript(job, info);
 
