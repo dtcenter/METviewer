@@ -100,10 +100,10 @@ public class SumPythonManager extends PythonManager {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.println("Running " + pythonEnv + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
+        printStream.println("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
 
 
-        MvResponse mvResponse = MVUtil.runRscript(pythonEnv,
+        MvResponse mvResponse = MVUtil.runRscript(python,
                 metCalcpyHome + PYTHON_SCRIPT,
                 new String[]{sumInfoFileName},
                 new String[]{"PYTHONPATH=" + metCalcpyHome});

@@ -125,12 +125,12 @@ public class RscriptSumStatManager extends RscriptStatManager {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         mvBatch.getPrintStream().println("\nRunning "
-                + mvBatch.getPythonEnv()
+                + mvBatch.getPython()
                 + " "
                 + mvBatch.getMetCalcpyHome() + "/metcalcpy/sum_stat.py"
                 + " "
                 + sumInfo);
-        mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
+        mvResponse = MVUtil.runRscript(mvBatch.getPython(),
                 mvBatch.getMetCalcpyHome() + "/metcalcpy/sum_stat.py",
                 new String[]{sumInfo},
                 new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});

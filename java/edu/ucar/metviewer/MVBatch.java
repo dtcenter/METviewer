@@ -44,6 +44,7 @@ public class MVBatch {
   private String dbType;
   private String metCalcpyHome;
   private String pythonEnv;
+  private String python;
 
 
   public String getMetCalcpyHome() {
@@ -57,9 +58,13 @@ public class MVBatch {
   public String getPythonEnv() {
     return pythonEnv;
   }
+  public String getPython() {
+    return python;
+  }
 
   public void setPythonEnv(String pythonEnv) {
     this.pythonEnv = pythonEnv;
+    this.python = pythonEnv + "/bin/python";
   }
 
   public MVBatch(

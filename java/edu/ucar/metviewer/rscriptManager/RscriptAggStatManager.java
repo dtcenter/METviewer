@@ -87,13 +87,13 @@ public class RscriptAggStatManager extends RscriptStatManager {
           info.put("agg_stat_output", dataFile + ".ee");
           createYmlFile(eeInfo, info);
           mvBatch.getPrintStream().println("\nRunning "
-                  + mvBatch.getPythonEnv()
+                  + mvBatch.getPython()
                   + " "
                   + mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py"
                   + " "
                   + eeInfo);
 
-          mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
+          mvResponse = MVUtil.runRscript(mvBatch.getPython(),
                   mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py",
                   new String[]{eeInfo},
                   new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
@@ -297,26 +297,26 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
         if(job.isModeJob()){
           mvBatch.getPrintStream().println("\nRunning "
-                  + mvBatch.getPythonEnv()
+                  + mvBatch.getPython()
                   + " "
                   + mvBatch.getMetCalcpyHome() + rScriptFile
                   + " "
                   + aggInfo);
 
-          mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
+          mvResponse = MVUtil.runRscript(mvBatch.getPython(),
                   mvBatch.getMetCalcpyHome() + rScriptFile,
                   new String[]{aggInfo},
                   new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
         }else {
 
           mvBatch.getPrintStream().println("\nRunning "
-                  + mvBatch.getPythonEnv()
+                  + mvBatch.getPython()
                   + " "
                   + mvBatch.getMetCalcpyHome() + AGG_PYTHON_SCRIPT
                   + " "
                   + aggInfo);
 
-          mvResponse = MVUtil.runRscript(mvBatch.getPythonEnv(),
+          mvResponse = MVUtil.runRscript(mvBatch.getPython(),
                   mvBatch.getMetCalcpyHome() + AGG_PYTHON_SCRIPT,
                   new String[]{aggInfo},
                   new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});

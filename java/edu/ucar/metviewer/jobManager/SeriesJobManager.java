@@ -320,10 +320,11 @@ public class SeriesJobManager extends JobManager {
         }
 
       }
-
       rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
+      info.put("virtualenv", mvBatch.getPythonEnv());
+      info.put("python", mvBatch.getPython());
+      info.put("ee_python", mvBatch.getMetCalcpyHome()+"/metcalcpy/event_equalize.py");
       info.put("data_file", dataFileName);
-      yamlInfo.put("sum_stat_input", dataFileName);
 
       rscriptStatManager.runRscript(job, info);
 

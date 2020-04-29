@@ -36,7 +36,7 @@ public abstract class PythonManager {
   protected String stat;
   protected String diffStatValue;
   protected String diffStatSymbol;
-  protected String pythonEnv;
+  protected String python;
   protected String metCalcpyHome;
 
 
@@ -46,7 +46,7 @@ public abstract class PythonManager {
     rScriptCommand = scorecard.getrScriptCommand();
     diffStatValue = scorecard.getStatValue();
     diffStatSymbol = scorecard.getStatSymbol();
-    pythonEnv = System.getProperty("python.env");
+    python = System.getProperty("python.env") + "/bin/python";
     metCalcpyHome = System.getProperty("metcalcpy.home");
   }
 

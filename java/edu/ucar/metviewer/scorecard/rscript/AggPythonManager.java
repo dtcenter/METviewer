@@ -117,10 +117,10 @@ public class AggPythonManager extends PythonManager {
         createYmlFile(aggInfoFileName, yamlInfo);
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.println("Running " + pythonEnv + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
+        printStream.println("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
 
 
-        MvResponse mvResponse = MVUtil.runRscript(pythonEnv,
+        MvResponse mvResponse = MVUtil.runRscript(python,
                 metCalcpyHome + PYTHON_SCRIPT,
                 new String[]{aggInfoFileName},
                 new String[]{"PYTHONPATH=" + metCalcpyHome});
