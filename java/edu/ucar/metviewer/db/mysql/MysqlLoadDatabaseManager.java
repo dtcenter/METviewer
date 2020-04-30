@@ -202,7 +202,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     tableToInsert.put("line_data_dmap", "INSERT INTO line_data_dmap VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,"
             + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//32
 
-    tableToInsert.put("line_data_rps", "INSERT INTO line_data_rps VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//19
+    tableToInsert.put("line_data_rps", "INSERT INTO line_data_rps VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?)");//20
 
     dropIndexesQueries = new String[]{
             "DROP INDEX stat_header_model_idx ON stat_header",
@@ -1097,6 +1097,34 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               }
               insertData.getTableLineDataValues().get("ECNT").add("(" + csv + ")");
               dataInserts++;
+
+            }
+          } else if (lineType.equals("RPS")) {
+            int rpsCompIndex = headerNames.indexOf("LINE_TYPE") + 9;
+
+            // calculate RPS_COMP if not present
+            if (listToken.length <= rpsCompIndex) {
+              // find RPS
+              int rpsIndex = headerNames.indexOf("LINE_TYPE") + 6;
+              String rpsStr = listToken[rpsIndex];
+
+              // if RPS valid - calculate RPS_COMP
+              if (!rpsStr.equals("NA")) {
+                double rps = Double.parseDouble(rpsStr);
+                Double rpsComp = 1 - rps;
+                String[] listTokenNew = new String[rpsCompIndex+1];
+
+                // insert RPS_COMP into the original array of values
+                if (listToken.length >= 0) System.arraycopy(listToken, 0, listTokenNew, 0, listToken.length);
+                listTokenNew[rpsCompIndex] = String.valueOf(rpsComp);
+                listToken = listTokenNew;
+                lineDataMax = listToken.length;
+              }
+            }
+
+            for (int i = headerNames.indexOf("LINE_TYPE") + 1; i < lineDataMax; i++) {
+              //  add the stats in order
+              lineDataValues.add(replaceInvalidValues(listToken[i]));
             }
           } else {
             for (int i = headerNames.indexOf("LINE_TYPE") + 1; i < lineDataMax; i++) {
@@ -1114,6 +1142,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               lineDataValues.add(replaceInvalidValues(listToken[i]));
             }
           }
+
 
           int size = lineDataValues.size();
           int maxSize = size;
@@ -1158,9 +1187,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             case "ECNT":
               maxSize = 22;
               break;
+            case "RPS":
+              maxSize = 20;
+              break;
 
             default:
           }
+
           while (size < maxSize) {
             lineDataValues.add(-9999);
             size++;
