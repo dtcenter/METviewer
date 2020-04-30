@@ -473,6 +473,7 @@ public class MVUtil {
     statsRps.put("RPS", new String[]{RPS});
     statsRps.put("RPSS", new String[]{RPS});
     statsRps.put("RPSS_SMPL", new String[]{""});
+    statsRps.put("RPSS_COMP", new String[]{""});
     statsRps.put("RPS_TOTAL", new String[]{RPS});
   }
 
