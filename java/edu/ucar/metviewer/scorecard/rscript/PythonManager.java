@@ -9,6 +9,7 @@ import java.util.*;
 
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
+import edu.ucar.metviewer.scorecard.exceptions.NotSupportedException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 
@@ -50,7 +51,7 @@ public abstract class PythonManager {
     metCalcpyHome = System.getProperty("metcalcpy.home");
   }
 
-  public abstract void calculateStatsForRow(Map<String, Entry> mapRow, String threadName);
+  public abstract void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) throws NotSupportedException;
 
   /**
    * Creates a list of comparing models

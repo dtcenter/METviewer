@@ -6,6 +6,7 @@ import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.StopWatchException;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
+import edu.ucar.metviewer.scorecard.exceptions.NotSupportedException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
@@ -69,13 +70,17 @@ public class SumPythonManager extends PythonManager {
   }
 
   @Override
-  public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) {
+  public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) throws NotSupportedException {
     clean();
     initModels();
     if (models != null) {
       init(mapRow);
 
-      yamlInfo.put("line_type", getLineType(Util.getAggTypeForStat(stat)));
+      String lineType = getLineType(Util.getAggTypeForStat(stat));
+      if (lineType.equals("N/A")){
+        throw new NotSupportedException(stat, "sum_stat");
+      }
+      yamlInfo.put("line_type", lineType);
       yamlInfo.put("indy_var", indyVar);
       yamlInfo.put("indy_vals", indyList.get(indyVar));
 
