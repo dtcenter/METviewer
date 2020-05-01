@@ -1526,7 +1526,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsRps.containsKey(strStat)) {
             tableStats = MVUtil.statsRps;
             statTable = "line_data_rps ld\n";
-            statField = strStat.replace("RPS_", "").toLowerCase();
+            if(strStat.contains("TOTAL")) {
+              statField = strStat.replace("RPS_", "").toLowerCase();
+            }
           } else if (MVUtil.statsCtc.containsKey(strStat)) {
             tableStats = MVUtil.statsCtc;
             statTable = "line_data_ctc ld\n";
@@ -1659,7 +1661,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (job.getAggNbrCnt()) {
             selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss, ld.afss, ld.ufss, ld.f_rate, ld.o_rate ";
           } else if (job.getAggRps()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.rps,\n  ld.rpss ";
+            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.rps,\n  ld.rpss,\n  ld.rps_comp ";
           } else if (job.getAggVl1l2()) {
             selectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,"
                     + "\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar,"
