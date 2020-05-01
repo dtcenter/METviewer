@@ -2128,7 +2128,7 @@ CREATE TABLE line_data_rps
     rps              DOUBLE,
     rpss             DOUBLE,
     rpss_smpl        DOUBLE,
-    rpss_comp        DOUBLE,
+    rps_comp        DOUBLE,
 
     CONSTRAINT line_data_rps_data_file_id_pk
         FOREIGN KEY (data_file_id)
