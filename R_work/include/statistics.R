@@ -798,6 +798,10 @@ calcRPS = function(d){
   return  (d$rps);
 }
 
+calcRPS_COMP = function(d){
+  return  (d$rps_comp);
+}
+
 calcRPSS = function(d){
   #RPSS = 1.0 - ( RPS / RPS_CLIMO )
   if( is.na(d$rps_climo) || d$rps_climo == 0  )

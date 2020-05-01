@@ -1268,6 +1268,7 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     dfSeriescustom_sums = data.frame(
       total  = total,
       rps	= custom_sum( as.numeric( d[[ paste(strPerm, "rps", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+      rps_comp	= custom_sum( as.numeric( d[[ paste(strPerm, "rps_comp", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
       rps_climo	= custom_sum( d_rps_climo * listTotal, na.rm=TRUE ) / total
     );
 

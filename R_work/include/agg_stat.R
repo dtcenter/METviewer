@@ -641,7 +641,7 @@ if ( nrow(sampleData) > 0){
         } else if( boolAggNbrCnt ){
           listFields = c("total", "fbs", "fss",'afss', 'ufss', 'f_rate', 'o_rate');
         } else if( boolAggRps ){
-          listFields = c("total", 'rps', 'rpss');
+          listFields = c("total", 'rps', 'rpss', 'rps_comp');
         }else if( boolAggPct ){
           #calc T abd o_bar for pct
           n_i = dfStatsPermAllIndy$oy_i + dfStatsPermAllIndy$on_i;
