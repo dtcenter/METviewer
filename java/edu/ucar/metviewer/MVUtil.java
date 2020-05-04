@@ -1101,6 +1101,7 @@ public class MVUtil {
               private final Pattern PATTERN_WITH_FLOAT = Pattern.compile("(\\D*)([-+]?\\d*\\.?\\d+)");
 
               public int compare(String s1, String s2) {
+
                 // if the threshold contains  a float like this '>.1' -
                 // add a missing 0 -> '>0.1'
                 if (s1.contains(">.") || s1.contains("<.") || s1.contains("=.")
@@ -1144,8 +1145,16 @@ public class MVUtil {
 
                 // Handle if one string is a prefix of the other.
                 // Nothing comes before something.
-                return m1.hitEnd() && m2.hitEnd() ? 0 :
-                        m1.hitEnd() ? -1 : +1;
+                if (m1.hitEnd() && m2.hitEnd()) {
+                  return 1;
+                }
+                if (m1.hitEnd()) {
+                  return -1;
+                }
+                if (m2.hitEnd()) {
+                  return 1;
+                }
+                return +1;
               }
             }
     );
