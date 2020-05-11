@@ -2015,9 +2015,7 @@ public class MVUtil {
       }
 
       String strVal = (String) vals.get(strTmplTagName);
-      if (stringType.equals("fileName")) {
-        strVal = strVal.replace(">", "gt").replace("<", "lt").replaceAll("=", "e");
-      }
+
 
       //  if there is a corresponding tag value map, use the map value
       if (mapParms.containsKey("map")) {
@@ -2034,6 +2032,9 @@ public class MVUtil {
           strVal = mapTmplVal.getStr(strVal);
         }
 
+      }
+      if (stringType.equals("fileName")) {
+        strVal = strVal.replace(">", "gt").replace("<", "lt").replaceAll("=", "e");
       }
 
       //  if there is a format parameter, apply it to the value
