@@ -1145,7 +1145,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                   selRpsProb = selRpsProb + BINARY + serName[serNameInd]
                           + " = '" + ser.getStr(serName[serNameInd]) + "'";
                   if (!vars[varsInd].equals("NA")) {
-                    selRpsProb = selRpsProb + " AND" + BINARY + " fcst_var='" + vars[varsInd] + "' ";
+                    String varReplaced = vars[varsInd].replace("&#38;", "&").replace("&gt;", ">")
+                            .replace("&lt;", "<");
+                    selRpsProb = selRpsProb + " AND" + BINARY + " fcst_var='" +varReplaced + "' ";
                   }
                   if (plotFixWhere.length() > 0) {
                     selRpsProb = selRpsProb + "  AND  " + plotFixWhere;
@@ -1237,7 +1239,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 selPctThresh = selPctThresh + BINARY + serName[serNameInd]
                         + " = '" + ser.getStr(serName[serNameInd]) + "'";
                 if (!vars[varsInd].equals("NA")) {
-                  selPctThresh = selPctThresh + " AND" + BINARY + " fcst_var='" + vars[varsInd] + "' ";
+                  String varReplaced = vars[varsInd].replace("&#38;", "&").replace("&gt;", ">")
+                          .replace("&lt;", "<");
+                  selPctThresh = selPctThresh + " AND" + BINARY + " fcst_var='" + varReplaced + "' ";
                 }
                 if (plotFixWhere.length() > 0) {
                   selPctThresh = selPctThresh + "  AND  " + plotFixWhere;
