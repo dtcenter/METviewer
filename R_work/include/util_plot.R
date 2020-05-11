@@ -1278,6 +1278,11 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     mse = as.numeric( d[[ paste(strPerm, "rmse", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "rmse", sep="_") ]] )
     mse_oerr = as.numeric( d[[ paste(strPerm, "rmse_oerr", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "rmse_oerr", sep="_") ]] )
     crps_climo = as.numeric( d[[ paste(strPerm, "crps", sep="_") ]] ) / (1.0 - as.numeric( d[[ paste(strPerm, "crpss", sep="_") ]] ))
+    
+    variance= as.numeric( d[[ paste(strPerm, "spread", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "spread", sep="_") ]] )
+    variance_oerr= as.numeric( d[[ paste(strPerm, "spread_oerr", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "spread_oerr", sep="_") ]] )
+    variance_plus_oerr= as.numeric( d[[ paste(strPerm, "spread_plus_oerr", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "spread_plus_oerr", sep="_") ]] )
+
 
     dfSeriescustom_sums = data.frame(
     total  = total,
@@ -1287,10 +1292,11 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     me	= custom_sum( as.numeric( d[[ paste(strPerm, "me", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
     crps	= custom_sum( as.numeric( d[[ paste(strPerm, "crps", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
     ign	= custom_sum( as.numeric( d[[ paste(strPerm, "ign", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
-    spread	= custom_sum( as.numeric( d[[ paste(strPerm, "spread", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
     me_oerr	= custom_sum( as.numeric( d[[ paste(strPerm, "me_oerr", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
-    spread_oerr	= custom_sum( as.numeric( d[[ paste(strPerm, "spread_oerr", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
-    spread_plus_oerr	= custom_sum( as.numeric( d[[ paste(strPerm, "spread_plus_oerr", sep="_") ]] ) * listTotal,na.rm=TRUE) / total
+    
+    spread	= sqrt(custom_sum( variance * listTotal, na.rm=TRUE ) / total),
+    spread_oerr	= sqrt(custom_sum( variance_oerr * listTotal, na.rm=TRUE ) / total),
+    spread_plus_oerr	= sqrt(custom_sum( variance_plus_oerr * listTotal, na.rm=TRUE ) / total)
     );
   } else if( lineTypes$boolNbrCnt ){ # perform the aggregation of the sampled NBR_CNT lines
     listTotal = d[[ paste(strPerm, "total", sep="_") ]];
