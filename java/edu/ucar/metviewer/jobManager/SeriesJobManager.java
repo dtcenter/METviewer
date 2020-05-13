@@ -276,9 +276,9 @@ public class SeriesJobManager extends JobManager {
         rscriptStatManager = new RscriptSumStatManager(mvBatch);
       }
 
-      //run summary or agg stats Rscripts - if needed
+      //run summary or agg stats - if needed
       if (rscriptStatManager != null) {
-        if (job.isMtdJob()) {
+        if (job.getExecutionType().equals("Rscript")) {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
           rscriptStatManager.runRscript(job, info);
         }else {
@@ -286,7 +286,8 @@ public class SeriesJobManager extends JobManager {
           rscriptStatManager.runPythonScript(job, yamlInfo);
         }
 
-        //rscriptStatManager.runPythonScript(job, yamlInfo);
+
+
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
         info.put("event_equal", "FALSE");

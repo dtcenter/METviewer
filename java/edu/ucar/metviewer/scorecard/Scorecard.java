@@ -68,6 +68,7 @@ public class Scorecard {
   private String thresholdFile = null;
   private List<String> leftColumnsNames = new ArrayList<>();
   private String symbolSize = "100%";
+  private String executionType = "Python";
 
   public static void main(String[] args) throws Exception {
 
@@ -128,12 +129,18 @@ public class Scorecard {
 
         if (scorecard.getAggStat()) {
           scorecardDbManager = new AggDatabaseManagerMySQL(scorecard, databaseManager);
-          rscriptManager = new AggPythonManager(scorecard);
-          //rscriptManager = new AggRscriptManager(scorecard);
+          if(scorecard.getExecutionType().equals("Python")) {
+            rscriptManager = new AggPythonManager(scorecard);
+          }else {
+            rscriptManager = new AggRscriptManager(scorecard);
+          }
         } else {
           scorecardDbManager = new SumDatabaseManagerMySQL(scorecard, databaseManager);
-          rscriptManager = new SumPythonManager(scorecard);
-          //rscriptManager = new SumRscriptManager(scorecard);
+          if(scorecard.getExecutionType().equals("Python")) {
+            rscriptManager = new SumPythonManager(scorecard);
+          }else {
+            rscriptManager = new SumRscriptManager(scorecard);
+          }
         }
         int rowCounter = 1;
         stopWatch.stop();
@@ -160,12 +167,17 @@ public class Scorecard {
 
             //use rscript and data from the db file to calculate stats and append them into the resulting file
             if (scorecard.getAggStat()) {
-              ((AggPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
-              //((AggRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              if(scorecard.getExecutionType().equals("Python")) {
+                ((AggPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              }else {
+                ((AggRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              }
             } else {
-              //((SumRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
-              ((SumPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
-
+              if(scorecard.getExecutionType().equals("Python")) {
+                ((SumPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              }else {
+                ((SumRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              }
             }
 
           } catch (Exception e) {
@@ -422,6 +434,16 @@ public class Scorecard {
 
   public void setSymbolSize(String symbolSize) {
     this.symbolSize = symbolSize;
+  }
+
+  public String getExecutionType() {
+    return executionType;
+  }
+
+  public void setExecutionType(String executionType) {
+    if (executionType.equals("Rscript") || executionType.equals("Python")) {
+      this.executionType = executionType;
+    }
   }
 
   /**

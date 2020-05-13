@@ -214,6 +214,8 @@ public class MVPlotJob {
   protected Boolean isAddContourOverlay = Boolean.TRUE;
   protected Integer contourIntervals = 10;
   protected String colorPalette = "cm.colors";
+  protected String executionType = "Python";
+
 
 
   /**
@@ -408,6 +410,7 @@ public class MVPlotJob {
     job.isReverseX = isReverseX;
     job.contourIntervals = contourIntervals;
     job.colorPalette = colorPalette;
+    job.executionType = executionType;
 
     job.keepRevisions = keepRevisions;
     return job;
@@ -2102,6 +2105,17 @@ public class MVPlotJob {
 
   public void setColorPalette(String colorPalette) {
     this.colorPalette = colorPalette;
+  }
+
+
+  public String getExecutionType() {
+    return executionType;
+  }
+
+  public void setExecutionType(String executionType) {
+    if (executionType.equals("Rscript") || executionType.equals("Python")) {
+      this.executionType = executionType;
+    }
   }
 
   public Boolean getAddColorBar() {
