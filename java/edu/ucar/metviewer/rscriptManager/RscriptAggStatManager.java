@@ -295,7 +295,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        if(job.isModeJob()){
+        if(job.isModeJob() || job.isMtdJob()){
           mvBatch.getPrintStream().println("\nRunning "
                   + mvBatch.getPython()
                   + " "
