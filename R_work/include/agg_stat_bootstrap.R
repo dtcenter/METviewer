@@ -17,16 +17,6 @@ dfStatsRec = read.delim(strInputDataFile);
 dfPlot1 = data.frame();
 
 if(boolEventEqual){
-  library(reticulate)
-
-  #use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
-  #use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
-  #source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
-
-  use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
-  source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize_against_values.py')
-  sys = import('sys')
-
   eeStats = read.delim(strInputEeDataFile);
   dfPlot1 = data.frame();
 
@@ -40,9 +30,7 @@ if(boolEventEqual){
       eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
       eeStatsEqualizeUnique = unique(eeStatsEqualize$equalize);
 
-      #fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,    eeStatsEqualizeUnique);
-      fPlot = event_equalize_against_values(fPlot, strIndyVar,    eeStatsEqualizeUnique);
-      sys$stdout$flush()
+      fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,    eeStatsEqualizeUnique);
       dfPlot1 = rbind(dfPlot1, fPlot);
     }
   }
@@ -56,11 +44,9 @@ if(boolEventEqual){
           vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
         }
         fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
-        eeStatsEqualize = eeStats[eeStats$fcst_var == strDep2Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
+        eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
         eeStatsEqualizeUnique = unique(eeStatsEqualize$equalize);
-        #fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,   eeStatsEqualizeUnique);
-        fPlot = event_equalize_against_values(fPlot, strIndyVar,   eeStatsEqualizeUnique);
-        sys$stdout$flush();
+        fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,   eeStatsEqualizeUnique);
         dfPlot2 = rbind(dfPlot2, fPlot);
       }
 

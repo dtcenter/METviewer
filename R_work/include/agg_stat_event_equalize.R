@@ -7,18 +7,6 @@ if( 0 <  length(listArgs) ) {
 }
 cat("agg_stat_event_equalize.R\ninput file: ", strInputInfoFile, "\n", sep="");
 
-library(reticulate)
-
-#use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
-#use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
-#source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
-
-use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
-source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
-
-
-sys = import('sys')
-
 source(strInputInfoFile);
 setwd(strWorkingDir);
 source("util_plot.R");
@@ -70,9 +58,7 @@ for( strDep1Name in names(listDep1Plot) ){
       fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms ,  ];
 
     }
-    #fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-    fPlot = event_equalize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-    sys$stdout$flush()
+    fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
     dfPlot1 = rbind(dfPlot1, fPlot);
   }
 
@@ -93,9 +79,7 @@ if(length(listSeries2Val) > 0){
         fPlot = fPlot[dfPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms ,  ];
 
       }
-      #fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-      fPlot = event_equalize(fPlot, strIndyVar, listIndy, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-      sys$stdout$flush()
+      fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
       dfPlot2 = rbind(dfPlot2, fPlot);
     }
 
@@ -106,9 +90,7 @@ if(length(listSeries2Val) > 0){
     listSeriesVal[[seriesVal]] = append(listSeries1Val[[seriesVal]], listSeries2Val[[seriesVal]]);
   }
   listSeriesVal$model = append(listSeries1Val$model,listSeries2Val$model)
-  #dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, FALSE);
-  dfPlot = event_equalize(fPlot, strIndyVar, listIndy, listSeriesVal, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-  sys$stdout$flush()
+  dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, FALSE);
 } else{
   dfPlot = dfPlot1;
 }
