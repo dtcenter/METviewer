@@ -8003,8 +8003,8 @@ function onIndyCalendarClose(obj, index) {
     } else if (unit === "days") {
         by = by * 86400;
     }
-    var start = moment(obj.date1);
-    var end = moment(obj.date2);
+    var start = moment.tz(obj.date1, 'UTC');
+    var end = moment.tz(obj.date2, 'UTC');
 
     val_obj.multiselect("uncheckAll");
     var indy_var_val = $('[name="multiselect_indy_var_val"]');
