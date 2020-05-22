@@ -23,6 +23,8 @@ import edu.ucar.metviewer.ValidationException;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
+import static edu.ucar.metviewer.MVUtil.createYmlFile;
+
 /**
  * @author : tatiana $
  * @version : 1.0 : 28/12/17 13:44 $
@@ -122,6 +124,40 @@ public class RscriptNoneStatManager extends RscriptStatManager {
 
   @Override
   public boolean runPythonScript(MVPlotJob job, Map<String, Object> info) {
+    MvResponse mvResponse;
+    info.put("plot_output", plotFile);
+
+    try {
+      String configFileName = mvBatch.getDataFolder()+"/"+ MVUtil.buildTemplateString(job.getRFileTmpl().replace(".R", ".yaml"),
+              MVUtil.addTmplValDep(job),
+              job.getTmplMaps(),
+              mvBatch.getPrintStream());
+      createYmlFile(configFileName, info);
+      StopWatch stopWatch = new StopWatch();
+      stopWatch.start();
+      mvBatch.getPrintStream().println("\nRunning "
+              + mvBatch.getPython()
+              + " "
+              + mvBatch.getMetPlotpyHome() + job.getPlotTmpl()
+              + " "
+              + configFileName);
+      mvResponse = MVUtil.runRscript(mvBatch.getPython(),
+              mvBatch.getMetPlotpyHome() + job.getPlotTmpl(),
+              new String[]{configFileName},
+              new String[]{"PYTHONPATH=" + mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome(),
+                           "METPLOTPY_BASE="+mvBatch.getMetPlotpyHome() });
+      stopWatch.stop();
+      if (mvResponse.getInfoMessage() != null) {
+        mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+      }
+      if (mvResponse.getErrorMessage() != null) {
+        mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
+      }
+      mvBatch.getPrintStream().println("Python script execution time " + stopWatch.getFormattedTotalDuration());
+    } catch (IOException | StopWatchException | ValidationException e) {
+      errorStream.print(e.getMessage());
+      mvResponse = new MvResponse();
+    }
     return false;
   }
 
