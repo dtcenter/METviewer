@@ -3920,6 +3920,7 @@ function createXMLPerf(plot) {
 
     plot = createXMLPlotFix(plot);
     plot.append($('<plot_cond />').text($('#txtPlotCond').val()));
+    plot.append($('<annotation_template />').text($('#annotation').val()));
     var indep = $('<indep />').attr("name", $('#indy_var').val());
     var indy_var_val = $('[name="multiselect_indy_var_val"]');
     if ($("#indy_var_val").multiselect("getChecked").length > 0) {
@@ -6347,6 +6348,9 @@ function loadXMLSeries() {
 
     updatePlotFixSeries();
     $("#txtPlotCond").val(initXML.find("plot").find("plot_cond").text());
+    try {
+        $("#annotation").val(initXML.find("plot").find("annotation_template").text());
+    }catch(err) {}
     //update indy var for mode
     if (selected_mode === 'mode') {
         updateIndyVar(selected_mode);

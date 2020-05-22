@@ -451,9 +451,12 @@
         <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
         <br/>
         <br/>
-        <label for="txtPlotCond">Plot Cond</label> <input type="text" value=""
-                                                          id="txtPlotCond"
-                                                          style="width: 95%">
+
+        <label for="annotation">Annotation template</label>
+        <input type="text" value="" id="annotation" style="width: 95%">
+        <br/>
+        <label for="txtPlotCond">Plot Cond</label>
+        <input type="text" value="" id="txtPlotCond" style="width: 95%">
     </div>
 
 
