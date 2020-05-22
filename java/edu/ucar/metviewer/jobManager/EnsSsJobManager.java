@@ -32,4 +32,8 @@ public class EnsSsJobManager extends SeriesJobManager {
   protected void validateNumDepSeries(MVPlotJob job, int intNumDepSeries) {
     //do nothing
   }
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
 }

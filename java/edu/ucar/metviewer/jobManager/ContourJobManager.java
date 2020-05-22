@@ -43,4 +43,8 @@ public class ContourJobManager extends SeriesJobManager {
     }
     return info;
   }
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
 }

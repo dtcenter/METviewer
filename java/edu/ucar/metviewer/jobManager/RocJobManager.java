@@ -83,5 +83,9 @@ public class RocJobManager extends JobManager {
     }
 
   }
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
 
 }

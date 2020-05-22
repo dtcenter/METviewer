@@ -121,5 +121,9 @@ public class RhistJobManager extends JobManager {
     }
 
   }
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
 
 }

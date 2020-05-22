@@ -9,6 +9,8 @@ package edu.ucar.metviewer.jobManager;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVBatch;
+import edu.ucar.metviewer.MVPlotJob;
+import edu.ucar.metviewer.ValidationException;
 
 /**
  * @author : tatiana $
@@ -24,4 +26,17 @@ public class PerformanceJobManager extends SeriesJobManager {
   protected int getNumberPlotCurves(Map.Entry[] listDep1Plot) {
     return 1;
   }
+
+  @Override
+  protected String getPythonScript() {
+    return "/plots/performance_diagram/performance_diagram.py";
+  }
+  @Override
+  protected  Map<String, Object> addPlotConfigs(Map<String, Object> yamlInfo, MVPlotJob job, int intNumDepSeries) throws ValidationException {
+    Map<String, Object> result = super.addPlotConfigs(yamlInfo, job, intNumDepSeries);
+    result.put("annotation_template", job.getAnnotationTemplate());
+    return result;
+  }
+
+
 }

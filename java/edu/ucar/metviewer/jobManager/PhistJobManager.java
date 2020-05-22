@@ -17,4 +17,8 @@ public class PhistJobManager extends RhistJobManager {
   public PhistJobManager(MVBatch mvBatch) {
     super(mvBatch);
   }
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
 }

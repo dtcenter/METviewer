@@ -321,17 +321,28 @@ public class SeriesJobManager extends JobManager {
         }
 
       }
-      rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
-      info.put("virtualenv", mvBatch.getPythonEnv());
-      info.put("python", mvBatch.getPython());
-      info.put("ee_python", mvBatch.getMetCalcpyHome()+"/metcalcpy/event_equalize.py");
-      info.put("data_file", dataFileName);
-
-      rscriptStatManager.runRscript(job, info);
+      if (job.getExecutionType().equals("Rscript")) {
+        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
+        info.put("data_file", dataFileName);
+        rscriptStatManager.runRscript(job, info);
+      }else {
+        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
+        yamlInfo.put("stat_input", dataFileName);
+        job.setPlotTmpl(this.getPythonScript());
+        yamlInfo = this.addPlotConfigs(yamlInfo,job, intNumDepSeries);
+        rscriptStatManager.runPythonScript(job, yamlInfo);
+      }
 
     }
 
   }
+
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
+
+
 
   private void validateModeSeriesDefinition(MVPlotJob job) throws ValidationException {
     MVOrderedMap[] listDep = job.getDepGroups();

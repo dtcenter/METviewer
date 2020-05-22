@@ -123,4 +123,8 @@ public class EclvJobManager extends JobManager {
     }
 
   }
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
 }

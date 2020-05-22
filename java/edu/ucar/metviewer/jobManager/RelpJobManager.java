@@ -17,4 +17,8 @@ public class RelpJobManager extends RhistJobManager {
   public RelpJobManager(MVBatch mvBatch) {
     super(mvBatch);
   }
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
 }

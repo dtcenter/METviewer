@@ -44,5 +44,9 @@ public class TaylorJobManager extends SeriesJobManager {
   protected int getNumberPlotCurves(Map.Entry[] listDep1Plot) {
     return listDep1Plot.length;
   }
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
 
 }

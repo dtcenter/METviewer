@@ -114,4 +114,10 @@ public class RelyJobManager extends JobManager {
     }
 
   }
+
+  @Override
+  protected String getPythonScript() {
+    return "";
+  }
+
 }
