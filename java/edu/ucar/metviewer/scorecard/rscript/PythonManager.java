@@ -100,7 +100,7 @@ public abstract class PythonManager {
 
 
     for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
-      Map<String, List<String>> indyListTemp = new HashMap<>();
+      Map<String, List<String>> indyListTemp = new LinkedHashMap<>();
       List<String> indyVals = new ArrayList<>();
       indyListTemp.put(entry.getKey(), indyVals);
       for (Entry val : entry.getValue()) {
@@ -112,9 +112,9 @@ public abstract class PythonManager {
 
       if (indyVar.isEmpty()) {
         indyVar = entry.getKey();
-        indyList = new HashMap<>(indyListTemp);
+        indyList = new LinkedHashMap<>(indyListTemp);
       } else {
-        seriesList = new HashMap<>(indyListTemp);
+        seriesList = new LinkedHashMap<>(indyListTemp);
       }
     }
     for (int i = 0; i < size; i++) {
@@ -159,13 +159,13 @@ public abstract class PythonManager {
 
   void clean() {
     indyVar = "";
-    indyList = new HashMap<>();
-    seriesList = new HashMap<>();
+    indyList = new LinkedHashMap<>();
+    seriesList = new LinkedHashMap<>();
     seriesDiffList = new ArrayList<>();
     models = null;
     diffVals = new StringBuilder();
     fcstVar = null;
-    fixVars = new HashMap<>();
+    fixVars = new LinkedHashMap<>();
     stat = null;
   }
 
