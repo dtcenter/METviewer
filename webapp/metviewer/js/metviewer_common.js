@@ -5525,8 +5525,10 @@ function addSeriesVar(y_axis) {
 
             if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
                 $("#series_var_val_" + y_axis + "_date_period_button_" + (last_index + 1)).css("display", "block");
+                $("#series_var_val_" + y_axis + "_date_range_button_" + (last_index + 1)).css("display", "block");
             } else {
                 $("#series_var_val_" + y_axis + "_date_period_button_" + (last_index + 1)).css("display", "none");
+                $("#series_var_val_" + y_axis + "_date_range_button_" + (last_index + 1)).css("display", "none");
             }
             var id_array = this.id.split("_");
             updateSeriesVarVal(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
@@ -6332,8 +6334,10 @@ function loadXMLSeries() {
                 });
                 if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
                     $("#series_var_val_" + y_axis + "_date_period_button_" + (i + 1)).css("display", "block");
+                    $("#series_var_val_" + y_axis + "_date_range_button_" + (i + 1)).css("display", "block");
                 } else {
                     $("#series_var_val_" + y_axis + "_date_period_button_" + (i + 1)).css("display", "none");
+                    $("#series_var_val_" + y_axis + "_date_range_button_" + (i + 1)).css("display", "none");
                 }
                 updateSeriesVarVal(y_axis, (i + 1), series_var_val);
                 if (isGroup) {
@@ -6363,8 +6367,10 @@ function loadXMLSeries() {
     }
     if (value === "fcst_init_beg" || value === "fcst_valid_beg" || value === "fcst_valid" || value === "fcst_init") {
         $("#date_period_button").css("display", "block");
+        $("#date_range_button").css("display", "block");
     } else {
         $("#date_period_button").css("display", "none");
+        $("#date_range_button").css("display", "none");
     }
     var indy_var_vals = [];
     indy_var_vals_to_attr = {};
@@ -8017,8 +8023,8 @@ function onIndyCalendarClose(obj, index) {
     } else if (unit === "days") {
         by = by * 86400;
     }
-    var start = moment(obj.date1);
-    var end = moment(obj.date2);
+    var start = moment.tz(obj.date1, 'UTC');
+    var end = moment.tz(obj.date2, 'UTC');
 
     val_obj.multiselect("uncheckAll");
     var indy_var_val = $('[name="multiselect_indy_var_val"]');
