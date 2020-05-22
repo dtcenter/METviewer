@@ -94,6 +94,7 @@ public class MVServlet extends HttpServlet {
   private String scripts = "";
   private String managementSystem = "";
   private String metCalcpyHome="";
+  private String metPlotpyHome="";
   private String pythonEnv="";
   private boolean isValCache = false;
   private boolean isStatCache = false;
@@ -495,6 +496,7 @@ public class MVServlet extends HttpServlet {
       mvBatch.setScriptsFolder(parser.getScriptsFolder());
       mvBatch.setPythonEnv(pythonEnv);
       mvBatch.setMetCalcpyHome(metCalcpyHome);
+      mvBatch.setMetPlotpyHome(metPlotpyHome);
 
       //change timestamp job name to the custom if exists
       if (!job.getJobTitleTmpl().isEmpty()) {
@@ -868,6 +870,7 @@ public class MVServlet extends HttpServlet {
       rscript = bundle.getString("rscript.bin");
       pythonEnv = bundle.getString("python.env");
       metCalcpyHome = bundle.getString("metcalcpy.home");
+      metPlotpyHome = bundle.getString("metplotpy.home");
 
       // create any missing directories
       File directory;

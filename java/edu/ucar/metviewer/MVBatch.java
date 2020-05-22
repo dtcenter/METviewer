@@ -43,6 +43,7 @@ public class MVBatch {
   private AppDatabaseManager databaseManager;
   private String dbType;
   private String metCalcpyHome;
+  private String metPlotpyHome;
   private String pythonEnv;
   private String python;
 
@@ -53,6 +54,14 @@ public class MVBatch {
 
   public void setMetCalcpyHome(String metCalcpyHome) {
     this.metCalcpyHome = metCalcpyHome;
+  }
+
+  public String getMetPlotpyHome() {
+    return metPlotpyHome;
+  }
+
+  public void setMetPlotpyHome(String metPlotpyHome) {
+    this.metPlotpyHome = metPlotpyHome;
   }
 
   public String getPythonEnv() {
@@ -270,6 +279,7 @@ public class MVBatch {
 
       mvBatch.setPythonEnv(System.getProperty("python.env"));
       mvBatch.setMetCalcpyHome(System.getProperty("metcalcpy.home"));
+      mvBatch.setMetPlotpyHome(System.getProperty("metplotpy.home"));
 
       //  parse the input file
       String xmlInput = argv[intArg++];

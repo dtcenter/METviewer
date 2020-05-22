@@ -215,6 +215,7 @@ public class MVPlotJob {
   protected Integer contourIntervals = 10;
   protected String colorPalette = "cm.colors";
   protected String executionType = "Python";
+  protected String annotationTemplate = "";
 
 
 
@@ -411,6 +412,7 @@ public class MVPlotJob {
     job.contourIntervals = contourIntervals;
     job.colorPalette = colorPalette;
     job.executionType = executionType;
+    job.annotationTemplate = annotationTemplate;
 
     job.keepRevisions = keepRevisions;
     return job;
@@ -2116,6 +2118,14 @@ public class MVPlotJob {
     if (executionType.equals("Rscript") || executionType.equals("Python")) {
       this.executionType = executionType;
     }
+  }
+
+  public String getAnnotationTemplate() {
+    return annotationTemplate;
+  }
+
+  public void setAnnotationTemplate(String annotationTemplate) {
+    this.annotationTemplate = annotationTemplate;
   }
 
   public Boolean getAddColorBar() {
