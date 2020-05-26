@@ -361,7 +361,7 @@ if(length(listDiffSeries1) > 0){
       } else {
         uniqueDates = nrow(unique(listBox1[c("fcst_init", "fcst_lead", "stat_name")]))
       }
-      if (nrow(listBox1) != uniqueDates) {
+      if (!is.null(uniqueDates) && nrow(listBox1) != uniqueDates) {
         stop("Derived curve can't be calculated. Multiple values for one valid date/fcst_lead")
       }
 
