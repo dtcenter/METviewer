@@ -140,7 +140,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     equalize_by = paste(dfStats$equalize,  dfStats[[strIndyVar]]);
     dfStats$equalize = equalize_by;
   }
-  
+
   
   listVarsForEE=list();
 
@@ -176,7 +176,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
 
   # create a list of permutations representing the all variables for EE
   dfVarsForEEPerm =  permute(listVarsForEE );
-  
+
   dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
 
   listEqualize = vector();
