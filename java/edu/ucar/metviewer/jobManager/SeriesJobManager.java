@@ -321,7 +321,7 @@ public class SeriesJobManager extends JobManager {
         }
 
       }
-      if (job.getExecutionType().equals("Rscript")) {
+      if (job.getExecutionType().equals("Rscript") || this.getPythonScript().isEmpty()) {
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
         info.put("data_file", dataFileName);
         rscriptStatManager.runRscript(job, info);
