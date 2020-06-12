@@ -1801,15 +1801,18 @@ public class MVUtil {
 
     }
 
-
+    String type = "Rscript";
+    if (rscriptCommand.contains("python")){
+      type = "Python";
+    }
     if (strProcStd.length() > 0) {
       mvResponse.setInfoMessage(
-              "==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
+              "==== Start " + type +" output  ====\n" + strProcStd + "====   End " + type + " output  ====");
     }
 
     if (strProcErr.length() > 0) {
       mvResponse.setErrorMessage(
-              "==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
+              "==== Start " + type + " error  ====\n" + strProcErr + "====   End " + type + " error  ====");
     }
     mvResponse.setSuccess(0 == intExitStatus);
     return mvResponse;
