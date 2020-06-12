@@ -1574,7 +1574,7 @@ public class MVUtil {
   }
 
   public static Map<String, Object> getYamlDecl(final MVOrderedMap map) {
-    Map<String, Object> result = new HashMap<>();
+    Map<String, Object> result = new LinkedHashMap<>();
     List<String> keys = map.getListKeys();
     for (String key : keys) {
       Object objVal = map.get(key);
