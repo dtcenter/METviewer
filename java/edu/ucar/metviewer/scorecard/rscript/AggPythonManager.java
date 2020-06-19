@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 
-import static edu.ucar.metviewer.MVUtil.createYmlFile;
+import static edu.ucar.metviewer.MVUtil.createYamlFile;
 
 /**
  * Constructs and runs Rscript for agg stats
@@ -114,7 +114,7 @@ public class AggPythonManager extends PythonManager {
       try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
               .setLevel(org.apache.logging.log4j.Level.INFO)
               .buildPrintStream()) {
-        createYmlFile(aggInfoFileName, yamlInfo);
+        createYamlFile(aggInfoFileName, yamlInfo);
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         printStream.println("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
