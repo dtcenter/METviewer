@@ -21,7 +21,7 @@ import java.io.PrintStream;
 import java.time.LocalDate;
 import java.util.*;
 
-import static edu.ucar.metviewer.MVUtil.createYmlFile;
+import static edu.ucar.metviewer.MVUtil.createYamlFile;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class SumPythonManager extends PythonManager {
@@ -101,7 +101,7 @@ public class SumPythonManager extends PythonManager {
               .setLevel(org.apache.logging.log4j.Level.INFO)
               .buildPrintStream()) {
 
-        createYmlFile(sumInfoFileName, yamlInfo);
+        createYamlFile(sumInfoFileName, yamlInfo);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
