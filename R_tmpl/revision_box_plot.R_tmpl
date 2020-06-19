@@ -86,14 +86,6 @@ if(nrow(dfPlot) > 0){
 # run event equalizer, if requested
 if( FALSE != boolEventEqual  ){
 
-    library(reticulate)
-
-    #use_python("#<python>#", required = TRUE)
-    use_virtualenv('#<virtualenv>#')
-    source_python('#<ee_python>#')
-
-
-    sys = import('sys')
     dfPlot1 = data.frame();
     #list all fixed variables
     listFixVars=c();
@@ -121,9 +113,7 @@ if( FALSE != boolEventEqual  ){
           }
           fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
         }
-        #fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-        fPlot = event_equalize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-        sys$stdout$flush()
+        fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
         dfPlot1 = rbind(dfPlot1, fPlot);
       }
 

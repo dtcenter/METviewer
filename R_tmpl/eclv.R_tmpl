@@ -50,12 +50,6 @@ dfPlot = read.delim(strDataFile);
 
 # run event equalizer, if requested
 if( FALSE != boolEventEqual ){
-  library(reticulate)
-  #use_python("#<python>#", required = TRUE)
-  use_virtualenv('#<virtualenv>#')
-  source_python('#<ee_python>#')
-
-  sys = import('sys')
 
   #list all fixed variables
   listFixVars=c();
@@ -72,9 +66,7 @@ if( FALSE != boolEventEqual ){
     }
   }
 
-  #dfPlot = eventEqualize(dfPlot, 'x_pnt_i', unique(dfPlot$x_pnt_i), listSeries1Val, listFixVars,listFixVarVals, TRUE, TRUE);
-  dfPlot = event_equalize(dfPlot, 'x_pnt_i', unique(dfPlot$x_pnt_i), listSeries1Val, listFixVars,listFixVarVals, TRUE, TRUE);
-  sys$stdout$flush()
+  dfPlot = eventEqualize(dfPlot, 'x_pnt_i', unique(dfPlot$x_pnt_i), listSeries1Val, listFixVars,listFixVarVals, TRUE, TRUE);
   strAfrerEqualizeFile = sub("\\.data$", ".dataAfterEq", strDataFile, perl=TRUE);
   write.table(dfPlot, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t");
 
