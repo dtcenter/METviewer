@@ -23,7 +23,7 @@ import edu.ucar.metviewer.ValidationException;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
-import static edu.ucar.metviewer.MVUtil.createYmlFile;
+import static edu.ucar.metviewer.MVUtil.createYamlFile;
 
 /**
  * @author : tatiana $
@@ -116,7 +116,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
     info.put("sum_stat_output", sumOutput);
     MvResponse mvResponse = new MvResponse();
     try {
-      createYmlFile(sumInfo, info);
+      createYamlFile(sumInfo, info);
 
 
       //  run agg_stat/agg_pct/agg_stat_bootstrap to generate the data file for plotting
