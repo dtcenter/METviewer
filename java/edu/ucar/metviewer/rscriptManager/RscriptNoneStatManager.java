@@ -23,7 +23,7 @@ import edu.ucar.metviewer.ValidationException;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
-import static edu.ucar.metviewer.MVUtil.createYmlFile;
+import static edu.ucar.metviewer.MVUtil.createYamlFile;
 
 /**
  * @author : tatiana $
@@ -132,14 +132,14 @@ public class RscriptNoneStatManager extends RscriptStatManager {
               MVUtil.addTmplValDep(job),
               job.getTmplMaps(),
               mvBatch.getPrintStream());
-      createYmlFile(configFileName, info);
+      createYamlFile(configFileName, info);
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
-      mvBatch.getPrintStream().println("\nRunning "
+      mvBatch.getPrintStream().println("\nRunning:\n"
               + mvBatch.getPython()
-              + " "
+              + "\n"
               + mvBatch.getMetPlotpyHome() + job.getPlotTmpl()
-              + " "
+              + "\n"
               + configFileName);
       mvResponse = MVUtil.runRscript(mvBatch.getPython(),
               mvBatch.getMetPlotpyHome() + job.getPlotTmpl(),

@@ -2645,7 +2645,7 @@ public class MVUtil {
     return result.toArray(new String[0][]);
   }
 
-  public static synchronized void createYmlFile(final String fileName, final Map<String, Object> info) throws IOException {
+  public static synchronized void createYamlFile(final String fileName, final Map<String, Object> info) throws IOException {
     DumperOptions options = new DumperOptions();
     //options.setDefaultScalarStyle(DumperOptions.ScalarStyle.SINGLE_QUOTED);
     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);

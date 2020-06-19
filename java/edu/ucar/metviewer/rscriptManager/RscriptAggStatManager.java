@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static edu.ucar.metviewer.MVUtil.createYmlFile;
+import static edu.ucar.metviewer.MVUtil.createYamlFile;
 
 /**
  * @author : tatiana $
@@ -85,7 +85,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
           //use python
           info.put("agg_stat_input", dataFile + "_ee_input");
           info.put("agg_stat_output", dataFile + ".ee");
-          createYmlFile(eeInfo, info);
+          createYamlFile(eeInfo, info);
           mvBatch.getPrintStream().println("\nRunning "
                   + mvBatch.getPython()
                   + " "
@@ -236,7 +236,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile);
+        mvBatch.getPrintStream().println("\nRunning" + job.getRscript() + " " + rScriptFile);
 
         mvResponse = MVUtil.runRscript(job.getRscript(),
                 rScriptFile,
@@ -287,7 +287,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
     MvResponse mvResponse = new MvResponse();
 
     try {
-      createYmlFile(aggInfo, info);
+      createYamlFile(aggInfo, info);
 
       if (!fileAggOutput.exists() || !job.getCacheAggStat()) {
         fileAggOutput.getParentFile().mkdirs();
@@ -296,11 +296,11 @@ public class RscriptAggStatManager extends RscriptStatManager {
         stopWatch.start();
 
         if(job.isModeJob() || job.isMtdJob()){
-          mvBatch.getPrintStream().println("\nRunning "
+          mvBatch.getPrintStream().println("\nRunning:\n"
                   + mvBatch.getPython()
-                  + " "
+                  + "\n"
                   + mvBatch.getMetCalcpyHome() + rScriptFile
-                  + " "
+                  + "\n"
                   + aggInfo);
 
           mvResponse = MVUtil.runRscript(mvBatch.getPython(),
@@ -309,11 +309,11 @@ public class RscriptAggStatManager extends RscriptStatManager {
                   new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
         }else {
 
-          mvBatch.getPrintStream().println("\nRunning "
+          mvBatch.getPrintStream().println("\nRunning:\n"
                   + mvBatch.getPython()
-                  + " "
+                  + "\n"
                   + mvBatch.getMetCalcpyHome() + AGG_PYTHON_SCRIPT
-                  + " "
+                  + "\n"
                   + aggInfo);
 
           mvResponse = MVUtil.runRscript(mvBatch.getPython(),
