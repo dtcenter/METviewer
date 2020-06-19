@@ -3,6 +3,8 @@ setwd("#<r_work>#");
 source("include/Compute_STDerr.R");
 source("include/util_plot.R");
 
+
+
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
 
@@ -117,7 +119,8 @@ if( TRUE == boolXReverse ){
 
 # run event equalizer, if requested
 if( FALSE != boolEventEqual  ){
-  #run event equalizer on Y1
+
+
   dfPlot1 = data.frame();
   #list all fixed variables
   listFixVars=c();
@@ -176,7 +179,6 @@ if( FALSE != boolEventEqual  ){
     }
     listSeriesVal$model = append(listSeries1Val$model,listSeries2Val$model)
     dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, TRUE);
-
   }else{
     dfPlot = dfPlot1;
   }
@@ -1122,7 +1124,8 @@ for(i in 1:(intNumSeries1+ intNumSeries1Diff)){
     next;
   }
 
-  intStagIndex = listPlotOrderSeries1Part[i];
+  #intStagIndex = listPlotOrderSeries1Part[i];
+  intStagIndex = i
 
   # slice the series constituents from the series list
   listData  = listSeries1[[3*(intStagIndex-1) + 1]];
@@ -1274,4 +1277,6 @@ mtext(
 #<plot_cmd>#
 
 invisible(dev.off());
+
+
 

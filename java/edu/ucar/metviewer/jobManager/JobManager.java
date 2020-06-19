@@ -33,12 +33,27 @@ public abstract class JobManager {
 
   protected MVBatch mvBatch;
   protected MVOrderedMap[] listPlotFixPerm;
-
-
   protected JobManager(MVBatch mvBatch) {
     this.mvBatch = mvBatch;
   }
+  private static final Map<String, String> symbolsRtoPython = new HashMap<>();
+  private static final Map<String, String> linesRtoPython = new HashMap<>();
+  static {
+    symbolsRtoPython.put("20", ".");
+    symbolsRtoPython.put("19", "o");
+    symbolsRtoPython.put("15", "s");
+    symbolsRtoPython.put("17", "^");
+    symbolsRtoPython.put("18", "d");
+    symbolsRtoPython.put("1", "H");
 
+    linesRtoPython.put("1", "-");
+    linesRtoPython.put("2", "--");
+    linesRtoPython.put("3", ":");
+    //NEED TO CHANE LATER: use '-' for others
+    linesRtoPython.put("4", "-");
+    linesRtoPython.put("5", "-");
+    linesRtoPython.put("6", "-");
+  }
 
   public void runJob(MVPlotJob job) {
     try {
@@ -120,7 +135,7 @@ public abstract class JobManager {
     return intNumDep1Series + intNumDep2Series;
   }
 
-  protected Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws ValidationException {
+  protected Map<String, Object> createInfoMap(MVPlotJob job, int intNumDepSeries) throws ValidationException {
 
 
     MVOrderedMap mapDep;
@@ -205,7 +220,7 @@ public abstract class JobManager {
     MVOrderedMap mapDep1Plot = (MVOrderedMap) mapDep.get("dep1");
     MVOrderedMap mapDep2Plot = (MVOrderedMap) mapDep.get("dep2");
 
-    Map<String, String> info = new HashMap<>();
+    Map<String, Object> info = new HashMap<>();
 
     //  populate the plot settings in the R script template
     info.put("r_work", mvBatch.getRworkFolder());
@@ -385,5 +400,100 @@ public abstract class JobManager {
     }
     return ret;
   }
+  protected abstract String getPythonScript();
 
+  protected  Map<String, Object> addPlotConfigs(Map<String, Object> yamlInfo, MVPlotJob job, int intNumDepSeries) throws ValidationException {
+    Map<String, Object> info = new HashMap<>(yamlInfo);
+    MVOrderedMap mapTmplValsPlot = MVUtil.addTmplValDep(job);
+    String title = MVUtil.buildTemplateInfoString(job.getTitleTmpl(), mapTmplValsPlot,
+            job.getTmplMaps(), mvBatch.getPrintStream());
+    String xLabel = MVUtil.buildTemplateInfoString(job.getXLabelTmpl(), mapTmplValsPlot,
+            job.getTmplMaps(), mvBatch.getPrintStream());
+    String y1Label = MVUtil.buildTemplateInfoString(job.getY1LabelTmpl(), mapTmplValsPlot,
+            job.getTmplMaps(), mvBatch.getPrintStream());
+    String y2Label = MVUtil.buildTemplateInfoString(job.getY2LabelTmpl(), mapTmplValsPlot,
+            job.getTmplMaps(), mvBatch.getPrintStream());
+    info.put("title", title);
+    info.put("xaxis", xLabel);
+    info.put("yaxis_1", y1Label);
+    info.put("yaxis_2", y2Label);
+    List<String> dispListStr = rListToList(job.getPlotDisp());
+    List<String> dispList = new ArrayList<>();
+    for(String disp : dispListStr){
+      if(disp.equalsIgnoreCase("false")){
+        dispList.add("False");
+      }else {
+        dispList.add("True");
+      }
+    }
+    info.put("plot_disp", dispList);
+
+    List<String> seriesOrderListStr = rListToList(job.getOrderSeries());
+    List<Integer> seriesOrderList = new ArrayList<>();
+    for(String seriesOrder : seriesOrderListStr){
+      seriesOrderList.add(Integer.valueOf(seriesOrder));
+    }
+    info.put("series_order", seriesOrderList);
+
+    List<String> userLegendListStr = rListToList(job.getLegend());
+
+    info.put("user_legend", userLegendListStr);
+
+    List<String> colorsListStr = rListToList(job.getColors());
+    List<String> colorsList = new ArrayList<>();
+    for(String color : colorsListStr){
+      colorsList.add(color.replaceAll("FF$",""));
+    }
+    info.put("colors", colorsList);
+
+    List<String> lineWidthListStr = rListToList(job.getLwd());
+    List<Integer> lineWidthList = new ArrayList<>();
+    for(String lineWidth : lineWidthListStr){
+      lineWidthList.add(Integer.valueOf(lineWidth));
+    }
+    info.put("series_line_width", lineWidthList);
+
+    List<String> symbolsListStr = rListToList(job.getPch());
+    List<String> symbolsList = new ArrayList<>();
+    for(String symbol : symbolsListStr){
+      symbolsList.add(symbolsRtoPython.get(symbol));
+    }
+    info.put("series_symbols", symbolsList);
+
+    List<String> lineStyleListStr = rListToList(job.getLty());
+    List<String> lineStyleList = new ArrayList<>();
+    for(String lineStyle : lineStyleListStr){
+      lineStyleList.add(linesRtoPython.get(lineStyle));
+    }
+    info.put("series_line_style", lineStyleList);
+    info.put("series_type", rListToList(job.getType()));
+
+    List<String> showSignifStr = rListToList(job.getShowSignif());
+    List<String> showSignifList = new ArrayList<>();
+    for(String showSignif : showSignifStr){
+      if(showSignif.equalsIgnoreCase("false")){
+        showSignifList.add("False");
+      }else {
+        showSignifList.add("True");
+      }
+    }
+    info.put("show_signif", showSignifList);
+
+    List<String> conSeriesListStr = rListToList(job.getConSeries());
+    List<Integer> conSeriesList = new ArrayList<>();
+    for(String conSeries : conSeriesListStr){
+      conSeriesList.add(Integer.valueOf(conSeries));
+    }
+    info.put("con_series", conSeriesList);
+    info.put("plot_ci", rListToList(job.getPlotCI()));
+
+
+    return info;
+  }
+  protected List<String> rListToList(String rList){
+    String[] rListArray = rList.replace("c(", "").replace(")", "")
+            .replace("\"", "")
+            .split(",");
+    return Arrays.asList(rListArray);
+  }
 }

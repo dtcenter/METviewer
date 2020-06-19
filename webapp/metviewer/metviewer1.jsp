@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v3.0</TITLE>
+  <TITLE>METviewer v3.1-dev</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -250,7 +250,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 3.0<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 3.1-dev<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
@@ -475,7 +475,9 @@
           </tr>
 
           <tr>
-            <td colspan="2" style="text-align: center;"><label for="ci_alpha">Conf Interval
+            <td><input type="checkbox" id="is_python"/>
+              <label for="is_python">Use Python</label></td>
+            <td><label for="ci_alpha">Conf Interval
               Alpha</label><input type="text"
                                   size="12"
                                   id="ci_alpha"

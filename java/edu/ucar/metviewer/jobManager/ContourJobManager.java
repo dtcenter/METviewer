@@ -34,13 +34,17 @@ public class ContourJobManager extends SeriesJobManager {
   }
 
   @Override
-  protected Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws ValidationException {
-    Map<String, String> info = super.createInfoMap(job, intNumDepSeries);
+  protected Map<String, Object> createInfoMap(MVPlotJob job, int intNumDepSeries) throws ValidationException {
+    Map<String, Object> info = super.createInfoMap(job, intNumDepSeries);
     if (job.getDiffSeries1Count() == 0) {
       info.put("contour_diff", "FALSE");
     } else {
       info.put("contour_diff", "TRUE");
     }
     return info;
+  }
+  @Override
+  protected String getPythonScript() {
+    return "";
   }
 }

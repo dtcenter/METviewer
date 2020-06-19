@@ -131,7 +131,7 @@ class XmlParser {
           }
         } else if ("boot_repl".equals(plotNode.getNodeName())) {
           try {
-            scorecard.setNumBootReplicates(Integer.valueOf(plotNode.getTextContent()));
+            scorecard.setNumBootReplicates(Integer.parseInt(plotNode.getTextContent()));
           } catch (NumberFormatException e) {
             logger.info("Incorrect value for <boot_repl> :"
                     + plotNode.getTextContent() + ". Using default value 1000");
@@ -165,6 +165,9 @@ class XmlParser {
           } else if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
             scorecard.setViewLegend(Boolean.FALSE);
           }
+        } else if ("execution_type".equals(plotNode.getNodeName())) {
+          scorecard.setExecutionType(plotNode.getTextContent());
+
         } else if ("stat_flag".equals(plotNode.getNodeName())) {
           scorecard.setStatFlag(plotNode.getTextContent());
 

@@ -110,7 +110,7 @@ public class RhistJobManager extends JobManager {
         throw new ValidationException("length of legend differs from number of series ("
                 + intNumDepSeries + ")");
       }
-      Map<String, String> info = createInfoMap(job, intNumDepSeries);
+      Map<String, Object> info = createInfoMap(job, intNumDepSeries);
       RscriptStatManager rscriptStatManager = new RscriptNoneStatManager(mvBatch);
       rscriptStatManager
               .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
@@ -120,6 +120,10 @@ public class RhistJobManager extends JobManager {
 
     }
 
+  }
+  @Override
+  protected String getPythonScript() {
+    return "";
   }
 
 }

@@ -93,6 +93,9 @@ public class MVServlet extends HttpServlet {
   private String data = "";
   private String scripts = "";
   private String managementSystem = "";
+  private String metCalcpyHome="";
+  private String metPlotpyHome="";
+  private String pythonEnv="";
   private boolean isValCache = false;
   private boolean isStatCache = false;
   private AppDatabaseManager databaseManager;
@@ -491,6 +494,9 @@ public class MVServlet extends HttpServlet {
       mvBatch.setPlotsFolder(parser.getPlotsFolder());
       mvBatch.setDataFolder(parser.getDataFolder());
       mvBatch.setScriptsFolder(parser.getScriptsFolder());
+      mvBatch.setPythonEnv(pythonEnv);
+      mvBatch.setMetCalcpyHome(metCalcpyHome);
+      mvBatch.setMetPlotpyHome(metPlotpyHome);
 
       //change timestamp job name to the custom if exists
       if (!job.getJobTitleTmpl().isEmpty()) {
@@ -566,8 +572,7 @@ public class MVServlet extends HttpServlet {
         throw new ValidationException("query returned no data");
       }
 
-    } catch (IOException | TransformerFactoryConfigurationError | StopWatchException | ParseException
-            | IllegalArgumentException | ValidationException | DatabaseException e) {
+    } catch (IOException | TransformerFactoryConfigurationError | IllegalArgumentException | ValidationException  e) {
 
 
       strRErrorMsg = strRErrorMsg.replace("&", "&amp;").replace("<", "&lt;")
@@ -676,9 +681,7 @@ public class MVServlet extends HttpServlet {
     return finalHtml;
   }
 
-  private static void runTargetedJob(
-          MVPlotJob job,
-          MVBatch bat) throws ValidationException, DatabaseException, StopWatchException, ParseException, IOException {
+  private static void runTargetedJob(MVPlotJob job, MVBatch bat) {
     JobManager jobManager;
     switch (job.getPlotTmpl()) {
       case "rhist.R_tmpl":
@@ -865,6 +868,9 @@ public class MVServlet extends HttpServlet {
       isStatCache = bundle.getString("cache.stat").equals("true");
 
       rscript = bundle.getString("rscript.bin");
+      pythonEnv = bundle.getString("python.env");
+      metCalcpyHome = bundle.getString("metcalcpy.home");
+      metPlotpyHome = bundle.getString("metplotpy.home");
 
       // create any missing directories
       File directory;

@@ -3920,6 +3920,7 @@ function createXMLPerf(plot) {
 
     plot = createXMLPlotFix(plot);
     plot.append($('<plot_cond />').text($('#txtPlotCond').val()));
+    plot.append($('<annotation_template />').text($('#annotation').val()));
     var indep = $('<indep />').attr("name", $('#indy_var').val());
     var indy_var_val = $('[name="multiselect_indy_var_val"]');
     if ($("#indy_var_val").multiselect("getChecked").length > 0) {
@@ -4142,6 +4143,13 @@ function createXMLCommon(plot) {
     tmpl.append($('<listDiffSeries1 />').text("list(" + seriesDiffY1List.join() + ")"));
     tmpl.append($('<listDiffSeries2 />').text("list(" + seriesDiffY2List.join() + ")"));
     plot.append(tmpl);
+
+    if($('#is_python').is(':checked')){
+        plot.append($('<execution_type />').text("Python"));
+    }else {
+        plot.append($('<execution_type />').text("Rscript"));
+    }
+
     plot.append($('<event_equal />').text($('#event_equal').is(':checked')));
     plot.append($('<vert_plot />').text($('#vert_plot').is(':checked')));
     plot.append($('<x_reverse />').text($('#x_reverse').is(':checked')));
@@ -4260,17 +4268,18 @@ function createXMLCommon(plot) {
     plot.append($('<ci_alpha />').text($('#ci_alpha').val()));
 
 
+
     var allSeries = sortSeries();
     var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [],
         orderArr = [], legendArr = [], showSignArr = [];
     for (var i = 0; i < allSeries.length; i++) {
         ciArr.push('"' + allSeries[i].plot_ci + '"');
-        if (allSeries[i].hide == "No") {
+        if (allSeries[i].hide === "No") {
             dispArr.push("TRUE");
         } else {
             dispArr.push("FALSE");
         }
-        if (allSeries[i].show_signif == "No") {
+        if (allSeries[i].show_signif === "No") {
             showSignArr.push("FALSE");
         } else {
             showSignArr.push("TRUE");
@@ -4576,6 +4585,7 @@ function resetFormatting() {
     $('#job_title').val("");
     $('#keep_revisions').prop('checked', false);
 
+    $("#is_python").prop('checked', true);
     $("#vert_plot").prop('checked', false);
     $("#x_reverse").prop('checked', false);
     $("#num_stats").prop('checked', false);
@@ -6342,6 +6352,9 @@ function loadXMLSeries() {
 
     updatePlotFixSeries();
     $("#txtPlotCond").val(initXML.find("plot").find("plot_cond").text());
+    try {
+        $("#annotation").val(initXML.find("plot").find("annotation_template").text());
+    }catch(err) {}
     //update indy var for mode
     if (selected_mode === 'mode') {
         updateIndyVar(selected_mode);
@@ -7692,6 +7705,7 @@ function initPage() {
             $("#keep_revisions").prop('checked', $(initXML.find("plot").find("tmpl").find("keep_revisions")).text() === "true");
         }
 
+        $("#is_python").prop('checked', $(initXML.find("plot").find("execution_type")).text() == "Python");
         $("#vert_plot").prop('checked', $(initXML.find("plot").find("vert_plot")).text() == "true");
         $("#x_reverse").prop('checked', $(initXML.find("plot").find("x_reverse")).text() == "true");
         $("#num_stats").prop('checked', $(initXML.find("plot").find("num_stats")).text() == "true");

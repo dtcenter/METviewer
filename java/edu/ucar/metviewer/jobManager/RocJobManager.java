@@ -72,7 +72,7 @@ public class RocJobManager extends JobManager {
                       mvBatch.getPrintStream(),
                       mvBatch.getPrintStreamSql());
 
-      Map<String, String> info = createInfoMap(job, intNumDepSeries);
+      Map<String, Object> info = createInfoMap(job, intNumDepSeries);
       RscriptStatManager rscriptStatManager = new RscriptNoneStatManager(mvBatch);
       rscriptStatManager
               .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
@@ -82,6 +82,10 @@ public class RocJobManager extends JobManager {
 
     }
 
+  }
+  @Override
+  protected String getPythonScript() {
+    return "";
   }
 
 }

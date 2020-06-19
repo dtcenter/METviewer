@@ -137,9 +137,13 @@ for(col in 1:ncol(sampleData)){
 
 dfPlot = read.delim(strDataFile,colClasses = classes);
 
+ strPointsFile = sub("\\.data$", ".points1", strDataFile, perl=TRUE);
 
 
 if(length(listSeries1Val) > 0){
+
+    cat(c("1-far","far_ncl","far_ncu","pody","pody_ncl", "pody_ncu"),'\n', file=strPointsFile, append=FALSE)
+
   for(intPermVal in 1:nrow(matPermVal)){
 
   # check if this series needs to be displayed , if not - dismiss
@@ -158,6 +162,7 @@ if(length(listSeries1Val) > 0){
 
      seriesLegend = paste(seriesLegend,'Performance');
      legend=append(legend, seriesLegend);
+
 
      for(indyValInd in 1:length(listIndy)){
        indyVal = listIndy[indyValInd];
@@ -202,8 +207,11 @@ if(length(listSeries1Val) > 0){
            }
 
      }
+      listSeries = listSeries1;
+
      for(indyValInd in 1:length(listSeries1)){
       points(1 - listSeries1[[indyValInd]][['far']], listSeries1[[indyValInd]][['pody']], col = listColors[intPermVal], cex = 2,pch=listPch[intPermVal],lwd=listLwd[intPermVal]);
+        listSeries[[indyValInd]][['far']] = 1 - listSeries1[[indyValInd]][['far']]
 
       if(indyValInd > 1){
         segments(x0=(1 - listSeries1[[indyValInd-1]][['far']]), y0=listSeries1[[indyValInd-1]][['pody']],
@@ -218,9 +226,12 @@ if(length(listSeries1Val) > 0){
                   x1=1-listSeries1[[indyValInd]][['far_ncl']], y1=listSeries1[[indyValInd]][['pody']], col=listColors[intPermVal], lwd=listLwd[intPermVal]);
       }
      }
+      lapply(listSeries, write, strPointsFile, append=TRUE,ncolumns=6)
+
     }
   }
 }
+
 
 #replace with user's legends
 if( 0 < length(listLegendUsr) ){

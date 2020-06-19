@@ -66,7 +66,7 @@ public class CalcRscriptManager extends RscriptManager {
 
   @Override
   public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) {
-    Map<String, String> tableCalcStatInfo = new HashMap<>(tableCalcStatInfoCommon);
+    Map<String, Object> tableCalcStatInfo = new HashMap<>(tableCalcStatInfoCommon);
     String stat = Util.getStatForRow(mapRow);
     StringBuilder fixVars = new StringBuilder();
     String fcstVar = null;

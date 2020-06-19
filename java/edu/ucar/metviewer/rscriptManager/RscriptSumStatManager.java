@@ -23,6 +23,8 @@ import edu.ucar.metviewer.ValidationException;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
+import static edu.ucar.metviewer.MVUtil.createYamlFile;
+
 /**
  * @author : tatiana $
  * @version : 1.0 : 22/12/17 10:49 $
@@ -43,7 +45,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
   @Override
   public void prepareDataFileAndRscript(
           MVPlotJob job, MVOrderedMap mvMap,
-          Map<String, String> info,
+          Map<String, Object> info,
           List<String> listQuery) throws ValidationException {
 
     //  run the plot SQL against the database connection
@@ -71,7 +73,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
   }
 
   @Override
-  public boolean runRscript(MVPlotJob job, Map<String, String> info) {
+  public boolean runRscript(MVPlotJob job, Map<String, Object> info) {
 
     String sumInfo = dataFile.replaceFirst("\\.data.sum_stat$", ".sum_stat.info");
     String sumOutput = dataFile.replaceFirst("\\.sum_stat$", "");
@@ -97,6 +99,49 @@ public class RscriptSumStatManager extends RscriptStatManager {
           mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
         }
         mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
+      }
+    } catch (IOException | StopWatchException e) {
+      errorStream.print(e.getMessage());
+    }
+
+    return mvResponse.isSuccess();
+  }
+
+  @Override
+  public boolean runPythonScript(MVPlotJob job, Map<String, Object> info) {
+    String sumInfo = dataFile.replaceFirst("\\.data.sum_stat$", ".sum_stat.info");
+    String sumOutput = dataFile.replaceFirst("\\.sum_stat$", "");
+    File fileAggOutput = new File(sumOutput);
+    info.put("sum_stat_input", dataFile);
+    info.put("sum_stat_output", sumOutput);
+    MvResponse mvResponse = new MvResponse();
+    try {
+      createYamlFile(sumInfo, info);
+
+
+      //  run agg_stat/agg_pct/agg_stat_bootstrap to generate the data file for plotting
+      if (!fileAggOutput.exists() || !job.getCacheAggStat()) {
+        fileAggOutput.getParentFile().mkdirs();
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        mvBatch.getPrintStream().println("\nRunning "
+                + mvBatch.getPython()
+                + " "
+                + mvBatch.getMetCalcpyHome() + "/metcalcpy/sum_stat.py"
+                + " "
+                + sumInfo);
+        mvResponse = MVUtil.runRscript(mvBatch.getPython(),
+                mvBatch.getMetCalcpyHome() + "/metcalcpy/sum_stat.py",
+                new String[]{sumInfo},
+                new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
+        stopWatch.stop();
+        if (mvResponse.getInfoMessage() != null) {
+          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+        }
+        if (mvResponse.getErrorMessage() != null) {
+          mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
+        }
+        mvBatch.getPrintStream().println("Python time " + stopWatch.getFormattedTotalDuration());
       }
     } catch (IOException | StopWatchException e) {
       errorStream.print(e.getMessage());

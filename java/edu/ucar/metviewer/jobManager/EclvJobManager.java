@@ -77,7 +77,7 @@ public class EclvJobManager extends JobManager {
           fixValsEE.put(fixFar, fixTmplVal.get(fixFar));
         }
       }
-      Map<String, String> info;
+      Map<String, Object> info;
       RscriptStatManager rscriptStatManager;
       if (job.getAggCtc() || job.getAggPct()) {
         intNumDepSeries = 1;
@@ -122,5 +122,9 @@ public class EclvJobManager extends JobManager {
 
     }
 
+  }
+  @Override
+  protected String getPythonScript() {
+    return "";
   }
 }

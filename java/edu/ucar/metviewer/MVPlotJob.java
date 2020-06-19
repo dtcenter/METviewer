@@ -214,6 +214,9 @@ public class MVPlotJob {
   protected Boolean isAddContourOverlay = Boolean.TRUE;
   protected Integer contourIntervals = 10;
   protected String colorPalette = "cm.colors";
+  protected String executionType = "Python";
+  protected String annotationTemplate = "";
+
 
 
   /**
@@ -408,6 +411,8 @@ public class MVPlotJob {
     job.isReverseX = isReverseX;
     job.contourIntervals = contourIntervals;
     job.colorPalette = colorPalette;
+    job.executionType = executionType;
+    job.annotationTemplate = annotationTemplate;
 
     job.keepRevisions = keepRevisions;
     return job;
@@ -2104,6 +2109,25 @@ public class MVPlotJob {
     this.colorPalette = colorPalette;
   }
 
+
+  public String getExecutionType() {
+    return executionType;
+  }
+
+  public void setExecutionType(String executionType) {
+    if (executionType.equals("Rscript") || executionType.equals("Python")) {
+      this.executionType = executionType;
+    }
+  }
+
+  public String getAnnotationTemplate() {
+    return annotationTemplate;
+  }
+
+  public void setAnnotationTemplate(String annotationTemplate) {
+    this.annotationTemplate = annotationTemplate;
+  }
+
   public Boolean getAddColorBar() {
     return isAddColorBar;
   }
@@ -2168,6 +2192,60 @@ public class MVPlotJob {
 
   public void setAggNbrCtc(boolean  nbrCtc) {
      _boolAggNbrCtc = nbrCtc;
+  }
+  public String getLineType(){
+    if(this.getAggCtc()){
+      return "ctc";
+    }
+    if(this.getAggSl1l2()){
+      return "sl1l2";
+    }
+    if(this.getAggSal1l2()){
+      return "sal1l2";
+    }
+    if(this.getAggNbrCnt()){
+      return "nbr_cnt";
+    }
+    if(this.getAggSsvar()){
+      return "ssvar";
+    }
+    if(this.getAggVl1l2()){
+      return "vl1l2";
+    }
+    if(this.getAggVal1l2()){
+      return "val1l2";
+    }
+    if(this.getAggGrad()){
+      return "grad";
+    }
+    if(this.getAggPct()){
+      return "pct";
+    }
+    if(this.getAggEcnt()){
+      return "ecnt";
+    }
+    if(this.getAggRps()){
+      return "rps";
+    }
+    if(this.getCalcCtc()){
+      return "ctc";
+    }
+    if(this.getCalcGrad()){
+      return "grad";
+    }
+    if(this.getCalcSal1l2()){
+      return "sal1l2";
+    }
+    if(this.getCalcSl1l2()){
+      return "sl1l2";
+    }
+    if(this.getCalcVal1l2()){
+      return "val1l2";
+    }
+    if(this.getCalcVl1l2()){
+      return "vl1l2";
+    }
+    return "N/A";
   }
 }
 

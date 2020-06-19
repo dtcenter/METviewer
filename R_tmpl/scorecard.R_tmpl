@@ -3,6 +3,8 @@ setwd("#<r_work>#");
 source("include/Compute_STDerr.R");
 source("include/util_plot.R");
 
+
+
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
 
@@ -63,7 +65,7 @@ if ( nrow(sampleData) > 0){
 
   # run event equalizer, if requested
   if( FALSE != boolEventEqual  ){
-    #run event equalizer on Y1
+
     dfPlot1 = data.frame();
     #list all fixed variables
     listFixVars=c();

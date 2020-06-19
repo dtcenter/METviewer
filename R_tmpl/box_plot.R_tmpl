@@ -3,6 +3,8 @@ setwd("#<r_work>#");
 source("include/util_plot.R");
 source("include/boxplot_ci.R");
 
+
+
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
 
@@ -86,7 +88,7 @@ dfPlot = read.delim(strDataFile,colClasses = classes);
 
 # run event equalizer, if requested
 if( FALSE != boolEventEqual  ){
-  #run event equalizer on Y1
+
   dfPlot1 = data.frame();
    #list all fixed variables
    listFixVars=c();
@@ -144,7 +146,6 @@ if( FALSE != boolEventEqual  ){
     }
     listSeriesVal$model = append(listSeries1Val$model,listSeries2Val$model)
     dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, TRUE);
-
   }else{
     dfPlot = dfPlot1;
   }

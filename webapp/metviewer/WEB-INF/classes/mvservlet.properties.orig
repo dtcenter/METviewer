@@ -4,8 +4,7 @@
 db.host=
 db.user=
 db.password=
-db.driver=com.mysql.jdbc.Driver
-db.managementSystem=mysql
+db.managementSystem=mariadb
 
 cache.val=true
 cache.stat=true
@@ -22,3 +21,6 @@ folders.scripts=/d2/www/dtcenter/met/metviewer_output/scripts
 url.output=http://www.dtcenter.org/met/metviewer_output/
 
 log.file=
+python.env=
+metcalcpy.home=
+metplotpy.home=

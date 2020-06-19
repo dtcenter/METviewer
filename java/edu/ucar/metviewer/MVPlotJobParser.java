@@ -245,6 +245,10 @@ public final class MVPlotJobParser {
       formatToStrValues
               .put("plot_cond", MVPlotJob.class.getDeclaredMethod("setPlotCond", String.class));
       formatToStrValues
+              .put("execution_type", MVPlotJob.class.getDeclaredMethod("setExecutionType", String.class));
+      formatToStrValues
+              .put("annotation_template", MVPlotJob.class.getDeclaredMethod("setAnnotationTemplate", String.class));
+      formatToStrValues
               .put("plot_stat", MVPlotJob.class.getDeclaredMethod("setPlotStat", String.class));
       formatToStrValues.put("contour_intervals",
               MVPlotJob.class.getDeclaredMethod("setContourIntervals", String
@@ -921,6 +925,16 @@ public final class MVPlotJobParser {
     xmlStr.append(
             "<plot_cmd>" + job.getPlotCmd() + "</plot_cmd>" +
                     "<plot_cond>" + job.getPlotCond() + "</plot_cond>");
+
+    //  execution_type
+    xmlStr.append(
+            "<execution_type>" + job.getExecutionType() + "</execution_type>");
+
+    //  annotation_template
+    if(!job.getAnnotationTemplate().isEmpty()) {
+      xmlStr.append(
+              "<annotation_template>" + job.getAnnotationTemplate() + "</annotation_template>");
+    }
 
     //  plot fmt
     xmlStr.append(
@@ -1608,13 +1622,13 @@ public final class MVPlotJobParser {
       //  <taylor_voc>
       else if (node.tag.equals("taylor_voc")) {
         if ("true".equalsIgnoreCase(node.value) || "false".equalsIgnoreCase(node.value)) {
-          job.setTaylorVoc(Boolean.valueOf(node.value));
+          job.setTaylorVoc(Boolean.parseBoolean(node.value));
         }
       }
       //  <taylor_show_gamma>
       else if (node.tag.equals("taylor_show_gamma")) {
         if ("true".equalsIgnoreCase(node.value) || "false".equalsIgnoreCase(node.value)) {
-          job.setTaylorShowGamma(Boolean.valueOf(node.value));
+          job.setTaylorShowGamma(Boolean.parseBoolean(node.value));
         }
       }
 

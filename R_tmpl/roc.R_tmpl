@@ -2,6 +2,8 @@ setwd("#<r_work>#");
 
 source("include/util_plot.R");
 
+
+
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
 
@@ -248,6 +250,7 @@ intCurveNum = 0;
 
 # run event equalizer, if requested
 if( FALSE != boolEventEqual  ){
+
   dfPlot = data.frame();
   #list all fixed variables
   listFixVars=c();
@@ -275,10 +278,10 @@ if( FALSE != boolEventEqual  ){
 
     if(is.null(listFixVars)){
       listFixVars = "thresh_i";
-      listFixVarVals[[1]] = matPerm;
+      listFixVarVals[[1]] = matPerm[,1];
     }else{
       listFixVars =  append(listFixVars, 'thresh_i');
-      listFixVarVals [[length(listFixVarVals)+1]] =  matPerm;
+      listFixVarVals [[length(listFixVarVals)+1]] =  matPerm[,1];
     }
   }
 
@@ -291,6 +294,7 @@ if( FALSE != boolEventEqual  ){
         if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
         dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
         dfData_ee = eventEqualize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+
         dfPlot = rbind(dfPlot, dfData_ee);
       }
     }

@@ -4,6 +4,7 @@ source("include/util_plot.R");
 source("include/boxplot_ci.R");
 
 
+
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
 
@@ -85,7 +86,6 @@ if(nrow(dfPlot) > 0){
 # run event equalizer, if requested
 if( FALSE != boolEventEqual  ){
 
-    #run event equalizer on Y1
     dfPlot1 = data.frame();
     #list all fixed variables
     listFixVars=c();

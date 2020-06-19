@@ -125,7 +125,7 @@ public class SumRscriptManager extends RscriptManager {
     clean();
     initModels();
     if (models != null) {
-      Map<String, String> tableCalcStatInfo = new HashMap<>(tableCalcStatInfoCommon);
+      Map<String, Object> tableCalcStatInfo = new HashMap<>(tableCalcStatInfoCommon);
       init(mapRow);
       tableCalcStatInfo.put("indy_var", indyVar);
       tableCalcStatInfo.put("indy_list", "c(" + indyList + ")");
@@ -151,12 +151,9 @@ public class SumRscriptManager extends RscriptManager {
       tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
               .toUpperCase());
 
-      //check id output file exists and its length not 0
-      File output = new File(tableCalcStatInfo.get("sum_stat_output"));
+
       boolean isAppend = false;
-      // if (output.exists() && output.length() > 0) {
-      //   isAppend = true;
-      // }
+
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       int lastDot = sumStatDataFilePath.lastIndexOf('.');
 
@@ -198,7 +195,7 @@ public class SumRscriptManager extends RscriptManager {
 
 
       //check if output file exists and its length is not 0
-      output = new File(tableCalcStatInfo.get("plot_file"));
+      File output = new File((String) tableCalcStatInfo.get("plot_file"));
       isAppend = output.exists() && output.length() > 0;
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       tableCalcStatInfo.put("data_file",

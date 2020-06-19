@@ -2,6 +2,9 @@ setwd("#<r_work>#");
 
 source("include/util_plot.R");
 
+
+
+
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
 
@@ -45,6 +48,7 @@ if(length(listSeries1Val) > 0){
 
 # run event equalizer, if requested
 if( FALSE != boolEventEqual  ){
+
   dfPlot = data.frame();
   #list all fixed variables
   listFixVars=c();
@@ -71,10 +75,10 @@ if( FALSE != boolEventEqual  ){
 
       if(is.null(listFixVars)){
         listFixVars = "bin_n";
-        listFixVarVals[[1]] = matPerm;
+        listFixVarVals[[1]] = matPerm[,1];
       }else{
         listFixVars =  append(listFixVars, 'bin_n');
-        listFixVarVals [[length(listFixVarVals)+1]] =  matPerm;
+        listFixVarVals [[length(listFixVarVals)+1]] =  matPerm[,1];
       }
 
     if(length(listSeries1Val) > 0){

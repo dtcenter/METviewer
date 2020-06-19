@@ -6,16 +6,9 @@
 
 package edu.ucar.metviewer.scorecard;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import edu.ucar.metviewer.StopWatch;
-import edu.ucar.metviewer.db.aurora.AuroraAppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.aurora.AuroraAppDatabaseManager;
 import edu.ucar.metviewer.db.mariadb.MariaDbAppDatabaseManager;
 import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.db.AggDatabaseManagerMySQL;
@@ -25,13 +18,14 @@ import edu.ucar.metviewer.scorecard.exceptions.MissingFileException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
-import edu.ucar.metviewer.scorecard.rscript.AggRscriptManager;
-import edu.ucar.metviewer.scorecard.rscript.RscriptManager;
-import edu.ucar.metviewer.scorecard.rscript.SumRscriptManager;
+import edu.ucar.metviewer.scorecard.rscript.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+
+import java.io.File;
+import java.util.*;
 
 /**
  * Creates scorecard image using configuration XML
@@ -69,11 +63,12 @@ public class Scorecard {
   private String plotStat = "median";
   private String statFlag = "NCAR";
   private String stat;
-  private String statValue ;
+  private String statValue;
   private String statSymbol;
   private String thresholdFile = null;
   private List<String> leftColumnsNames = new ArrayList<>();
   private String symbolSize = "100%";
+  private String executionType = "Python";
 
   public static void main(String[] args) throws Exception {
 
@@ -115,7 +110,7 @@ public class Scorecard {
       if (isValid) {
 
         DatabaseManager scorecardDbManager = null;
-        RscriptManager rscriptManager = null;
+        Object rscriptManager = null;
         //create a list of each row with statistic as a key and columns
         List<Map<String, Entry>> listRows = scorecard.getListOfEachRowWithDesc();
 
@@ -134,10 +129,18 @@ public class Scorecard {
 
         if (scorecard.getAggStat()) {
           scorecardDbManager = new AggDatabaseManagerMySQL(scorecard, databaseManager);
-          rscriptManager = new AggRscriptManager(scorecard);
+          if(scorecard.getExecutionType().equals("Python")) {
+            rscriptManager = new AggPythonManager(scorecard);
+          }else {
+            rscriptManager = new AggRscriptManager(scorecard);
+          }
         } else {
           scorecardDbManager = new SumDatabaseManagerMySQL(scorecard, databaseManager);
-          rscriptManager = new SumRscriptManager(scorecard);
+          if(scorecard.getExecutionType().equals("Python")) {
+            rscriptManager = new SumPythonManager(scorecard);
+          }else {
+            rscriptManager = new SumRscriptManager(scorecard);
+          }
         }
         int rowCounter = 1;
         stopWatch.stop();
@@ -163,7 +166,19 @@ public class Scorecard {
             scorecardDbManager.createDataFile(mapRow, "");
 
             //use rscript and data from the db file to calculate stats and append them into the resulting file
-            rscriptManager.calculateStatsForRow(mapRow, "");
+            if (scorecard.getAggStat()) {
+              if(scorecard.getExecutionType().equals("Python")) {
+                ((AggPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              }else {
+                ((AggRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              }
+            } else {
+              if(scorecard.getExecutionType().equals("Python")) {
+                ((SumPythonManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              }else {
+                ((SumRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
+              }
+            }
 
           } catch (Exception e) {
             logger.error(ERROR_MARKER, e.getMessage());
@@ -192,7 +207,7 @@ public class Scorecard {
           throw new MissingFileException(dataFile.getAbsolutePath());
         }
         databaseManager.closeDataSource();
-      }else {
+      } else {
         logger.error("Validation ERROR: Only one column can be aggregated or grouped.");
       }
     }
@@ -421,6 +436,16 @@ public class Scorecard {
     this.symbolSize = symbolSize;
   }
 
+  public String getExecutionType() {
+    return executionType;
+  }
+
+  public void setExecutionType(String executionType) {
+    if (executionType.equals("Rscript") || executionType.equals("Python")) {
+      this.executionType = executionType;
+    }
+  }
+
   /**
    * Checks if XML included only one model. If it does - add the second model that is the same as
    * the first one
@@ -542,9 +567,9 @@ public class Scorecard {
   private boolean validate() {
     Map<String, List<Entry>> columns = this.columnsStructure();
     int numberOfAggColumns = 0;
-    for (Map.Entry<String, List<Entry>> columnEntry : columns.entrySet()){
-      for(Entry entry : columnEntry.getValue()){
-        if(entry.getName().contains(":") || entry.getName().contains(",")){
+    for (Map.Entry<String, List<Entry>> columnEntry : columns.entrySet()) {
+      for (Entry entry : columnEntry.getValue()) {
+        if (entry.getName().contains(":") || entry.getName().contains(",")) {
           numberOfAggColumns++;
           break;
         }
