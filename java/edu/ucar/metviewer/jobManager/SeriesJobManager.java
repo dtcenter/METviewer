@@ -244,7 +244,7 @@ public class SeriesJobManager extends JobManager {
           }
           if (1 == intY) {
             listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
-          }else {
+          } else {
             listAggStats2.addAll(Arrays.asList(mapStat.getKeyList()));
           }
         }
@@ -267,6 +267,32 @@ public class SeriesJobManager extends JobManager {
               job.getTmplMaps(), mvBatch.getPrintStream());
 
       yamlInfo.put("derived_series_2", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
+      yamlInfo.put("plot_stat", job.getPlotStat());
+      int ncol = 3;
+      try {
+        ncol = Integer.parseInt(job.getLegendNcol().trim());
+      } catch (Exception e) {
+      }
+      yamlInfo.put("legend_ncol", ncol);
+
+      double size = 0.8;
+      try {
+        size = Double.parseDouble(job.getLegendSize().trim());
+      } catch (Exception e) {
+      }
+      yamlInfo.put("legend_size", size);
+      String[] insetStr = job.getLegendInset().replace("c(", "")
+              .replace(")", "").split(",");
+      Map<String, Double> insetMap = new HashMap<>();
+      try {
+        insetMap.put("x", Double.valueOf(insetStr[0]));
+        insetMap.put("y", Double.valueOf(insetStr[1]));
+      } catch (Exception e) {
+        insetMap = new HashMap<>();
+      }
+      if (!insetMap.isEmpty()) {
+        yamlInfo.put("legend_inset", insetMap);
+      }
 
 
       RscriptStatManager rscriptStatManager = null;
@@ -281,11 +307,10 @@ public class SeriesJobManager extends JobManager {
         if (job.getExecutionType().equals("Rscript")) {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
           rscriptStatManager.runRscript(job, info);
-        }else {
+        } else {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
           rscriptStatManager.runPythonScript(job, yamlInfo);
         }
-
 
 
         //  turn off the event equalizer
@@ -325,11 +350,11 @@ public class SeriesJobManager extends JobManager {
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
         info.put("data_file", dataFileName);
         rscriptStatManager.runRscript(job, info);
-      }else {
+      } else {
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
         yamlInfo.put("stat_input", dataFileName);
         job.setPlotTmpl(this.getPythonScript());
-        yamlInfo = this.addPlotConfigs(yamlInfo,job, intNumDepSeries);
+        yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);
         rscriptStatManager.runPythonScript(job, yamlInfo);
       }
 
@@ -341,7 +366,6 @@ public class SeriesJobManager extends JobManager {
   protected String getPythonScript() {
     return "";
   }
-
 
 
   private void validateModeSeriesDefinition(MVPlotJob job) throws ValidationException {
