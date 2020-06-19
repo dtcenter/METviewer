@@ -18,7 +18,7 @@ source("util_plot.R");
 source("statistics.R");
 prepareCalc = function(d){
   row = setNames(as.list(d), names(dfStatsRec));
-  options(digits=20)
+  #options(digits=20)
   dblStat = do.call( paste("calc", row$stat_name, sep=""), list(d=lapply(row[statFields], as.numeric)) );
   if(!is.na(dblStat)){
     row$stat_value = round(dblStat, 6);
@@ -308,7 +308,8 @@ if ( nrow(sampleData) > 0){
   }
   
 
-  dfStatsRecTranspose=data.frame(t(format(aggregatedList, digits=20)),stringsAsFactors = FALSE);
+  #dfStatsRecTranspose=data.frame(t(format(aggregatedList, digits=20)),stringsAsFactors = FALSE);
+  dfStatsRecTranspose=data.frame(t(format(aggregatedList, digits=10)),stringsAsFactors = FALSE);
   a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=detectCores(), mc.set.seed=1);
   #a=lapply( dfStatsRecTranspose,prepareCalc);
 
