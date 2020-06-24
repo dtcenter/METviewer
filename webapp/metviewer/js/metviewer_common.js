@@ -4585,7 +4585,7 @@ function resetFormatting() {
     $('#job_title').val("");
     $('#keep_revisions').prop('checked', false);
 
-    $("#is_python").prop('checked', true);
+    $("#is_python").prop('checked', false);
     $("#vert_plot").prop('checked', false);
     $("#x_reverse").prop('checked', false);
     $("#num_stats").prop('checked', false);
