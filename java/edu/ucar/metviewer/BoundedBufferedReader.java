@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
  */
 public class BoundedBufferedReader extends BufferedReader {
 
-  private static final int DEFAULT_MAX_LINES = 10000;      //Max lines per file
+  private static final int DEFAULT_MAX_LINES = 20000;      //Max lines per file
   private static final int DEFAULT_MAX_LINE_LENGTH = 1024;  //Max bytes per line
 
   private int readerMaxLines;
