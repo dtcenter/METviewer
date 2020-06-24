@@ -1294,7 +1294,7 @@ public final class MVPlotJobParser {
             mapDep.put("dep2", new MVOrderedMap());
             job.addDepGroup(mapDep);
           } else if (boolPlotRun) {
-            strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
+            strCompleteness = " FCST_VAR must be specified in plot_fix";
           }
 
         } else if (!job.getPlotTmpl().equals("rhist.R_tmpl")

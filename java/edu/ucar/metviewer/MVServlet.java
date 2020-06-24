@@ -464,7 +464,16 @@ public class MVServlet extends HttpServlet {
       job = jobs[0];
     } catch (ParserConfigurationException | DatabaseException | ValidationException | IOException | SAXException e) {
       logger.error(ERROR_MARKER, e.getMessage());
-      return "<error>failed to parse plot job</error>";
+      FileWriter fileWriter = null;
+      try {
+        fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".log");
+        fileWriter.write(e.getMessage());
+      } finally {
+        if (fileWriter != null) {
+          MVUtil.safeClose(fileWriter);
+        }
+      }
+      return "<response><plot>"+plotPrefix+"</plot></response>";
     }
 
     //  run the plot job and write the batch output to the log file
@@ -590,9 +599,7 @@ public class MVServlet extends HttpServlet {
       errorStream.print("failed to run plot " + plotPrefix + " - reason: " + message
               + (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : ""));
 
-      finalHtml = "<response><error>"
-              + "failed to run plot " + plotPrefix + "</error><plot>" + plotPrefix + "</plot"
-              + "></response>";
+      finalHtml = "<response><plot>" + plotPrefix + "</plot></response>";
     } finally {
       try {
         stopWatch.stop();
