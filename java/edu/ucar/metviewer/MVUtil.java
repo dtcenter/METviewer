@@ -116,6 +116,8 @@ public class MVUtil {
   public static final Pattern patRTmpl = Pattern.compile("#<(\\w+)>#");
 
   public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.000");
+  public static final String PYTHON = "Python";
+  public static final String RSCRIPT = "Rscript";
 
   /*
    * variable length group data indices for lines with an arbitrary number of fields
@@ -1803,7 +1805,7 @@ public class MVUtil {
 
     String type = "Rscript";
     if (rscriptCommand.contains("python")){
-      type = "Python";
+      type = PYTHON;
     }
     if (strProcStd.length() > 0) {
       mvResponse.setInfoMessage(
