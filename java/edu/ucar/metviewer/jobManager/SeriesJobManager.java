@@ -25,6 +25,8 @@ import java.util.*;
 public class SeriesJobManager extends JobManager {
 
 
+  public static final String REVISION = "revision";
+
   public SeriesJobManager(MVBatch mvBatch) {
     super(mvBatch);
   }
@@ -180,121 +182,22 @@ public class SeriesJobManager extends JobManager {
       validateNumDepSeries(job, intNumDepSeries);
 
       //validate revision_series option
-      if (job.getPlotTmpl().startsWith("revision") && isAggStat) {
+      if (job.getPlotTmpl().startsWith(REVISION) && isAggStat) {
         throw new ValidationException("revision series option only available for Summary statistics");
       }
-      if (job.getPlotTmpl().startsWith("revision") && !job.getIndyVar().equals("fcst_valid_beg")) {
+      if (job.getPlotTmpl().startsWith(REVISION) && !job.getIndyVar().equals("fcst_valid_beg")) {
         throw new ValidationException("revision series option only available for independent variable "
                 + "'fcst_valid_beg'");
       }
-      if (job.getPlotTmpl().startsWith("revision") && job.getDiffSeries1Count() > 0) {
+      if (job.getPlotTmpl().startsWith(REVISION) && job.getDiffSeries1Count() > 0) {
         throw new ValidationException("revision series don't produce derived curves");
       }
-      if (job.getPlotTmpl().startsWith("revision") && job.getSeries2Val().size() > 0) {
+      if (job.getPlotTmpl().startsWith(REVISION) && job.getSeries2Val().size() > 0) {
         throw new ValidationException("revision series don't produce plots on Y2 axis");
       }
 
       Map<String, Object> info = createInfoMap(job, intNumDepSeries);
-
-      Map<String, Object> yamlInfo = new TreeMap<>();
-      yamlInfo.put("method", job.getAggBootCI());
-      yamlInfo.put("num_iterations", MVUtil.isNumeric(job.getAggBootRepl()) ? Integer.parseInt(job.getAggBootRepl()) : 1);
-      yamlInfo.put("num_threads", -1);
-      yamlInfo.put("alpha", MVUtil.isNumeric(job.getCIAlpha()) ? Double.parseDouble(job.getCIAlpha()) : 0.05);
-      yamlInfo.put("random_seed", job.getAggBootRandomSeed().equals("NA") ? null : Integer.parseInt(job.getAggBootRandomSeed()));
-      yamlInfo.put("line_type", job.getLineType());
-      yamlInfo.put("indy_var", job.getIndyVar());
-      yamlInfo.put("event_equal", job.getEventEqual() ? "True" : "False");
-      String[] listIndyValFmt = job.getIndyVal();
-      if (job.getIndyVar().matches(".*_hour")) {
-        for (int i = 0; i < listIndyValFmt.length; i++) {
-          listIndyValFmt[i] = String.valueOf(Integer.parseInt(listIndyValFmt[i]));
-        }
-      }
-      yamlInfo.put("indy_vals", listIndyValFmt);
-      yamlInfo.put("series_val_1", job.getSeries1Val().getYamlDeclSeries());
-      yamlInfo.put("series_val_2", job.getSeries2Val().getYamlDeclSeries());
-      List<String> listAggStats1 = new ArrayList<>();
-      List<String> listAggStats2 = new ArrayList<>();
-      MVOrderedMap mapDep;
-      if (job.getDepGroups().length > 0) {
-        mapDep = job.getDepGroups()[0];
-      } else {
-        mapDep = new MVOrderedMap();
-      }
-      String strFcstVar = "";
-      for (int intY = 1; intY <= 2; intY++) {
-        MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
-        if (mapDepY != null) {
-          MVOrderedMap mapStat = new MVOrderedMap();
-
-          String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
-          for (String[] aListFcstVarStat : listFcstVarStat) {
-            String strFcstVarCur = aListFcstVarStat[0];
-            if (strFcstVar.isEmpty()) {
-              strFcstVar = strFcstVarCur;
-            } else if (!strFcstVar.equals(strFcstVarCur)) {
-              //check if this is a mode/mtd/agg/sum stat job
-              if (job.isModeJob() || job.isMtdJob() || isAggStat || job.getEventEqual()) {
-                throw new ValidationException("fcst_var must remain constant for MODE, MTD, Aggregation "
-                        + "statistics, Event Equalizer");
-              }
-            }
-            mapStat.put(aListFcstVarStat[1], aListFcstVarStat[0]);
-          }
-          if (1 == intY) {
-            listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
-          } else {
-            listAggStats2.addAll(Arrays.asList(mapStat.getKeyList()));
-          }
-        }
-      }
-
-      yamlInfo.put("list_stat_1", MVUtil.printYamlCol(listAggStats1.toArray(new String[0])));
-      yamlInfo.put("list_stat_2", MVUtil.printYamlCol(listAggStats2.toArray(new String[0])));
-      yamlInfo.put("fcst_var_val_1", mapDep.get("dep1"));
-      yamlInfo.put("fcst_var_val_2", mapDep.get("dep2"));
-      MVOrderedMap mapAggStatStatic = new MVOrderedMap();
-      mapAggStatStatic.put("fcst_var", strFcstVar);
-      yamlInfo.put("list_static_val", mapAggStatStatic);
-      yamlInfo.put("fixed_vars_vals_input", job.getPlotFixValEq());
-      String diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries1(), MVUtil.addTmplValDep(job),
-              job.getTmplMaps(), mvBatch.getPrintStream());
-
-      yamlInfo.put("derived_series_1", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
-
-      diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries2(), MVUtil.addTmplValDep(job),
-              job.getTmplMaps(), mvBatch.getPrintStream());
-
-      yamlInfo.put("derived_series_2", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
-      yamlInfo.put("plot_stat", job.getPlotStat());
-      int ncol = 3;
-      try {
-        ncol = Integer.parseInt(job.getLegendNcol().trim());
-      } catch (Exception e) {
-      }
-      yamlInfo.put("legend_ncol", ncol);
-
-      double size = 0.8;
-      try {
-        size = Double.parseDouble(job.getLegendSize().trim());
-      } catch (Exception e) {
-      }
-      yamlInfo.put("legend_size", size);
-      String[] insetStr = job.getLegendInset().replace("c(", "")
-              .replace(")", "").split(",");
-      Map<String, Double> insetMap = new HashMap<>();
-      try {
-        insetMap.put("x", Double.valueOf(insetStr[0]));
-        insetMap.put("y", Double.valueOf(insetStr[1]));
-      } catch (Exception e) {
-        insetMap = new HashMap<>();
-      }
-      if (!insetMap.isEmpty()) {
-        yamlInfo.put("legend_inset", insetMap);
-      }
-
-
+      Map<String, Object> yamlInfo = null;
       RscriptStatManager rscriptStatManager = null;
       if (job.isModeJob() || job.isMtdJob() || isAggStat) {
         rscriptStatManager = new RscriptAggStatManager(mvBatch);
@@ -308,15 +211,17 @@ public class SeriesJobManager extends JobManager {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
           rscriptStatManager.runRscript(job, info);
         } else {
+          yamlInfo = createYamlInfoMap(job);
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
           rscriptStatManager.runPythonScript(job, yamlInfo);
+          yamlInfo.put("event_equal", "False");
         }
 
 
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
-        info.put("event_equal", "FALSE");
-        yamlInfo.put("event_equal", "False");
+        info.put("event_equal", FALSE);
+
         listQuery.clear();
       }
 
@@ -351,6 +256,9 @@ public class SeriesJobManager extends JobManager {
         info.put("data_file", dataFileName);
         rscriptStatManager.runRscript(job, info);
       } else {
+        if (yamlInfo == null) {
+          yamlInfo = createYamlInfoMap(job);
+        }
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
         yamlInfo.put("stat_input", dataFileName);
         job.setPlotTmpl(this.getPythonScript());
@@ -361,6 +269,7 @@ public class SeriesJobManager extends JobManager {
     }
 
   }
+
 
   @Override
   protected String getPythonScript() {

@@ -9,11 +9,7 @@ package edu.ucar.metviewer.jobManager;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 
 import edu.ucar.metviewer.DatabaseException;
@@ -31,13 +27,17 @@ import edu.ucar.metviewer.ValidationException;
  */
 public abstract class JobManager {
 
+  public static final String FALSE = "FALSE";
   protected MVBatch mvBatch;
   protected MVOrderedMap[] listPlotFixPerm;
+
   protected JobManager(MVBatch mvBatch) {
     this.mvBatch = mvBatch;
   }
+
   private static final Map<String, String> symbolsRtoPython = new HashMap<>();
   private static final Map<String, String> linesRtoPython = new HashMap<>();
+
   static {
     symbolsRtoPython.put("20", ".");
     symbolsRtoPython.put("19", "o");
@@ -136,7 +136,6 @@ public abstract class JobManager {
   }
 
   protected Map<String, Object> createInfoMap(MVPlotJob job, int intNumDepSeries) throws ValidationException {
-
 
     MVOrderedMap mapDep;
     if (job.getDepGroups().length > 0) {
@@ -249,21 +248,21 @@ public abstract class JobManager {
     info.put("y2_label", strY2Label);
     info.put("plot_caption", strCaption);
     info.put("plot_cmd", job.getPlotCmd());
-    info.put("event_equal", job.getEventEqual() ? "TRUE" : "FALSE");
-    info.put("vert_plot", job.getVertPlot() ? "TRUE" : "FALSE");
-    info.put("equalize_by_indep", job.getEqualizeByIndep() ? "TRUE" : "FALSE");
-    info.put("x_reverse", job.getXReverse() ? "TRUE" : "FALSE");
-    info.put("show_nstats", job.getShowNStats() ? "TRUE" : "FALSE");
-    info.put("indy1_stagger", job.getIndy1Stagger() ? "TRUE" : "FALSE");
-    info.put("indy2_stagger", job.getIndy2Stagger() ? "TRUE" : "FALSE");
-    info.put("grid_on", job.getGridOn() ? "TRUE" : "FALSE");
-    info.put("sync_axes", job.getSyncAxes() ? "TRUE" : "FALSE");
-    info.put("dump_points1", job.getDumpPoints1() ? "TRUE" : "FALSE");
-    info.put("dump_points2", job.getDumpPoints2() ? "TRUE" : "FALSE");
-    info.put("log_y1", job.getLogY1() ? "TRUE" : "FALSE");
-    info.put("log_y2", job.getLogY2() ? "TRUE" : "FALSE");
+    info.put("event_equal", job.getEventEqual() ? "TRUE" : FALSE);
+    info.put("vert_plot", job.getVertPlot() ? "TRUE" : FALSE);
+    info.put("equalize_by_indep", job.getEqualizeByIndep() ? "TRUE" : FALSE);
+    info.put("x_reverse", job.getXReverse() ? "TRUE" : FALSE);
+    info.put("show_nstats", job.getShowNStats() ? "TRUE" : FALSE);
+    info.put("indy1_stagger", job.getIndy1Stagger() ? "TRUE" : FALSE);
+    info.put("indy2_stagger", job.getIndy2Stagger() ? "TRUE" : FALSE);
+    info.put("grid_on", job.getGridOn() ? "TRUE" : FALSE);
+    info.put("sync_axes", job.getSyncAxes() ? "TRUE" : FALSE);
+    info.put("dump_points1", job.getDumpPoints1() ? "TRUE" : FALSE);
+    info.put("dump_points2", job.getDumpPoints2() ? "TRUE" : FALSE);
+    info.put("log_y1", job.getLogY1() ? "TRUE" : FALSE);
+    info.put("log_y2", job.getLogY2() ? "TRUE" : FALSE);
     info
-            .put("variance_inflation_factor", job.getVarianceInflationFactor() ? "TRUE" : "FALSE");
+            .put("variance_inflation_factor", job.getVarianceInflationFactor() ? "TRUE" : FALSE);
     info.put("plot_stat", job.getPlotStat());
     info.put("series1_diff_list", diffSeries1);
     info.put("series2_diff_list", diffSeries2);
@@ -310,54 +309,54 @@ public abstract class JobManager {
     info.put("y1_bufr", job.getY1Bufr().isEmpty() ? "0" : job.getY1Bufr());
     info.put("y2_lim", job.getY2Lim().isEmpty() ? "c()" : job.getY2Lim());
     info.put("y2_bufr", job.getY2Bufr().isEmpty() ? "0" : job.getY2Bufr());
-    info.put("pos", job.getTaylorVoc() ? "TRUE" : "FALSE");
-    info.put("show_gamma", job.getTaylorShowGamma() ? "TRUE" : "FALSE");
-    info.put("add_skill_line", job.getAddSkillLine() ? "TRUE" : "FALSE");
-    info.put("add_reference_line", job.getAddReferenceLine() ? "TRUE" : "FALSE");
-    info.put("add_point_thresholds", job.getAddPointThresholds() ? "TRUE" : "FALSE");
+    info.put("pos", job.getTaylorVoc() ? "TRUE" : FALSE);
+    info.put("show_gamma", job.getTaylorShowGamma() ? "TRUE" : FALSE);
+    info.put("add_skill_line", job.getAddSkillLine() ? "TRUE" : FALSE);
+    info.put("add_reference_line", job.getAddReferenceLine() ? "TRUE" : FALSE);
+    info.put("add_point_thresholds", job.getAddPointThresholds() ? "TRUE" : FALSE);
     info.put("plot_type", job.getPlotType());
     info.put("legend_ncol", job.getLegendNcol());
     info.put("legend_size", job.getLegendSize());
     info.put("legend_box", job.getLegendBox());
     info.put("legend_inset", job.getLegendInset());
     info.put("summary_curves", job.getSummaryCurveRformat());
-    info.put("roc_pct", job.getRocPct() ? "TRUE" : "FALSE");
-    info.put("roc_ctc", job.getRocCtc() ? "TRUE" : "FALSE");
-    info.put("sum_ctc", job.getCalcCtc() ? "TRUE" : "FALSE");
-    info.put("sum_sl1l2", job.getCalcSl1l2() ? "TRUE" : "FALSE");
-    info.put("sum_grad", job.getCalcGrad() ? "TRUE" : "FALSE");
-    info.put("sum_vl1l2", job.getCalcVl1l2() ? "TRUE" : "FALSE");
-    info.put("sum_val1l2", job.getCalcVal1l2() ? "TRUE" : "FALSE");
-    info.put("sum_sal1l2", job.getCalcSal1l2() ? "TRUE" : "FALSE");
-    info.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
+    info.put("roc_pct", job.getRocPct() ? "TRUE" : FALSE);
+    info.put("roc_ctc", job.getRocCtc() ? "TRUE" : FALSE);
+    info.put("sum_ctc", job.getCalcCtc() ? "TRUE" : FALSE);
+    info.put("sum_sl1l2", job.getCalcSl1l2() ? "TRUE" : FALSE);
+    info.put("sum_grad", job.getCalcGrad() ? "TRUE" : FALSE);
+    info.put("sum_vl1l2", job.getCalcVl1l2() ? "TRUE" : FALSE);
+    info.put("sum_val1l2", job.getCalcVal1l2() ? "TRUE" : FALSE);
+    info.put("sum_sal1l2", job.getCalcSal1l2() ? "TRUE" : FALSE);
+    info.put("eveq_dis", job.getEveqDis() ? "TRUE" : FALSE);
     info.put("indy_var", job.getIndyVar());
     info.put("indy_list",
             0 < listIndyValFmt.length ? MVUtil.printRCol(listIndyValFmt, true) : "c()");
     info.put("series1_list", job.getSeries1Val().getRDeclSeries());
     info.put("series2_list", job.getSeries2Val().getRDeclSeries());
     info.put("sum_stat_static", mapAggStatStatic.getRDecl());
-    info.put("append_to_file", "FALSE");
+    info.put("append_to_file", FALSE);
 
     info.put("working_dir", mvBatch.getRworkFolder() + "/include");
-    info.put("equalize_by_indep", job.getEqualizeByIndep() ? "TRUE" : "FALSE");
+    info.put("equalize_by_indep", job.getEqualizeByIndep() ? "TRUE" : FALSE);
     info.put("fix_val_list_eq", job.getPlotFixValEq().getRDecl());
     info.put("fix_val_list", job.getPlotFixVal().getRDecl());
 
     info.put("dep1_plot", null != mapDep1Plot ? mapDep1Plot.getRDecl() : "c()");
     info.put("dep2_plot", null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()");
-    info.put("agg_ctc", job.getAggCtc() ? "TRUE" : "FALSE");
-    info.put("agg_nbrctc", job.getAggNbrCtc() ? "TRUE" : "FALSE");
-    info.put("agg_sl1l2", job.getAggSl1l2() ? "TRUE" : "FALSE");
-    info.put("agg_sal1l2", job.getAggSal1l2() ? "TRUE" : "FALSE");
-    info.put("agg_grad", job.getAggGrad() ? "TRUE" : "FALSE");
-    info.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : "FALSE");
-    info.put("agg_ssvar", job.getAggSsvar() ? "TRUE" : "FALSE");
-    info.put("agg_vl1l2", job.getAggVl1l2() ? "TRUE" : "FALSE");
-    info.put("agg_val1l2", job.getAggVal1l2() ? "TRUE" : "FALSE");
-    info.put("agg_pct", job.getAggPct() ? "TRUE" : "FALSE");
-    info.put("agg_ecnt", job.getAggEcnt() ? "TRUE" : "FALSE");
-    info.put("agg_rps", job.getAggRps() ? "TRUE" : "FALSE");
-    info.put("cache_agg_stat", job.getCacheAggStat() ? "TRUE" : "FALSE");
+    info.put("agg_ctc", job.getAggCtc() ? "TRUE" : FALSE);
+    info.put("agg_nbrctc", job.getAggNbrCtc() ? "TRUE" : FALSE);
+    info.put("agg_sl1l2", job.getAggSl1l2() ? "TRUE" : FALSE);
+    info.put("agg_sal1l2", job.getAggSal1l2() ? "TRUE" : FALSE);
+    info.put("agg_grad", job.getAggGrad() ? "TRUE" : FALSE);
+    info.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : FALSE);
+    info.put("agg_ssvar", job.getAggSsvar() ? "TRUE" : FALSE);
+    info.put("agg_vl1l2", job.getAggVl1l2() ? "TRUE" : FALSE);
+    info.put("agg_val1l2", job.getAggVal1l2() ? "TRUE" : FALSE);
+    info.put("agg_pct", job.getAggPct() ? "TRUE" : FALSE);
+    info.put("agg_ecnt", job.getAggEcnt() ? "TRUE" : FALSE);
+    info.put("agg_rps", job.getAggRps() ? "TRUE" : FALSE);
+    info.put("cache_agg_stat", job.getCacheAggStat() ? "TRUE" : FALSE);
 
     info.put("boot_repl", job.getAggBootRepl());
     info.put("boot_random_seed", job.getAggBootRandomSeed());
@@ -370,20 +369,153 @@ public abstract class JobManager {
             true));
     info.put("agg_stat_static", mapAggStatStatic.getRDecl());
     info.put("cl_step", "0.05");
-    info.put("normalized_histogram", job.getNormalizedHistogram() ? "TRUE" : "FALSE");
+    info.put("normalized_histogram", job.getNormalizedHistogram() ? "TRUE" : FALSE);
     info.put("color_palette", job.getColorPalette());
     info.put("contour_intervals", String.valueOf(job.getContourIntervals()));
-    info.put("reverse_x", job.getReverseX() ? "TRUE" : "FALSE");
-    info.put("reverse_y", job.getReverseY() ? "TRUE" : "FALSE");
-    info.put("add_color_bar", job.getAddColorBar() ? "TRUE" : "FALSE");
-    info.put("add_contour_overlay", job.getAddContourOverlay() ? "TRUE" : "FALSE");
-    info.put("contour_diff", "FALSE");
-    info.put("revision_run", job.getRevisionRun() ? "TRUE" : "FALSE");
-    info.put("revision_ac", job.getRevisionAc() ? "TRUE" : "FALSE");
+    info.put("reverse_x", job.getReverseX() ? "TRUE" : FALSE);
+    info.put("reverse_y", job.getReverseY() ? "TRUE" : FALSE);
+    info.put("add_color_bar", job.getAddColorBar() ? "TRUE" : FALSE);
+    info.put("add_contour_overlay", job.getAddContourOverlay() ? "TRUE" : FALSE);
+    info.put("contour_diff", FALSE);
+    info.put("revision_run", job.getRevisionRun() ? "TRUE" : FALSE);
+    info.put("revision_ac", job.getRevisionAc() ? "TRUE" : FALSE);
 
 
     return info;
   }
+
+  protected Map<String, Object> createYamlInfoMap(MVPlotJob job) throws ValidationException {
+    Map<String, Object> yamlInfo = new TreeMap<>();
+    yamlInfo.put("method", job.getAggBootCI());
+    yamlInfo.put("num_iterations", MVUtil.isNumeric(job.getAggBootRepl()) ? Integer.parseInt(job.getAggBootRepl()) : 1);
+    yamlInfo.put("num_threads", -1);
+    yamlInfo.put("alpha", MVUtil.isNumeric(job.getCIAlpha()) ? Double.parseDouble(job.getCIAlpha()) : 0.05);
+    yamlInfo.put("random_seed", job.getAggBootRandomSeed().equals("NA") ? null : Integer.parseInt(job.getAggBootRandomSeed()));
+    yamlInfo.put("line_type", job.getLineType());
+    yamlInfo.put("indy_var", job.getIndyVar());
+    yamlInfo.put("event_equal", job.getEventEqual() ? "True" : "False");
+    String[] listIndyValFmt = job.getIndyVal();
+    if (job.getIndyVar().matches(".*_hour")) {
+      for (int i = 0; i < listIndyValFmt.length; i++) {
+        listIndyValFmt[i] = String.valueOf(Integer.parseInt(listIndyValFmt[i]));
+      }
+    }
+    yamlInfo.put("indy_vals", listIndyValFmt);
+    yamlInfo.put("series_val_1", job.getSeries1Val().getYamlDeclSeries());
+    yamlInfo.put("series_val_2", job.getSeries2Val().getYamlDeclSeries());
+    List<String> listAggStats1 = new ArrayList<>();
+    List<String> listAggStats2 = new ArrayList<>();
+    MVOrderedMap mapDep;
+    if (job.getDepGroups().length > 0) {
+      mapDep = job.getDepGroups()[0];
+    } else {
+      mapDep = new MVOrderedMap();
+    }
+    String strFcstVar = "";
+    for (int intY = 1; intY <= 2; intY++) {
+      MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
+      if (mapDepY != null) {
+        MVOrderedMap mapStat = new MVOrderedMap();
+
+        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
+        for (String[] aListFcstVarStat : listFcstVarStat) {
+          String strFcstVarCur = aListFcstVarStat[0];
+          if (strFcstVar.isEmpty()) {
+            strFcstVar = strFcstVarCur;
+          } else if (!strFcstVar.equals(strFcstVarCur)) {
+            //check if this is a mode/mtd/agg/sum stat job
+            if (job.isModeJob() || job.isMtdJob() || job.isAggStat() || job.getEventEqual()) {
+              throw new ValidationException("fcst_var must remain constant for MODE, MTD, Aggregation "
+                      + "statistics, Event Equalizer");
+            }
+          }
+          mapStat.put(aListFcstVarStat[1], aListFcstVarStat[0]);
+        }
+        if (1 == intY) {
+          listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
+        } else {
+          listAggStats2.addAll(Arrays.asList(mapStat.getKeyList()));
+        }
+      }
+    }
+
+    yamlInfo.put("list_stat_1", MVUtil.printYamlCol(listAggStats1.toArray(new String[0])));
+    yamlInfo.put("list_stat_2", MVUtil.printYamlCol(listAggStats2.toArray(new String[0])));
+    yamlInfo.put("fcst_var_val_1", mapDep.get("dep1"));
+    yamlInfo.put("fcst_var_val_2", mapDep.get("dep2"));
+    MVOrderedMap mapAggStatStatic = new MVOrderedMap();
+    mapAggStatStatic.put("fcst_var", strFcstVar);
+    yamlInfo.put("list_static_val", mapAggStatStatic);
+    yamlInfo.put("fixed_vars_vals_input", job.getPlotFixValEq());
+    String diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries1(), MVUtil.addTmplValDep(job),
+            job.getTmplMaps(), mvBatch.getPrintStream());
+
+    yamlInfo.put("derived_series_1", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
+
+    diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries2(), MVUtil.addTmplValDep(job),
+            job.getTmplMaps(), mvBatch.getPrintStream());
+
+    yamlInfo.put("derived_series_2", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
+    yamlInfo.put("plot_stat", job.getPlotStat());
+    int ncol = 3;
+    try {
+      ncol = Integer.parseInt(job.getLegendNcol().trim());
+    } catch (Exception e) {
+    }
+    yamlInfo.put("legend_ncol", ncol);
+
+    double size;
+    try {
+      size = Double.parseDouble(job.getLegendSize().trim());
+    } catch (Exception e) {
+      size = 0.8;
+    }
+    yamlInfo.put("legend_size", size);
+    String[] insetStr = job.getLegendInset().replace("c(", "")
+            .replace(")", "").split(",");
+    Map<String, Double> insetMap = new HashMap<>();
+    try {
+      insetMap.put("x", Double.valueOf(insetStr[0]));
+      insetMap.put("y", Double.valueOf(insetStr[1]));
+    } catch (Exception e) {
+      insetMap = new HashMap<>();
+    }
+    if (!insetMap.isEmpty()) {
+      yamlInfo.put("legend_inset", insetMap);
+    }
+    double titleWeight;
+    try{
+      titleWeight = Double.parseDouble(job.getTitleWeight());
+    } catch (Exception e) {
+      titleWeight = 1.4;
+    }
+    yamlInfo.put("title_weight", titleWeight);
+    double titleSize;
+    try{
+      titleSize = Double.parseDouble(job.getTitleSize());
+    } catch (Exception e) {
+      titleSize = 1.4;
+    }
+    yamlInfo.put("title_size", titleSize);
+
+    double titleOffset;
+    try{
+      titleOffset = Double.parseDouble(job.getTitleOffset());
+    } catch (Exception e) {
+      titleOffset = 1.4;
+    }
+    yamlInfo.put("title_offset", titleOffset);
+
+    double titleAlign;
+    try {
+      titleAlign = Double.parseDouble(job.getTitleAlign());
+    } catch (Exception e) {
+      titleAlign = 0.5;
+    }
+    yamlInfo.put("title_align", titleAlign);
+    return yamlInfo;
+  }
+
 
   /**
    * Build a list by removing elements of the input list at the specified frequency.
@@ -400,9 +532,10 @@ public abstract class JobManager {
     }
     return ret;
   }
+
   protected abstract String getPythonScript();
 
-  protected  Map<String, Object> addPlotConfigs(Map<String, Object> yamlInfo, MVPlotJob job, int intNumDepSeries) throws ValidationException {
+  protected Map<String, Object> addPlotConfigs(Map<String, Object> yamlInfo, MVPlotJob job, int intNumDepSeries) throws ValidationException {
     Map<String, Object> info = new HashMap<>(yamlInfo);
     MVOrderedMap mapTmplValsPlot = MVUtil.addTmplValDep(job);
     String title = MVUtil.buildTemplateInfoString(job.getTitleTmpl(), mapTmplValsPlot,
@@ -419,10 +552,10 @@ public abstract class JobManager {
     info.put("yaxis_2", y2Label);
     List<String> dispListStr = rListToList(job.getPlotDisp());
     List<String> dispList = new ArrayList<>();
-    for(String disp : dispListStr){
-      if(disp.equalsIgnoreCase("false")){
+    for (String disp : dispListStr) {
+      if (disp.equalsIgnoreCase("false")) {
         dispList.add("False");
-      }else {
+      } else {
         dispList.add("True");
       }
     }
@@ -430,7 +563,7 @@ public abstract class JobManager {
 
     List<String> seriesOrderListStr = rListToList(job.getOrderSeries());
     List<Integer> seriesOrderList = new ArrayList<>();
-    for(String seriesOrder : seriesOrderListStr){
+    for (String seriesOrder : seriesOrderListStr) {
       seriesOrderList.add(Integer.valueOf(seriesOrder));
     }
     info.put("series_order", seriesOrderList);
@@ -441,28 +574,28 @@ public abstract class JobManager {
 
     List<String> colorsListStr = rListToList(job.getColors());
     List<String> colorsList = new ArrayList<>();
-    for(String color : colorsListStr){
-      colorsList.add(color.replaceAll("FF$",""));
+    for (String color : colorsListStr) {
+      colorsList.add(color.replaceAll("FF$", ""));
     }
     info.put("colors", colorsList);
 
     List<String> lineWidthListStr = rListToList(job.getLwd());
     List<Integer> lineWidthList = new ArrayList<>();
-    for(String lineWidth : lineWidthListStr){
+    for (String lineWidth : lineWidthListStr) {
       lineWidthList.add(Integer.valueOf(lineWidth));
     }
     info.put("series_line_width", lineWidthList);
 
     List<String> symbolsListStr = rListToList(job.getPch());
     List<String> symbolsList = new ArrayList<>();
-    for(String symbol : symbolsListStr){
+    for (String symbol : symbolsListStr) {
       symbolsList.add(symbolsRtoPython.get(symbol));
     }
     info.put("series_symbols", symbolsList);
 
     List<String> lineStyleListStr = rListToList(job.getLty());
     List<String> lineStyleList = new ArrayList<>();
-    for(String lineStyle : lineStyleListStr){
+    for (String lineStyle : lineStyleListStr) {
       lineStyleList.add(linesRtoPython.get(lineStyle));
     }
     info.put("series_line_style", lineStyleList);
@@ -470,10 +603,10 @@ public abstract class JobManager {
 
     List<String> showSignifStr = rListToList(job.getShowSignif());
     List<String> showSignifList = new ArrayList<>();
-    for(String showSignif : showSignifStr){
-      if(showSignif.equalsIgnoreCase("false")){
+    for (String showSignif : showSignifStr) {
+      if (showSignif.equalsIgnoreCase("false")) {
         showSignifList.add("False");
-      }else {
+      } else {
         showSignifList.add("True");
       }
     }
@@ -481,7 +614,7 @@ public abstract class JobManager {
 
     List<String> conSeriesListStr = rListToList(job.getConSeries());
     List<Integer> conSeriesList = new ArrayList<>();
-    for(String conSeries : conSeriesListStr){
+    for (String conSeries : conSeriesListStr) {
       conSeriesList.add(Integer.valueOf(conSeries));
     }
     info.put("con_series", conSeriesList);
@@ -490,7 +623,8 @@ public abstract class JobManager {
 
     return info;
   }
-  protected List<String> rListToList(String rList){
+
+  protected List<String> rListToList(String rList) {
     String[] rListArray = rList.replace("c(", "").replace(")", "")
             .replace("\"", "")
             .split(",");
