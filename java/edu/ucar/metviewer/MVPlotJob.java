@@ -8,6 +8,9 @@ import java.util.Locale;
 
 import edu.ucar.metviewer.db.DatabaseManager;
 
+import static edu.ucar.metviewer.MVUtil.PYTHON;
+import static edu.ucar.metviewer.MVUtil.RSCRIPT;
+
 /**
  * Storage class for a xml plot specification, implementing the java bean interface.  Instances are
  * populated by the MVPlotJobParser and handled by MVBatch.
@@ -214,7 +217,7 @@ public class MVPlotJob {
   protected Boolean isAddContourOverlay = Boolean.TRUE;
   protected Integer contourIntervals = 10;
   protected String colorPalette = "cm.colors";
-  protected String executionType = "Python";
+  protected String executionType = RSCRIPT;
   protected String annotationTemplate = "";
 
 
@@ -2115,7 +2118,7 @@ public class MVPlotJob {
   }
 
   public void setExecutionType(String executionType) {
-    if (executionType.equals("Rscript") || executionType.equals("Python")) {
+    if (executionType.equals(RSCRIPT) || executionType.equals(PYTHON)) {
       this.executionType = executionType;
     }
   }
