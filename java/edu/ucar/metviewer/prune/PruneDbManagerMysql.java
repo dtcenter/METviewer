@@ -110,14 +110,13 @@ public class PruneDbManagerMysql extends PruneDbManager {
       }
       logger.info("Total deleted " + (totalDeleted) + " records");
 
-      if (!mvPruneDB.getInfoOnly()) {
+      /*if (!mvPruneDB.getInfoOnly()) {
         //remove empty header records
         int totalStatHeader = cleanHeaderTable(con, "stat");
         logger.info("From stat_header table was deleted  " + (totalStatHeader) + " records");
         int totalModeHeader = cleanHeaderTable(con, "mode");
         logger.info("From mode_header table was deleted  " + (totalModeHeader) + " records");
-
-      }
+      }*/
 
       con.close();
 
