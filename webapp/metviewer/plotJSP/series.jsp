@@ -969,9 +969,9 @@
                             <option value="ctc">Contingency table count (CTC)</option>
                             <option value="sl1l2">Scalar partial sums (SL1L2)</option>
                             <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
-                            <option value="pct">Probability methods output (PCT)</option>
-                            <option value="nbrcnt">Nbrhood method count (NBR_CNT)</option>
-                            <option value="nbrctc">Nbrhood method CTC (NBR_CTC)</option>
+                            <option value="pct">Probability contingency table (PCT)</option>
+                            <option value="nbrcnt">Neighborhood continuous statistics (NBRCNT)</option>
+                            <option value="nbrctc">Neighborhood contingency table (NBRCTC)</option>
                             <option value="ssvar">Spread/Skill Variance (SSVAR)</option>
                             <option value="vl1l2">Vector partial sums (VL1L2)</option>
                             <option value="val1l2">Vector anomaly partial sums (VAL1L2)</option>

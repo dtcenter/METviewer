@@ -420,7 +420,7 @@
               <td><select id="agg_stat">
                 <option value="none">None</option>
                 <option value="ctc">Contingency table count (CTC)</option>
-                <option value="pct">Probability methods output (PCT)</option>
+                <option value="pct">Probability contingency table (PCT)</option>
               </select>
             </td>
 

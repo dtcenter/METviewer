@@ -534,7 +534,7 @@
                             <select id="agg_stat">
                                 <option value="none">None</option>
                                 <option value="ctc">Contingency table count (CTC)</option>
-                                <option value="nbrctc">Nbrhood method CTC (NBR_CTC)</option>
+                                <option value="nbrctc">Neighborhood contingency table (NBRCTC)</option>
                             </select>
                         </td>
 
