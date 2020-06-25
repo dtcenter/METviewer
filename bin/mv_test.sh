@@ -12,7 +12,7 @@ export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
 export LOADDATA=""
 export TESTSERVLET=""
-while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:o?" o; do
+while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r?" o; do
     case "${o}" in
         t)
 			if [ ! -d "${OPTARG}" ]; then
@@ -76,7 +76,7 @@ while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:o?" o; do
         a)
             METCALCPY_HOME="-Dmetplotpy.env=${OPTARG}"
             ;;
-        o)
+        r)
             METPLOTPY_HOME="-Dmetplotpy.env=${OPTARG}"
             ;;
 		?)
