@@ -692,9 +692,7 @@ public final class MVPlotJobParser {
               }
               xmlSimpleValues += "<val>" + strHour + "</val>";
             } else {
-              xmlSimpleValues += "<val>" + listSeriesVal[j].replace("&", "&#38;")
-                      .replace(">", "&gt;")
-                      .replace("<", "&lt;") + "</val>";
+              xmlSimpleValues += "<val>" + sanitise(listSeriesVal[j]) + "</val>";
             }
           }
 
@@ -906,15 +904,11 @@ public final class MVPlotJobParser {
 
     xmlStr.append(
             "<tmpl>"
-                    + "<title>" + preserveBackslash(job.getTitleTmpl()) + "</title>"
-                    + "<x_label>" + preserveBackslash(job.getXLabelTmpl()) + "</x_label>"
-                    + "<y1_label>" + preserveBackslash(job.getY1LabelTmpl()) + "</y1_label>"
-                    + "<y2_label>" + preserveBackslash(job.getY2LabelTmpl()) + "</y2_label>"
-                    + "<caption>" + preserveBackslash(job.getCaptionTmpl())
-                    .replace("&", "&#38;")
-                    .replace(">", "&gt;")
-                    .replace("<", "&lt;")
-                    + "</caption>"
+                    + "<title>" + sanitise(preserveBackslash(job.getTitleTmpl())) + "</title>"
+                    + "<x_label>" + sanitise(preserveBackslash(job.getXLabelTmpl())) + "</x_label>"
+                    + "<y1_label>" + sanitise(preserveBackslash(job.getY1LabelTmpl())) + "</y1_label>"
+                    + "<y2_label>" + sanitise(preserveBackslash(job.getY2LabelTmpl())) + "</y2_label>"
+                    + "<caption>" + sanitise(preserveBackslash(job.getCaptionTmpl())) + "</caption>"
                     + "<job_title>" + job.getJobTitleTmpl() + "</job_title>"
                     + "<keep_revisions>" + job.getKeepRevisions() + "</keep_revisions>"
                     + "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>"
@@ -1026,7 +1020,7 @@ public final class MVPlotJobParser {
                     "<lty>" + job.getLty() + "</lty>" +
                     "<lwd>" + job.getLwd() + "</lwd>" +
                     "<con_series>" + job.getConSeries() + "</con_series>" +
-                    "<legend>" + job.getLegend() + "</legend>" +
+                    "<legend>" + sanitise(job.getLegend()) + "</legend>" +
 
                     "<y1_lim>" + job.getY1Lim() + "</y1_lim>" +
                     "<x1_lim>" + job.getX1Lim() + "</x1_lim>" +
@@ -1049,6 +1043,11 @@ public final class MVPlotJobParser {
     //  close the plot job
     xmlStr.append("</plot></plot_spec>");
     return xmlStr;
+  }
+  private static String sanitise(String str){
+    return str.replace("&", "&#38;")
+            .replace(">", "&gt;")
+            .replace("<", "&lt;");
   }
 
   private static String preserveBackslash(String str) {
