@@ -67,17 +67,6 @@ if ( nrow(sampleData) > 0){
 
   # run event equalizer, if requested
   if( boolEventEqual  ){
-    library(reticulate)
-
-    #use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
-    #use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
-    #source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
-
-    use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
-    source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
-
-
-    sys = import('sys')
     boolMulti=FALSE;
     #run event equalizer on Y1
     #list all fixed variables
@@ -94,9 +83,7 @@ if ( nrow(sampleData) > 0){
         }
       }
     }
-    #dfStatsRec = eventEqualize(dfStatsRec, "stat_name", c("ECLV"), listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
-    dfStatsRec = event_equalize(dfStatsRec, "stat_name", c("ECLV"), listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
-    sys$stdout$flush()
+    dfStatsRec = eventEqualize(dfStatsRec, "stat_name", c("ECLV"), listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
     strAfrerEqualizeFile = sub("\\.agg_stat", ".dataAfterEq", strInputDataFile, perl=TRUE);
     write.table(dfStatsRec, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t");
   }

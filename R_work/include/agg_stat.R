@@ -100,16 +100,7 @@ if ( nrow(sampleData) > 0){
 
   # run event equalizer, if requested
   if( boolEventEqual  ){
-    library(reticulate)
 
-    #use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
-    use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
-    source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
-
-    #use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
-    #source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
-
-    sys = import('sys')
     boolMulti=FALSE;
     #for SSVAR use equalization of mulitple events
     if(boolAggSsvar){
@@ -152,10 +143,7 @@ if ( nrow(sampleData) > 0){
           }
         }
 
-        #fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
-        fPlot = event_equalize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
-        sys$stdout$flush()
-
+        fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
         dfPlot1 = rbind(dfPlot1, fPlot);
       }
     }
