@@ -46,7 +46,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           0.016666667, 0.011111111, 0.007142857, 0.004761905, 0.002857143, 0.002000000
   };
   private static final int MAX_LINES = 80000;
-  private static final int MAX_LINE_LEN = 2000;
+  private static final int MAX_LINE_LEN = 5000;
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
   private final Map<String, Integer> statHeaders = new HashMap<>();
   private final Map<String, Integer> modeHeaders = new HashMap<>();
