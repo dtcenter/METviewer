@@ -2209,6 +2209,9 @@ public class MVPlotJob {
     if(this.getAggNbrCnt()){
       return "nbr_cnt";
     }
+    if(this.getAggNbrCtc()){
+      return "nbr_ctc";
+    }
     if(this.getAggSsvar()){
       return "ssvar";
     }
