@@ -50,8 +50,7 @@
                 },
                 text: false
             }).click(function () {
-                $('#helpContent').empty();
-                $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
+                $('#helpContent').empty().append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
                 $('#helpContent').dialog({
                     buttons: {
                         "Open in new window": function () {
@@ -68,8 +67,7 @@
                             $(this).dialog("close");
                         }
                     }
-                });
-                $('#helpContent').dialog('open');
+                }).dialog('open');
             });
 
             $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
@@ -121,18 +119,18 @@
                             updateForecastVariables();
                         }
                     }
-                    if ($('#plot_data').multiselect('getChecked')[0].value == 'stat') {
+                    if ($('#plot_data').multiselect('getChecked')[0].value === 'stat') {
                         updateStats("y1", 1, []);
                         updateStats("y2", 1, []);
                         updateFixVar("stat");
                         updateIndyVar("stat");
                         $("#agg_none").prop('checked', 'checked');
-                    } else if ($('#plot_data').multiselect('getChecked')[0].value == 'mode') {
+                    } else if ($('#plot_data').multiselect('getChecked')[0].value === 'mode') {
                         updateMode("y1", 1, []);
                         updateMode("y2", 1, []);
                         updateFixVar("mode");
                         updateIndyVar("mode");
-                    } else if ($('#plot_data').multiselect('getChecked')[0].value == 'mtd') {
+                    } else if ($('#plot_data').multiselect('getChecked')[0].value === 'mtd') {
                         updateMtd("y1", 1, []);
                         updateMtd("y2", 1, []);
                         updateFixVar("mtd");
@@ -227,7 +225,7 @@
                     $('#series_var_val_y1_date_period_start_1').empty();
                     $('#series_var_val_y1_date_period_end_1').empty();
 
-                    if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                    if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg" || ui.value === "fcst_valid" || ui.value === "fcst_init") {
                         $("#series_var_val_y1_date_period_button_1").css("display", "block");
                     } else {
                         $("#series_var_val_y1_date_period_button_1").css("display", "none");
@@ -259,7 +257,7 @@
                     $('#date_period_start').empty();
                     $('#date_period_end').empty();
 
-                    if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                    if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg" || ui.value === "fcst_valid" || ui.value === "fcst_init") {
                         $("#date_period_button").css("display", "block");
                         $("#date_range_button").css("display", "block");
                     } else {
@@ -335,9 +333,7 @@
                 var start = $(dates[0]).text();
                 var end = $(dates[dates.length - 1]).text();
                 try {
-                    $("#date_range").unbind("datepicker-apply");
-                    $('#date_range').data('dateRangePicker').clear();
-                    $('#date_range').data('dateRangePicker').destroy();
+                    $("#date_range").unbind("datepicker-apply").data('dateRangePicker').clear().data('dateRangePicker').destroy();
                 } catch (error) {
                     console.log(error);
                 }
@@ -366,8 +362,7 @@
                     }
                 }).bind('datepicker-apply', function (event, obj) {
                     onIndyCalendarClose(obj);
-                });
-                $('#date_range').data('dateRangePicker').open();
+                }).data('dateRangePicker').open();
             });
 
             $('#add_series_var_y1').button({
@@ -388,9 +383,6 @@
 
             $('#aggregation_statistics ').hide();
             $('#calculations_statistics ').hide();
-           // $('#revision_statistics ').hide();
-
-            $('#event_equal').prop("checked", false);
 
             $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
             $("#fix_var_event_equal_1").prop('checked', false).prop('disabled', true);
@@ -407,7 +399,7 @@
                     $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
 
                 }
-            });
+            }).prop("checked", false);
 
             $("#calc_stat").multiselect({
                 multiple: false,
@@ -421,10 +413,8 @@
                 },
                 click: function (event, ui) {
                     if (ui.value !== "none") {
-                        $("#agg_stat").val("none");
-                        $("#agg_stat").multiselect("refresh");
-                        $("#revis_stat").val("none");
-                        $("#revis_stat").multiselect("refresh");
+                        $("#agg_stat").val("none").multiselect("refresh");
+                        $("#revis_stat").val("none").multiselect("refresh");
                     }
                 }
             });
@@ -440,10 +430,8 @@
                 },
                 click: function (event, ui) {
                     if (ui.value !== "none") {
-                        $("#agg_stat").val("none");
-                        $("#agg_stat").multiselect("refresh");
-                        $("#calc_stat").val("none");
-                        $("#calc_stat").multiselect("refresh");
+                        $("#agg_stat").val("none").multiselect("refresh");
+                        $("#calc_stat").val("none").multiselect("refresh");
                     }
                 }
             });
@@ -459,10 +447,8 @@
                 },
                 click: function (event, ui) {
                     if (ui.value !== "none") {
-                        $("#calc_stat").val("none");
-                        $("#calc_stat").multiselect("refresh");
-                        $("#revis_stat").val("none");
-                        $("#revis_stat").multiselect("refresh");
+                        $("#calc_stat").val("none").multiselect("refresh");
+                        $("#revis_stat").val("none").multiselect("refresh");
                     }
                 }
             });

@@ -42,8 +42,8 @@
                 },
                 text: false
             }).click(function () {
-                $('#helpContent').empty();
-                $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
+                $('#helpContent').empty()
+                    .append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
                 $('#helpContent').dialog({
                     buttons: {
                         "Open in new window": function () {
@@ -58,8 +58,7 @@
                             $(this).dialog("close");
                         }
                     }
-                });
-                $('#helpContent').dialog('open');
+                }).dialog('open');
             });
 
             $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
@@ -99,7 +98,7 @@
                 height: 'auto',
                 click: function (event, ui) {
                     updateForecastVariables();
-                    if (ui.value == 'stat') {
+                    if (ui.value === 'stat') {
                         updateStats("y1", 1, []);
                         updateFixVar("stat");
                         updateIndyVar("stat");
@@ -179,7 +178,7 @@
                     $('#series_var_val_y1_date_period_start_1').empty();
                     $('#series_var_val_y1_date_period_end_1').empty();
 
-                    if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                    if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg" || ui.value === "fcst_valid" || ui.value === "fcst_init") {
                         $("#series_var_val_y1_date_period_button_1").css("display", "block");
                     } else {
                         $("#series_var_val_y1_date_period_button_1").css("display", "none");
@@ -211,7 +210,7 @@
                     $('#date_period_start').empty();
                     $('#date_period_end').empty();
 
-                    if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                    if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg" || ui.value === "fcst_valid" || ui.value === "fcst_init") {
                         $("#date_period_button").css("display", "block");
                         $("#date_range_button").css("display", "block");
                     } else {
@@ -299,7 +298,6 @@
                         removeFixedVar($(this).attr('id'));
                     });
 
-            $('#event_equal').prop("checked", false);
             $("#calc_stat").multiselect({
                 multiple: false,
                 selectedList: 1,
@@ -323,7 +321,7 @@
                     $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
 
                 }
-            });
+            }).prop("checked", false);
             $.each(fix_var_value_to_title_stat_map, function (key, val) {
                             $('#fixed_var_1').append('<option value="' +
                                     key + '">' + val + '</option>');
@@ -335,11 +333,15 @@
                     $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
                             .prop("checked", true).change();
                 }
+                var csv = selectedDatabase.join(",");
+                var textnode = document.createTextNode(csv);
+                var item = document.getElementById("categories1").childNodes[0];
+                item.replaceChild(textnode, item.childNodes[0]);
                 loadXMLSeries();
-                $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() == "TRUE");
-                $("#box_outline").prop('checked', $(initXML.find("plot").find("box_outline")).text() == "TRUE");
-                $("#box_notch").prop('checked', $(initXML.find("plot").find("box_notch")).text() == "TRUE");
-                $("#box_avg").prop('checked', $(initXML.find("plot").find("box_avg")).text() == "TRUE");
+                $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() === "TRUE");
+                $("#box_outline").prop('checked', $(initXML.find("plot").find("box_outline")).text() === "TRUE");
+                $("#box_notch").prop('checked', $(initXML.find("plot").find("box_notch")).text() === "TRUE");
+                $("#box_avg").prop('checked', $(initXML.find("plot").find("box_avg")).text() === "TRUE");
                 $('#box_boxwex').val($(initXML.find("plot").find("box_boxwex")).text());
                 initXML = null;
             }else{
@@ -365,9 +367,7 @@
             var start = $(dates[0]).text();
             var end = $(dates[dates.length - 1]).text();
             try {
-                $("#date_range").unbind("datepicker-apply");
-                $('#date_range').data('dateRangePicker').clear();
-                $('#date_range').data('dateRangePicker').destroy();
+                $("#date_range").unbind("datepicker-apply").data('dateRangePicker').clear().data('dateRangePicker').destroy();
             } catch (error) {
                 console.log(error);
             }
@@ -396,8 +396,7 @@
                 }
             }).bind('datepicker-apply', function (event, obj) {
                 onIndyCalendarClose(obj);
-            });
-            $('#date_range').data('dateRangePicker').open();
+            }).data('dateRangePicker').open();
         });
 
     </script>
@@ -506,7 +505,9 @@
 
 
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all"  >
-    <div class="ui-widget-header-plot">Fixed Values:<button class="help-button" style="float: right;" alt="plot_fix">Help</button></div>
+    <div class="ui-widget-header-plot">Fixed Values:
+        <button class="help-button" style="float: right;" alt="plot_fix">Help</button>
+    </div>
 
     <table id='fixed_var_table' style="display: none;">
         <tr>
@@ -544,7 +545,6 @@
 
          <input type="checkbox" id="event_equal" title="Equalize based on the valid time, lead time, and all series entries">
                          <label for="event_equal" title="Equalize based on the valid time, lead time, and all series entries">Event Equalizer</label>
-       </div>
        </div>
     <br/>
     <label for="txtPlotCond">Plot Cond</label> <input type="text" value=""  id="txtPlotCond" style="width: 95%">

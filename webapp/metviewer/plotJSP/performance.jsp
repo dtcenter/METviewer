@@ -44,17 +44,14 @@
                 },
                 text: false
             }).click(function () {
-                $('#helpContent').empty();
-                $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
+                $('#helpContent').empty().append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
                 $('#helpContent').dialog({
                     buttons: {
                         "Open in new window": function () {
                             var win = window.open('doc/plot.html');
                             if (win) {
-                                //Browser has allowed it to be opened
                                 win.focus();
                             } else {
-                                //Broswer has blocked it
                                 alert('Please allow popups for this site');
                             }
                         },
@@ -62,8 +59,7 @@
                             $(this).dialog("close");
                         }
                     }
-                });
-                $('#helpContent').dialog('open');
+                }).dialog('open');
             });
 
             $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
@@ -216,8 +212,7 @@
                 height: 'auto',
                 click: function (event, ui) {
                     if (ui.value !== "none") {
-                        $("#agg_stat").val("none");
-                        $("#agg_stat").multiselect("refresh");
+                        $("#agg_stat").val("none").multiselect("refresh");
                     }
                 }
             });
@@ -229,8 +224,7 @@
                 height: 'auto',
                 click: function (event, ui) {
                     if (ui.value !== "none") {
-                        $("#calc_stat").val("none");
-                        $("#calc_stat").multiselect("refresh");
+                        $("#calc_stat").val("none").multiselect("refresh");
                     }
                 }
             });
@@ -242,7 +236,6 @@
                 $(this).prop("checked", true);
                 $('#' + $(this).val()).show();
             });
-            //$('#radio').buttonset();
             $('#calculations_statistics').show();
 
 
@@ -275,6 +268,10 @@
                     $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
                         .prop("checked", true).change();
                 }
+                var csv = selectedDatabase.join(",");
+                var textnode = document.createTextNode(csv);
+                var item = document.getElementById("categories1").childNodes[0];
+                item.replaceChild(textnode, item.childNodes[0]);
                 loadXMLSeries();
                 initXML = null;
             } else {
@@ -298,8 +295,7 @@
             var end = $(dates[dates.length - 1]).text();
             try {
                 $("#date_range").unbind("datepicker-apply");
-                $('#date_range').data('dateRangePicker').clear();
-                $('#date_range').data('dateRangePicker').destroy();
+                $('#date_range').data('dateRangePicker').clear().data('dateRangePicker').destroy();
             } catch (error) {
                 console.log(error);
             }
@@ -328,8 +324,7 @@
                 }
             }).bind('datepicker-apply', function (event, obj) {
                 onIndyCalendarClose(obj);
-            });
-            $('#date_range').data('dateRangePicker').open();
+            }).data('dateRangePicker').open();
         });
 
 

@@ -46,17 +46,14 @@
         },
         text: false
       }).click(function () {
-        $('#helpContent').empty();
-        $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
+        $('#helpContent').empty().append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
         $('#helpContent').dialog({
           buttons: {
             "Open in new window": function () {
               var win = window.open('doc/plot.html');
               if (win) {
-                //Browser has allowed it to be opened
                 win.focus();
               } else {
-                //Browser has blocked it
                 alert('Please allow popups for this site');
               }
             },
@@ -64,8 +61,7 @@
               $(this).dialog("close");
             }
           }
-        });
-        $('#helpContent').dialog('open');
+        }).dialog('open');
       });
 
       $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
@@ -127,7 +123,7 @@
           $('#series_var_val_y1_date_period_start_1').empty();
           $('#series_var_val_y1_date_period_end_1').empty();
 
-          if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+          if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg" || ui.value === "fcst_valid" || ui.value === "fcst_init") {
             $("#series_var_val_y1_date_period_button_1").css("display", "block");
           } else {
             $("#series_var_val_y1_date_period_button_1").css("display", "none");
@@ -224,6 +220,10 @@
           $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
                   .prop("checked", true).change();
         }
+        var csv = selectedDatabase.join(",");
+        var textnode = document.createTextNode(csv);
+        var item = document.getElementById("categories1").childNodes[0];
+        item.replaceChild(textnode, item.childNodes[0]);
         loadXMLSeries();
         initXML = null;
       } else {
@@ -234,11 +234,7 @@
         });
         $("input[name=taylor_voc][value=true]").prop('checked', true);
       }
-
-
     });
-
-
   </script>
 </head>
 <body>
