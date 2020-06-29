@@ -423,11 +423,6 @@
 
             <td style="text-align:right;"><select id="boot_ci">
                 <option selected value="perc">perc</option>
-                <option value="norm">norm</option>
-                <option value="basic">basic</option>
-                <option value="stud">stud</option>
-                <option value="bca">bca</option>
-                <option value="all">all</option>
             </select></td>
             <td><label for="boot_ci">Confidence Interval method</label></td>
 
