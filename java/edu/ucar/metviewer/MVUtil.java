@@ -673,7 +673,7 @@ public class MVUtil {
     statsPstd.put("PSTD_BRIER", new String[]{"nc", PCT});
     statsPstd.put("PSTD_BRIERCL", new String[]{});
     statsPstd.put("PSTD_BSS", new String[]{});
-    statsPstd.put("PSTD_BSS_SMPL", new String[]{"nc", PCT});
+    statsPstd.put("PSTD_BSS_SMPL", new String[]{PCT});
   }
 
   static {
@@ -1804,12 +1804,12 @@ public class MVUtil {
     }
 
     String type = "Rscript";
-    if (rscriptCommand.contains("python")){
+    if (rscriptCommand.contains("python")) {
       type = PYTHON;
     }
     if (strProcStd.length() > 0) {
       mvResponse.setInfoMessage(
-              "==== Start " + type +" output  ====\n" + strProcStd + "====   End " + type + " output  ====");
+              "==== Start " + type + " output  ====\n" + strProcStd + "====   End " + type + " output  ====");
     }
 
     if (strProcErr.length() > 0) {
