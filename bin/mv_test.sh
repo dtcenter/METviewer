@@ -77,10 +77,6 @@ while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r?" o; do
             METCALCPY_HOME="-Dmetplotpy.env=${OPTARG}"
             ;;
         r)
-            if [ -z "$OPTARG" ]
-             then
-                     OPTARG=/d3/projects/METViewer/METplotpy/metplotpy/
-             fi
             METPLOTPY_HOME="-Dmetplotpy.env=${OPTARG}"
             ;;
 		?)
@@ -115,6 +111,32 @@ if [ -z ${MV_TEST_HOME+x} ]; then
 else
 	echo "MV_TEST_HOME is set to ${MV_TEST_HOME}"
 fi
+
+if [ -z ${PYTHON_ENV+x} ]; then
+	echo "PYTHON_ENV is unset"
+	echo "setting it to /d3/projects/METViewer/METviewer_py3.6.3/"
+	PYTHON_ENV=/d3/projects/METViewer/METviewer_py3.6.3/
+else
+	echo "PYTHON_ENV is set to ${PYTHON_ENV}"
+fi
+
+if [ -z ${METCALCPY_HOME+x} ]; then
+	echo "METCALCPY_HOME is unset"
+	echo "setting it to /d3/projects/METViewer/METcalcpy"
+	METCALCPY_HOME=/d3/projects/METViewer/METcalcpy
+else
+	echo "METCALCPY_HOME is set to ${METCALCPY_HOME}"
+fi
+
+if [ -z ${METPLOTPY_HOME+x} ]; then
+	echo "METPLOTPY_HOME is unset"
+	echo "setting it to /d3/projects/METViewer/METplotpy/metplotpy/"
+	METPLOTPY_HOME=/d3/projects/METViewer/METplotpy/metplotpy/
+else
+	echo "METPLOTPY_HOME is set to ${METPLOTPY_HOME}"
+fi
+
+
 
 # construct the classpath for MVLoad
 CLASSPATH=${MV_HOME}/lib/log4j-1.2.15.jar

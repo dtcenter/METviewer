@@ -32,17 +32,21 @@
 usage() { echo "Usage: $0  -U <git user> -t<path to METviewer test directory> -s<db management system> -b<git branch>
 -B<compare git branch> -l<path to met data> -d<mv_database> -m<path to METviewer home>
 [-c(capture new images)] [-a address list] [-g<git tag>] [-G<compare git tag>] [-u<mv_user>]
-[-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>]
+[-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>] [-E <path_to_python_env_directory>] [-A <path_to_metcalcpy_directory>] [-R <path_to_metplotpy_directory>]
 [-j<path to java executible>]" 1>&2; exit 1; }
 export mv_test_db="mv_test"
-export mv_user="mvuser"
-export mv_pass="mvuser"
-export mv_host="dakota.rap.ucar.edu"
+export mv_user=""
+export mv_pass=""
+export mv_host=""
 export mv_port=3306
 export git_user=""
 export METviewerTag="HEAD"
 export METviewerCompareTag="HEAD"
 export capture=""
+export PYTHON_ENV=""
+export METCALCPY_HOME=""
+export METPLOTPY_HOME=""
+
 while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R?" o; do
     case "${o}" in
     	c)
