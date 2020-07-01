@@ -29,5 +29,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-1.25.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
+PYTHON_ENV=<path_to_python_env>
+METCALCPY_HOME=<paht_to_metcalcpy_home>
 
-$JAVA -classpath $CLASSPATH -Xmx4096M -Dpython.env=/d3/projects/METViewer/METviewer_py3.6.3/bin/python -Dmetcalcpy.home=/d3/projects/METViewer/METcalcpy edu.ucar.metviewer.scorecard.Scorecard $@
+$JAVA -classpath $CLASSPATH -Xmx4096M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME  edu.ucar.metviewer.scorecard.Scorecard $@

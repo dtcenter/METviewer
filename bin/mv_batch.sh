@@ -22,9 +22,9 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-1.25.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
-PYTHON_ENV=/d3/projects/METViewer/METviewer_py3.6.3/
-METCALCPY_HOME=/d3/projects/METViewer/METcalcpy
-METPLOTPY_HOME=/d3/projects/METViewer/METplotpy/metplotpy/
+PYTHON_ENV=<path_to_python_env>
+METCALCPY_HOME=<paht_to_metcalcpy_home>
+METPLOTPY_HOME=<paht_to_metplotpy_home>
 
 $JAVA -classpath $CLASSPATH -Xmx2048M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.MVBatch $@
 
