@@ -290,7 +290,6 @@ CREATE TABLE line_data_cnt
     obs_valid_end  DATETIME,
     alpha          DOUBLE,
     total          INT UNSIGNED,
-
     fbar           DOUBLE,
     fbar_ncl       DOUBLE,
     fbar_ncu       DOUBLE,
@@ -372,6 +371,12 @@ CREATE TABLE line_data_cnt
     anom_corr_ncu  DOUBLE DEFAULT -9999,
     anom_corr_bcl  DOUBLE DEFAULT -9999,
     anom_corr_bcu  DOUBLE DEFAULT -9999,
+    anom_corr_raw  DOUBLE DEFAULT -9999,
+    anom_corr_raw_ncl  DOUBLE DEFAULT -9999,
+    anom_corr_raw_ncu  DOUBLE DEFAULT -9999,
+    anom_corr_raw_bcl  DOUBLE DEFAULT -9999,
+    anom_corr_raw_bcu  DOUBLE DEFAULT -9999,
+
     me2            DOUBLE DEFAULT -9999,
     me2_bcl        DOUBLE DEFAULT -9999,
     me2_bcu        DOUBLE DEFAULT -9999,
