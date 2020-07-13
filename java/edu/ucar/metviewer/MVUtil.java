@@ -536,7 +536,7 @@ public class MVUtil {
     statsCnt.put("MAD", new String[]{"bc"});
     //statsCnt.put("PAC", new String[]{"bc"});
     statsCnt.put("ANOM_CORR", new String[]{"bc", SAL1L2});
-    statsCnt.put("ANOM_CORR_ROW", new String[]{"bc", SAL1L2});
+    statsCnt.put("ANOM_CORR_RAW", new String[]{"bc", SAL1L2});
     statsCnt.put("ME2", new String[]{"bc", SL1L2});
     statsCnt.put("MSESS", new String[]{"bc", SL1L2});
     statsCnt.put("RMSFA", new String[]{"bc", SAL1L2});
