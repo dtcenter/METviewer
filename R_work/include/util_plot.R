@@ -781,7 +781,7 @@ perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
   'RPS', 'RPS_REL', 'BCRMSE');
 
   one_perf_score_stats <- c('ACC', 'FBIAS', 'PODY','PODN', 'CSI', 'GSS', 'HK', 'HSS', 'ORSS', 'EDS', 'SEDS',
-    'EDI', 'SEDI', 'BAGSS','PR_CORR', 'SP_CORR', 'KT_CORR', 'MBIAS', 'ANOM_CORR','VL1L2_BIAS','VL1L2_CORR',
+    'EDI', 'SEDI', 'BAGSS','PR_CORR', 'SP_CORR', 'KT_CORR', 'MBIAS', 'ANOM_CORR','ANOM_CORR_RAW', 'VL1L2_BIAS','VL1L2_CORR',
     'PSTD_BSS', 'PSTD_BSS_SMPL', 'NBR_FSS', 'NBR_AFSS',  'VAL1L2_ANOM_CORR', 'NBR_ACC','NBR_FBIAS', 'NBR_PODY',
   'NBR_PODN', 'NBR_CSI', 'NBR_GSS','NBR_HK','NBR_HSS', 'RPSS', 'RPSS_SMPL');
 
