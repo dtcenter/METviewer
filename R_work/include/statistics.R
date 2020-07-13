@@ -62,6 +62,26 @@ calcANOM_CORR    = function(d){
   }
 }
 
+calcANOM_CORR_RAW    = function(d){
+  if(  is.na(d$ffbar)  || is.na(d$oobar) || is.na(d$fobar) ){
+    return(NA);
+  } else{
+    v =  d$ffbar * d$oobar;
+    # Check for square root of negative number
+    if( v < 0){
+      return(NA);
+    }
+    anom_corr_raw = d$fobar / sqrt(v);
+    # Check the computed range
+    if(anom_corr_raw >  1){
+      anom_corr_raw =  1.0;
+    } else if(anom_corr_raw < -1){
+      anom_corr_raw = -1.0;
+    }
+    return( anom_corr_raw );
+  }
+}
+
 calcSAL1L2_TOTAL    = function(d){
   if(is.na(d$total) ){
     return (NA);
