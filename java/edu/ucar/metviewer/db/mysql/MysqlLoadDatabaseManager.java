@@ -1795,7 +1795,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
             if (listToken[6].equals("RMSE")) {//CNT line type
-              for (int i = 0; i < 94; i++) {
+              for (int i = 0; i < 97; i++) {
                 if (i == 53) {
                   lineDataValueList.append(", '").append(listToken[10]).append("'");
                 } else if (i == 31) {
