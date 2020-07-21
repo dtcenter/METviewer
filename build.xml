@@ -35,10 +35,16 @@
     the war file will be named metviewer-test.war and will be deployed to the context path
     "metviewer-test".
 
+    use -Dmetcalcpy.path to define a path to METcalcpy directory.
+        e.g -Dmetcalcpy.path=/d1/python/METcalcpy/
+
+    use -Dmetplotpy.path to define a path to METplotpy directory.
+        e.g -Dmetplotpy.path=/d1/python/METplotpy/
+
     example build command...
     ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties \
          -Dlog4j2.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml \
-         -Ddb.management.system=cb \
+         -Ddb.management.system=cb -Dmetcalcpy.path=/d1/python/METcalcpy/ -Dmetcalcpy.path=/d1/python/METcalcpy/\
          -Dcontext.path.suffix="-cb" clean all
 
     will produce a war file named metviewer-cb.war with jar files appropriate for couchbase and the properties from the
@@ -637,26 +643,24 @@
 
     <target name="batch_load" depends="dist, test.db.management.system"
             description="Create load_batch module">
-        <tar destfile="${dist}/batch_load.tar">
-            <tarfileset dir=".">
+        <fail unless="metcalcpy.path">You must specify the path to METcalcpy directory</fail>
+        <fail unless="metplotpy.path">You must specify the path to METplotpy directory</fail>
+
+        <tar destfile="${dist}/batch_load.tar" >
+            <tarfileset dir="."  prefix="METviewer/">
                 <exclude name="**/*.war"/>
                 <exclude name="**/*.tar"/>
                 <exclude name="lib/couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
-
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.mysql"/>
-
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.mariadb"/>
-
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.aurora"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.aurora"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.aurora"/>
-
                 <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.cb"/>
-
                 <include name="bin/**"/>
                 <include name="dist/lib/metviewer.jar"/>
                 <include name="R_work/**"/>
@@ -664,11 +668,22 @@
                 <include name="sql/**"/>
                 <include name="lib/**"/>
             </tarfileset>
+
+            <tarfileset dir="${metcalcpy.path}"  prefix="METcalcpy/">
+                <include name="metcalcpy/**"/>
+            </tarfileset>
+
+            <tarfileset dir="${metplotpy.path}"  prefix="METplotpy/">
+                <include name="metplotpy/**"/>
+            </tarfileset>
         </tar>
     </target>
 
     <target name="all" depends="war-all,batch_load" description="Create all modules"/>
     <target name="fortify" depends="war,batch_load" description="Create all modules"/>
+
+
+
 
 </project>
 
