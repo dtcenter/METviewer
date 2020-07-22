@@ -385,9 +385,9 @@ CREATE TABLE line_data_cnt
     rmsoa_bcl      DOUBLE DEFAULT -9999,
     rmsoa_bcu      DOUBLE DEFAULT -9999,
 
-    anom_corr_raw  DOUBLE DEFAULT -9999,
-    anom_corr_raw_bcl  DOUBLE DEFAULT -9999,
-    anom_corr_raw_bcu  DOUBLE DEFAULT -9999,
+    anom_corr_uncntr  DOUBLE DEFAULT -9999,
+    anom_corr_uncntr_bcl  DOUBLE DEFAULT -9999,
+    anom_corr_uncntr_bcu  DOUBLE DEFAULT -9999,
 
 
 
@@ -2143,3 +2143,4 @@ CREATE TABLE line_data_rps
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
 ) ENGINE = MyISAM CHARACTER SET=latin1;
+

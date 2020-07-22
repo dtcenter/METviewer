@@ -62,7 +62,7 @@ calcANOM_CORR    = function(d){
   }
 }
 
-calcANOM_CORR_RAW    = function(d){
+calcANOM_CORR_UNCNTR    = function(d){
   if(  is.na(d$ffbar)  || is.na(d$oobar) || is.na(d$fobar) ){
     return(NA);
   } else{
@@ -71,14 +71,14 @@ calcANOM_CORR_RAW    = function(d){
     if( v < 0){
       return(NA);
     }
-    anom_corr_raw = d$fobar / sqrt(v);
+    anom_corr_uncntr = d$fobar / sqrt(v);
     # Check the computed range
-    if(anom_corr_raw >  1){
-      anom_corr_raw =  1.0;
-    } else if(anom_corr_raw < -1){
-      anom_corr_raw = -1.0;
+    if(anom_corr_uncntr >  1){
+      anom_corr_uncntr =  1.0;
+    } else if(anom_corr_uncntr < -1){
+      anom_corr_uncntr = -1.0;
     }
-    return( anom_corr_raw );
+    return( anom_corr_uncntr );
   }
 }
 
