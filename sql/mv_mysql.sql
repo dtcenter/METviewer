@@ -10,7 +10,8 @@ CREATE TABLE data_file_lu
     type_name       VARCHAR(32),
     type_desc       VARCHAR(128),
     PRIMARY KEY (data_file_lu_id)
-) ENGINE = MyISAM  CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- data_file_id stores information about files that have been parsed and loaded into the
 --   DATABASE.  Each record represents a single file of a particular MET output data file
@@ -32,7 +33,8 @@ CREATE TABLE data_file
     CONSTRAINT stat_header_data_file_lu_id_pk
         FOREIGN KEY (data_file_lu_id)
             REFERENCES data_file_lu (data_file_lu_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- stat_header contains the forecast and observation bookkeeping information, except for
 --   the valid and init times, for a verification case.  Statistics tables point at a
@@ -45,7 +47,7 @@ CREATE TABLE stat_header
     stat_header_id INT UNSIGNED NOT NULL,
     version        VARCHAR(8),
     model          VARCHAR(40),
-    descr          VARCHAR(40) DEFAULT 'NA',
+    descr          VARCHAR(40)  DEFAULT 'NA',
     fcst_var       VARCHAR(50),
     fcst_units     VARCHAR(100) DEFAULT 'NA',
     fcst_lev       VARCHAR(100),
@@ -62,7 +64,8 @@ CREATE TABLE stat_header
     PRIMARY KEY (stat_header_id)
 
 
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 CREATE INDEX stat_header_unique_pk ON stat_header (
                                                    model,
                                                    fcst_var(20),
@@ -106,7 +109,8 @@ CREATE TABLE line_data_fho
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_ctc contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -138,7 +142,8 @@ CREATE TABLE line_data_ctc
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_cts contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -266,7 +271,8 @@ CREATE TABLE line_data_cts
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 -- CREATE INDEX line_data_cts_fcst_lead_pk ON line_data_cts (fcst_lead);
 -- CREATE INDEX line_data_cts_fcst_valid_beg_pk ON line_data_cts (fcst_valid_beg);
 -- CREATE INDEX line_data_cts_fcst_init_beg_pk ON line_data_cts (fcst_init_beg);
@@ -278,117 +284,116 @@ CREATE TABLE line_data_cts
 DROP TABLE IF EXISTS line_data_cnt;
 CREATE TABLE line_data_cnt
 (
-    stat_header_id INT UNSIGNED NOT NULL,
-    data_file_id   INT UNSIGNED NOT NULL,
-    line_num       INT UNSIGNED,
-    fcst_lead      INT,
-    fcst_valid_beg DATETIME,
-    fcst_valid_end DATETIME,
-    fcst_init_beg  DATETIME,
-    obs_lead       INT UNSIGNED,
-    obs_valid_beg  DATETIME,
-    obs_valid_end  DATETIME,
-    alpha          DOUBLE,
-    total          INT UNSIGNED,
-    fbar           DOUBLE,
-    fbar_ncl       DOUBLE,
-    fbar_ncu       DOUBLE,
-    fbar_bcl       DOUBLE,
-    fbar_bcu       DOUBLE,
-    fstdev         DOUBLE,
-    fstdev_ncl     DOUBLE,
-    fstdev_ncu     DOUBLE,
-    fstdev_bcl     DOUBLE,
-    fstdev_bcu     DOUBLE,
-    obar           DOUBLE,
-    obar_ncl       DOUBLE,
-    obar_ncu       DOUBLE,
-    obar_bcl       DOUBLE,
-    obar_bcu       DOUBLE,
-    ostdev         DOUBLE,
-    ostdev_ncl     DOUBLE,
-    ostdev_ncu     DOUBLE,
-    ostdev_bcl     DOUBLE,
-    ostdev_bcu     DOUBLE,
-    pr_corr        DOUBLE,
-    pr_corr_ncl    DOUBLE,
-    pr_corr_ncu    DOUBLE,
-    pr_corr_bcl    DOUBLE,
-    pr_corr_bcu    DOUBLE,
-    sp_corr        DOUBLE,
-    dt_corr        DOUBLE,
-    ranks          INT UNSIGNED,
-    frank_ties     INT,
-    orank_ties     INT,
-    me             DOUBLE,
-    me_ncl         DOUBLE,
-    me_ncu         DOUBLE,
-    me_bcl         DOUBLE,
-    me_bcu         DOUBLE,
-    estdev         DOUBLE,
-    estdev_ncl     DOUBLE,
-    estdev_ncu     DOUBLE,
-    estdev_bcl     DOUBLE,
-    estdev_bcu     DOUBLE,
-    mbias          DOUBLE,
-    mbias_bcl      DOUBLE,
-    mbias_bcu      DOUBLE,
-    mae            DOUBLE,
-    mae_bcl        DOUBLE,
-    mae_bcu        DOUBLE,
-    mse            DOUBLE,
-    mse_bcl        DOUBLE,
-    mse_bcu        DOUBLE,
-    bcmse          DOUBLE,
-    bcmse_bcl      DOUBLE,
-    bcmse_bcu      DOUBLE,
-    rmse           DOUBLE,
-    rmse_bcl       DOUBLE,
-    rmse_bcu       DOUBLE,
-    e10            DOUBLE,
-    e10_bcl        DOUBLE,
-    e10_bcu        DOUBLE,
-    e25            DOUBLE,
-    e25_bcl        DOUBLE,
-    e25_bcu        DOUBLE,
-    e50            DOUBLE,
-    e50_bcl        DOUBLE,
-    e50_bcu        DOUBLE,
-    e75            DOUBLE,
-    e75_bcl        DOUBLE,
-    e75_bcu        DOUBLE,
-    e90            DOUBLE,
-    e90_bcl        DOUBLE,
-    e90_bcu        DOUBLE,
-    iqr            DOUBLE DEFAULT -9999,
-    iqr_bcl        DOUBLE DEFAULT -9999,
-    iqr_bcu        DOUBLE DEFAULT -9999,
-    mad            DOUBLE DEFAULT -9999,
-    mad_bcl        DOUBLE DEFAULT -9999,
-    mad_bcu        DOUBLE DEFAULT -9999,
-    anom_corr      DOUBLE DEFAULT -9999,
-    anom_corr_ncl  DOUBLE DEFAULT -9999,
-    anom_corr_ncu  DOUBLE DEFAULT -9999,
-    anom_corr_bcl  DOUBLE DEFAULT -9999,
-    anom_corr_bcu  DOUBLE DEFAULT -9999,
+    stat_header_id       INT UNSIGNED NOT NULL,
+    data_file_id         INT UNSIGNED NOT NULL,
+    line_num             INT UNSIGNED,
+    fcst_lead            INT,
+    fcst_valid_beg       DATETIME,
+    fcst_valid_end       DATETIME,
+    fcst_init_beg        DATETIME,
+    obs_lead             INT UNSIGNED,
+    obs_valid_beg        DATETIME,
+    obs_valid_end        DATETIME,
+    alpha                DOUBLE,
+    total                INT UNSIGNED,
+    fbar                 DOUBLE,
+    fbar_ncl             DOUBLE,
+    fbar_ncu             DOUBLE,
+    fbar_bcl             DOUBLE,
+    fbar_bcu             DOUBLE,
+    fstdev               DOUBLE,
+    fstdev_ncl           DOUBLE,
+    fstdev_ncu           DOUBLE,
+    fstdev_bcl           DOUBLE,
+    fstdev_bcu           DOUBLE,
+    obar                 DOUBLE,
+    obar_ncl             DOUBLE,
+    obar_ncu             DOUBLE,
+    obar_bcl             DOUBLE,
+    obar_bcu             DOUBLE,
+    ostdev               DOUBLE,
+    ostdev_ncl           DOUBLE,
+    ostdev_ncu           DOUBLE,
+    ostdev_bcl           DOUBLE,
+    ostdev_bcu           DOUBLE,
+    pr_corr              DOUBLE,
+    pr_corr_ncl          DOUBLE,
+    pr_corr_ncu          DOUBLE,
+    pr_corr_bcl          DOUBLE,
+    pr_corr_bcu          DOUBLE,
+    sp_corr              DOUBLE,
+    dt_corr              DOUBLE,
+    ranks                INT UNSIGNED,
+    frank_ties           INT,
+    orank_ties           INT,
+    me                   DOUBLE,
+    me_ncl               DOUBLE,
+    me_ncu               DOUBLE,
+    me_bcl               DOUBLE,
+    me_bcu               DOUBLE,
+    estdev               DOUBLE,
+    estdev_ncl           DOUBLE,
+    estdev_ncu           DOUBLE,
+    estdev_bcl           DOUBLE,
+    estdev_bcu           DOUBLE,
+    mbias                DOUBLE,
+    mbias_bcl            DOUBLE,
+    mbias_bcu            DOUBLE,
+    mae                  DOUBLE,
+    mae_bcl              DOUBLE,
+    mae_bcu              DOUBLE,
+    mse                  DOUBLE,
+    mse_bcl              DOUBLE,
+    mse_bcu              DOUBLE,
+    bcmse                DOUBLE,
+    bcmse_bcl            DOUBLE,
+    bcmse_bcu            DOUBLE,
+    rmse                 DOUBLE,
+    rmse_bcl             DOUBLE,
+    rmse_bcu             DOUBLE,
+    e10                  DOUBLE,
+    e10_bcl              DOUBLE,
+    e10_bcu              DOUBLE,
+    e25                  DOUBLE,
+    e25_bcl              DOUBLE,
+    e25_bcu              DOUBLE,
+    e50                  DOUBLE,
+    e50_bcl              DOUBLE,
+    e50_bcu              DOUBLE,
+    e75                  DOUBLE,
+    e75_bcl              DOUBLE,
+    e75_bcu              DOUBLE,
+    e90                  DOUBLE,
+    e90_bcl              DOUBLE,
+    e90_bcu              DOUBLE,
+    iqr                  DOUBLE DEFAULT -9999,
+    iqr_bcl              DOUBLE DEFAULT -9999,
+    iqr_bcu              DOUBLE DEFAULT -9999,
+    mad                  DOUBLE DEFAULT -9999,
+    mad_bcl              DOUBLE DEFAULT -9999,
+    mad_bcu              DOUBLE DEFAULT -9999,
+    anom_corr            DOUBLE DEFAULT -9999,
+    anom_corr_ncl        DOUBLE DEFAULT -9999,
+    anom_corr_ncu        DOUBLE DEFAULT -9999,
+    anom_corr_bcl        DOUBLE DEFAULT -9999,
+    anom_corr_bcu        DOUBLE DEFAULT -9999,
 
-    me2            DOUBLE DEFAULT -9999,
-    me2_bcl        DOUBLE DEFAULT -9999,
-    me2_bcu        DOUBLE DEFAULT -9999,
-    msess          DOUBLE DEFAULT -9999,
-    msess_bcl      DOUBLE DEFAULT -9999,
-    msess_bcu      DOUBLE DEFAULT -9999,
-    rmsfa          DOUBLE DEFAULT -9999,
-    rmsfa_bcl      DOUBLE DEFAULT -9999,
-    rmsfa_bcu      DOUBLE DEFAULT -9999,
-    rmsoa          DOUBLE DEFAULT -9999,
-    rmsoa_bcl      DOUBLE DEFAULT -9999,
-    rmsoa_bcu      DOUBLE DEFAULT -9999,
+    me2                  DOUBLE DEFAULT -9999,
+    me2_bcl              DOUBLE DEFAULT -9999,
+    me2_bcu              DOUBLE DEFAULT -9999,
+    msess                DOUBLE DEFAULT -9999,
+    msess_bcl            DOUBLE DEFAULT -9999,
+    msess_bcu            DOUBLE DEFAULT -9999,
+    rmsfa                DOUBLE DEFAULT -9999,
+    rmsfa_bcl            DOUBLE DEFAULT -9999,
+    rmsfa_bcu            DOUBLE DEFAULT -9999,
+    rmsoa                DOUBLE DEFAULT -9999,
+    rmsoa_bcl            DOUBLE DEFAULT -9999,
+    rmsoa_bcu            DOUBLE DEFAULT -9999,
 
-    anom_corr_uncntr  DOUBLE DEFAULT -9999,
-    anom_corr_uncntr_bcl  DOUBLE DEFAULT -9999,
-    anom_corr_uncntr_bcu  DOUBLE DEFAULT -9999,
-
+    anom_corr_uncntr     DOUBLE DEFAULT -9999,
+    anom_corr_uncntr_bcl DOUBLE DEFAULT -9999,
+    anom_corr_uncntr_bcu DOUBLE DEFAULT -9999,
 
 
     CONSTRAINT line_data_cnt_data_file_id_pk
@@ -398,7 +403,8 @@ CREATE TABLE line_data_cnt
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_ecnt contains stat data for a Continuous Ensemble Statistics.
 
@@ -436,7 +442,8 @@ CREATE TABLE line_data_ecnt
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_mctc contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -466,7 +473,8 @@ CREATE TABLE line_data_mctc
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_mctc_cnt contains count data for a particular line_data_mctc record.  The
 --   number of counts is determined by assuming a square contingency table and stored in
@@ -484,7 +492,8 @@ CREATE TABLE line_data_mctc_cnt
     CONSTRAINT line_data_mctc_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_mctc (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_mcts contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -528,7 +537,8 @@ CREATE TABLE line_data_mcts
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_pct contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -559,7 +569,8 @@ CREATE TABLE line_data_pct
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_pct_thresh contains threshold data for a particular line_data_pct record and
 --   threshold.  The number of thresholds stored is given by the line_data_pct field n_thresh.
@@ -577,7 +588,8 @@ CREATE TABLE line_data_pct_thresh
     CONSTRAINT line_data_pct_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_pct (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_pstd contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -626,7 +638,8 @@ CREATE TABLE line_data_pstd
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_pstd_thresh contains threshold data for a particular line_data_pstd record and
 --   threshold.  The number of thresholds stored is given by the line_data_pstd field n_thresh.
@@ -642,7 +655,8 @@ CREATE TABLE line_data_pstd_thresh
     CONSTRAINT line_data_pstd_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_pstd (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_pjc contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -673,7 +687,8 @@ CREATE TABLE line_data_pjc
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_pjc_thresh contains threshold data for a particular line_data_pjc record and
 --   threshold.  The number of thresholds stored is given by the line_data_pjc field n_thresh.
@@ -695,7 +710,8 @@ CREATE TABLE line_data_pjc_thresh
     CONSTRAINT line_data_pjc_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_pjc (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_prc contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -726,7 +742,8 @@ CREATE TABLE line_data_prc
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_prc_thresh contains threshold data for a particular line_data_prc record and
 --   threshold.  The number of thresholds stored is given by the line_data_prc field n_thresh.
@@ -744,7 +761,8 @@ CREATE TABLE line_data_prc_thresh
     CONSTRAINT line_data_prc_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_prc (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_sl1l2 contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -778,7 +796,8 @@ CREATE TABLE line_data_sl1l2
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 DROP TABLE IF EXISTS line_data_grad;
 CREATE TABLE line_data_grad
@@ -812,7 +831,8 @@ CREATE TABLE line_data_grad
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_sal1l2 contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -846,7 +866,8 @@ CREATE TABLE line_data_sal1l2
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_vl1l2 contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -883,7 +904,8 @@ CREATE TABLE line_data_vl1l2
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_val1l2 contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -918,7 +940,8 @@ CREATE TABLE line_data_val1l2
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_mpr contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -959,7 +982,8 @@ CREATE TABLE line_data_mpr
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_nbrctc contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -992,7 +1016,8 @@ CREATE TABLE line_data_nbrctc
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_nbrcts contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -1121,7 +1146,8 @@ CREATE TABLE line_data_nbrcts
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_nbrcnt contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -1169,7 +1195,8 @@ CREATE TABLE line_data_nbrcnt
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 DROP TABLE IF EXISTS line_data_enscnt;
 CREATE TABLE line_data_enscnt
@@ -1229,7 +1256,8 @@ CREATE TABLE line_data_enscnt
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 --  contains stat data for a particular stat_header record, which it points
 --    at via the stat_header_id field.
@@ -1268,7 +1296,8 @@ CREATE TABLE line_data_isc
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_rhist contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -1299,7 +1328,8 @@ CREATE TABLE line_data_rhist
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_rhist_rank contains rank data for a particular line_data_rhist record.  The
 --   number of ranks stored is given by the line_data_rhist field n_rank.
@@ -1315,7 +1345,8 @@ CREATE TABLE line_data_rhist_rank
     CONSTRAINT line_data_rhist_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_rhist (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_relp contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -1345,7 +1376,8 @@ CREATE TABLE line_data_relp
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_relp_rank contains rank data for a particular line_data_relp record.  The
 --   number of ranks stored is given by the line_data_relp field n_rank.
@@ -1361,7 +1393,8 @@ CREATE TABLE line_data_relp_ens
     CONSTRAINT line_data_relp_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_relp (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_eclv contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -1393,7 +1426,8 @@ CREATE TABLE line_data_eclv
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_relp_rank contains rank data for a particular line_data_eclv record.  The
 --   number of ranks stored is given by the line_data_eclv field n_pnt.
@@ -1410,7 +1444,8 @@ CREATE TABLE line_data_eclv_pnt
     CONSTRAINT line_data_eclv_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_eclv (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_phist contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -1440,7 +1475,8 @@ CREATE TABLE line_data_phist
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_phist_rank contains rank data for a particular line_data_phist record.  The
 --   number of ranks stored is given by the line_data_phist field n_rank.
@@ -1456,7 +1492,8 @@ CREATE TABLE line_data_phist_bin
     CONSTRAINT line_data_phist_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_phist (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_orank contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -1505,7 +1542,8 @@ CREATE TABLE line_data_orank
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_orank_ens contains ensemble data for a particular line_data_orank record.  The
 --   number of ens values stored is given by the line_data_orank field n_ens.
@@ -1520,7 +1558,8 @@ CREATE TABLE line_data_orank_ens
     CONSTRAINT line_data_orank_id_pk
         FOREIGN KEY (line_data_id)
             REFERENCES line_data_orank (line_data_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- line_data_nbrcnt contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -1583,7 +1622,8 @@ CREATE TABLE line_data_ssvar
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 
 DROP TABLE IF EXISTS line_data_vcnt;
@@ -1663,7 +1703,8 @@ CREATE TABLE line_data_vcnt
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- mode_header represents a line in a mode file and contains the header information for
 --   that line.  The line-dependent information is stored in specific tables for each line 
@@ -1684,7 +1725,7 @@ CREATE TABLE mode_header
     model           VARCHAR(40),
     n_valid         INT UNSIGNED,
     grid_res        INT UNSIGNED,
-    descr           VARCHAR(40) DEFAULT 'NA',
+    descr           VARCHAR(40)  DEFAULT 'NA',
     fcst_lead       INT,
     fcst_valid      DATETIME,
     fcst_accum      INT UNSIGNED,
@@ -1708,7 +1749,8 @@ CREATE TABLE mode_header
         FOREIGN KEY (data_file_id)
             REFERENCES data_file (data_file_id)
 
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 CREATE INDEX mode_header_unique_pk ON mode_header (
                                                    model,
                                                    fcst_lead,
@@ -1756,7 +1798,8 @@ CREATE TABLE mode_cts
     CONSTRAINT mode_cts_mode_header_id_pk
         FOREIGN KEY (mode_header_id)
             REFERENCES mode_header (mode_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- mode_obj_single contains mode object data for a particular mode_header record, which it
 --   points at via the mode_header_id field.  This table stores information only about 
@@ -1797,7 +1840,8 @@ CREATE TABLE mode_obj_single
     CONSTRAINT mode_obj_single_mode_header_id_pk
         FOREIGN KEY (mode_header_id)
             REFERENCES mode_header (mode_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 -- mode_obj_pair contains mode object data for a particular mode_header record, which it
 --   points at via the mode_header_id field.  This table stores information only about pairs
@@ -1838,7 +1882,8 @@ CREATE TABLE mode_obj_pair
     CONSTRAINT mode_obj_pair_mode_obj_fcst_pk
         FOREIGN KEY (mode_obj_fcst_id)
             REFERENCES mode_obj_single (mode_obj_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 --  look-up table data
 
@@ -1871,6 +1916,10 @@ INSERT INTO data_file_lu
 VALUES (11, 'mtd_3d_sc', 'Single attributes for 3D composite objects');
 INSERT INTO data_file_lu
 VALUES (12, 'mtd_3d_ss', 'Single attributes for 3D simple objects');
+INSERT INTO data_file_lu
+VALUES (13, 'probrirw', 'Probability of Rapid Intensication)');
+INSERT INTO data_file_lu
+VALUES (14, 'tcmpr', 'Tropical Cyclone Matched Pairs');
 
 -- instance_info contains information about the particular instance of metvdb, including
 --   dates of data updates and information about data table contents
@@ -1883,7 +1932,8 @@ CREATE TABLE IF NOT EXISTS instance_info
     update_detail    VARCHAR(2048),
     load_xml         TEXT,
     PRIMARY KEY (instance_info_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 DROP TABLE IF EXISTS model_fcst_lead_offset;
 CREATE TABLE model_fcst_lead_offset
@@ -1891,7 +1941,8 @@ CREATE TABLE model_fcst_lead_offset
     model            VARCHAR(64),
     fcst_lead_offset INT,
     PRIMARY KEY (model)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 DROP TABLE IF EXISTS mtd_header;
 CREATE TABLE mtd_header
@@ -1903,7 +1954,7 @@ CREATE TABLE mtd_header
     linenumber      INT UNSIGNED,
     version         VARCHAR(8),
     model           VARCHAR(40),
-    descr           VARCHAR(40) DEFAULT 'NA',
+    descr           VARCHAR(40)  DEFAULT 'NA',
     fcst_lead       INT,
     fcst_valid      DATETIME,
     fcst_init       DATETIME,
@@ -1929,7 +1980,8 @@ CREATE TABLE mtd_header
     CONSTRAINT mtd_header_data_file_id_pk
         FOREIGN KEY (data_file_id)
             REFERENCES data_file (data_file_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 CREATE INDEX mtd_header_unique_pk ON mtd_header (
                                                  model,
                                                  descr,
@@ -1973,7 +2025,8 @@ CREATE TABLE mtd_2d_obj
     CONSTRAINT mtd_2d_obj_mtd_header_id_pk
         FOREIGN KEY (mtd_header_id)
             REFERENCES mtd_header (mtd_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 DROP TABLE IF EXISTS mtd_3d_obj_single;
 CREATE TABLE mtd_3d_obj_single
@@ -2005,7 +2058,8 @@ CREATE TABLE mtd_3d_obj_single
     CONSTRAINT mtd_3d_obj_single_mtd_header_id_pk
         FOREIGN KEY (mtd_header_id)
             REFERENCES mtd_header (mtd_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 DROP TABLE IF EXISTS mtd_3d_obj_pair;
 CREATE TABLE mtd_3d_obj_pair
@@ -2029,7 +2083,8 @@ CREATE TABLE mtd_3d_obj_pair
     CONSTRAINT mtd_3d_obj_pair_mtd_header_id_pk
         FOREIGN KEY (mtd_header_id)
             REFERENCES mtd_header (mtd_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 
 DROP TABLE IF EXISTS metadata;
@@ -2038,7 +2093,8 @@ CREATE TABLE metadata
     category    VARCHAR(30)  NOT NULL DEFAULT '',
     description VARCHAR(300) NOT NULL DEFAULT ''
 
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 DROP TABLE IF EXISTS line_data_perc;
 CREATE TABLE line_data_perc
@@ -2064,7 +2120,8 @@ CREATE TABLE line_data_perc
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 DROP TABLE IF EXISTS line_data_dmap;
 CREATE TABLE line_data_dmap
@@ -2081,26 +2138,26 @@ CREATE TABLE line_data_dmap
     obs_valid_end  DATETIME,
     alpha          DOUBLE,
     total          INT UNSIGNED,
-    fy INT ,
-    oy INT ,
-    fbias DOUBLE,
-    baddeley DOUBLE,
-    hausdorff DOUBLE,
-    med_fo DOUBLE,
-    med_of DOUBLE,
-    med_min DOUBLE,
-    med_max DOUBLE,
-    med_mean DOUBLE,
-    fom_fo DOUBLE,
-    fom_of DOUBLE,
-    fom_min DOUBLE,
-    fom_max DOUBLE,
-    fom_mean DOUBLE,
-    zhu_fo DOUBLE,
-    zhu_of DOUBLE,
-    zhu_min DOUBLE,
-    zhu_max DOUBLE,
-    zhu_mean DOUBLE,
+    fy             INT,
+    oy             INT,
+    fbias          DOUBLE,
+    baddeley       DOUBLE,
+    hausdorff      DOUBLE,
+    med_fo         DOUBLE,
+    med_of         DOUBLE,
+    med_min        DOUBLE,
+    med_max        DOUBLE,
+    med_mean       DOUBLE,
+    fom_fo         DOUBLE,
+    fom_of         DOUBLE,
+    fom_min        DOUBLE,
+    fom_max        DOUBLE,
+    fom_mean       DOUBLE,
+    zhu_fo         DOUBLE,
+    zhu_of         DOUBLE,
+    zhu_min        DOUBLE,
+    zhu_max        DOUBLE,
+    zhu_mean       DOUBLE,
     CONSTRAINT line_data_dmap_data_file_id_pk
         FOREIGN KEY (data_file_id)
             REFERENCES data_file (data_file_id),
@@ -2108,32 +2165,33 @@ CREATE TABLE line_data_dmap
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
 
 DROP TABLE IF EXISTS line_data_rps;
 CREATE TABLE line_data_rps
 (
-    stat_header_id   INT UNSIGNED NOT NULL,
-    data_file_id     INT UNSIGNED NOT NULL,
-    line_num         INT UNSIGNED,
-    fcst_lead        INT,
-    fcst_valid_beg   DATETIME,
-    fcst_valid_end   DATETIME,
-    fcst_init_beg    DATETIME,
-    obs_lead         INT UNSIGNED,
-    obs_valid_beg    DATETIME,
-    obs_valid_end    DATETIME,
-    alpha            DOUBLE,
-    total            INT UNSIGNED,
-    n_prob           INT,
-    rps_rel          DOUBLE,
-    rps_res          DOUBLE,
-    rps_unc          DOUBLE,
-    rps              DOUBLE,
-    rpss             DOUBLE,
-    rpss_smpl        DOUBLE,
-    rps_comp        DOUBLE,
+    stat_header_id INT UNSIGNED NOT NULL,
+    data_file_id   INT UNSIGNED NOT NULL,
+    line_num       INT UNSIGNED,
+    fcst_lead      INT,
+    fcst_valid_beg DATETIME,
+    fcst_valid_end DATETIME,
+    fcst_init_beg  DATETIME,
+    obs_lead       INT UNSIGNED,
+    obs_valid_beg  DATETIME,
+    obs_valid_end  DATETIME,
+    alpha          DOUBLE,
+    total          INT UNSIGNED,
+    n_prob         INT,
+    rps_rel        DOUBLE,
+    rps_res        DOUBLE,
+    rps_unc        DOUBLE,
+    rps            DOUBLE,
+    rpss           DOUBLE,
+    rpss_smpl      DOUBLE,
+    rps_comp       DOUBLE,
 
     CONSTRAINT line_data_rps_data_file_id_pk
         FOREIGN KEY (data_file_id)
@@ -2142,5 +2200,183 @@ CREATE TABLE line_data_rps
         FOREIGN KEY (stat_header_id)
             REFERENCES stat_header (stat_header_id),
     INDEX stat_header_id_idx (stat_header_id)
-) ENGINE = MyISAM CHARACTER SET=latin1;
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
 
+
+DROP TABLE IF EXISTS tcst_header;
+CREATE TABLE tcst_header
+(
+    tcst_header_id INT UNSIGNED NOT NULL,
+    version        VARCHAR(8),
+    amodel         VARCHAR(40),
+    bmodel         VARCHAR(40),
+    descr          VARCHAR(40) DEFAULT 'NA',
+    storm_id       VARCHAR(40),
+    basin          VARCHAR(40),
+    cyclone        INT UNSIGNED,
+    storm_name     VARCHAR(40),
+    fcst_init      DATETIME,
+    fcst_lead      INT,
+    fcst_valid     DATETIME,
+    init_mask      VARCHAR(100),
+    valid_mask     VARCHAR(100),
+    PRIMARY KEY (tcst_header_id)
+
+
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
+CREATE INDEX tcst_header_unique_pk ON tcst_header (
+                                                   amodel,
+                                                   bmodel,
+                                                   storm_id,
+                                                   basin,
+                                                   cyclone,
+                                                   storm_name,
+                                                   init_mask,
+                                                   valid_mask
+    );
+
+DROP TABLE IF EXISTS line_data_probrirw;
+CREATE TABLE line_data_probrirw
+(
+    line_data_id   INT UNSIGNED NOT NULL,
+    tcst_header_id INT UNSIGNED NOT NULL,
+    data_file_id   INT UNSIGNED NOT NULL,
+    line_num       INT UNSIGNED,
+    alat           DOUBLE,
+    alon           DOUBLE,
+    blat           DOUBLE,
+    blon           DOUBLE,
+    initials       VARCHAR(10),
+    tk_err         DOUBLE,
+    x_err          DOUBLE,
+    y_err          DOUBLE,
+    adland         DOUBLE,
+    bdland         DOUBLE,
+    rirw_beg       INT,
+    rirw_end       INT,
+    rirw_window    INT,
+    awind_end      INT,
+    bwind_beg      INT,
+    bwind_end      INT,
+    bdelta         INT,
+    bdelta_max     INT,
+    blevel_beg     VARCHAR(2),
+    blevel_end     VARCHAR(2),
+    n_thresh       INT UNSIGNED,
+
+
+    CONSTRAINT line_data_probrirw_data_file_id_pk
+        FOREIGN KEY (data_file_id)
+            REFERENCES data_file (data_file_id),
+    CONSTRAINT line_data_probrirw_stat_header_id_pk
+        FOREIGN KEY (tcst_header_id)
+            REFERENCES tcst_header (tcst_header_id),
+    INDEX tcst_header_id_idx (tcst_header_id)
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
+
+DROP TABLE IF EXISTS line_data_probrirw_thresh;
+CREATE TABLE line_data_probrirw_thresh
+(
+    line_data_id INT UNSIGNED NOT NULL,
+    i_value      INT UNSIGNED NOT NULL,
+    thresh_i     INT,
+    prob_i       INT,
+
+    PRIMARY KEY (line_data_id, i_value),
+    CONSTRAINT line_data_probrirw_id_pk
+        FOREIGN KEY (line_data_id)
+            REFERENCES line_data_probrirw (line_data_id)
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
+
+
+DROP TABLE IF EXISTS line_data_tcmpr;
+CREATE TABLE line_data_tcmpr
+(
+    tcst_header_id INT UNSIGNED NOT NULL,
+    data_file_id   INT UNSIGNED NOT NULL,
+
+
+    total          INT UNSIGNED,
+    index_pair     INT UNSIGNED,
+    level          VARCHAR(2),
+    watch_warn     VARCHAR(2),
+    initials       VARCHAR(10),
+    alat           DOUBLE,
+    alon           DOUBLE,
+    blat           DOUBLE,
+    blon           DOUBLE,
+    tk_err         DOUBLE,
+    x_err          DOUBLE,
+    y_err          DOUBLE,
+    altk_err       DOUBLE,
+    crtk_err       DOUBLE,
+    adland         DOUBLE,
+    bdland         DOUBLE,
+    amslp          DOUBLE,
+    bmslp          DOUBLE,
+    amax_wind      DOUBLE,
+    bmax_wind      DOUBLE,
+
+    aal_wind_34    DOUBLE,
+    bal_wind_34    DOUBLE,
+    ane_wind_34    DOUBLE,
+    bne_wind_34    DOUBLE,
+    ase_wind_34    DOUBLE,
+    bse_wind_34    DOUBLE,
+    asw_wind_34    DOUBLE,
+    bsw_wind_34    DOUBLE,
+    anw_wind_34    DOUBLE,
+    bnw_wind_34    DOUBLE,
+
+    aal_wind_50    DOUBLE,
+    bal_wind_50    DOUBLE,
+    ane_wind_50    DOUBLE,
+    bne_wind_50    DOUBLE,
+    ase_wind_50    DOUBLE,
+    bse_wind_50    DOUBLE,
+    asw_wind_50    DOUBLE,
+    bsw_wind_50    DOUBLE,
+    anw_wind_50    DOUBLE,
+    bnw_wind_50    DOUBLE,
+
+    aal_wind_64    DOUBLE,
+    bal_wind_64    DOUBLE,
+    ane_wind_64    DOUBLE,
+    bne_wind_64    DOUBLE,
+    ase_wind_64    DOUBLE,
+    bse_wind_64    DOUBLE,
+    asw_wind_64    DOUBLE,
+    bsw_wind_64    DOUBLE,
+    anw_wind_64    DOUBLE,
+    bnw_wind_64    DOUBLE,
+
+    aradp          DOUBLE,
+    bradp          DOUBLE,
+    arrp           DOUBLE,
+    brrp           DOUBLE,
+    amrd           DOUBLE,
+    bmrd           DOUBLE,
+    agusts         DOUBLE,
+    bgusts         DOUBLE,
+    aeye           DOUBLE,
+    beye           DOUBLE,
+    adir           DOUBLE,
+    bdir           DOUBLE,
+    aspeed         DOUBLE,
+    bspeed         DOUBLE,
+    adepth         DOUBLE,
+    bdepth         DOUBLE,
+
+    CONSTRAINT line_data_tcmpr_data_file_id_pk
+        FOREIGN KEY (data_file_id)
+            REFERENCES data_file (data_file_id),
+    CONSTRAINT line_data_tcmpr_stat_header_id_pk
+        FOREIGN KEY (tcst_header_id)
+            REFERENCES tcst_header (tcst_header_id),
+    INDEX tcst_header_id_idx (tcst_header_id)
+) ENGINE = MyISAM
+  CHARACTER SET = latin1;
