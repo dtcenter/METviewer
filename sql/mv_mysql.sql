@@ -1917,9 +1917,8 @@ VALUES (11, 'mtd_3d_sc', 'Single attributes for 3D composite objects');
 INSERT INTO data_file_lu
 VALUES (12, 'mtd_3d_ss', 'Single attributes for 3D simple objects');
 INSERT INTO data_file_lu
-VALUES (13, 'probrirw', 'Probability of Rapid Intensication)');
-INSERT INTO data_file_lu
-VALUES (14, 'tcmpr', 'Tropical Cyclone Matched Pairs');
+VALUES (13, 'tcst', 'PTC-Stat)');
+
 
 -- instance_info contains information about the particular instance of metvdb, including
 --   dates of data updates and information about data table contents
@@ -2216,9 +2215,6 @@ CREATE TABLE tcst_header
     basin          VARCHAR(40),
     cyclone        INT UNSIGNED,
     storm_name     VARCHAR(40),
-    fcst_init      DATETIME,
-    fcst_lead      INT,
-    fcst_valid     DATETIME,
     init_mask      VARCHAR(100),
     valid_mask     VARCHAR(100),
     PRIMARY KEY (tcst_header_id)
@@ -2243,7 +2239,10 @@ CREATE TABLE line_data_probrirw
     line_data_id   INT UNSIGNED NOT NULL,
     tcst_header_id INT UNSIGNED NOT NULL,
     data_file_id   INT UNSIGNED NOT NULL,
-    line_num       INT UNSIGNED,
+    line_num       INT UNSIGNED NOT NULL,
+    fcst_lead      INT,
+    fcst_valid     DATETIME,
+    fcst_init      DATETIME,
     alat           DOUBLE,
     alon           DOUBLE,
     blat           DOUBLE,
@@ -2298,8 +2297,10 @@ CREATE TABLE line_data_tcmpr
 (
     tcst_header_id INT UNSIGNED NOT NULL,
     data_file_id   INT UNSIGNED NOT NULL,
-
-
+    line_number    INT UNSIGNED NOT NULL,
+    fcst_lead      INT,
+    fcst_valid     DATETIME,
+    fcst_init      DATETIME,
     total          INT UNSIGNED,
     index_pair     INT UNSIGNED,
     level          VARCHAR(2),
