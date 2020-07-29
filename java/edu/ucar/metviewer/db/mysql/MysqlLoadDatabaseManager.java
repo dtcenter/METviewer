@@ -711,11 +711,20 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         //  calculate the number of seconds corresponding to fcst_lead
         String fcstLeadStr = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
+        if (fcstLeadStr.equals("NA")){
+          fcstLeadStr = "0";
+        }
         int fcstLeadLen = fcstLeadStr.length();
-        int fcstLeadSec = Integer.parseInt(fcstLeadStr.substring(fcstLeadLen - 2, fcstLeadLen));
-        fcstLeadSec += Integer
-                .parseInt(fcstLeadStr.substring(fcstLeadLen - 4, fcstLeadLen - 2)) * 60;
-        fcstLeadSec += Integer.parseInt(fcstLeadStr.substring(0, fcstLeadLen - 4)) * 3600;
+        int fcstLeadSec;
+        try {
+          fcstLeadSec = Integer.parseInt(fcstLeadStr.substring(fcstLeadLen - 2, fcstLeadLen));
+          fcstLeadSec += Integer
+                  .parseInt(fcstLeadStr.substring(fcstLeadLen - 4, fcstLeadLen - 2)) * 60;
+          fcstLeadSec += Integer.parseInt(fcstLeadStr.substring(0, fcstLeadLen - 4)) * 3600;
+        }catch (Exception e){
+          fcstLeadSec = 0;
+        }
+
 
         //  determine the init time by combining fcst_valid_beg and fcst_lead
 
@@ -985,10 +994,15 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           lineDataValues.add(info.fileId);
           lineDataValues.add(intLine);
           lineDataValues.add(fcstLeadStr);
+
           lineDataValues.add(fcstValidBegStr);
           lineDataValues.add(fcstValidEndStr);
           lineDataValues.add(fcstInitBegStr);
-          lineDataValues.add(MVUtil.findValue(listToken, headerNames, "OBS_LEAD"));
+          String obsLeadStr = MVUtil.findValue(listToken, headerNames, "OBS_LEAD");
+          if (obsLeadStr.equals("NA")){
+            obsLeadStr = "0";
+          }
+          lineDataValues.add(obsLeadStr);
           lineDataValues.add(obsValidBegStr);
           lineDataValues.add(obsValidEndStr);
 
