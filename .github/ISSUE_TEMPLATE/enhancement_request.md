@@ -54,7 +54,7 @@ Branch name:  `feature_<Issue Number>_<Description>`
 - [ ] Add/update unit tests.
 - [ ] Add/update documentation.
 - [ ] Push local changes to GitHub.
-- [ ] Submit a pull request to merge into **develop**.
+- [ ] Submit a pull request to merge into **develop** and link the pull request to this issue.
 Pull request: `feature <Issue Number> <Description>`
 - [ ] Iterate until the reviewer(s) accept and merge your changes.
 - [ ] Delete your fork or branch.
