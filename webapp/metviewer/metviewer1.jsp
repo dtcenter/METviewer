@@ -104,9 +104,8 @@
       height: 100%;
       background-color: #ababab;
       z-index: 1001;
-      -moz-opacity: 0.8;
       opacity: .70;
-      filter: alpha(opacity=80);
+      filter:opacity(80%);
     }
 
     #modal {
