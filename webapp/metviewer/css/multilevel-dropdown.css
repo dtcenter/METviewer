@@ -43,7 +43,6 @@
     -moz-user-select: -moz-none;
     -ms-user-select: none;
     -webkit-user-select: none;
-    user-select: none;
     white-space: nowrap;
     font-weight: normal;
     text-align: left;
@@ -89,7 +88,6 @@
     padding: 0;
     min-width: 250px;
     background: white;
-    -moz-box-shadow: 0 3px 10px -3px black;
     -webkit-box-shadow: 0 3px 10px -3px black;
     box-shadow: 0 3px 10px -3px black;
     display: none;

@@ -26,7 +26,7 @@
 .ui-th-rtl, .ui-jqgrid .ui-jqgrid-htable th.ui-th-rtl {border-right : 0 none;}
 .ui-first-th-ltr {border-right: 1px solid; }
 .ui-first-th-rtl {border-left: 1px solid; }
-.ui-jqgrid .ui-th-div-ie {white-space: nowrap; zoom :1; height:17px;}
+.ui-jqgrid .ui-th-div-ie {white-space: nowrap; height:17px;}
 .ui-jqgrid .ui-jqgrid-resize {height:20px !important;position: relative; cursor :e-resize;display: inline;overflow: hidden;}
 .ui-jqgrid .ui-grid-ico-sort {overflow:hidden;position:absolute;display:inline; cursor: pointer !important;}
 .ui-jqgrid .ui-icon-asc {margin-top:-3px; height:12px;}
@@ -161,7 +161,7 @@
 .ui-jqdialog-content .CaptionTD {vertical-align: middle;border: 0 none; padding: 2px;white-space: nowrap;}
 .ui-jqdialog-content .DataTD {padding: 2px; border: 0 none; vertical-align: top;}
 .ui-jqdialog-content .form-view-data {white-space:pre}
-.fm-button { height: 18px; display: inline-block; margin:2px 4px 0 0; padding: .6em .5em .2em .5em; text-decoration:none !important; cursor:pointer; position: relative; text-align: center; zoom: 1; }
+.fm-button { height: 18px; display: inline-block; margin:2px 4px 0 0; padding: .6em .5em .2em .5em; text-decoration:none !important; cursor:pointer; position: relative; text-align: center; }
 .fm-button-icon-left { padding-left: 1.9em; }
 .fm-button-icon-right { padding-right: 1.9em; }
 .fm-button-icon-left .ui-icon { right: auto; left: .2em; margin-left: 0; position: absolute; top: 50%; margin-top: -8px; }
@@ -211,7 +211,7 @@
 .ui-jqgrid .ui-sort-rtl {left:0;}
 .ui-jqgrid .tree-wrap-ltr {float: left;}
 .ui-jqgrid .tree-wrap-rtl {float: right;}
-.ui-jqgrid .ui-ellipsis {-moz-text-overflow:ellipsis;text-overflow:ellipsis;}
+.ui-jqgrid .ui-ellipsis {text-overflow:ellipsis;}
 
 /* Toolbar Search Menu , Nav menu*/
 .ui-search-menu, 
@@ -219,9 +219,8 @@
 	position: absolute; 
 	padding: 2px 5px; 
 	z-index:99999;
-	-webkit-box-shadow: 7px 7px 5px 0px rgba(50, 50, 50, 0.75);
-	-moz-box-shadow:    7px 7px 5px 0px rgba(50, 50, 50, 0.75);
-	box-shadow:         7px 7px 5px 0px rgba(50, 50, 50, 0.75);
+	-webkit-box-shadow: 7px 7px 5px 0 rgba(50, 50, 50, 0.75);
+	box-shadow:         7px 7px 5px 0 rgba(50, 50, 50, 0.75);
 }
 .ui-search-menu.ui-menu .ui-menu-item,
 .ui-nav-menu.ui-menu .ui-menu-item
