@@ -389,7 +389,6 @@ public abstract class JobManager {
     yamlInfo.put("method", job.getAggBootCI());
     yamlInfo.put("num_iterations", MVUtil.isNumeric(job.getAggBootRepl()) ? Integer.parseInt(job.getAggBootRepl()) : 1);
     yamlInfo.put("num_threads", -1);
-    yamlInfo.put("alpha", MVUtil.isNumeric(job.getCIAlpha()) ? Double.parseDouble(job.getCIAlpha()) : 0.05);
     yamlInfo.put("random_seed", job.getAggBootRandomSeed().equals("NA") ? null : Integer.parseInt(job.getAggBootRandomSeed()));
     yamlInfo.put("line_type", job.getLineType());
     yamlInfo.put("indy_var", job.getIndyVar());
@@ -457,62 +456,10 @@ public abstract class JobManager {
 
     yamlInfo.put("derived_series_2", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
     yamlInfo.put("plot_stat", job.getPlotStat());
-    int ncol = 3;
-    try {
-      ncol = Integer.parseInt(job.getLegendNcol().trim());
-    } catch (Exception e) {
-    }
-    yamlInfo.put("legend_ncol", ncol);
 
-    double size;
-    try {
-      size = Double.parseDouble(job.getLegendSize().trim());
-    } catch (Exception e) {
-      size = 0.8;
-    }
-    yamlInfo.put("legend_size", size);
-    String[] insetStr = job.getLegendInset().replace("c(", "")
-            .replace(")", "").split(",");
-    Map<String, Double> insetMap = new HashMap<>();
-    try {
-      insetMap.put("x", Double.valueOf(insetStr[0]));
-      insetMap.put("y", Double.valueOf(insetStr[1]));
-    } catch (Exception e) {
-      insetMap = new HashMap<>();
-    }
-    if (!insetMap.isEmpty()) {
-      yamlInfo.put("legend_inset", insetMap);
-    }
-    double titleWeight;
-    try{
-      titleWeight = Double.parseDouble(job.getTitleWeight());
-    } catch (Exception e) {
-      titleWeight = 1.4;
-    }
-    yamlInfo.put("title_weight", titleWeight);
-    double titleSize;
-    try{
-      titleSize = Double.parseDouble(job.getTitleSize());
-    } catch (Exception e) {
-      titleSize = 1.4;
-    }
-    yamlInfo.put("title_size", titleSize);
 
-    double titleOffset;
-    try{
-      titleOffset = Double.parseDouble(job.getTitleOffset());
-    } catch (Exception e) {
-      titleOffset = 1.4;
-    }
-    yamlInfo.put("title_offset", titleOffset);
-
-    double titleAlign;
-    try {
-      titleAlign = Double.parseDouble(job.getTitleAlign());
-    } catch (Exception e) {
-      titleAlign = 0.5;
-    }
-    yamlInfo.put("title_align", titleAlign);
+    //  populate the formatting information in the R script template
+    MVUtil.populatePlotFmtTmplYaml(yamlInfo, job);
     return yamlInfo;
   }
 
