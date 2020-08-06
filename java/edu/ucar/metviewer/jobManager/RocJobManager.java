@@ -76,16 +76,30 @@ public class RocJobManager extends JobManager {
       RscriptStatManager rscriptStatManager = new RscriptNoneStatManager(mvBatch);
       rscriptStatManager
               .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
-      info.put("data_file", dataFile);
 
-      rscriptStatManager.runRscript(job, info);
+      if (job.getExecutionType().equals("Rscript") || this.getPythonScript().isEmpty()) {
+        info.put("data_file", dataFile);
+        rscriptStatManager.runRscript(job, info);
+      } else {
+        Map<String, Object> yamlInfo = createYamlInfoMap(job);
+        yamlInfo.put("stat_input", dataFile);
+        yamlInfo.put("roc_pct", job.getRocPct());
+        yamlInfo.put("roc_ctc", job.getRocCtc());
+        yamlInfo.put("add_point_thresholds", job.getAddPointThresholds() ? "True" : "False");
+        job.setPlotTmpl(this.getPythonScript());
+        yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);
+        rscriptStatManager.runPythonScript(job, yamlInfo);
+
+      }
+
 
     }
 
   }
+
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/roc_diagram/roc_diagram.py";
   }
 
 }
