@@ -2345,6 +2345,144 @@ public class MVUtil {
     }
   }
 
+  private static void populateInt(Map<String, Object> tableRTags, String tagName, String strValue, int def){
+    int valInt = def;
+    try {
+      valInt = Integer.parseInt(strValue);
+    } catch (Exception e) {
+    }
+    tableRTags.put(tagName, valInt);
+  }
+
+  private static void populateDouble(Map<String, Object> tableRTags, String tagName, String strValue, double def){
+    double valDouble = def;
+    try {
+      valDouble = Double.parseDouble(strValue);
+    } catch (Exception e) {
+    }
+    tableRTags.put(tagName, valDouble);
+  }
+
+
+  /**
+   * Populate the input table with the plot formatting tag values stored in the input job.
+   *
+   * @param tableRTags template value table to receive plot formatting values
+   * @param job        source for plot formatting values
+   */
+  public static void populatePlotFmtTmplYaml(Map<String, Object> tableRTags, MVPlotJob job) {
+    populateDouble(tableRTags, "alpha", job.getCIAlpha(), 0.05);
+
+    tableRTags.put("plot_type", job.getPlotType());
+    populateDouble(tableRTags, "plot_width", job.getPlotWidth(), 11);
+    populateDouble(tableRTags, "plot_height", job.getPlotHeight(), 8.5);
+    populateInt(tableRTags, "plot_res", job.getPlotRes(), 72);
+
+    tableRTags.put("plot_units", job.getPlotUnits());
+
+    String[] valArr = job.getMar().replace("c(", "").replace(")","").split(",");
+    List<Integer> vals = new ArrayList<>();
+    try {
+      for (String s : valArr){
+        vals.add(Integer.parseInt(s));
+      }
+    } catch (Exception e) {
+    }
+    tableRTags.put("mar", vals);
+
+    valArr = job.getMgp().replace("c(", "").replace(")","").split(",");
+    vals = new ArrayList<>();
+    try {
+      for (String s : valArr){
+        vals.add(Integer.parseInt(s));
+      }
+    } catch (Exception e) {
+    }
+    tableRTags.put("mgp", vals);
+
+    populateInt(tableRTags, "cex", job.getCex(), 1);
+    populateDouble(tableRTags, "title_weight", job.getTitleWeight(), 1.4);
+    populateDouble(tableRTags, "title_size", job.getTitleSize(), 1.4);
+    populateInt(tableRTags, "title_offset", job.getTitleOffset(), -2);
+    populateDouble(tableRTags, "title_align", job.getTitleAlign(), 0.5);
+
+    populateInt(tableRTags, "xtlab_orient", job.getXtlabOrient(), 1);
+    populateDouble(tableRTags, "xtlab_perp", job.getXtlabPerp(), 0.75);
+    populateDouble(tableRTags, "xtlab_horiz", job.getXtlabHoriz(), 0.5);
+    populateInt(tableRTags, "xtlab_decim", job.getXtlabFreq(), 1);
+    populateInt(tableRTags, "xtlab_size", job.getXtlabSize(), 1);
+
+    populateInt(tableRTags, "xlab_weight", job.getXlabWeight(), 1);
+    populateInt(tableRTags, "xlab_size", job.getXlabSize(), 1);
+    populateInt(tableRTags, "xlab_offset", job.getXlabOffset(), 2);
+    populateDouble(tableRTags, "xtlab_horiz", job.getXtlabHoriz(), 0.5);
+    populateDouble(tableRTags, "xlab_align", job.getXlabAlign(), 0.5);
+
+    populateInt(tableRTags, "ytlab_orient", job.getYtlabOrient(), 1);
+    populateDouble(tableRTags, "ytlab_perp", job.getYtlabPerp(), 0.5);
+    populateDouble(tableRTags, "ytlab_horiz", job.getYtlabHoriz(), 0.5);
+    populateInt(tableRTags, "ytlab_size", job.getYtlabSize(), 1);
+    populateInt(tableRTags, "ylab_weight", job.getYlabWeight(), 1);
+    populateInt(tableRTags, "ylab_size", job.getYlabSize(), 1);
+    populateInt(tableRTags, "ylab_offset", job.getYlabOffset(), -2);
+    populateDouble(tableRTags, "ylab_align", job.getYlabAlign(), 0.5);
+
+    populateInt(tableRTags, "grid_lty", job.getGridLty(), 3);
+    tableRTags.put("grid_col", job.getGridCol());
+    populateInt(tableRTags, "grid_lwd", job.getGridLwd(), 1);
+    tableRTags.put("grid_x", job.getGridX());
+
+    populateInt(tableRTags, "x2tlab_orient", job.getX2tlabOrient(), 1);
+    populateInt(tableRTags, "x2tlab_perp", job.getX2tlabPerp(), 1);
+    populateDouble(tableRTags, "x2tlab_horiz", job.getX2tlabHoriz(), 0.5);
+    populateDouble(tableRTags, "x2tlab_size", job.getX2tlabSize(), 0.8);
+    populateInt(tableRTags, "x2lab_weight", job.getX2labWeight(), 1);
+    populateDouble(tableRTags, "x2lab_size", job.getX2labSize(), 0.8);
+    populateDouble(tableRTags, "x2lab_offset", job.getX2labOffset(), -0.5);
+    populateDouble(tableRTags, "x2lab_align", job.getX2labAlign(), 0.5);
+    populateInt(tableRTags, "y2tlab_orient", job.getY2tlabOrient(), 1);
+    populateInt(tableRTags, "y2tlab_perp", job.getY2tlabPerp(), 1);
+    populateDouble(tableRTags, "y2tlab_horiz", job.getY2tlabHoriz(), 0.5);
+    populateDouble(tableRTags, "y2tlab_size", job.getY2tlabSize(), 0.5);
+    populateInt(tableRTags, "y2lab_weight", job.getY2labWeight(), 1);
+    populateInt(tableRTags, "y2lab_size", job.getY2labSize(), 1);
+    populateInt(tableRTags, "y2lab_offset", job.getY2labOffset(), 1);
+    populateDouble(tableRTags, "y2lab_align", job.getY2labAlign(), 0.5);
+
+    populateDouble(tableRTags, "legend_size", job.getLegendSize(), 0.8);
+    tableRTags.put("legend_box", job.getLegendBox());
+    String[] insetStr = job.getLegendInset().replace("c(", "")
+            .replace(")", "").split(",");
+    Map<String, Double> insetMap = new HashMap<>();
+    try {
+      insetMap.put("x", Double.valueOf(insetStr[0]));
+      insetMap.put("y", Double.valueOf(insetStr[1]));
+    } catch (Exception e) {
+      insetMap = new HashMap<>();
+    }
+    if (!insetMap.isEmpty()) {
+      tableRTags.put("legend_inset", insetMap);
+    }
+    populateInt(tableRTags, "legend_ncol", job.getLegendNcol(), 3);
+    populateInt(tableRTags, "caption_weight", job.getCaptionWeight(), 1);
+
+    tableRTags.put("caption_col", job.getCaptionCol());
+    populateDouble(tableRTags, "caption_size", job.getCaptionSize(), 0.8);
+    populateInt(tableRTags, "caption_offset", job.getCaptionOffset(), 3);
+    populateInt(tableRTags, "caption_align", job.getCaptionAlign(), 0);
+
+    tableRTags.put("box_pts", job.getBoxPts().equalsIgnoreCase("true") ? "True" : "False");
+    tableRTags.put("box_outline", job.getBoxOutline().equalsIgnoreCase("true") ? "True" : "False");
+    populateDouble(tableRTags, "box_boxwex", job.getBoxBoxwex(), 0.2);
+    tableRTags.put("box_notch", job.getBoxNotch().equalsIgnoreCase("true") ? "True" : "False");
+    tableRTags.put("box_avg", job.getBoxAvg().equalsIgnoreCase("true") ? "True" : "False");
+
+  }
+
+
+
+
+
   /**
    * Populate the input table with the plot formatting tag values stored in the input job.
    *
