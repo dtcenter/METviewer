@@ -2369,8 +2369,8 @@ CREATE TABLE line_data_tcmpr
     bdir           DOUBLE,
     aspeed         DOUBLE,
     bspeed         DOUBLE,
-    adepth         DOUBLE,
-    bdepth         DOUBLE,
+    adepth         VARCHAR(1),
+    bdepth         VARCHAR(1),
 
     CONSTRAINT line_data_tcmpr_data_file_id_pk
         FOREIGN KEY (data_file_id)
