@@ -125,7 +125,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
   @Override
   public boolean runPythonScript(MVPlotJob job, Map<String, Object> info) {
     MvResponse mvResponse;
-    info.put("plot_output", plotFile);
+    info.put("plot_filename", plotFile);
 
     try {
       String configFileName = mvBatch.getDataFolder()+"/"+ MVUtil.buildTemplateString(job.getRFileTmpl().replace(".R", ".yaml"),
