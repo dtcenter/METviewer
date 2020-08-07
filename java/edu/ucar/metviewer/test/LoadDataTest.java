@@ -63,7 +63,7 @@ public class LoadDataTest {
     TABLES_TO_ROWS.put("line_data_val1l2", 18);
     TABLES_TO_ROWS.put("line_data_vl1l2", 4146);
     TABLES_TO_ROWS.put("mode_cts", 1161);
-    TABLES_TO_ROWS.put("mode_header", 398);
+    TABLES_TO_ROWS.put("mode_header", 399);
     TABLES_TO_ROWS.put("mode_obj_pair", 174290);
     TABLES_TO_ROWS.put("mode_obj_single", 22909);
     TABLES_TO_ROWS.put("mv_rev", 6);
