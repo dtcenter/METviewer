@@ -64,11 +64,11 @@ Branch name:  `bugfix_<Issue Number>_master_<Version>_<Description>`
 - [ ] Add/update unit tests.
 - [ ] Add/update documentation.
 - [ ] Push local changes to GitHub.
-- [ ] Submit a pull request to merge into **master_\<Version>**.
+- [ ] Submit a pull request to merge into **master_\<Version>** and link the pull request to this issue.
 Pull request: `bugfix <Issue Number> master_<Version> <Description>`
 - [ ] Iterate until the reviewer(s) accept and merge your changes.
 - [ ] Delete your fork or branch.
-- [ ] Complete the steps above to fix the bug on the **develop** branch.
+- [ ] Complete the steps above to fix the bug on the **develop** branch and link the pull request to this issue.
 Branch name:  `bugfix_<Issue Number>_develop_<Description>`
 Pull request: `bugfix <Issue Number> develop <Description>`
 - [ ] Close this issue.
