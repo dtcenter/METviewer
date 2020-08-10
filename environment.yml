@@ -14,7 +14,6 @@ dependencies:
   - python-kaleido
   - psutil
   - requests
-  - scipy
   - matplotlib
   - lxml
   - pymysql
