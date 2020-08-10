@@ -41,11 +41,14 @@
     use -Dmetplotpy.path to define a path to METplotpy directory.
         e.g -Dmetplotpy.path=/d1/python/METplotpy/
 
+        use -Dpython.env.path to define a path to METplotpy directory.
+        e.g -Dpython.env.path=/d1/python/METviewer_py3.6.3/
+
     example build command...
     ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties \
          -Dlog4j2.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml \
-         -Ddb.management.system=cb -Dmetcalcpy.path=/d1/python/METcalcpy/ -Dmetcalcpy.path=/d1/python/METcalcpy/\
-         -Dcontext.path.suffix="-cb" clean all
+         -Ddb.management.system=cb -Dmetcalcpy.path=/d1/python/METcalcpy/ -Dmetplotpy.path=/d1/python/METplotpy/\
+         -Dpython.env.path=/d1/python/METviewer_py3.6.3/ -Dcontext.path.suffix="-cb" clean all
 
     will produce a war file named metviewer-cb.war with jar files appropriate for couchbase and the properties from the
     $HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties file, and a tar file
@@ -627,6 +630,18 @@
                        match="url.output=(.*)"
                        replace="url.output=${url.output}"
                        byline="true"/>
+        <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
+                       match="metcalcpy.home=(.*)"
+                       replace="metcalcpy.home=${metcalcpy.path}"
+                       byline="true"/>
+        <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
+                       match="metplotpy.home=(.*)"
+                       replace="metplotpy.home=${metplotpy.path}"
+                       byline="true"/>
+        <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
+                       match="python.env=(.*)"
+                       replace="python.env=${python.env.path}"
+                       byline="true"/>
 
         <delete file="${dist}/metviewer*.war"/>
     </target>
@@ -645,6 +660,7 @@
             description="Create load_batch module">
         <fail unless="metcalcpy.path">You must specify the path to METcalcpy directory</fail>
         <fail unless="metplotpy.path">You must specify the path to METplotpy directory</fail>
+        <fail unless="python.env.path">You must specify the path to METviewer_py3.6.3</fail>
 
         <tar destfile="${dist}/batch_load.tar" >
             <tarfileset dir="."  prefix="METviewer/">
