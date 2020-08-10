@@ -2265,7 +2265,7 @@ CREATE TABLE line_data_probrirw
     blevel_end     VARCHAR(2),
     n_thresh       INT UNSIGNED,
 
-
+    PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_probrirw_data_file_id_pk
         FOREIGN KEY (data_file_id)
             REFERENCES data_file (data_file_id),
