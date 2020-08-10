@@ -18,3 +18,4 @@ dependencies:
   - matplotlib
   - lxml
   - pymysql
+  - bootstrapped
