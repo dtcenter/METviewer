@@ -18,3 +18,4 @@ dependencies:
   - lxml
   - pymysql
   - bootstrapped
+  - retrying
