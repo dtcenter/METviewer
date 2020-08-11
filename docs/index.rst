@@ -8,7 +8,7 @@ METviewer User's Guide
 
 **Foreword: A note to METviewer users**
 
-This user's guide is provided as an aid to users of the METviewer. METviewer is a database and display system designed to work with the ascii output statistics produced by the MET software. MET is a set of verification tools developed by the Developmental Testbed Center (DTC) for use by the numerical weather prediction community - and especially users and developers of the Weather Research and Forecasting (WRF) model - to help them assess and evaluate the performance of numerical weather predictions.
+This user's guide is provided as an aid to users of the METviewer. METviewer is a database and display system designed to work with the ASCII output statistics produced by the MET software. MET is a set of verification tools developed by the Developmental Testbed Center (DTC) for use by the numerical weather prediction community - and especially users and developers of the Weather Research and Forecasting (WRF) model - to help them assess and evaluate the performance of numerical weather predictions.
 
 It is important to note here that MET and METviewer are evolving software packages. Previous releases of METviewer have occurred each year since 2010. This documentation describes the 3.0 release from March 2020. Intermediate releases may include bug fixes. 
 
