@@ -24,7 +24,7 @@
 
 # How to use this...
 # 1) Make sure that you have a credentialed user for access to
-# 	github.com/NCAR/METviewer.git and  https://github.com/NCAR/METviewer-test.git
+# 	github.com/dtcenter/METviewer.git and  https://github.com/dtcenter/METviewer-test.git
 #	and that you pass the user to -U and that you put the credentials into a git store for your user. Alternatively you could use ssh keys,
 #	which might require a few modifications here.
 
@@ -53,8 +53,8 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R?" o; do
             capture="-c"
             ;;
         U)
-            gituser=${OPTARG} # credentialed user for access to github.com/NCAR/METviewer.git and
-            #  https://github.com/NCAR/METviewer-test.git
+            gituser=${OPTARG} # credentialed user for access to github.com/dtcenter/METviewer.git and
+            #  https://github.com/dtcenter/METviewer-test.git
             ;;
         t)
             export METviewerTestDir=${OPTARG}
@@ -198,7 +198,7 @@ touch $logfile
 rm -rf ${METviewerDir}
 rm -rf ${METviewerTestDirTestCases}
 echo "clone the METviewer repo"
-git clone https://${gituser}@github.com/NCAR/METviewer.git ${METviewerDir}
+git clone https://${gituser}@github.com/dtcenter/METviewer.git ${METviewerDir}
 #echo git fetch --all
 #git fetch --all
 # checkout code to proper branch and use -test for local copy
@@ -233,7 +233,7 @@ if [ ! -d "${METviewerBranchTestDir}" ]; then
 else
     rm -rf ${METviewerBranchTestDir}
 fi
-git clone https://${gituser}@github.com/NCAR/METviewer-test.git ${METviewerBranchTestDir}/test_data
+git clone https://${gituser}@github.com/dtcenter/METviewer-test.git ${METviewerBranchTestDir}/test_data
 # the test cases are on the unversioned master branch for now. checkout a local called test - just to be safe
 cd ${METviewerBranchTestDir}/test_data
 git checkout remotes/origin/master -b test

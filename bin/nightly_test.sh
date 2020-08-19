@@ -24,7 +24,7 @@
 
 # How to use this...
 # 1) Make sure that you have a credentialed user for access to 
-# 	github.com/NCAR/METViewer.git and  https://github.com/NCAR/METViewer-test.git
+# 	github.com/dtcenter/METViewer.git and  https://github.com/dtcenter/METViewer-test.git
 #	and that you put the credentials into a git store for your user. Alternatively you could use ssh keys, 
 #	which might require a few modifications here.
 # 2) modify the "modify these" variables below as necessary - remember these directories WILL BE OVERWRITTEN.
@@ -57,7 +57,7 @@ logfile=${logdir}/${seconds}
 touch $logfile
 rm -rf ${METViewerDir}
 rm -rf ${METViewerTestDir}
-git clone https://${gituser}@github.com/NCAR/METViewer.git ${METViewerDir}
+git clone https://${gituser}@github.com/dtcenter/METViewer.git ${METViewerDir}
 # checkout code to proper branch and use -test for local copy
 cd ${METViewerDir}
 git checkout remotes/origin/${METViewerBranch} -b "${METViewerBranch}-test"
@@ -66,7 +66,7 @@ cd ..
 mkdir -p ${METViewerTestDir}
 
 # clone in the test cases repo
-git clone https://${gituser}@github.com/NCAR/METViewer-test.git ${METViewerTestDir}/test_data
+git clone https://${gituser}@github.com/dtcenter/METViewer-test.git ${METViewerTestDir}/test_data
 # the test cases are on the unversioned master branch for now. checkout a local called test - just to be safe
 cd ${METViewerTestDir}/test_data
 git checkout remotes/origin/master -b test
