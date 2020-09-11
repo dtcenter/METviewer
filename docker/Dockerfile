@@ -104,29 +104,15 @@ RUN mkdir /METviewer-python \
  && git checkout ${METPLOTPY_NAME_TAG}
 
 #
-# Download, customize, and deploy METviewer load/batch
+# Install METviewer
 #
 RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}" \
  && git clone ${METVIEWER_GIT_URL} /METviewer \
  && cd /METviewer \
- && git checkout ${METVIEWER_GIT_NAME}
-
-RUN echo "Configuring /METviewer/webapp/metviewer/WEB-INF/classes" \ 
- && cd  /METviewer/webapp/metviewer/WEB-INF/classes \ 
- && cat mvservlet.properties.orig | \
-    sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
-    sed -r 's%db.user=.*%db.user=root%g' | \
-    sed -r 's%db.password=.*%db.password=mvuser%g' | \
-    sed -r 's%rscript.bin=.*%rscript.bin=%g' | \
-    sed -r 's%/d2/www/dtcenter/met/metviewer_output%/opt/tomcat/webapps/metviewer_output%g' | \
-    sed -r 's%/opt/vxwww/tomcat/webapps/metviewer%/opt/tomcat/webapps/metviewer%g' | \
-    sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
-    sed -r 's%python.env=.*%python.env=/usr/%g' | \
-    sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
-    sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/metplotpy/%g' \
-    >  mvservlet.properties.orig-DOCKER \
- && mv mvservlet.properties.orig-DOCKER mvservlet.properties.orig \
- && cat build.properties | \
+ && git checkout ${METVIEWER_GIT_NAME} \
+ && echo "Configuring and building METviewer" \
+ && cd /METviewer \ 
+ && cat webapp/metviewer/WEB-INF/classes/build.properties | \
     sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
     sed -r 's%db.user=.*%db.user=root%g' | \
     sed -r 's%db.password=.*%db.password=mvuser%g' | \
@@ -137,11 +123,14 @@ RUN echo "Configuring /METviewer/webapp/metviewer/WEB-INF/classes" \
     sed -r 's%python.env=.*%python.env=/usr/%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/metplotpy/%g' \
-    >  build.properties-DOCKER \
- && mv build.properties-DOCKER build.properties
-
-RUN echo "Configuring /METviewer/bin" \
- && cd  /METviewer/bin \
+    > build.properties \
+ && ant -Dbuild.properties.file=./build.properties \
+        -Ddb.management.system=mariadb \
+        -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
+        -Dmetplotpy.path=/METviewer-python/METplotpy/ \
+        -Dpython.env.path=/d1/python/METviewer_py3.6.3/ war \
+ && echo "Configuring METviewer scripts" \
+ && cd /METviewer/bin \
  && cat mv_batch.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
     sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
@@ -149,18 +138,27 @@ RUN echo "Configuring /METviewer/bin" \
     sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
     >  mv_batch.sh-DOCKER \
  && mv mv_batch.sh-DOCKER mv_batch.sh \
+ && cat mv_load.sh | \
+    sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
+    sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
+    sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
+    >  mv_load.sh-DOCKER \
+ && mv mv_load.sh-DOCKER mv_load.sh \
  && cat mv_scorecard.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
     sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
     >  mv_scorecard.sh-DOCKER \
- && mv mv_scorecard.sh-DOCKER mv_scorecard.sh
-
-RUN echo "Building METviewer" \
- && cd /METviewer \
- && ant \
- && mv dist/*.war $CATALINA_HOME/webapps/
+ && mv mv_scorecard.sh-DOCKER mv_scorecard.sh \
+ && cat mv_prune.sh | \
+    sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
+    sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
+    sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
+    >  mv_prune.sh-DOCKER \
+ && mv mv_prune.sh-DOCKER mv_prune.sh
 
 #
 # Install Python 3.6
