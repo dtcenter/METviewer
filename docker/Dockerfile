@@ -129,6 +129,7 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
         -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
         -Dmetplotpy.path=/METviewer-python/METplotpy/ \
         -Dpython.env.path=/d1/python/METviewer_py3.6.3/ war \
+ && mv /METviewer/dist/*.war ${CATALINA_HOME}/webapps \
  && echo "Configuring METviewer scripts" \
  && cd /METviewer/bin \
  && cat mv_batch.sh | \
