@@ -120,7 +120,7 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
     sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
     sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
     sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
-    sed -r 's%python.env=.*%python.env=/usr/%g' | \
+    sed -r 's%python.env=.*%python.env=/opt/%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/metplotpy/%g' \
     > build.properties \
@@ -134,28 +134,28 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
  && cd /METviewer/bin \
  && cat mv_batch.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
     >  mv_batch.sh-DOCKER \
  && mv mv_batch.sh-DOCKER mv_batch.sh \
  && cat mv_load.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
     >  mv_load.sh-DOCKER \
  && mv mv_load.sh-DOCKER mv_load.sh \
  && cat mv_scorecard.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
     >  mv_scorecard.sh-DOCKER \
  && mv mv_scorecard.sh-DOCKER mv_scorecard.sh \
  && cat mv_prune.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
     >  mv_prune.sh-DOCKER \
@@ -184,9 +184,9 @@ RUN pip-3 install bootstrapped \
  && pip-3 install retrying
 
 #
-# point python to python3
+# Create a link for python3
 #
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+RUN ln -s /usr/bin/python3 /usr/local/bin/python
 
 #
 # set env vars
