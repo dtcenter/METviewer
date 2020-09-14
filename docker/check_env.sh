@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #
-# METVIEWER_VERSION DockerHub image
+# METVIEWER_TAG DockerHub tag 
 #
-if [ -z ${METVIEWER_VERSION+x} ]; then
-  echo "ERROR: METVIEWER_VERSION must be set to the DockerHub image version!"
+if [ -z ${METVIEWER_TAG+x} ]; then
+  echo "ERROR: METVIEWER_TAG must be set to the DockerHub dtcenter/metviewer tag!"
   exit 1
 else
-  echo "METVIEWER_VERSION = ${METVIEWER_VERSION}"
+  echo "METVIEWER_TAG = ${METVIEWER_TAG}"
 fi
 
 #

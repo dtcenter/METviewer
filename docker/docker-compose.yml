@@ -11,7 +11,7 @@ db:
     tty: true
 #
 metviewer:
-    image: dtcenter/metviewer:${METVIEWER_VERSION}
+    image: dtcenter/metviewer:${METVIEWER_TAG}
     container_name: metviewer_1
     ports:
     - "8080:8080"

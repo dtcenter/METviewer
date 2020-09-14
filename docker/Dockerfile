@@ -194,6 +194,6 @@ RUN ln -s /usr/bin/python3 /usr/local/bin/python
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/metplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/metplotpy/"
 
-ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /METviewer/docker/check_env.sh && /bin/bash
+ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
 
