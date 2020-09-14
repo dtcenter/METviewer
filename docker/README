@@ -56,9 +56,10 @@ setenv METVIEWER_DATA /path/for/data # c-shell syntax
 export METVIEWER_DATA=/path/for/data # bash syntax
 
 #
-# From METviewer/docker, run "docker-compose up" to pull, if necessary, and start the containers.
+# From METviewer/docker, check your runtime environment and run "docker-compose up" to pull,
+# if necessary, and start the containers.
 #
-docker-compose up -d
+./check_env.sh && docker-compose up -d
 
 #
 # To open a bash shell inside the running container.
