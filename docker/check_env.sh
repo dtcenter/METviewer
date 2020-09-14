@@ -1,13 +1,14 @@
 #!/bin/bash
 
 #
-# METVIEWER_DOCKER_TAG DockerHub tag 
+# METVIEWER_DOCKER_IMAGE name
 #
-if [ -z ${METVIEWER_DOCKER_TAG+x} ]; then
-  echo "ERROR: METVIEWER_DOCKER_TAG must be set to the DockerHub dtcenter/metviewer tag to be run!"
+if [ -z ${METVIEWER_DOCKER_IMAGE+x} ]; then
+  echo "ERROR: METVIEWER_DOCKER_IMAGE defines the image to be run!"
+  echo "ERROR: For example, 'dtcenter/metviewer:3.1' from DockerHub or 'metviewer' for a local build!"
   exit 1
 else
-  echo "METVIEWER_DOCKER_TAG = ${METVIEWER_DOCKER_TAG}"
+  echo "METVIEWER_DOCKER_IMAGE = ${METVIEWER_DOCKER_IMAGE}"
 fi
 
 #
