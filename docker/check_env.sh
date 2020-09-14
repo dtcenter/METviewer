@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #
-# METVIEWER_TAG DockerHub tag 
+# METVIEWER_DOCKER_TAG DockerHub tag 
 #
-if [ -z ${METVIEWER_TAG+x} ]; then
-  echo "ERROR: METVIEWER_TAG must be set to the DockerHub dtcenter/metviewer tag!"
+if [ -z ${METVIEWER_DOCKER_TAG+x} ]; then
+  echo "ERROR: METVIEWER_DOCKER_TAG must be set to the DockerHub dtcenter/metviewer tag to be run!"
   exit 1
 else
-  echo "METVIEWER_TAG = ${METVIEWER_TAG}"
+  echo "METVIEWER_DOCKER_TAG = ${METVIEWER_DOCKER_TAG}"
 fi
 
 #
