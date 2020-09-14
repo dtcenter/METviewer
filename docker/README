@@ -26,8 +26,8 @@ export METVIEWER_IMAGE_NAME=metviewer # bash syntax
 #
 # Or, pull from DockerHub (https://hub.docker.com/repository/docker/dtcenter/metviewer):
 #
-setenv METVIEWER_IMAGE_NAME dtcenter/metviewer:3.1 # c-shell syntax
-export METVIEWER_IMAGE_NAME=dtcenter/metviewer:3.1 # bash syntax
+setenv METVIEWER_IMAGE_NAME dtcenter/metviewer # c-shell syntax
+export METVIEWER_IMAGE_NAME=dtcenter/metviewer # bash syntax
 
 #
 # Define MYSQL_DIR as the local path for MySQL tables.
