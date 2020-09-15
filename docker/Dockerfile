@@ -120,7 +120,7 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
     sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
     sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
     sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
-    sed -r 's%python.env=.*%python.env=/opt/%g' | \
+    sed -r 's%python.env=.*%python.env=/usr/local/%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/metplotpy/%g' \
     > build.properties \
@@ -128,7 +128,7 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
         -Ddb.management.system=mariadb \
         -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
         -Dmetplotpy.path=/METviewer-python/METplotpy/ \
-        -Dpython.env.path=/d1/python/METviewer_py3.6.3/ war \
+        -Dpython.env.path=/usr/local/ war \
  && mv /METviewer/dist/*.war ${CATALINA_HOME}/webapps \
  && echo "Configuring METviewer scripts" \
  && cd /METviewer/bin \
