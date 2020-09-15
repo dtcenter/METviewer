@@ -17,17 +17,17 @@ cd METviewer/docker
 docker build -t metviewer .
 
 #
-# Define METVIEWER_IMAGE_NAME as the image to be run.
+# Define METVIEWER_DOCKER_IMAGE as the image to be run.
 #
 # If METviewer was built locally:
 #
-setenv METVIEWER_IMAGE_NAME metviewer # c-shell syntax
-export METVIEWER_IMAGE_NAME=metviewer # bash syntax
+setenv METVIEWER_DOCKER_IMAGE metviewer # c-shell syntax
+export METVIEWER_DOCKER_IMAGE=metviewer # bash syntax
 #
 # Or, pull from DockerHub (https://hub.docker.com/repository/docker/dtcenter/metviewer):
 #
-setenv METVIEWER_IMAGE_NAME dtcenter/metviewer # c-shell syntax
-export METVIEWER_IMAGE_NAME=dtcenter/metviewer # bash syntax
+setenv METVIEWER_DOCKER_IMAGE dtcenter/metviewer # c-shell syntax
+export METVIEWER_DOCKER_IMAGE=dtcenter/metviewer # bash syntax
 
 #
 # Define MYSQL_DIR as the local path for MySQL tables.
