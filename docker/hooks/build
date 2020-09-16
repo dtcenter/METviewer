@@ -1,0 +1,7 @@
+#!/bin/bash
+
+docker build -t $IMAGE_NAME \
+--build-arg METVIEWER_GIT_NAME=$SOURCE_BRANCH \
+--build-arg METCALCPY_GIT_NAME=alpha1 \
+--build-arg METPLOTPY_GIT_NAME=METplotpy-alpha2 .
+

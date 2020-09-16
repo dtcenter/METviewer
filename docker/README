@@ -1,0 +1,84 @@
+#
+# Note: Docker (https://www.docker.com) must be installed on your local machine.
+# Recommend running "docker hello-world" to confirm that Docker is running well.
+# You can run METviewer either by pulling a pre-built image from DockerHub or by
+# building a METviewer image locally.
+#
+
+#
+# Start by cloning the METviewer repository and entering the docker directory.
+#
+git clone https://github.com/dtcenter/METviewer
+cd METviewer/docker
+
+#
+# Optionally, build a local METviewer image.
+#
+docker build -t metviewer .
+
+#
+# Define METVIEWER_DOCKER_IMAGE as the image to be run.
+#
+# If METviewer was built locally:
+#
+setenv METVIEWER_DOCKER_IMAGE metviewer # c-shell syntax
+export METVIEWER_DOCKER_IMAGE=metviewer # bash syntax
+#
+# Or, pull from DockerHub (https://hub.docker.com/repository/docker/dtcenter/metviewer):
+#
+setenv METVIEWER_DOCKER_IMAGE dtcenter/metviewer # c-shell syntax
+export METVIEWER_DOCKER_IMAGE=dtcenter/metviewer # bash syntax
+
+#
+# Define MYSQL_DIR as the local path for MySQL tables.
+#
+# Rather than writing MySQL tables inside the container, write them to your local machine.
+# Create a MySQL directory and define it as an environment variable:
+#
+setenv MYSQL_DIR /path/for/mysql/tables # c-shell syntax
+export MYSQL_DIR=/path/for/mysql/tables # bash syntax
+
+#
+# Define METVIEWER_DIR as the local path for METviewer output files.
+#
+# Rather than writing METviewer output inside the container, write it to your local machine.
+# Create a METviewer directory and define it as an environment variable:
+#
+setenv METVIEWER_DIR /path/for/metviewer/output # c-shell syntax
+export METVIEWER_DIR=/path/for/metviewer/output # bash syntax
+
+#
+# Define METVIEWER_DATA as the local path for METviewer input files.
+#
+# METviewer loads MET or VSDB data from this top-level directory on your machine.
+#
+setenv METVIEWER_DATA /path/for/data # c-shell syntax
+export METVIEWER_DATA=/path/for/data # bash syntax
+
+#
+# From METviewer/docker, check your runtime environment and run "docker-compose up" to pull,
+# if necessary, and start the containers.
+#
+./check_env.sh && docker-compose up -d
+
+#
+# To open a bash shell inside the running container.
+#
+docker exec -it metviewer_1 /bin/bash
+
+#
+# Inside the container:
+#   /METviewer/bin contains all METviewer modules.
+#   /data contains input MET and/or VSDB data.
+#   MySQL database can be accessed by running:
+#     mysql -h mysql_mv -uroot -pmvuser
+#
+# METviewer GUI is accessible via a web browser:
+#   http://localhost:8080/metviewer/metviewer1.jsp
+#
+
+#
+# From METviewer/docker, run "docker-compose down" to stop and remove the containers.
+#
+docker-compose down
+
