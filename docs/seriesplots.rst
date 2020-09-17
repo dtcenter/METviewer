@@ -45,5 +45,5 @@ The image below shows an example of the plot and set-up options for a series plo
 
 Here is the associated xml for this example. 
 
-
+.. literalinclude:: seriesplot_xml.xml
 	    
