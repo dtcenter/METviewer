@@ -43,10 +43,10 @@ Example
 
 The example below shows a boxplot of the RMSE for 2m temperature over the CONUS. Many of the standard METviewer plotting options are available for the boxplot.
 
-.. figure:: boxplot_plot.png
+.. figure:: boxplots_plot.png
 
 	    Figure 5.1: Example Boxplot created by METviewer for RMSE of 2m temperature over the CONUS by lead time.
 
 Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here[insert link to XML].
 
-.. literalinclude:: boxplot_xml.xml
+.. literalinclude:: boxplots_xml.xml
