@@ -1,4 +1,4 @@
-Bar Plots in METviewer
+Bar Plots
 ======================
 
 Description
