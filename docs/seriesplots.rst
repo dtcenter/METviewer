@@ -15,7 +15,7 @@ Selection of options to produce the plot proceeds approxately counter-clockwise 
    
 2. There are a number of tabs just under the database pulldown menu. Select the 'Series' tab, which is the leftmost tab.
 
-3. Select the type of MET statistics that will be used to create the series plot. Click on the “Plot Data” pulldown menu which is located under the tabs. The list contains “Stat”, “MODE”, or “MODE-TD”. For details about these types of output statistics in MET, please see the most recent version of the MET User's Guide (www.dtcenter.org/met/users/docs).
+3. Select the type of MET statistics that will be used to create the series plot. Click on the “Plot Data” pulldown menu which is located under the tabs. The list contains “Stat”, “MODE”, or “MODE-TD”. For details about these types of output statistics in MET, please see the most recent version of the `MET User's Guide <www.dtcenter.org/met/users/docs>`_.
 
 4. Select the desired variable to calculate statistics for in the "Y1 Axis Variables" tab. The first pulldown menu in the  "Y1 Dependent (Forecast) Variables" section lists the variables available in the selected database.
 

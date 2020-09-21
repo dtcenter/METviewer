@@ -15,9 +15,9 @@ Selection of options to produce the ROC plot proceeds approxately counter-clockw
 
 2. There are a number of tabs just under the database pulldown menu. Select the ‘Roc’ tab.
 
-3. “Stat” is the only acceptable statistic type for a ROC plot as this type of diagram can only use information from the CTC and PCT line types available in the “Stat” output. For details about these types of statistics from MET, please see the most recent version of the MET User's Guide (www.dtcenter.org/met/users/docs).
+3. “Stat” is the only acceptable statistic type for a ROC plot as this type of diagram can only use information from the CTC and PCT line types available in the “Stat” output. For details about these types of statistics from MET, please see the most recent version of the `MET User's Guide <www.dtcenter.org/met/users/docs>`_.
 
-4. Select the desired series variable to calculate statistics for in the “Series Variables” tab. Press the "+ Series Variable" button to reveal two pulldown menus. The first pulldown menu in the lists the categories available in the selected dataset. The secon pulldown menut allows you to select the value of that category. 
+4. Select the desired series variable to calculate statistics for in the “Series Variables” tab. Press the "+ Series Variable" button to reveal two pulldown menus. The first pulldown menu in the lists the categories available in the selected dataset. The second pulldown menu allows you to select the value of that category. 
 
 5. It usually does not make sense to mix statistic for different groups. The desired group to calculate statistics over can be specified in the “Specialized Plot Fixed Values” section. For a ROC plot, the forecast variable ("FCST_VAR") must be selected. In the example below, the forecast variable is "APCP_03_ENS_FREQ_gt2.540". A single domain (category: “VX_MASK”, value: “CONUS”) is chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
 
