@@ -1,5 +1,5 @@
-Economic Cost/Loss Value Plots in METviewer
-===========================================
+Economic Cost/Loss Value Plots
+==============================
 
 Description
 -----------
@@ -12,10 +12,23 @@ The ECLV score can range from \text{-\ensuremath{\infty}} to 1.
 
 Like ROC diagrams, it gives information that can be used in decision making.
 
-Details
+How-To
 -------
 
-The ECLV plot can only be produced using output from the MET ECLV line type. If your database lacks this information, a different plot type should be selected. 
+Note: The ECLV plot can only be produced using output from the MET ECLV line type. If your database lacks this information, a different plot type should be selected. 
+
+Selection of options to produce the ECLV plot proceeds approxately counter-clockwise around the METviewer window.
+
+1. Select the desired database from the “Select databases” pulldown menu at the top margin of the METviewer window.
+
+2. There are a number of tabs just under the database pulldown menu. Select the ‘Eclv’ tab.
+
+3. Select the desired series variable to calculate statistics for in the “Series Variables” tab. Press the “+ Series Variable” button to reveal two pulldown menus. The first pulldown menu in the lists the categories available in the selected dataset. The second pulldown menu allows you to select the value of that category.
+
+4. For a ECLV plot, the forecast variable (“FCST_VAR”) must be selected. This is found in the "Specialized Plot Fixed Values" section. In the example below, the forecast variable is “”. 
+   
+5. It usually does not make sense to mix statistic for different groups. The desired group to calculate statistics over can be specified in the “Specialized Plot Fixed Values” section. A single domain (category: “VX_MASK”, value: “CONUS”) is chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
+
 
 Examples
 --------
