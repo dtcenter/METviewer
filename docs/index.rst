@@ -12,7 +12,7 @@ This user's guide is provided as an aid to users of the METviewer. METviewer is 
 
 It is important to note here that MET and METviewer are evolving software packages. Previous releases of METviewer have occurred each year since 2010. This documentation describes the 3.0 release from March 2020. Intermediate releases may include bug fixes. 
 
-This User's Guide was prepared by the developers of the MET, including Tressa Fowler, John Halley Gotway, Julie Prestopnik, Lisa Goodrich, Tara Jensen, Howard Soh, Tatiana Burek, Minna Win-Gildenmeister, George McCabe.
+This User's Guide was prepared by the developers of the MET, including Lindsay Blank, Tressa Fowler, John Halley Gotway, Julie Prestopnik, Lisa Goodrich, Tara Jensen, Howard Soh, Tatiana Burek, Minna Win-Gildenmeister, George McCabe.
 
 **New for METviewer v3.0**
 
@@ -36,7 +36,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 **The citation for this User's Guide should be:**
 
-| T. Burek, T. Fowler, J. Halley Gotway, T. Jensen, L. Goodrich, J. Prestopnik 2020
+| L. Blank, T. Burek, T. Fowler, J. Halley Gotway, T. Jensen, L. Goodrich, J. Prestopnik 2020
 | The METviewer User's Guide. Developmental Testbed Center.
 | Available at : https://github.com/dtcenter/METviewer/releases. 80 pp.
 
