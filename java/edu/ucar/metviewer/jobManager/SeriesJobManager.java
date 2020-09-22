@@ -214,7 +214,7 @@ public class SeriesJobManager extends JobManager {
           yamlInfo = createYamlInfoMap(job);
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
           rscriptStatManager.runPythonScript(job, yamlInfo);
-          yamlInfo.put("event_equal", "False");
+          yamlInfo.put("event_equalize", "False");
           yamlInfo.remove("agg_stat_output");
           yamlInfo.remove("agg_stat_input");
         }
@@ -262,6 +262,24 @@ public class SeriesJobManager extends JobManager {
           yamlInfo = createYamlInfoMap(job);
         }
         yamlInfo.put("stat_input", dataFileName);
+        yamlInfo.put("show_nstats", job.getShowNStats() ? "True" : "False");
+        yamlInfo.put("indy_stagger_1", job.getIndy1Stagger() ? "True" : "False");
+        yamlInfo.put("indy_stagger_2", job.getIndy2Stagger() ? "True" : "False");
+        yamlInfo.put("variance_inflation_factor", job.getVarianceInflationFactor() ? "True" : "False");
+        yamlInfo.put("dump_points_1", job.getDumpPoints1() ? "True" : "False");
+        yamlInfo.put("dump_points_2", job.getDumpPoints2() ? "True" : "False");
+        yamlInfo.put("vert_plot", job.getVertPlot() ? "True" : "False");
+        yamlInfo.put("xaxis_reverse", job.getXReverse() ? "True" : "False");
+        yamlInfo.put("sync_yaxes", job.getSyncAxes() ? "True" : "False");
+        yamlInfo.put("grid_on", job.getGridOn() ? "True" : "False");
+        yamlInfo.put("show_signif", rListToList(job.getShowSignif()));
+
+
+        yamlInfo.put("ylim", rListToList(job.getY1Lim()));
+        yamlInfo.put("y2lim", rListToList(job.getY2Lim()));
+        yamlInfo.put("xlim", rListToList(job.getX1Lim()));
+
+
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
         job.setPlotTmpl(this.getPythonScript());
         yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);
@@ -275,7 +293,7 @@ public class SeriesJobManager extends JobManager {
 
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/line/line.py";
   }
 
 
