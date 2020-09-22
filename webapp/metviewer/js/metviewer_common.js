@@ -6975,11 +6975,20 @@ function updateResult(result) {
     resultName = result;
 
     $('#plot_display_inner_header').text(resultName.replace("plot_", ""));
-    $("#plot_image")
-        .error(function () {
+   /* $("#plot_image").error(function () {
             $(this).attr("src", 'images/no_image.png');
-        })
-        .attr("src", urlOutput + 'plots/' + resultName + '.png' + '?' + (new Date()).getTime());
+        }).attr("src", urlOutput + 'plots/' + resultName + '.png' + '?' + (new Date()).getTime());*/
+    $("#plot_image").empty();
+    $.get(urlOutput + 'plots/' + resultName + '.html', function(data) {
+        $('#plot_image').append(data);
+    }).fail(function() {
+        var img = $('<img>');
+        img.attr('width', '100%');
+        img.attr('height', '100%');
+        img.attr('src', urlOutput + 'plots/' + resultName + '.png' + '?' + (new Date()).getTime());
+        img.appendTo('#plot_image');
+    });
+
     $.ajax({
         type: "GET",
         url: urlOutput + "xml/" + resultName + ".xml",
@@ -7645,9 +7654,9 @@ function initPage() {
     });
 
     $("#plot_image").click(function () {
-        if (resultName && resultName.length > 0) {
-            viewImage(resultName.replace("plot_", ""));
-        }
+        //if (resultName && resultName.length > 0) {
+        //    viewImage(resultName.replace("plot_", ""));
+        //}
     });
     var tabIndex = 0;
     if (initXML != null) {
