@@ -50,7 +50,7 @@ public abstract class JobManager {
     linesRtoPython.put("2", "--");
     linesRtoPython.put("3", ":");
     //NEED TO CHANE LATER: use '-' for others
-    linesRtoPython.put("4", "-");
+    linesRtoPython.put("4", "-:");
     linesRtoPython.put("5", "-");
     linesRtoPython.put("6", "-");
   }
@@ -392,7 +392,7 @@ public abstract class JobManager {
     yamlInfo.put("random_seed", job.getAggBootRandomSeed().equals("NA") ? null : Integer.parseInt(job.getAggBootRandomSeed()));
     yamlInfo.put("line_type", job.getLineType());
     yamlInfo.put("indy_var", job.getIndyVar());
-    yamlInfo.put("event_equal", job.getEventEqual() ? "True" : "False");
+    yamlInfo.put("event_equalize", job.getEventEqual() ? "True" : "False");
     String[] listIndyValFmt = job.getIndyVal();
     if (job.getIndyVar().matches(".*_hour")) {
       for (int i = 0; i < listIndyValFmt.length; i++) {
@@ -575,6 +575,17 @@ public abstract class JobManager {
     String[] rListArray = rList.replace("c(", "").replace(")", "")
             .replace("\"", "")
             .split(",");
+    if (rListArray.length == 0 || (rListArray.length == 1 && rListArray[0].isEmpty())) {
+      return new ArrayList<>();
+    }
+    // Replace boolean strings
+    for (int i = 0; i < rListArray.length; i++) {
+      if (rListArray[i].equalsIgnoreCase("true")) {
+        rListArray[i] = "True";
+      } else if (rListArray[i].equalsIgnoreCase("false")) {
+        rListArray[i] = "False";
+      }
+    }
     return Arrays.asList(rListArray);
   }
 }
