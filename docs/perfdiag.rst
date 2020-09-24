@@ -13,19 +13,19 @@ How-To
 
 Selection of options to produce the reliability diagram proceeds approxately counter-clockwise around the METviewer window.
 
-1. Select the desired database from the “Select databases” pulldown menu at the top margin of the METviewer window.
+#. Select the desired database from the “Select databases” pulldown menu at the top margin of the METviewer window.
 
-2. There are a number of tabs just under the database pulldown menu. Select the ‘Perf’ tab.
+#. There are a number of tabs just under the database pulldown menu. Select the ‘Perf’ tab.
 
-3. Select the desired series variable to calculate statistics for in the “Series Variables” tab. Press the “+ Series Variable” button to reveal two pulldown menus. The first pulldown menu in the lists the categories available in the selected dataset. The second pulldown menu allows you to select the value of that category.
+#. Select the desired series variable to calculate statistics for in the “Series Variables” tab. Press the “+ Series Variable” button to reveal two pulldown menus. The first pulldown menu in the lists the categories available in the selected dataset. The second pulldown menu allows you to select the value of that category.
 
-4. It usually does not make sense to mix statistic for different groups. The desired group to calculate statistics over can be specified in the “Fixed Values” section. For a performance diagram, the forecast variable (“FCST_VAR”) must be selected. In the example below, the forecast variable is “APCP_03”. A single domain (category: “VX_MASK”, value: “CONUS”) is chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
+#. It usually does not make sense to mix statistic for different groups. The desired group to calculate statistics over can be specified in the “Fixed Values” section. For a performance diagram, the forecast variable (“FCST_VAR”) must be selected. In the example below, the forecast variable is “APCP_03”. A single domain (category: “VX_MASK”, value: “CONUS”) is chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
 
-5. Select the independent variable in the "Independent Variable" section. 
+#. Select the independent variable in the "Independent Variable" section. 
 
-6. Select the type of statistics summary by selecting either “Summary” or “Aggregation Statistics” button in the “Statistics” section. Aggregated statistics may be selected for certain varietes of statistics. The selection can be made from the leftmost dropdown menu in the “Statistics” section. By default, the median value of all statistics will be plotted. Using the dropdown menu, the mean or sum may be selected instead. Choosing this option will cause a single statistic to be calculated from the individual database lines.
+#. Select the type of statistics summary by selecting either “Summary” or “Aggregation Statistics” button in the “Statistics” section. Aggregated statistics may be selected for certain varietes of statistics. The selection can be made from the leftmost dropdown menu in the “Statistics” section. By default, the median value of all statistics will be plotted. Using the dropdown menu, the mean or sum may be selected instead. Choosing this option will cause a single statistic to be calculated from the individual database lines.
 
-7. Now enough information has been entered to produce a graph. To do this, click the “Generate Plot” button at the top of the METviewer window (this is in red text). Typically, if a plot is not produced, it is because the database selected does not contain the correct type of data. Also, it is imperative to check the data used for the plot by selecting the “R data” tab on the righthand side, above the plot area. The data from the database is being used to calculate the statistics is listed in this tab. This tab should be checked to avoid the accidental accumulation of inappropriate database lines. For example, it does not make sense to accumulate statistics over different domains, thresholds, models, etc.
+#. Now enough information has been entered to produce a graph. To do this, click the “Generate Plot” button at the top of the METviewer window (this is in red text). Typically, if a plot is not produced, it is because the database selected does not contain the correct type of data. Also, it is imperative to check the data used for the plot by selecting the “R data” tab on the righthand side, above the plot area. The data from the database is being used to calculate the statistics is listed in this tab. This tab should be checked to avoid the accidental accumulation of inappropriate database lines. For example, it does not make sense to accumulate statistics over different domains, thresholds, models, etc.
 
 There are many other options for plots, but these are the basics. 
 

@@ -15,27 +15,27 @@ How-To
 
 Selection of options to produce the reliability diagram proceeds approxately counter-clockwise around the METviewer window.
 
-1. Select the desired database from the “Select databases” pulldown menu at the top margin of the METviewer window.
+#. Select the desired database from the “Select databases” pulldown menu at the top margin of the METviewer window.
    
-2. There are a number of tabs just under the database pulldown menu. Select the ‘Rely’ tab.
+#. There are a number of tabs just under the database pulldown menu. Select the ‘Rely’ tab.
 
-3. Select the desired series variable to calculate statistics for in the “Series Variables” tab. Press the “+ Series Variable” button to reveal two pulldown menus. The first pulldown menu in the lists the categories available in the selected dataset. The second pulldown menu allows you to select the value of that category. The reliability diagram only makes sense for probability forecasts. These can be from ensemble forecasts or from a traditional forecast. 
+#. Select the desired series variable to calculate statistics for in the “Series Variables” tab. Press the “+ Series Variable” button to reveal two pulldown menus. The first pulldown menu in the lists the categories available in the selected dataset. The second pulldown menu allows you to select the value of that category. The reliability diagram only makes sense for probability forecasts. These can be from ensemble forecasts or from a traditional forecast. 
 
-4. It usually does not make sense to mix statistic for different groups. The desired group to calculate statistics over can be specified in the “Specialized Plot Fixed Values” section. For a reliability diagram, the forecast variable (“FCST_VAR”) must be selected. In the example below, the forecast variable is “APCP_24_ENS_FREQ_gt12.700”. A single domain (category: “VX_MASK”, value: “EAST”) is chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
+#. It usually does not make sense to mix statistic for different groups. The desired group to calculate statistics over can be specified in the “Specialized Plot Fixed Values” section. For a reliability diagram, the forecast variable (“FCST_VAR”) must be selected. In the example below, the forecast variable is “APCP_24_ENS_FREQ_gt12.700”. A single domain (category: “VX_MASK”, value: “EAST”) is chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
 
-5. Choose whether or not to display the reliability event histogram in the "Reliability Event Histogram" section. Event histograms allow the user to see how often the forecast falls within each probability bin. The sample sizes in each bin are typically different, and some may be too small for conclusions. They also allow the user to judge the sharpness of the forecasts.
+#. Choose whether or not to display the reliability event histogram in the "Reliability Event Histogram" section. Event histograms allow the user to see how often the forecast falls within each probability bin. The sample sizes in each bin are typically different, and some may be too small for conclusions. They also allow the user to judge the sharpness of the forecasts.
 
-6. There are two checkboxes in the "Reliability Event Histogram" section. 
+#. There are two checkboxes in the "Reliability Event Histogram" section. 
    
-   a. Skill line: The skill, or reliability, of a forecast is indicated by the proximity of the plotted curve to the diagonal skill line. The deviation from the diagonal gives the conditional bias. If the curve lies below the line, this indicates over-forecasting (probabilities too high); points above the line indicate under-forecasting (probabilities too low).
+   * Skill line: The skill, or reliability, of a forecast is indicated by the proximity of the plotted curve to the diagonal skill line. The deviation from the diagonal gives the conditional bias. If the curve lies below the line, this indicates over-forecasting (probabilities too high); points above the line indicate under-forecasting (probabilities too low).
   
-   b. Reference line: This line (typically dashed) denotes the sample climatology or base rate, the frequency of the event.
+   * Reference line: This line (typically dashed) denotes the sample climatology or base rate, the frequency of the event.
 
-7. Select what summary curve to display (if any) in the "Summary Curve" section.
+#. Select what summary curve to display (if any) in the "Summary Curve" section.
 
-8. Adjust the aggregation options, if desired, in the "Aggregation options" section.
+#. Adjust the aggregation options, if desired, in the "Aggregation options" section.
 
-9. Now enough information has been entered to produce a graph. To do this, click the “Generate Plot” button at the top of the METviewer window (this is in red text). Typically, if a plot is not produced, it is because the database selected does not contain the correct type of data. Also, it is imperative to check the data used for the plot by selecting the “R data” tab on the righthand side, above the plot area. The data from the database is being used to calculate the statistics is listed in this tab. This tab should be checked to avoid the accidental accumulation of inappropriate database lines. For example, it does not make sense to accumulate statistics over different domains, thresholds, models, etc.
+#. Now enough information has been entered to produce a graph. To do this, click the “Generate Plot” button at the top of the METviewer window (this is in red text). Typically, if a plot is not produced, it is because the database selected does not contain the correct type of data. Also, it is imperative to check the data used for the plot by selecting the “R data” tab on the righthand side, above the plot area. The data from the database is being used to calculate the statistics is listed in this tab. This tab should be checked to avoid the accidental accumulation of inappropriate database lines. For example, it does not make sense to accumulate statistics over different domains, thresholds, models, etc.
 
 There are many other options for plots, but these are the basics.
 
