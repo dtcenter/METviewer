@@ -1,5 +1,5 @@
-Scorecards in METviewer
-=======================
+Scorecards
+==========
 
 Description
 -----------
