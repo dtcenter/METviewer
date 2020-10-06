@@ -219,6 +219,7 @@ public class MVPlotJob {
   protected String colorPalette = "cm.colors";
   protected String executionType = RSCRIPT;
   protected String annotationTemplate = "";
+  protected boolean createHtml = Boolean.FALSE;
 
 
 
@@ -406,6 +407,7 @@ public class MVPlotJob {
     job.addPointThresholds = addPointThresholds;
     job.addSkillLine = addSkillLine;
     job.addReferenceLine = addReferenceLine;
+    job.createHtml = createHtml;
     job.summaryCurve.addAll(summaryCurve);
 
     job.isAddColorBar = isAddColorBar;
@@ -1963,6 +1965,14 @@ public class MVPlotJob {
 
   public void setAddReferenceLine(boolean addReferenceLine) {
     this.addReferenceLine = addReferenceLine;
+  }
+
+  public boolean getCreateHtml() {
+    return createHtml;
+  }
+
+  public void setCreateHtml(boolean createHtml) {
+    this.createHtml = createHtml;
   }
 
   public boolean getAddSkillLine() {

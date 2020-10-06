@@ -884,6 +884,8 @@ public final class MVPlotJobParser {
               .append("</add_reference_line>");
       xmlStr.append("<add_point_thresholds>").append(job.getAddPointThresholds())
               .append("</add_point_thresholds>");
+      xmlStr.append("<create_html>").append(job.getCreateHtml())
+              .append("</create_html>");
     }
 
     //  roc_calc
@@ -1862,6 +1864,8 @@ public final class MVPlotJobParser {
         job.setAddSkillLine(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("add_reference_line")) {
         job.setAddReferenceLine(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("create_html")) {
+        job.setCreateHtml(node.value.equalsIgnoreCase("true"));
       }
 
       //  <normalized_histogram>
