@@ -2468,8 +2468,8 @@ public class MVUtil {
 
     tableRTags.put("caption_col", job.getCaptionCol());
     populateDouble(tableRTags, "caption_size", job.getCaptionSize(), 0.8);
-    populateInt(tableRTags, "caption_offset", job.getCaptionOffset(), 3);
-    populateInt(tableRTags, "caption_align", job.getCaptionAlign(), 0);
+    populateDouble(tableRTags, "caption_offset", job.getCaptionOffset(), 3);
+    populateDouble(tableRTags, "caption_align", job.getCaptionAlign(), 0);
 
     tableRTags.put("box_pts", job.getBoxPts().equalsIgnoreCase("true") ? "True" : "False");
     tableRTags.put("box_outline", job.getBoxOutline().equalsIgnoreCase("true") ? "True" : "False");
