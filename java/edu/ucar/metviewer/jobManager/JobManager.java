@@ -171,14 +171,15 @@ public abstract class JobManager {
     List<String> listAggStats1 = new ArrayList<>();
     List<String> listAggStats2 = new ArrayList<>();
     for (int intY = 1; intY <= 2; intY++) {
+      strFcstVar = "";
       MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
       if (mapDepY != null) {
         MVOrderedMap mapStat = new MVOrderedMap();
 
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
         for (String[] aListFcstVarStat : listFcstVarStat) {
-          String strFcstVarCur = aListFcstVarStat[0];
-          if (strFcstVar.isEmpty()) {
+          String strFcstVarCur = aListFcstVarStat[intY-1];
+         if (strFcstVar.isEmpty() ) {
             strFcstVar = strFcstVarCur;
           } else if (!strFcstVar.equals(strFcstVarCur)) {
             //check if this is a mode/mtd/agg/sum stat job
@@ -390,9 +391,9 @@ public abstract class JobManager {
     yamlInfo.put("num_iterations", MVUtil.isNumeric(job.getAggBootRepl()) ? Integer.parseInt(job.getAggBootRepl()) : 1);
     yamlInfo.put("num_threads", -1);
     yamlInfo.put("random_seed", job.getAggBootRandomSeed().equals("NA") ? null : Integer.parseInt(job.getAggBootRandomSeed()));
-    yamlInfo.put("line_type", job.getLineType());
+    yamlInfo.put("line_type", job.getLineType().equals("N/A") ? "None" : job.getLineType());
     yamlInfo.put("indy_var", job.getIndyVar());
-    yamlInfo.put("event_equalize", job.getEventEqual() ? "True" : "False");
+    yamlInfo.put("event_equal", job.getEventEqual() ? "True" : "False");
     String[] listIndyValFmt = job.getIndyVal();
     if (job.getIndyVar().matches(".*_hour")) {
       for (int i = 0; i < listIndyValFmt.length; i++) {
@@ -400,6 +401,22 @@ public abstract class JobManager {
       }
     }
     yamlInfo.put("indy_vals", listIndyValFmt);
+
+    String[] listIndyLabel = job.getIndyLabel();
+    if (!"0".equals(job.getXtlabFreq())) {
+      int intDecim = 0;
+      try {
+        intDecim = Integer.parseInt(job.getXtlabFreq());
+        if (1 > intDecim) {
+          throw new Exception();
+        }
+      } catch (Exception e) {
+        throw new ValidationException("unable to parse xtlab_decim value " + job.getXtlabFreq());
+      }
+      listIndyLabel = decimate(listIndyLabel, intDecim);
+    }
+    yamlInfo.put("indy_label", 0 < listIndyLabel.length ? listIndyLabel : new String[]{});
+
     yamlInfo.put("series_val_1", job.getSeries1Val().getYamlDeclSeries());
     yamlInfo.put("series_val_2", job.getSeries2Val().getYamlDeclSeries());
     List<String> listAggStats1 = new ArrayList<>();
@@ -413,12 +430,13 @@ public abstract class JobManager {
     String strFcstVar = "";
     for (int intY = 1; intY <= 2; intY++) {
       MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
+      strFcstVar = "";
       if (mapDepY != null) {
         MVOrderedMap mapStat = new MVOrderedMap();
 
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
         for (String[] aListFcstVarStat : listFcstVarStat) {
-          String strFcstVarCur = aListFcstVarStat[0];
+          String strFcstVarCur = aListFcstVarStat[intY-1];
           if (strFcstVar.isEmpty()) {
             strFcstVar = strFcstVarCur;
           } else if (!strFcstVar.equals(strFcstVarCur)) {
@@ -456,6 +474,12 @@ public abstract class JobManager {
 
     yamlInfo.put("derived_series_2", MVUtil.getDiffSeriesArr(diffSeriesTemplate));
     yamlInfo.put("plot_stat", job.getPlotStat());
+    MVOrderedMap mapTmplValsPlot = MVUtil.addTmplValDep(job);
+    String strCaption = MVUtil.buildTemplateInfoString(job.getCaptionTmpl(), mapTmplValsPlot,
+            job.getTmplMaps(), mvBatch.getPrintStream());
+
+    yamlInfo.put("plot_caption", strCaption);
+    yamlInfo.put("create_html", job.getCreateHtml() ? "True" : "False");
 
 
     //  populate the formatting information in the R script template
@@ -497,27 +521,9 @@ public abstract class JobManager {
     info.put("xaxis", xLabel);
     info.put("yaxis_1", y1Label);
     info.put("yaxis_2", y2Label);
-    List<String> dispListStr = rListToList(job.getPlotDisp());
-    List<String> dispList = new ArrayList<>();
-    for (String disp : dispListStr) {
-      if (disp.equalsIgnoreCase("false")) {
-        dispList.add("False");
-      } else {
-        dispList.add("True");
-      }
-    }
-    info.put("plot_disp", dispList);
-
-    List<String> seriesOrderListStr = rListToList(job.getOrderSeries());
-    List<Integer> seriesOrderList = new ArrayList<>();
-    for (String seriesOrder : seriesOrderListStr) {
-      seriesOrderList.add(Integer.valueOf(seriesOrder));
-    }
-    info.put("series_order", seriesOrderList);
-
-    List<String> userLegendListStr = rListToList(job.getLegend());
-
-    info.put("user_legend", userLegendListStr);
+    info.put("plot_disp", rListToList(job.getPlotDisp()));
+    info.put("series_order",  rListToListNumeric(job.getOrderSeries()));
+    info.put("user_legend", rListToList(job.getLegend()));
 
     List<String> colorsListStr = rListToList(job.getColors());
     List<String> colorsList = new ArrayList<>();
@@ -526,12 +532,7 @@ public abstract class JobManager {
     }
     info.put("colors", colorsList);
 
-    List<String> lineWidthListStr = rListToList(job.getLwd());
-    List<Integer> lineWidthList = new ArrayList<>();
-    for (String lineWidth : lineWidthListStr) {
-      lineWidthList.add(Integer.valueOf(lineWidth));
-    }
-    info.put("series_line_width", lineWidthList);
+    info.put("series_line_width",  rListToListNumeric(job.getLwd()));
 
     List<String> symbolsListStr = rListToList(job.getPch());
     List<String> symbolsList = new ArrayList<>();
@@ -548,23 +549,9 @@ public abstract class JobManager {
     info.put("series_line_style", lineStyleList);
     info.put("series_type", rListToList(job.getType()));
 
-    List<String> showSignifStr = rListToList(job.getShowSignif());
-    List<String> showSignifList = new ArrayList<>();
-    for (String showSignif : showSignifStr) {
-      if (showSignif.equalsIgnoreCase("false")) {
-        showSignifList.add("False");
-      } else {
-        showSignifList.add("True");
-      }
-    }
-    info.put("show_signif", showSignifList);
+    info.put("show_signif",  rListToList(job.getShowSignif()));
 
-    List<String> conSeriesListStr = rListToList(job.getConSeries());
-    List<Integer> conSeriesList = new ArrayList<>();
-    for (String conSeries : conSeriesListStr) {
-      conSeriesList.add(Integer.valueOf(conSeries));
-    }
-    info.put("con_series", conSeriesList);
+    info.put("con_series", rListToListNumeric(job.getConSeries()));
     info.put("plot_ci", rListToList(job.getPlotCI()));
 
 
@@ -587,5 +574,24 @@ public abstract class JobManager {
       }
     }
     return Arrays.asList(rListArray);
+  }
+
+  protected List<Object> rListToListNumeric(String rList) {
+    Object[] rListArray = rList.replace("c(", "").replace(")", "")
+            .replace("\"", "")
+            .split(",");
+    if (rListArray.length == 0 || (rListArray.length == 1 && String.valueOf(rListArray[0]).isEmpty())) {
+      return new ArrayList<>();
+    }
+    List<Object> result = new ArrayList<>();
+    // Replace boolean strings
+    for (int i = 0; i < rListArray.length; i++) {
+      if (MVUtil.isInteger(String.valueOf(rListArray[i]), 10)) {
+        result.add(Integer.valueOf(String.valueOf(rListArray[i])));
+      } else if (MVUtil.isNumeric(String.valueOf(rListArray[i]))) {
+        result.add(Double.valueOf(String.valueOf(rListArray[i])));
+      }
+    }
+    return result;
   }
 }
