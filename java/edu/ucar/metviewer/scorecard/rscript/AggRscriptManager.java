@@ -9,7 +9,9 @@ package edu.ucar.metviewer.scorecard.rscript;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVUtil;
@@ -19,6 +21,7 @@ import edu.ucar.metviewer.StopWatchException;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
+import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -87,76 +90,88 @@ public class AggRscriptManager extends RscriptManager {
 
   @Override
   public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) {
-    clean();
-    initModels();
-    if (models != null) {
-
-      Map<String, Object> tableAggStatInfo = new HashMap<>(tableAggStatInfoCommon);
-      init(mapRow);
-      initAggBool(tableAggStatInfo, Util.getAggTypeForStat(stat));
-
-      //create a template
-      tableAggStatInfo.put("indy_var", indyVar);
-      tableAggStatInfo.put("indy_list", "c(" + indyList + ")");
-
-      tableAggStatInfo.put("agg_stat1", "c(\"" + stat + "\")");
-      tableAggStatInfo.put("contour_diff", "FALSE");
-
-
-      tableAggStatInfo.put("series1_list", seriesList.toString());
-
-
-      tableAggStatInfo.put("agg_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
-
-      tableAggStatInfo.put("series1_diff_list", seriesDiffList.toString());
-      tableAggStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
-
-      //check id output file exists and its length not 0
-      File output = new File((String) tableAggStatInfo.get("agg_stat_output"));
-      boolean isAppend = false;
-      if (output.exists() && output.length() > 0) {
-        isAppend = true;
+    List<Entry> allModels = null;
+    for (Field fixedField : fixedVars) {
+      if ("model".equals(fixedField.getName())) {
+        allModels = fixedField.getValues();
+        break;
       }
-      tableAggStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-      int lastDot = aggStatDataFilePath.lastIndexOf('.');
-      String thredFileName = aggStatDataFilePath
-              .substring(0, lastDot) + threadName + aggStatDataFilePath
-              .substring(lastDot);
-      tableAggStatInfo.put("agg_stat_input", thredFileName);
-
-      lastDot = strAggInfo.lastIndexOf('.');
-      String thredInfoFileName = strAggInfo.substring(0, lastDot) + threadName + strAggInfo
-              .substring(
-                      lastDot);
-
-      try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
-              .setLevel(org.apache.logging.log4j.Level.INFO)
-              .buildPrintStream()) {
-
-        String aggStatTemplScript;
-        String aggStatTemplFile;
-
-        aggStatTemplScript = aggStatTemplScriptDir + STAT_SCRIPT_FILE_NAME;
-        aggStatTemplFile = aggStatTemplFilePath + "/agg_stat.info_tmpl";
-
-        MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        printStream.println("Running " + rScriptCommand + " " + aggStatTemplScript);
-
-
-        MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, aggStatTemplScript,
-                new String[]{thredInfoFileName});
-        stopWatch.stop();
-        if (mvResponse.getInfoMessage() != null) {
-          printStream.println(mvResponse.getInfoMessage());
+    }
+    if (allModels != null) {
+      for (int i = 0; i < allModels.size(); i = i + 2) {
+        clean();
+        models = new ArrayList<>(2);
+        models.add(allModels.get(i));
+        if (i + 1 < allModels.size()) {
+          models.add(allModels.get(i + 1));
         }
-        if (mvResponse.getErrorMessage() != null) {
-          printStream.println(mvResponse.getErrorMessage());
+
+        Map<String, Object> tableAggStatInfo = new HashMap<>(tableAggStatInfoCommon);
+        init(mapRow);
+        initAggBool(tableAggStatInfo, Util.getAggTypeForStat(stat));
+
+        //create a template
+        tableAggStatInfo.put("indy_var", indyVar);
+        tableAggStatInfo.put("indy_list", "c(" + indyList + ")");
+
+        tableAggStatInfo.put("agg_stat1", "c(\"" + stat + "\")");
+        tableAggStatInfo.put("contour_diff", "FALSE");
+
+
+        tableAggStatInfo.put("series1_list", seriesList.toString());
+
+
+        tableAggStatInfo.put("agg_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
+
+        tableAggStatInfo.put("series1_diff_list", seriesDiffList.toString());
+        tableAggStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
+
+        //check id output file exists and its length not 0
+        File output = new File((String) tableAggStatInfo.get("agg_stat_output"));
+        boolean isAppend = false;
+        if (output.exists() && output.length() > 0) {
+          isAppend = true;
         }
-        printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
-      } catch (IOException | StopWatchException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
+        tableAggStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+        int lastDot = aggStatDataFilePath.lastIndexOf('.');
+        String thredFileName = aggStatDataFilePath
+                .substring(0, lastDot) + threadName + aggStatDataFilePath
+                .substring(lastDot);
+        tableAggStatInfo.put("agg_stat_input", thredFileName);
+
+        lastDot = strAggInfo.lastIndexOf('.');
+        String thredInfoFileName = strAggInfo.substring(0, lastDot) + threadName + strAggInfo
+                .substring(lastDot);
+
+        try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
+                .setLevel(org.apache.logging.log4j.Level.INFO)
+                .buildPrintStream()) {
+
+          String aggStatTemplScript;
+          String aggStatTemplFile;
+
+          aggStatTemplScript = aggStatTemplScriptDir + STAT_SCRIPT_FILE_NAME;
+          aggStatTemplFile = aggStatTemplFilePath + "/agg_stat.info_tmpl";
+
+          MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
+          StopWatch stopWatch = new StopWatch();
+          stopWatch.start();
+          printStream.println("Running " + rScriptCommand + " " + aggStatTemplScript);
+
+
+          MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, aggStatTemplScript,
+                  new String[]{thredInfoFileName});
+          stopWatch.stop();
+          if (mvResponse.getInfoMessage() != null) {
+            printStream.println(mvResponse.getInfoMessage());
+          }
+          if (mvResponse.getErrorMessage() != null) {
+            printStream.println(mvResponse.getErrorMessage());
+          }
+          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+        } catch (IOException | StopWatchException e) {
+          logger.error(ERROR_MARKER, e.getMessage());
+        }
       }
     }
   }

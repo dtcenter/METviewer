@@ -48,7 +48,7 @@ public class HtmlImageGenerator {
     editorPane.setOpaque(true);
     //editorPane.setSize(DEFAULT_SIZE);
     Font font;
-    try (InputStream is = getClass().getResourceAsStream("l_10646.ttf")) {
+    try (InputStream is = getClass().getResourceAsStream("DejaVuSans.ttf")) {
       font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 14);
     } catch (FontFormatException | IOException e) {
       font = new Font("SansSerif", Font.PLAIN, 14);

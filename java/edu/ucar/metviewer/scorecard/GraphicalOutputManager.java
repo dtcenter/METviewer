@@ -27,6 +27,7 @@ import edu.ucar.metviewer.scorecard.html2image.HtmlImageGenerator;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.LegendRange;
+import edu.ucar.metviewer.scorecard.model.WeightRequirements;
 import j2html.tags.ContainerTag;
 import j2html.tags.UnescapedText;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +35,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -83,10 +85,11 @@ class GraphicalOutputManager {
   private final boolean viewLegend;
   private final String diffStatValue;
   private final String diffStatSymbol;
-  private String model1;
-  private String model2;
+  private final List<String> models = new ArrayList<>();
   private final List<String> leftColumnsNames;
   private final String symbolSize;
+  private WeightRequirements weightRequirements = null;
+
 
   public GraphicalOutputManager(final Scorecard scorecard) {
     html = html();
@@ -98,6 +101,7 @@ class GraphicalOutputManager {
 
     //create range list
     initRangeList(scorecard.getThresholdFile());
+    initWeightRequirements(scorecard.getWeightFile());
     dataFileStr = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
     listRows = scorecard.getListOfEachRowWithDesc();
     listColumns = scorecard.getListOfEachColumnWithDesc();
@@ -116,36 +120,118 @@ class GraphicalOutputManager {
       if ("fcst_init_beg".equals(fixField.getName())
               || "fcst_valid_beg".equals(fixField.getName())) {
 
-        int fixedFieldValsSize = fixField.getValues().size();
-        boolean isSizeEven = fixedFieldValsSize % 2 == 0;
-        if (isSizeEven) {
-          for (int i = 0; i < fixedFieldValsSize; i = i + 2) {
-            String line = fixField.getValues().get(i).getLabel()
-                    + " - " + fixField.getValues().get(i + 1).getLabel();
-            if (i < fixedFieldValsSize - 2) {
-              line = line +",";
-            }
-            ranges.add(line);
-          }
+        if (fixField.getLabel() != null) {
+          ranges.add(fixField.getLabel());
         } else {
-          for (int i = 0; i < fixedFieldValsSize - 1; i = i + 2) {
-            ranges.add(fixField.getValues().get(i).getLabel()
-                    + " - " + fixField.getValues().get(i + 1).getLabel()
-                    + ", ");
+          int fixedFieldValsSize = fixField.getValues().size();
+          boolean isSizeEven = fixedFieldValsSize % 2 == 0;
+          if (isSizeEven) {
+            for (int i = 0; i < fixedFieldValsSize; i = i + 2) {
+              String line = fixField.getValues().get(i).getLabel()
+                      + " - " + fixField.getValues().get(i + 1).getLabel();
+              if (i < fixedFieldValsSize - 2) {
+                line = line + ",";
+              }
+              ranges.add(line);
+            }
+          } else {
+            for (int i = 0; i < fixedFieldValsSize - 1; i = i + 2) {
+              ranges.add(fixField.getValues().get(i).getLabel()
+                      + " - " + fixField.getValues().get(i + 1).getLabel()
+                      + ", ");
 
+            }
+            ranges.add(fixField.getValues().get(fixedFieldValsSize - 1).getName());
           }
-          ranges.add(fixField.getValues().get(fixedFieldValsSize - 1).getName());
         }
 
 
       } else if ("model".equals(fixField.getName())) {
-        model1 = fixField.getValues().get(0).getLabel();
-        model2 = fixField.getValues().get(1).getLabel();
+        for (Entry entry : fixField.getValues()) {
+          models.add(entry.getLabel());
+        }
+
       }
     }
-    title2.withText("for " + model1 + " and " + model2);
+    StringBuilder titleText = new StringBuilder("for ");
+    for (int i = 0; i < this.models.size(); i = i + 2) {
+      if (i + 1 < this.models.size()) {
+        if (i > 0) {
+          titleText.append(", ");
+        }
+        titleText.append(models.get(i));
+        if (!scorecard.getStatSymbol().equals("SINGLE") && !scorecard.getStatValue().equals("SINGLE")) {
+          titleText.append(" and ").append(models.get(i + 1));
+        }
+
+      }
+    }
+    title2.withText(titleText.toString());
     for (String range : ranges) {
       title3.with(div().withText(range));
+    }
+  }
+
+  private void initWeightRequirements(final String weightRequirementsFile) {
+    if (weightRequirementsFile != null) {
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilder db;
+      try {
+        dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        dbf.setValidating(true);
+
+        db = dbf.newDocumentBuilder();
+        db.setErrorHandler(null);
+
+        Document doc = db.parse(new File(weightRequirementsFile));
+        Node weightRequirementsNode = doc.getFirstChild();
+        weightRequirements = new WeightRequirements(weightRequirementsNode.getAttributes().item(0).getNodeValue());
+        List<WeightRequirements.Weight> weightList = new ArrayList<>();
+        weightRequirements.setWeightList(weightList);
+
+        NodeList weightNodeList = weightRequirementsNode.getChildNodes();
+        for (int j = 0; j < weightNodeList.getLength(); j++) {
+          Node weightNode = weightNodeList.item(j);
+          if (weightNode.getNodeType() == Node.ELEMENT_NODE &&
+                  "Weight".equals(weightNode.getNodeName())) {
+            double weightValue = Double.parseDouble(weightNode.getAttributes().getNamedItem("weight").getNodeValue());
+            String color = null;
+            try {
+              color = String.valueOf(weightNode.getAttributes().getNamedItem("color").getNodeValue());
+            } catch (Exception e) {
+            }
+            List<WeightRequirements.Criteria> criteriaList = new ArrayList<>();
+            WeightRequirements.Weight weight = new WeightRequirements.Weight(weightValue, color, criteriaList);
+            NodeList criteriaNodeList = weightNode.getChildNodes();
+            for (int i = 0; i < criteriaNodeList.getLength(); i++) {
+              Node criteriaNode = criteriaNodeList.item(i);
+              if (criteriaNode.getNodeType() == Node.ELEMENT_NODE &&
+                      "Criteria".equals(criteriaNode.getNodeName())) {
+                NamedNodeMap attributes = criteriaNode.getAttributes();
+                String field = "";
+                String value = "";
+                for (int k = 0; k < attributes.getLength(); k++) {
+                  if ("field".equals(attributes.item(k).getNodeName())) {
+                    field = attributes.item(k).getNodeValue();
+                  } else if ("value".equals(attributes.item(k).getNodeName())) {
+                    value = attributes.item(k).getNodeValue();
+                  }
+                }
+                criteriaList.add(new WeightRequirements.Criteria(field, value));
+              }
+            }
+            weightList.add(weight);
+          }
+        }
+
+      } catch (ParserConfigurationException | IOException | SAXException e) {
+        logger.info("ERROR during reading weightRequirements XML file : " + e.getMessage());
+        logger.error(ERROR_MARKER, e.getMessage());
+        rangeList.clear();
+
+      }
     }
   }
 
@@ -364,7 +450,11 @@ class GraphicalOutputManager {
       ContainerTag td2 = td().attr(CLASS, "legendText");
 
       try {
-        td2.with(new UnescapedText(String.format(range.getFormatString(), model1, model2)));
+        if (this.models.size() == 2) {
+          td2.with(new UnescapedText(String.format(range.getFormatString(), this.models.get(0), this.models.get(1))));
+        } else {
+          td2.with(new UnescapedText(String.format(range.getFormatString(), "1st model", "2nd model")));
+        }
       } catch (FormatFlagsConversionMismatchException f) {
         logger.error("Error during printing the legend text for " + range.getFormatString());
         logger.error("Escaped percent sign is double percent (%%)");
@@ -375,18 +465,18 @@ class GraphicalOutputManager {
       legendTable.with(tr().with(td1).with(td2));
     }
     //add one more line describing the stats for symbols and numbers
-    StringBuilder description  = new StringBuilder();
-    if(viewSymbol){
+    StringBuilder description = new StringBuilder();
+    if (viewSymbol) {
       description.append("Statistic for symbols: ").append(diffStatSymbol);
     }
-    if(viewValue){
-      if(description.length() > 0){
+    if (viewValue) {
+      if (description.length() > 0) {
         description.append(" , ");
       }
       description.append("Statistic for values: ").append(diffStatValue);
     }
 
-    ContainerTag td = td().attr(CLASS, "legendText").attr("colspan","2")
+    ContainerTag td = td().attr(CLASS, "legendText").attr("colspan", "2")
             .attr(STYLE, "text-align:center;")
             .with(new UnescapedText(description.toString()));
 
@@ -402,46 +492,82 @@ class GraphicalOutputManager {
       ContainerTag htmlTr = tr();
 
       createRowHeader(rowCounter, htmlTr);
-
-      //for each data column
-      for (Map<String, Entry> mapColumn : listColumns) {
-        Map<String, Entry> cellFieldsValues = new HashMap<>(listRows.get(rowCounter));
-        cellFieldsValues.putAll(mapColumn);
-        int index = -1;
-        boolean isCellCreated = false;
-        // find the corresponding value in the JSON table and create a cell
-        BigDecimal valueForSymbol = BigDecimal.valueOf(-9999);
-        BigDecimal valueForNumber = BigDecimal.valueOf(-9999);
-        for (int i = 0; i < table.size(); i++) {
-          JsonNode node = table.get(i);
-          if (viewSymbol) {
-            boolean isMatch = isJsonRowMatchSymbol(cellFieldsValues, node);
-            if (isMatch && !"NA".equals(node.findValue("stat_value").asText())) {
-              try {
-                valueForSymbol = new BigDecimal(node.findValue("stat_value").asText());
-                valueForSymbol = valueForSymbol.setScale(3, RoundingMode.HALF_UP);
-              } catch (NumberFormatException e) {
-                logger.error(e);
-              }
-            }
-          }
-          if (viewValue) {
-            boolean isMatch = isJsonRowMatchNumber(cellFieldsValues, node);
-            if (isMatch && !"NA".equals(node.findValue("stat_value").asText())) {
-              try {
-                valueForNumber = new BigDecimal(node.findValue("stat_value").asText());
-                valueForNumber = valueForNumber.setScale(3, RoundingMode.HALF_UP);
-              } catch (NumberFormatException e) {
-                logger.error(e);
-              }
-            }
-          }
+      for (int j = 0; j < this.models.size(); j = j + 2) {
+        String model1 = this.models.get(j);
+        String model2 = null;
+        if (j + 1 < this.models.size()) {
+          model2 = this.models.get(j + 1);
         }
-        if (valueForNumber.equals(BigDecimal.valueOf(-9999)) && valueForSymbol.equals(BigDecimal.valueOf(-9999))) {
-          //insert empty cell
-          htmlTr.with(createEmptyCell());
-        } else {
-          htmlTr.with(createTableCell(valueForSymbol, valueForNumber));
+        //for each data column
+        for (Map<String, Entry> mapColumn : listColumns) {
+          Map<String, Entry> cellFieldsValues = new HashMap<>(listRows.get(rowCounter));
+          cellFieldsValues.putAll(mapColumn);
+          int index = -1;
+          boolean isCellCreated = false;
+          // find the corresponding value in the JSON table and create a cell
+          BigDecimal valueForSymbol = BigDecimal.valueOf(-9999);
+          BigDecimal valueForNumber = BigDecimal.valueOf(-9999);
+          WeightRequirements.Weight satisfied = null;
+          JsonNode cellNode = null;
+
+
+          for (int i = 0; i < table.size(); i++) {
+
+            JsonNode node = table.get(i);
+            if (node.get("model1").asText().equals(model1) &&
+                    node.get("model2").asText().equals(model2)) {
+
+              if (weightRequirements != null && isJsonRowMatch(cellFieldsValues, node)) {
+
+                for (WeightRequirements.Weight weight : weightRequirements.getWeightList()) {
+                  boolean isSatisfied = true;
+                  for (WeightRequirements.Criteria criteria : weight.getCriteriaList()) {
+                    if (node.has(criteria.getField())) {
+                      if (!node.get(criteria.getField()).asText().equals(criteria.getValue())) {
+                        isSatisfied = false;
+                        break;
+                      }
+                    }
+                  }
+                  if (isSatisfied) {
+                    satisfied = weight;
+                    break;
+                  }
+                }
+              }
+
+
+              if (viewSymbol) {
+                boolean isMatch = isJsonRowMatchSymbol(cellFieldsValues, node);
+                if (isMatch && !"NA".equals(node.findValue("stat_value").asText())) {
+                  try {
+                    valueForSymbol = new BigDecimal(node.findValue("stat_value").asText());
+                    valueForSymbol = valueForSymbol.setScale(3, RoundingMode.HALF_UP);
+                  } catch (NumberFormatException e) {
+                    logger.error(e);
+                  }
+                }
+              }
+              if (viewValue) {
+                boolean isMatch = isJsonRowMatchNumber(cellFieldsValues, node);
+                if (isMatch && !"NA".equals(node.findValue("stat_value").asText())) {
+                  try {
+                    valueForNumber = new BigDecimal(node.findValue("stat_value").asText());
+                    valueForNumber = valueForNumber.setScale(3, RoundingMode.HALF_UP);
+                  } catch (NumberFormatException e) {
+                    logger.error(e);
+                  }
+                }
+              }
+            }
+          }
+          if (valueForNumber.equals(BigDecimal.valueOf(-9999))
+                  && valueForSymbol.equals(BigDecimal.valueOf(-9999))) {
+            //insert empty cell
+            htmlTr.with(createEmptyCell());
+          } else {
+            htmlTr.with(createTableCell(valueForSymbol, valueForNumber, satisfied));
+          }
         }
       }
       tBody.with(htmlTr);
@@ -517,11 +643,12 @@ class GraphicalOutputManager {
     }
   }
 
-  private ContainerTag createTableCell(BigDecimal valueForSymbol, BigDecimal valueForNumber) {
+  private ContainerTag createTableCell(BigDecimal valueForSymbol, BigDecimal valueForNumber, WeightRequirements.Weight weight) {
     String color = BLACK_000000;
     String background = WHITE_FFFFFF;
     String title = "";
     String text = "&nbsp;";
+    String borderColor = null;
     boolean checkLowLimit = false;
     boolean checkUpperLimit = false;
     StringBuilder textStr = new StringBuilder();
@@ -550,33 +677,51 @@ class GraphicalOutputManager {
         //if inside of limits
         if (checkLowLimit && checkUpperLimit) {
           if (viewSymbol && !legendRange.getSymbol().isEmpty()) {
-            symbolContainer = div().attr(STYLE, "font-size:"+symbolSize+";").with(new UnescapedText(legendRange.getSymbol()));
+            symbolContainer = div().attr(STYLE, "font-size:" + symbolSize + ";").with(new UnescapedText(legendRange.getSymbol()));
           }
           if (viewValue) {
-             valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
+            valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
           }
           color = legendRange.getColor();
           background = legendRange.getBackground();
           title = String.valueOf(valueForSymbol);
+          if (weight != null) {
+            title = title + "(w" + weight.getWeight() + ")";
+            borderColor = weight.getColor();
+          }
           break;
         }
 
       }
       if (!checkLowLimit || !checkUpperLimit) {
         if (viewValue) {
-          valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
+          String cellText = valueForNumber.toString();
+          if (weight != null) {
+            cellText = cellText + "(w" + weight.getWeight() + ")";
+            borderColor = weight.getColor();
+          }
+          valueContainer = div().with(new UnescapedText(cellText));
         }
 
         color = BLACK_000000;//black
         background = WHITE_FFFFFF;//white
         title = String.valueOf(valueForSymbol);
+        if (weight != null) {
+          title = title + "(w" + weight.getWeight() + ")";
+          borderColor = weight.getColor();
+        }
 
       }
 
     } else {
       // if p_value is undefined
       if (viewValue) {
-        valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
+        String cellText = valueForNumber.toString();
+        if (weight != null) {
+          cellText = cellText + "(w" + weight.getWeight() + ")";
+          borderColor = weight.getColor();
+        }
+        valueContainer = div().with(new UnescapedText(cellText));
       }
       if (viewSymbol) {
         for (LegendRange range : rangeList) {
@@ -589,13 +734,28 @@ class GraphicalOutputManager {
       }
     }
 
-    ContainerTag result = td().attr(STYLE, "color:" + color + ";background-color:" + background + ";padding:0;")
-            .attr("title", title);
-    if(symbolContainer != null){
+    ContainerTag result;
+    if (borderColor == null) {
+      result = td().attr(STYLE, "color:" + color + ";background-color:" + background + ";padding:0;")
+              .attr("title", title);
+
+    } else {
+      result = td().attr(STYLE, "color:" + color + ";background-color:" + background + ";padding:0;"
+              + "border-color:" + borderColor + ";border-width:4px;")
+              .attr("title", title);
+    }
+    if (symbolContainer != null) {
       result.with(symbolContainer);
     }
-    if(valueContainer != null){
+    if (valueContainer != null) {
       result.with(valueContainer);
+    } else {
+      if (weight != null) {
+        String cellText = "w" + weight.getWeight();
+        valueContainer = div().with(new UnescapedText(cellText));
+       // result.with(valueContainer);
+      }
+
     }
     return result;
   }
@@ -651,33 +811,54 @@ class GraphicalOutputManager {
     boolean isFirstHeatherRow = true;
     for (String field : columnsVars) {
       ContainerTag htmlTrH = tr();
+      ContainerTag htmlTrHCopy = tr();
       int colspan = 0;
       // cells that are above row headers
       // empty - if user did not specify the column names
       // or with the names in the last heather's row
       if (isFirstHeatherRow) {
+        int rowsapn = columnsVars.size();
+        if (this.models.size() > 2) {
+          rowsapn = rowsapn + 1;
+        }
         for (int i = 0; i < listRows.get(0).size(); i++) {
           if (i < leftColumnsNames.size()) {
-            htmlTrH.with(createHeaderCellRowspan(leftColumnsNames.get(i), columnsVars.size()));
+            htmlTrH.with(createHeaderCellRowspan(leftColumnsNames.get(i), rowsapn));
+            htmlTrHCopy.with(createHeaderCellRowspan(leftColumnsNames.get(i), rowsapn));
           } else {
-            htmlTrH.with(createHeaderCellRowspan("", columnsVars.size()));
+            htmlTrH.with(createHeaderCellRowspan("", rowsapn));
+            htmlTrHCopy.with(createHeaderCellRowspan("", rowsapn));
           }
         }
         isFirstHeatherRow = false;
+        if (this.models.size() > 2) {
+          //add extra row for models names
+          for (int i = 0; i < this.models.size(); i = i + 2) {
+            StringBuilder label = new StringBuilder(this.models.get(i));
+            if (i + 1 < this.models.size()) {
+              label.append(" - ").append(this.models.get(i + 1));
+            }
+            htmlTrH.with(createHeaderCellColspan(0, label.toString(), listColumns.size()));
+          }
+          thead.with(htmlTrH);
+          htmlTrH = tr();
+        }
       }
+
       String previousField = listColumns.get(0).get(field).getLabel();
 
-
-      for (Map<String, Entry> column : listColumns) {
-        if (column.get(field).getLabel().equals(previousField)) {
-          //if this is the same field - do  create a cell but increase colspan
-          colspan++;
-        } else {
-          //create a cell
-          htmlTrH.with(createHeaderCellColspan(thead.children.size(), previousField, colspan));
-          //init colspan and field
-          colspan = 1;
-          previousField = column.get(field).getLabel();
+      for (int i = 0; i < this.models.size(); i = i + 2) {
+        for (Map<String, Entry> column : listColumns) {
+          if (column.get(field).getLabel().equals(previousField)) {
+            //if this is the same field - do  create a cell but increase colspan
+            colspan++;
+          } else {
+            //create a cell
+            htmlTrH.with(createHeaderCellColspan(thead.children.size(), previousField, colspan));
+            //init colspan and field
+            colspan = 1;
+            previousField = column.get(field).getLabel();
+          }
         }
       }
       //add a cell for the last column
@@ -699,9 +880,7 @@ class GraphicalOutputManager {
   }
 
   private ContainerTag createHeaderCellRowspan(String text, int rowspan) {
-    ContainerTag th = th(text).attr("rowspan", String.valueOf(rowspan));
-
-    return th;
+    return th(text).attr("rowspan", String.valueOf(rowspan));
   }
 
 
@@ -751,6 +930,23 @@ class GraphicalOutputManager {
         row.put(headers[i], values[i]);
       } else {
         row.put("derived_stat", values[i].split("\\(")[0]);
+        // retrieve model names
+        String truncated = values[i].replace("DIFF_SIG(", "").replace(")", "").replace("-", "");
+        String[] truncatedArr = truncated.split(" ");
+        String model1 = null;
+        String model2 = null;
+        for (String st : truncatedArr) {
+          if (this.models.contains(st)) {
+            if (model1 == null) {
+              model1 = st;
+            } else {
+              model2 = st;
+              break;
+            }
+          }
+        }
+        row.put("model1", model1);
+        row.put("model2", model2);
       }
     }
     return row;
