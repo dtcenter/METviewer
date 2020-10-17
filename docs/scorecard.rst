@@ -8,10 +8,29 @@ A scorecard is a graphical representation of significance and performance of a c
 
 Line Type
 ---------
-Scorecards require aggregation statistic line types. These include: 
+Scorecards can be run with either summary or aggregation logic. Aggregation logic is the default and generally, the better choice. The following are line types scorecards support: 
+
 * CTC
+  
 * SL1L2
-* 
+
+* SAL1L2
+
+* VL1L2
+  
+* VAL1L2
+
+* PCT
+
+* GRAD
+
+* NBRCNT
+
+* ECNT
+
+* NBRCTC
+
+* RPS 
 
 How-To
 -------
