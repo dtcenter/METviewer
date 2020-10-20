@@ -787,7 +787,7 @@ function getSelectedDatabases() {
         //try to get it from the text field
         databases = document.getElementById("categories1").childNodes[0].innerText;
     }
-    if (databases === "Select databases"){
+    if (databases === "Select database"){
         databases = null;
     }
     return databases;
@@ -3879,6 +3879,9 @@ function createXMLRely(plot) {
     var add_skill_line = $('<add_skill_line />');
     add_skill_line.text($('#add_skill_line').prop("checked"));
     plot.append(add_skill_line);
+    var add_noskill_line = $('<add_noskill_line />');
+    add_noskill_line.text($('#add_noskill_line').prop("checked"));
+    plot.append(add_noskill_line);
     var add_reference_line = $('<add_reference_line />');
     add_reference_line.text($('#add_reference_line').prop("checked"));
     plot.append(add_reference_line);
@@ -6098,7 +6101,14 @@ function loadXMLRely() {
         } else {
             $('#add_skill_line').prop('checked', false);
         }
-
+    }
+    if (initXML.find("plot").find("add_noskill_line")) {
+        is_check = $(initXML.find("plot").find("add_noskill_line")).text();
+        if (is_check === 'true') {
+            $('#add_noskill_line').prop('checked', true);
+        } else {
+            $('#add_noskill_line').prop('checked', false);
+        }
     }
     if (initXML.find("plot").find("add_reference_line")) {
         is_check = $(initXML.find("plot").find("add_reference_line")).text();

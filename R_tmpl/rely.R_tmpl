@@ -33,6 +33,8 @@ addReferenceLine = #<add_reference_line>#;
 
 addSkillLine = #<add_skill_line>#;
 
+addNoSkillLine = #<add_noskill_line>#;
+
 boolIndyStagger= #<indy1_stagger>#;
 
 options(warn=1)
@@ -428,21 +430,23 @@ if(addReferenceLine){
   }
 }
 
-# draw the no-skill line
-for (i in 1:length(env$dblNoSkillB)){
-  if(!is.na(env$dblNoSkillB[i][[1]]) && !is.na(env$dblNoSkillM[i][[1]]) ){
-    abline(
-      a=env$dblNoSkillB[i][[1]], # intercept
-      b=env$dblNoSkillM[i][[1]], # slope
-      lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-      col=listColorsDisp[i], # line color
-      lend=1, # line end style - 0: rounded, 1: butt, 2: square
-      cex=1, # line magnification
-      lwd=1.5, # line width
-      xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
-    );
-  }else{
-      cat("  WARNING: no-skill line can't be created for the " , i , "series \n");
+if(addNoSkillLine){
+  # draw the no-skill line
+  for (i in 1:length(env$dblNoSkillB)){
+    if(!is.na(env$dblNoSkillB[i][[1]]) && !is.na(env$dblNoSkillM[i][[1]]) ){
+      abline(
+        a=env$dblNoSkillB[i][[1]], # intercept
+        b=env$dblNoSkillM[i][[1]], # slope
+        lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+        col=listColorsDisp[i], # line color
+        lend=1, # line end style - 0: rounded, 1: butt, 2: square
+        cex=1, # line magnification
+        lwd=1.5, # line width
+        xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
+      );
+    }else{
+        cat("  WARNING: no-skill line can't be created for the " , i , "series \n");
+    }
   }
 }
 
@@ -457,9 +461,9 @@ if( TRUE == boolIndyStagger ){
 
 
 # remove the NAs from the x and y lists
-xValues  = env$listThresh[i][[1]]+ listX1Stag[i];
-yValues  = env$listCal[i][[1]];
-listDataInd  = !( is.na(env$listCal[i][[1]]) );
+xValues  = env$listThresh[length(env$dblNoSkillB)][[1]]+ listX1Stag[length(env$dblNoSkillB)];
+yValues  = env$listCal[length(env$dblNoSkillB)][[1]];
+listDataInd  = !( is.na(env$listCal[length(env$dblNoSkillB)][[1]]) );
 xValues  = xValues[listDataInd];
 yValues  = yValues[listDataInd];
 
@@ -481,8 +485,7 @@ for (i in 1:length(env$listThresh)){
     # b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing
     pch=listPchDisp[i], # point symbol - see example(points)
     font=5, # 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-    lty=listLtyDisp[i], # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5:
-# longdash, 6: twodash
+    lty=listLtyDisp[i], # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
     col=listColorsDisp[i], # line color
     lend=1, # line end style - 0: rounded, 1: butt, 2: square
     cex=1, # line magnification

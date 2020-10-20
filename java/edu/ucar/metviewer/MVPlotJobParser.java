@@ -880,6 +880,7 @@ public final class MVPlotJobParser {
       }
       xmlStr.append("</summary_curve>");
       xmlStr.append("<add_skill_line>").append(job.getAddSkillLine()).append("</add_skill_line>");
+      xmlStr.append("<add_noskill_line>").append(job.getAddNoSkillLine()).append("</add_noskill_line>");
       xmlStr.append("<add_reference_line>").append(job.getAddReferenceLine())
               .append("</add_reference_line>");
       xmlStr.append("<add_point_thresholds>").append(job.getAddPointThresholds())
@@ -1862,6 +1863,8 @@ public final class MVPlotJobParser {
         job.setAddPointThresholds(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("add_skill_line")) {
         job.setAddSkillLine(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("add_noskill_line")) {
+        job.setAddNoSkillLine(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("add_reference_line")) {
         job.setAddReferenceLine(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("create_html")) {

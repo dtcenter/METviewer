@@ -313,6 +313,7 @@ public abstract class JobManager {
     info.put("pos", job.getTaylorVoc() ? "TRUE" : FALSE);
     info.put("show_gamma", job.getTaylorShowGamma() ? "TRUE" : FALSE);
     info.put("add_skill_line", job.getAddSkillLine() ? "TRUE" : FALSE);
+    info.put("add_noskill_line", job.getAddNoSkillLine() ? "TRUE" : FALSE);
     info.put("add_reference_line", job.getAddReferenceLine() ? "TRUE" : FALSE);
     info.put("add_point_thresholds", job.getAddPointThresholds() ? "TRUE" : FALSE);
     info.put("plot_type", job.getPlotType());
