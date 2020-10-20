@@ -9,7 +9,7 @@ The series plot is the most general of all the METviewer plotting options. A ser
 How-To
 -------
 
-Selection of options to produce the plot proceeds approxately counter-clockwise around the METviewer window. The steps to create a series plot are:
+Selection of options to produce the plot proceeds approximately counter-clockwise around the METviewer window. The steps to create a series plot are:
 
 #. Select the desired database from the "Select databases" pulldown menu at the top margin of the METviewer window. 
    
