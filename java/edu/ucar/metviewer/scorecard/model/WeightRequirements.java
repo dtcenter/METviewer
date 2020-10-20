@@ -25,12 +25,10 @@ public class WeightRequirements {
 
   public static class Weight {
     private final double weight;
-    private  String color = null;
     private final List<Criteria> criteriaList;
 
-    public Weight(double weight, String color, List<Criteria> criteriaList) {
+    public Weight(double weight, List<Criteria> criteriaList) {
       this.weight = weight;
-      this.color = color;
       this.criteriaList = criteriaList;
     }
 
@@ -38,9 +36,6 @@ public class WeightRequirements {
       return weight;
     }
 
-    public String getColor() {
-      return color;
-    }
 
     public List<Criteria> getCriteriaList() {
       return criteriaList;
