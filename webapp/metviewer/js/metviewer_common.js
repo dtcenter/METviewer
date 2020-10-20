@@ -4316,20 +4316,21 @@ function createXMLCommon(plot) {
     plot.append($('<order_series />').text("c(" + orderArr.join() + ")"));
     plot.append($('<plot_cmd />').text($('#plot_cmd').val()));
     plot.append($('<legend />').text("c(" + legendArr.join() + ")"));
+    plot.append($('<create_html />').text("TRUE"));
 
 
-    if ($('#y1_lim_min').val().trim().length == 0 || $('#y1_lim_max').val().trim().length == 0) {
+    if ($('#y1_lim_min').val().trim().length === 0 || $('#y1_lim_max').val().trim().length === 0) {
         plot.append($('<y1_lim />').text("c()"));
     } else {
         plot.append($('<y1_lim />').text("c(" + $('#y1_lim_min').val() + "," + $('#y1_lim_max').val() + ")"));
     }
-    if ($('#x1_lim_min').val().trim().length == 0 || $('#x1_lim_max').val().trim().length == 0) {
+    if ($('#x1_lim_min').val().trim().length === 0 || $('#x1_lim_max').val().trim().length === 0) {
         plot.append($('<x1_lim />').text("c()"));
     } else {
         plot.append($('<x1_lim />').text("c(" + $('#x1_lim_min').val() + "," + $('#x1_lim_max').val() + ")"));
     }
     plot.append($('<y1_bufr />').text($('#y1_bufr').val()));
-    if ($('#y2_lim_min').val().trim().length == 0 || $('#y2_lim_max').val().trim().length == 0) {
+    if ($('#y2_lim_min').val().trim().length === 0 || $('#y2_lim_max').val().trim().length === 0) {
         plot.append($('<y2_lim />').text("c()"));
     } else {
         plot.append($('<y2_lim />').text("c(" + $('#y2_lim_min').val() + "," + $('#y2_lim_max').val() + ")"));
@@ -6975,11 +6976,20 @@ function updateResult(result) {
     resultName = result;
 
     $('#plot_display_inner_header').text(resultName.replace("plot_", ""));
-    $("#plot_image")
-        .error(function () {
+
+    $("#plot_image").empty();
+    $.get(urlOutput + 'plots/' + resultName + '.html', function(data) {
+        $('#plot_image').append(data);
+    }).fail(function() {
+        var img = $('<img>');
+        img.attr('width', '100%');
+        img.attr('height', '100%');
+        img.appendTo('#plot_image');
+        img.error(function () {
             $(this).attr("src", 'images/no_image.png');
-        })
-        .attr("src", urlOutput + 'plots/' + resultName + '.png' + '?' + (new Date()).getTime());
+        }).attr("src", urlOutput + 'plots/' + resultName + '.png' + '?' + (new Date()).getTime());
+    });
+
     $.ajax({
         type: "GET",
         url: urlOutput + "xml/" + resultName + ".xml",
@@ -7301,8 +7311,8 @@ function initPage() {
                 }
 
             },
-            Cancel: function () {
-                $("#addDiffCurveDialogForm").dialog("close");
+            'Cancel': function () {
+                addDiffCurveDialogForm.dialog("close");
             }
         },
         open: function () {
@@ -7355,7 +7365,7 @@ function initPage() {
                             .append($("<option></option>")
                                 .attr("value", allSeries[i].title)
                                 .text(allSeries[i].title));
-                        $('#series1Y2')
+                        $('#series2Y2')
                             .append($("<option></option>")
                                 .attr("value", allSeries[i].title)
                                 .text(allSeries[i].title));
@@ -7645,9 +7655,10 @@ function initPage() {
     });
 
     $("#plot_image").click(function () {
-        if (resultName && resultName.length > 0) {
+        if (document.getElementById("plot_image").firstChild.tagName === 'IMG') {
             viewImage(resultName.replace("plot_", ""));
         }
+
     });
     var tabIndex = 0;
     if (initXML != null) {
