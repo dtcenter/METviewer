@@ -381,6 +381,24 @@ public abstract class JobManager {
     info.put("revision_run", job.getRevisionRun() ? "TRUE" : FALSE);
     info.put("revision_ac", job.getRevisionAc() ? "TRUE" : FALSE);
 
+    info.put("show_nstats", job.getShowNStats() ? "True" : "False");
+    info.put("indy_stagger_1", job.getIndy1Stagger() ? "True" : "False");
+    info.put("indy_stagger_2", job.getIndy2Stagger() ? "True" : "False");
+    info.put("variance_inflation_factor", job.getVarianceInflationFactor() ? "True" : "False");
+    info.put("dump_points_1", job.getDumpPoints1() ? "True" : "False");
+    info.put("dump_points_2", job.getDumpPoints2() ? "True" : "False");
+    info.put("vert_plot", job.getVertPlot() ? "True" : "False");
+    info.put("xaxis_reverse", job.getXReverse() ? "True" : "False");
+    info.put("sync_yaxes", job.getSyncAxes() ? "True" : "False");
+    info.put("grid_on", job.getGridOn() ? "True" : "False");
+    info.put("show_signif", rListToList(job.getShowSignif()));
+
+
+    info.put("ylim", rListToListNumeric(job.getY1Lim()));
+    info.put("y2lim", rListToListNumeric(job.getY2Lim()));
+    info.put("xlim", rListToListNumeric(job.getX1Lim()));
+
+
 
     return info;
   }
