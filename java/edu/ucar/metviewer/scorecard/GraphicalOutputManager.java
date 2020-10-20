@@ -63,6 +63,7 @@ class GraphicalOutputManager {
           + ".title1 {width:100%; text-align:center; color:red; font-size:18px; padding-top: 10px;}"
           + ".title2 {width:100%; text-align:center; color:black; font-size:12px;padding-bottom: 10px;}"
           + ".legendTable {margin-top:15px;margin-bottom:10px;}"
+          + ".weightsTable {margin-top:15px;}"
           + ".legendText {text-align:left;}";
   public static final String CLASS = "class";
   public static final String STYLE = "style";
@@ -89,6 +90,7 @@ class GraphicalOutputManager {
   private final List<String> leftColumnsNames;
   private final String symbolSize;
   private WeightRequirements weightRequirements = null;
+  private final SortedMap<Double, String> weightToColor = new TreeMap<>(Collections.reverseOrder());
 
 
   public GraphicalOutputManager(final Scorecard scorecard) {
@@ -197,13 +199,9 @@ class GraphicalOutputManager {
           if (weightNode.getNodeType() == Node.ELEMENT_NODE &&
                   "Weight".equals(weightNode.getNodeName())) {
             double weightValue = Double.parseDouble(weightNode.getAttributes().getNamedItem("weight").getNodeValue());
-            String color = null;
-            try {
-              color = String.valueOf(weightNode.getAttributes().getNamedItem("color").getNodeValue());
-            } catch (Exception e) {
-            }
+
             List<WeightRequirements.Criteria> criteriaList = new ArrayList<>();
-            WeightRequirements.Weight weight = new WeightRequirements.Weight(weightValue, color, criteriaList);
+            WeightRequirements.Weight weight = new WeightRequirements.Weight(weightValue, criteriaList);
             NodeList criteriaNodeList = weightNode.getChildNodes();
             for (int i = 0; i < criteriaNodeList.getLength(); i++) {
               Node criteriaNode = criteriaNodeList.item(i);
@@ -223,8 +221,14 @@ class GraphicalOutputManager {
               }
             }
             weightList.add(weight);
+          } else if (weightNode.getNodeType() == Node.ELEMENT_NODE &&
+                  "WeightToColor".equals(weightNode.getNodeName())) {
+            Double weightValue = Double.parseDouble(weightNode.getAttributes().getNamedItem("weight").getNodeValue());
+            String color = String.valueOf(weightNode.getAttributes().getNamedItem("color").getNodeValue());
+            weightToColor.put(weightValue, color);
           }
         }
+
 
       } catch (ParserConfigurationException | IOException | SAXException e) {
         logger.info("ERROR during reading weightRequirements XML file : " + e.getMessage());
@@ -416,6 +420,9 @@ class GraphicalOutputManager {
 
       //add all html tags together
       htmlBody.with(title1).with(title2).with(title3).with(htmlTable);
+      if (!weightToColor.isEmpty()){
+        htmlBody.with(createHtmlWeightLegend());
+      }
       if (viewLegend) {
         htmlBody.with(createHtmlLegend());
       }
@@ -439,6 +446,25 @@ class GraphicalOutputManager {
     } else {
       throw new MissingFileException(dataFile.getAbsolutePath());
     }
+  }
+
+  private ContainerTag createHtmlWeightLegend() {
+    ContainerTag legendTable = table().attr(CLASS, "weightsTable").attr("align", "center");
+    // create title
+    ContainerTag tr = tr();
+    ContainerTag td = td().attr("colspan", String.valueOf(weightToColor.size()))
+            .with(new UnescapedText("Weights"));
+    tr.with(td);
+    legendTable.with(tr);
+
+    tr = tr();
+    for (Map.Entry<Double, String> entry: weightToColor.entrySet()){
+      td = td().attr(STYLE, "border-color:" + entry.getValue() + ";" + "border-width:4px;")
+              .with(new UnescapedText(String.valueOf(entry.getKey())));
+      tr.with(td);
+    }
+    legendTable.with(tr);
+    return legendTable;
   }
 
   private ContainerTag createHtmlLegend() {
@@ -687,7 +713,7 @@ class GraphicalOutputManager {
           title = String.valueOf(valueForSymbol);
           if (weight != null) {
             title = title + "(w" + weight.getWeight() + ")";
-            borderColor = weight.getColor();
+            borderColor = weightToColor.get(weight.getWeight());
           }
           break;
         }
@@ -698,7 +724,7 @@ class GraphicalOutputManager {
           String cellText = valueForNumber.toString();
           if (weight != null) {
             cellText = cellText + "(w" + weight.getWeight() + ")";
-            borderColor = weight.getColor();
+            borderColor = weightToColor.get(weight.getWeight());
           }
           valueContainer = div().with(new UnescapedText(cellText));
         }
@@ -708,7 +734,7 @@ class GraphicalOutputManager {
         title = String.valueOf(valueForSymbol);
         if (weight != null) {
           title = title + "(w" + weight.getWeight() + ")";
-          borderColor = weight.getColor();
+          borderColor = weightToColor.get(weight.getWeight());
         }
 
       }
@@ -719,7 +745,7 @@ class GraphicalOutputManager {
         String cellText = valueForNumber.toString();
         if (weight != null) {
           cellText = cellText + "(w" + weight.getWeight() + ")";
-          borderColor = weight.getColor();
+          borderColor = weightToColor.get(weight.getWeight());
         }
         valueContainer = div().with(new UnescapedText(cellText));
       }
@@ -753,7 +779,7 @@ class GraphicalOutputManager {
       if (weight != null) {
         String cellText = "w" + weight.getWeight();
         valueContainer = div().with(new UnescapedText(cellText));
-       // result.with(valueContainer);
+        // result.with(valueContainer);
       }
 
     }
