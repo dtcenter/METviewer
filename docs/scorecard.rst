@@ -59,7 +59,7 @@ Here is an explanation for the sections:
 
 **<folders>:** A structure that specifies the input and output file system folders.
         
-        **<r_tmpl>:** The folder that contains the R templates used by METviewer, typically R_tmpl/ from the metviewer CVS source tree.
+        **<r_tmpl>:** The folder that contains the R templates used by METviewer, typically *R_tmpl/* from the metviewer CVS source tree.
         
         **<r_work>:** The folder that will contain the data and generated R scripts, must contain the sub-folder *include/*.
         
