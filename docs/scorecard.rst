@@ -61,7 +61,7 @@ Here is an explanation for the sections:
         
         **<r_tmpl>:** The folder that contains the R templates used by METviewer, typically R_tmpl/ from the metviewer CVS source tree.
         
-        **<r_work>:** The folder that will contain the data and generated R scripts, must contain the sub-folder include/
+        **<r_work>:** The folder that will contain the data and generated R scripts, must contain the sub-folder *include/*.
         
         **<plots>:** The output folder that will contain generated image and HTML files.
         
