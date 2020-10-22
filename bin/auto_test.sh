@@ -277,7 +277,7 @@ if [ $ret -ne 0 ]; then
 	fi
 	exit $ret
 fi
-ant all -Ddb.management.system=${managementSystem} -Dmetcalcpy.path=${METCALCPY_HOME} -Dmetplotpy.path=${METPLOTPY_HOME}
+ant all -Ddb.management.system=${managementSystem} -Dmetcalcpy.path=${METCALCPY_HOME} -Dmetplotpy.path=${METPLOTPY_HOME} -Dpython.env.path=${PYTHON_ENV}
 ret=$?
 if [ $ret -ne 0 ]; then
 	#send a note
