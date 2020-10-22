@@ -71,7 +71,7 @@ Here is an explanation for the sections:
 
 **<plot>:** A structure that specifies scorecard characteristics.
         
-        **<execution_type>:** **Rscript** or **Python**, indicating whether to use Rscript ot Python for the statistics calculation and plotting (if available). This is optional element. The default value is Rscript.
+        **<execution_type>:** **Rscript** or **Python**, indicating whether to use Rscript ot Python for the statistics calculation and plotting (if available). This is an optional element. The default value is Rscript.
         
         **<view_value>:** **TRUE** or **FALSE**, indicating whether or not to display statistical values in the scorecard cells. The default value is FALSE (do not display).
         
