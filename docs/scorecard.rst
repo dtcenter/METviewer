@@ -53,7 +53,7 @@ Here is an explanation for the sections:
 
 **<plot_spec>:** This is the top level tag. It stands for "plot specifications". Everything is defined in this tag.
 
-**<connection>:** Please reference the "Common XML Structures" documentation. **NOTE: This is in Tatiana's HTML documentation we'll need to incorporate**
+**<connection>:** Please reference the "Common XML Structures" documentation. ??**NOTE: This is in Tatiana's HTML documentation we'll need to incorporate**??
 
 **<rscript>:** Specifies the Rscript instance to use, for example /usr/local/bin/Rscript.
 
