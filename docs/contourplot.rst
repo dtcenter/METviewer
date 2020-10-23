@@ -21,7 +21,7 @@ Selection of options to produce the plot proceeds approximately counter-clockwis
 
 #. Select the Y axis Independent Variable from the first pulldown menu in the section of the same name. There are many options. “FCST_LEV” is used in the included example. In the second pulldown menu to the right of the first are the independent variable options.
 
-#. It usually does not make sense to mix statistic for different groups. The desired group to calculate statistics over can be specified using the “Fixed Values” section. In the example below, a single domain (category: “VX_MASK”, value: “CONUS”) and a model (category: “MODEL”, value: “HRRR_hrconus”) are chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
+#. It usually does not make sense to mix statistics for different groups. The desired group to calculate statistics over can be specified using the “Fixed Values” section. In the example below, a single domain (category: “VX_MASK”, value: “CONUS”) and a model (category: “MODEL”, value: “HRRR_hrconus”) are chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
 
 #. Select the x-axis value in the “X axis Independent Variable” section. For this example, it is the forecast initialization beginning time.
 
@@ -43,7 +43,7 @@ The example is a contour plot of temperature mean error (bias) for one model at 
 
 	    Figure 10.1:  Example METviewer contour plot showing temperature bias by pressure level over a series of initialization times.
 
-Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here[insert link to XML].
+Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here ??[insert link to XML]??.
 
 
 .. literalinclude:: contour_xml.xml
