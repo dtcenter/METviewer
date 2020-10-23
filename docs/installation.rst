@@ -6,7 +6,7 @@ METviewer Installation Guide
 Introduction
 ------------
 
-This chapter describes how to install the MET package. MET has been developed and tested on Linux operating systems. Support for additional platforms and compilers may be added in future releases. The MET package requires many external libraries to be available on the user's computer prior to installation. Required and recommended libraries, how to install MET, the MET directory structure, and sample cases are described in the following sections. 
+This chapter describes how to install METviewer. METviewer has been developed and tested on Linux operating systems. Support for additional platforms and compilers may be added in future releases. 
 
 Installing METviewer
 --------------------
