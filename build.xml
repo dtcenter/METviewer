@@ -632,11 +632,11 @@
                        byline="true"/>
         <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
                        match="metcalcpy.home=(.*)"
-                       replace="metcalcpy.home=${metcalcpy.path}"
+                       replace="metcalcpy.home=${metcalcpy.home}"
                        byline="true"/>
         <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
                        match="metplotpy.home=(.*)"
-                       replace="metplotpy.home=${metplotpy.path}"
+                       replace="metplotpy.home=${metplotpy.home}"
                        byline="true"/>
         <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
                        match="python.env=(.*)"
