@@ -29,7 +29,7 @@ Selection of options to produce the plot proceeds approximately counter-clockwis
 
 #. Select the x-axis value in the “Independent Variable” dropdown menu. For a box plot, this is often a date, lead time, or threshold. In the example in the next section, the Y1 dependent variable “RMSE” is plotted for the ensemble member selected in “Y1 Series Variable” and is plotted over forecast lead time.
 
-#. Select the type of statistics summary by selecting either “Summary” or “Aggregation Statistics” button in the “Statistics” section. Aggregated statistics may be selected for certain varietes of statistics. The selection can be made from the leftmost dropdown menu in the “Statistics” section. By default, the median value of all statistics will be plotted. Using the dropdown menu, the mean or sum may be selected instead. Choosing this option will cause a single statistic to be calculated from the individual database lines.
+#. Select the type of statistics summary by selecting either “Summary” or “Aggregation Statistics” button in the “Statistics” section. Aggregated statistics may be selected for certain varieties of statistics. The selection can be made from the leftmost dropdown menu in the “Statistics” section. By default, the median value of all statistics will be plotted. Using the dropdown menu, the mean or sum may be selected instead. Choosing this option will cause a single statistic to be calculated from the individual database lines.
 
 #. There is a "Plot Configurations" that has options specific to box plots, including whether or not to show outliers, points, notches, and more. The box width can also be altered here. 
     
