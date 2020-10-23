@@ -12,7 +12,7 @@ Ensemble skill is a measure of ensemble accuracy. A perfect spread/skill ratio i
 How-To
 -------
 
-Selection of options to produce the spread vs. skill plot  proceeds approxately counter-clockwise around the METviewer window.
+Selection of options to produce the spread vs. skill plot  proceeds approximately counter-clockwise around the METviewer window.
 
 #. Select the desired database from the “Select databases” pulldown menu at the top margin of the METviewer window.
 
