@@ -18,7 +18,7 @@ Reliability diagrams require the probability statistics (PCT line type) generate
 How-To
 -------
 
-Selection of options to produce the reliability diagram proceeds approxately counter-clockwise around the METviewer window.
+Selection of options to produce the reliability diagram proceeds approximately counter-clockwise around the METviewer window.
 
 #. Select the desired database from the “Select databases” pulldown menu at the top margin of the METviewer window.
    
@@ -26,7 +26,7 @@ Selection of options to produce the reliability diagram proceeds approxately cou
 
 #. Select the desired series variable to calculate statistics for in the “Series Variables” tab. Press the “+ Series Variable” button to reveal two pulldown menus. The first pulldown menu in the lists the categories available in the selected dataset. The second pulldown menu allows you to select the value of that category. The reliability diagram only makes sense for probability forecasts. These can be from ensemble forecasts or from a traditional forecast. 
 
-#. It usually does not make sense to mix statistic for different groups. The desired group to calculate statistics over can be specified in the “Specialized Plot Fixed Values” section. For a reliability diagram, the forecast variable (“FCST_VAR”) must be selected. In the example below, the forecast variable is “APCP_24_ENS_FREQ_gt12.700”. A single domain (category: “VX_MASK”, value: “EAST”) is chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
+#. It usually does not make sense to mix statistics for different groups. The desired group to calculate statistics over can be specified in the “Specialized Plot Fixed Values” section. For a reliability diagram, the forecast variable (“FCST_VAR”) must be selected. In the example below, the forecast variable is “APCP_24_ENS_FREQ_gt12.700”. A single domain (category: “VX_MASK”, value: “EAST”) is chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
 
 #. Choose whether or not to display the reliability event histogram in the "Reliability Event Histogram" section. Event histograms allow the user to see how often the forecast falls within each probability bin. The sample sizes in each bin are typically different, and some may be too small for conclusions. They also allow the user to judge the sharpness of the forecasts.
 
@@ -48,7 +48,7 @@ There are many other options for plots, but these are the basics.
 Example
 --------
 
-The reliability diagram shown below is for the probability of 24 hour precipitation with accumulations greater than or equal to 12.7cm over the eastern CONUS occurring. In the figure the reliability curve has a positive slope, indicating that as the forecast probability of the event occurring increases, so does the likelihood of observing the event. The forecasts therefore have some reliability. However, the slope is much less than the diagonal, indicating conditional bias or a lack of reliability. In this example, when forecast probability of precipitation is equal to 55% the actual chance of observing the event is closer to 35%.
+The reliability diagram shown below is for the probability of 24 hour precipitation with accumulations greater than or equal to 12.7 cm occurring over the eastern CONUS. In the figure the reliability curve has a positive slope, indicating that as the forecast probability of the event occurring increases, so does the likelihood of observing the event. The forecasts therefore have some reliability. However, the slope is much less than the diagonal, indicating conditional bias or a lack of reliability. In this example, when forecast probability of precipitation is equal to 55% the actual chance of observing the event is closer to 35%.
 
 The histogram shows the relative frequency with which the event has been predicted (typically over the reference period and at all gridpoints) with different levels of probability. In the example, the majority of forecasts predict low probabilities of precipitation (near the climatological probability of ~5%). The forecast system is also capable of predicting relatively high probabilities of the event (e.g. greater than 40%), but such forecasts are less common.
 
@@ -56,6 +56,6 @@ The histogram shows the relative frequency with which the event has been predict
 
 	    Figure 7.1 Example reliability (attributes diagram) with histogram of observation counts and bootstrap confidence intervals.
 
-Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here[insert link to XML].
+Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here ??[insert link to XML]??.
 
 .. literalinclude:: reliability_xml.xml 
