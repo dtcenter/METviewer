@@ -171,9 +171,9 @@ public abstract class JobManager {
     List<String> listAggStats1 = new ArrayList<>();
     List<String> listAggStats2 = new ArrayList<>();
     for (int intY = 1; intY <= 2; intY++) {
-      strFcstVar = "";
       MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
-      if (mapDepY != null) {
+      if (mapDepY != null && !mapDepY.isEmpty()) {
+        strFcstVar = "";
         MVOrderedMap mapStat = new MVOrderedMap();
 
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
@@ -431,10 +431,9 @@ public abstract class JobManager {
     String strFcstVar = "";
     for (int intY = 1; intY <= 2; intY++) {
       MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
-      strFcstVar = "";
-      if (mapDepY != null) {
+      if (mapDepY != null && !mapDepY.isEmpty()) {
+        strFcstVar = "";
         MVOrderedMap mapStat = new MVOrderedMap();
-
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
         for (String[] aListFcstVarStat : listFcstVarStat) {
           String strFcstVarCur = aListFcstVarStat[intY-1];
