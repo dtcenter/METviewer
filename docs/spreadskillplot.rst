@@ -18,15 +18,15 @@ Selection of options to produce the spread vs. skill plot  proceeds approxately 
 
 #. There are a number of tabs just under the database pulldown menu. Select the ‘Series’ tab, which is the leftmost tab.
 
-#. Select the type of MET statistics that will be used to create the series plot. Click on the “Plot Data” pulldown menu which is located under the tabs. The list contains “Stat”, “MODE”, or “MODE-TD”. For details about these types of output statistics in MET, please see the most recent version of the `MET User's Guide <www.dtcenter.org/met/users/docs>`_.
+#. Select the type of MET statistics that will be used to create the series plot. Click on the “Plot Data” pulldown menu which is located under the tabs. The list contains “Stat”, “MODE”, or “MODE-TD”. For details about these types of output statistics in MET, please see the most recent version of the `MET User's Guide <https://dtcenter.org/community-code/model-evaluation-tools-met/documentation>`_.
 
 #. Select the desired variable to calculate statistics for in the “Y1 Axis Variables” tab. The first pulldown menu in the “Y1 Dependent (Forecast) Variables” section lists the variables available in the selected database.
 
-#. Select the desired statistic to calculate in the second pulldown menu which is to the right of variable menu. This lists the available attribute statistics in the selected dataset. Multiple statistics can be selected and they will each be plotted as a separate line on the plot. For a Spread/Skill plot,two statistics must be selected. In the example below the statistics are "SSVAR_RMSE" and "SSVAR_Spread". 
+#. Select the desired statistic to calculate in the second pulldown menu which is to the right of variable menu. This lists the available attribute statistics in the selected dataset. Multiple statistics can be selected and they will each be plotted as a separate line on the plot. For a Spread/Skill plot, two statistics must be selected. In the example below the statistics are "SSVAR_RMSE" and "SSVAR_Spread". 
 
 #. Select the Y1 Series Variable from the first pulldown menu in that section. There are many options. “MODEL” is used in the included example. In the second pulldown menu to the right of the first are the series variable options, for example, different models.
 
-#. It usually does not make sense to mix statistic for different groups. The desired group to calculate statistics over can be specified using the “Fixed Values” section. In the example below, a single domain (category: “VX_MASK”, value: “EAST”) and level (category: "FCST_LEV", value: "Z2")  are chosen. If multiple domains or threshold were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
+#. It usually does not make sense to mix statistics for different groups. The desired group to calculate statistics over can be specified using the “Fixed Values” section. In the example below, a single domain (category: “VX_MASK”, value: “EAST”) and level (category: "FCST_LEV", value: "Z2")  are chosen. If multiple domains or thresholds were chosen, the statistics would be a summary of all of those cases together, which may not always be desired.
 
 #. Select the x-axis value in the “Independent Variable” dropdown menu. For a spread/skill plot, this is often a date, lead time, or threshold. For a spread/skill plot, this variable must be continuous and there should be reason to believe that the statistic on the Y1 axis is connected across the values of the independent variable. If not, a scatter plot would be a more appropriate choice than the series plot. In the example in the next section, the Y1 dependent variable “Frequency Bias” is plotted for each of the “Y1 Series Variable” ensemble members.
 
@@ -43,8 +43,8 @@ This example shows the 2-m temperature RMSE and spread for a series of forecast 
 
 .. figure:: spreadskill_plot.png
 	    
-	    Figure 11.1 Example METViewer Spread vs. Skill plot showing temperature RMSE and Spread for a series of forecast lead times.
+	    Figure 11.1 Example METviewer Spread vs. Skill plot showing temperature RMSE and spread for a series of forecast lead times.
 	   
-Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here[insert link to XML].
+Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here ??[insert link to XML]??.
 
 .. literalinclude:: spreadskill_xml.xml
