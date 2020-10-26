@@ -435,8 +435,8 @@ if(addNoSkillLine){
   for (i in 1:length(env$dblNoSkillB)){
     if(!is.na(env$dblNoSkillB[i][[1]]) && !is.na(env$dblNoSkillM[i][[1]]) ){
       abline(
-        a=env$dblNoSkillB[i][[1]], # intercept
-        b=env$dblNoSkillM[i][[1]], # slope
+        a=0.5*env$o_bar[i][[1]],
+        b=0.5,
         lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
         col=listColorsDisp[i], # line color
         lend=1, # line end style - 0: rounded, 1: butt, 2: square
