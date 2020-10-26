@@ -224,11 +224,7 @@ initSeries <- function(dfPerm,envir, intPermVal=1) {
     envir$listCal[[actualInd]] = listCal;
     envir$listBcl[[actualInd]] = listBcl;
     envir$listBcu[[actualInd]] = listBcu;
-    dblNoSkillM = (dfPerm[2,]$no_skill - dfPerm[1,]$no_skill) / (dfPerm[2,]$thresh_i - dfPerm[1,]$thresh_i);
-    dblNoSkillB = dfPerm[1,]$no_skill - dblNoSkillM * dfPerm[1,]$thresh_i;
-    envir$dblNoSkillB[[actualInd]] = dblNoSkillB;
-    envir$dblNoSkillM[[actualInd]] = dblNoSkillM;
- 
+
   }
 
 }
@@ -244,7 +240,6 @@ env$listThresh=list();
 env$listCal=list();
 env$listBcl=list();
 env$listBcu=list();
-env$dblNoSkillB=list();
 env$o_bar=list();
 
 intCurveNum = 0;
@@ -432,8 +427,8 @@ if(addReferenceLine){
 
 if(addNoSkillLine){
   # draw the no-skill line
-  for (i in 1:length(env$dblNoSkillB)){
-    if(!is.na(env$dblNoSkillB[i][[1]]) && !is.na(env$dblNoSkillM[i][[1]]) ){
+  for (i in 1:length(env$o_bar)){
+      if(!is.na(env$o_bar[i][[1]])){
       abline(
         a=0.5*env$o_bar[i][[1]],
         b=0.5,
@@ -461,9 +456,9 @@ if( TRUE == boolIndyStagger ){
 
 
 # remove the NAs from the x and y lists
-xValues  = env$listThresh[length(env$dblNoSkillB)][[1]]+ listX1Stag[length(env$dblNoSkillB)];
-yValues  = env$listCal[length(env$dblNoSkillB)][[1]];
-listDataInd  = !( is.na(env$listCal[length(env$dblNoSkillB)][[1]]) );
+xValues  = env$listThresh[length(env$o_bar)][[1]]+ listX1Stag[length(env$o_bar)];
+yValues  = env$listCal[length(env$o_bar)][[1]];
+listDataInd  = !( is.na(env$listCal[length(env$o_bar)][[1]]) );
 xValues  = xValues[listDataInd];
 yValues  = yValues[listDataInd];
 
