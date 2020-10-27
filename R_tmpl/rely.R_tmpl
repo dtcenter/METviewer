@@ -391,6 +391,33 @@ par(
   xpd=NA # plot clipping - FALSE: plot, TRUE: figure, NA: device
 );
 
+if(addNoSkillLine){
+  # draw the no-skill line
+  for (i in 1:length(env$o_bar)){
+      if(!is.na(env$o_bar[i][[1]])){
+      x.p <- c( env$o_bar[i][[1]], env$o_bar[i][[1]], 1, 1, env$o_bar[i][[1]], 0, 0)
+      y.p <- c( 0, 1, 1, (1 - env$o_bar[i][[1]]) / 2 + env$o_bar[i][[1]], env$o_bar[i][[1]], env$o_bar[i][[1]] , 0 )
+      polygon( x.p, y.p, col = 'gray93',border = NA )
+      a = 0.5*env$o_bar[i][[1]]
+      b=0.5
+      abline(
+        a=0.5*env$o_bar[i][[1]],
+        b=0.5,
+        lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+        col=listColorsDisp[i], # line color
+        lend=1, # line end style - 0: rounded, 1: butt, 2: square
+        cex=1, # line magnification
+        lwd=1.5, # line width
+        xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
+      );
+      text(1, b + a,"No-Skill",srt=b*35,pos=3)
+
+    }else{
+        cat("  WARNING: no-skill line can't be created for the " , i , "series \n");
+    }
+  }
+}
+
 if(addSkillLine){
   # draw the max-skill line
   abline(
@@ -403,47 +430,24 @@ if(addSkillLine){
     lwd=1.5, # line width
     xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
   );
+  text(0.96, 0.96,"Perfect reliability",srt=33,pos=3)
 }
 
 if(addReferenceLine){
   # draw the no-resolution line
   for (i in 1:length(env$o_bar)){
     if(!is.na(env$o_bar[i][[1]])){
-      abline(
-        a=env$o_bar[i][[1]], # intercept
-        b=0, # slope
-        lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-        col=listColorsDisp[i], # line color
-        lend=1, # line end style - 0: rounded, 1: butt, 2: square
-        cex=1, # line magnification
-        lwd=1.5, # line width
-        xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
-      );
+      a=env$o_bar[i][[1]]
+      b=0
+      abline( v = env$o_bar[i][[1]], h = env$o_bar[i][[1]], lty = 2, lwd = 1.5,xpd=FALSE,col=listColorsDisp[i],lend=1 )
+      text(0.96, b + a, "No-resolution", pos=3)
     }else{
       cat(" WARNING: reference  line can't be created for the " , i , "series \n");
     }
   }
 }
 
-if(addNoSkillLine){
-  # draw the no-skill line
-  for (i in 1:length(env$o_bar)){
-      if(!is.na(env$o_bar[i][[1]])){
-      abline(
-        a=0.5*env$o_bar[i][[1]],
-        b=0.5,
-        lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-        col=listColorsDisp[i], # line color
-        lend=1, # line end style - 0: rounded, 1: butt, 2: square
-        cex=1, # line magnification
-        lwd=1.5, # line width
-        xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
-      );
-    }else{
-        cat("  WARNING: no-skill line can't be created for the " , i , "series \n");
-    }
-  }
-}
+
 
 # build the x-adjustment increments, if requested
 dblAdjScale = (tail(env$listThresh[[length(env$listThresh)]], n=1) - head(env$listThresh[[length(env$listThresh)]], n=1)) / 150;
