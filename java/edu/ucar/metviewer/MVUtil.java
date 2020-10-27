@@ -1552,9 +1552,11 @@ public class MVUtil {
     String[] listKeys = (String[]) keys.toArray(new String[keys.size()]);
     for (int i = 0; i < listKeys.length; i++) {
       if (0 < i) {
-        strRDecl += ",\n" + MVUtil.padBegin("`" + listKeys[i] + "`") + " = ";
+        strRDecl += ",\n" + MVUtil.padBegin("`" + listKeys[i].replace("&#38;", "&").replace("&gt;", ">")
+                .replace("&lt;", "<") + "`") + " = ";
       } else {
-        strRDecl += "" + MVUtil.padBegin("`" + listKeys[i] + "`") + " = ";
+        strRDecl += "" + MVUtil.padBegin("`" + listKeys[i].replace("&#38;", "&").replace("&gt;", ">")
+                .replace("&lt;", "<") + "`") + " = ";
       }
       Object objVal = map.get(listKeys[i]);
       if (objVal instanceof String) {
@@ -1582,7 +1584,8 @@ public class MVUtil {
     for (String key : keys) {
       Object objVal = map.get(key);
       if (objVal instanceof String) {
-        result.put(key, new String[]{(String) objVal});
+        result.put(key, new String[]{((String) objVal).replace("&#38;", "&").replace("&gt;", ">")
+                .replace("&lt;", "<")});
       } else if (objVal instanceof String[]) {
         result.put(key, objVal);
       } else if (objVal instanceof MVOrderedMap) {
