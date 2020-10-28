@@ -11,6 +11,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+from datetime import datetime
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 
@@ -18,11 +19,14 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 
 project = 'METviewer'
-copyright = '2019, NCAR'
-author = 'NCAR'
-
-# The full version, including alpha/beta/rc tags
-release = '2.12'
+author = 'UCAR/NCAR'
+author_list = "Burek, T., Jensen, T., Blank, L., Fowler, T., Halley Gotway, J., Goodrich, L., and Prestopnik, J."
+version = "develop"
+verinfo = version
+release = f'{version}'
+release_year = '2021'
+release_date = f'{release_year}0317'
+copyright = f'{release_year}, {author}'
 
 
 # -- General configuration ---------------------------------------------------
@@ -30,7 +34,7 @@ release = '2.12'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = ['sphinx.ext.autodoc','sphinx.ext.intersphinx']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,6 +44,9 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+# Suppress certain warning messages
+suppress_warnings = ['ref.citation']
+
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -47,6 +54,10 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
+html_theme_path = ["_themes", ]
+html_js_files = ['pop_ver.js']
+html_theme_options = {'canonical_url': 'https://dtcenter.github.io/METviewer/latest/'}
+html_theme_options['versions'] = {'latest': '../latest', 'develop': '../develop'}
 html_css_files = ['theme_override.css']
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -57,3 +68,15 @@ html_static_path = ['_static']
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 html_logo = os.path.join('_static','met_viewer_logo_2019_09.png')
+
+# -- Export variables --------------------------------------------------------
+
+rst_epilog = """
+.. |copyright|    replace:: {copyrightstr}
+.. |author_list|  replace:: {author_liststr}
+.. |release_date| replace:: {release_datestr}
+.. |release_year| replace:: {release_yearstr}
+""".format(copyrightstr    = copyright,
+           author_liststr  = author_list,
+           release_datestr = release_date,
+           release_yearstr = release_year)
