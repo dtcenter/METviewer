@@ -53,15 +53,15 @@ Here is an explanation for the sections:
 
 **<plot_spec>:** This is the top level tag. It stands for "plot specifications". Everything is defined in this tag.
 
-**<connection>:** Please reference the "Common XML Structures" documentation. **NOTE: This is in Tatiana's HTML documentation we'll need to incorporate**
+**<connection>:** Please reference the "Common XML Structures" documentation. ??**NOTE: This is in Tatiana's HTML documentation we'll need to incorporate**??
 
 **<rscript>:** Specifies the Rscript instance to use, for example /usr/local/bin/Rscript.
 
 **<folders>:** A structure that specifies the input and output file system folders.
         
-        **<r_tmpl>:** The folder that contains the R templates used by METviewer, typically R_tmpl/ from the metviewer CVS source tree.
+        **<r_tmpl>:** The folder that contains the R templates used by METviewer, typically *R_tmpl/* from the METviewer CVS source tree.
         
-        **<r_work>:** The folder that will contain the data and generated R scripts, must contain the sub-folder include/
+        **<r_work>:** The folder that will contain the data and generated R scripts, must contain the sub-folder *include/*.
         
         **<plots>:** The output folder that will contain generated image and HTML files.
         
@@ -71,7 +71,7 @@ Here is an explanation for the sections:
 
 **<plot>:** A structure that specifies scorecard characteristics.
         
-        **<execution_type>:** **Rscript** or **Python**, indicating whether to use Rscript ot Python for the statistics calculation and plotting (if available). This is optional element. The default value is Rscript.
+        **<execution_type>:** **Rscript** or **Python**, indicating whether to use Rscript ot Python for the statistics calculation and plotting (if available). This is an optional element. The default value is Rscript.
         
         **<view_value>:** **TRUE** or **FALSE**, indicating whether or not to display statistical values in the scorecard cells. The default value is FALSE (do not display).
         
