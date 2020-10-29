@@ -1552,9 +1552,11 @@ public class MVUtil {
     String[] listKeys = (String[]) keys.toArray(new String[keys.size()]);
     for (int i = 0; i < listKeys.length; i++) {
       if (0 < i) {
-        strRDecl += ",\n" + MVUtil.padBegin("`" + listKeys[i] + "`") + " = ";
+        strRDecl += ",\n" + MVUtil.padBegin("`" + listKeys[i].replace("&#38;", "&").replace("&gt;", ">")
+                .replace("&lt;", "<") + "`") + " = ";
       } else {
-        strRDecl += "" + MVUtil.padBegin("`" + listKeys[i] + "`") + " = ";
+        strRDecl += "" + MVUtil.padBegin("`" + listKeys[i].replace("&#38;", "&").replace("&gt;", ">")
+                .replace("&lt;", "<") + "`") + " = ";
       }
       Object objVal = map.get(listKeys[i]);
       if (objVal instanceof String) {
@@ -1582,7 +1584,8 @@ public class MVUtil {
     for (String key : keys) {
       Object objVal = map.get(key);
       if (objVal instanceof String) {
-        result.put(key, new String[]{(String) objVal});
+        result.put(key, new String[]{((String) objVal).replace("&#38;", "&").replace("&gt;", ">")
+                .replace("&lt;", "<")});
       } else if (objVal instanceof String[]) {
         result.put(key, objVal);
       } else if (objVal instanceof MVOrderedMap) {
@@ -2468,8 +2471,8 @@ public class MVUtil {
 
     tableRTags.put("caption_col", job.getCaptionCol());
     populateDouble(tableRTags, "caption_size", job.getCaptionSize(), 0.8);
-    populateInt(tableRTags, "caption_offset", job.getCaptionOffset(), 3);
-    populateInt(tableRTags, "caption_align", job.getCaptionAlign(), 0);
+    populateDouble(tableRTags, "caption_offset", job.getCaptionOffset(), 3);
+    populateDouble(tableRTags, "caption_align", job.getCaptionAlign(), 0);
 
     tableRTags.put("box_pts", job.getBoxPts().equalsIgnoreCase("true") ? "True" : "False");
     tableRTags.put("box_outline", job.getBoxOutline().equalsIgnoreCase("true") ? "True" : "False");

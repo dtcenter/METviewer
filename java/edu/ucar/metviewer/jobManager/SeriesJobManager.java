@@ -262,6 +262,8 @@ public class SeriesJobManager extends JobManager {
           yamlInfo = createYamlInfoMap(job);
         }
         yamlInfo.put("stat_input", dataFileName);
+
+
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
         job.setPlotTmpl(this.getPythonScript());
         yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);
@@ -275,7 +277,7 @@ public class SeriesJobManager extends JobManager {
 
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/line/line.py";
   }
 
 

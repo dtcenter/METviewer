@@ -204,6 +204,7 @@
         $('#is_hist').buttonset();
         $('#summary_curve').val("none");
         $('#add_skill_line').prop('checked', true);
+        $('#add_noskill_line').prop('checked', true);
         $('#add_reference_line').prop('checked', true);
 
         $("#summary_curve").multiselect({
@@ -363,7 +364,7 @@
     <div class="ui-widget-header-plot">Reliability Event Histogram
 
     </div>
-    <table style="width: 95%">
+    <table style="width: 100%">
         <tr>
             <td>
                 <div id="is_hist">
@@ -376,9 +377,11 @@
                 </div>
             </td>
             <td style="text-align: right;">
-                <input type="checkbox" id="add_skill_line"><label for="add_skill_line">Add skill
+                <input type="checkbox" id="add_skill_line"><label for="add_skill_line">Add perfect reliability
                 line</label>
-                <input type="checkbox" id="add_reference_line"><label for="add_reference_line">Add reference
+                <input type="checkbox" id="add_reference_line"><label for="add_reference_line">Add no-resolution
+                line</label>
+                <input type="checkbox" id="add_noskill_line"><label for="add_noskill_line">Add no-skill
                 line</label>
             </td>
         </tr>

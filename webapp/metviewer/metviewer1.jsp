@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<HTML>
 <HEAD>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v3.1</TITLE>
+  <TITLE>METviewer 4.0-beta1</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -185,6 +184,7 @@
   <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
   <script type="application/javascript" src="js/metviewer_common.min.js"></script>
   <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
+  <script type="application/javascript" src="js/plotly-latest.min.js"></script>
 
 
   <script type="application/javascript">
@@ -212,6 +212,8 @@
     }
     var series1Names = [];
     var series2Names = [];
+
+
 
     $(document).ready(function () {
 
@@ -250,7 +252,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 3.1<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 4.0-beta1<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
@@ -357,8 +359,10 @@
     </ul>
     <div class="ui-layout-content ui-widget-content ui-corner-bottom" style="border-top: 0; padding-bottom: 1em;">
 
+<%--      <img src="images/plot_empty.png" id="plot_image" alt="plot" width="99%" height="99%">--%>
+      <div id="plot_image" style="width: 100%; height: 100%;">
+      </div>
 
-      <img src="images/plot_empty.png" id="plot_image" alt="plot" width="99%" height="99%">
 
 
       <div id="plot_xml">

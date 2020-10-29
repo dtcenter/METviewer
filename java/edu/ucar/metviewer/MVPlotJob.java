@@ -206,6 +206,7 @@ public class MVPlotJob {
   protected List<String> summaryCurve = new ArrayList<>();
   protected boolean addPointThresholds = Boolean.TRUE;
   protected boolean addSkillLine = Boolean.TRUE;
+  protected boolean addNoSkillLine = Boolean.TRUE;
   protected boolean addReferenceLine = Boolean.TRUE;
   protected Boolean isModeRatio = null;
   protected Boolean isMtdRatio = null;
@@ -219,6 +220,7 @@ public class MVPlotJob {
   protected String colorPalette = "cm.colors";
   protected String executionType = RSCRIPT;
   protected String annotationTemplate = "";
+  protected boolean createHtml = Boolean.FALSE;
 
 
 
@@ -405,7 +407,9 @@ public class MVPlotJob {
     job._plotStat = _plotStat;
     job.addPointThresholds = addPointThresholds;
     job.addSkillLine = addSkillLine;
+    job.addNoSkillLine = addNoSkillLine;
     job.addReferenceLine = addReferenceLine;
+    job.createHtml = createHtml;
     job.summaryCurve.addAll(summaryCurve);
 
     job.isAddColorBar = isAddColorBar;
@@ -1965,12 +1969,28 @@ public class MVPlotJob {
     this.addReferenceLine = addReferenceLine;
   }
 
+  public boolean getCreateHtml() {
+    return createHtml;
+  }
+
+  public void setCreateHtml(boolean createHtml) {
+    this.createHtml = createHtml;
+  }
+
   public boolean getAddSkillLine() {
     return addSkillLine;
   }
 
   public void setAddSkillLine(boolean addSkillLine) {
     this.addSkillLine = addSkillLine;
+  }
+
+  public boolean getAddNoSkillLine() {
+    return addNoSkillLine;
+  }
+
+  public void setAddNoSkillLine(boolean addNoSkillLine) {
+    this.addNoSkillLine = addNoSkillLine;
   }
 
   public String getSummaryCurveRformat() {
