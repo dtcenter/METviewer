@@ -56,6 +56,9 @@ Foundation (NSF).
 
    overview
    installation
+   common
+   database_loading
+   database_scrubbing
    seriesplots
    barplots
    boxplot
