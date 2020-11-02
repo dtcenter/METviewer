@@ -27,12 +27,12 @@ METviewer relies on the following tools. These must be installed and tested prio
    * edit [install]/metviewer/bin/mv_batch.sh:
      
         * set the variable JAVA to point at the desired jvm instance to run
-        * set the variable METVIEWER to point at [install]/metviewer
+        * set the variable MV_HOME to point at [install]/metviewer
 
    * edit [install]/metviewer/bin/mv_load.sh:
         
         * set the variable JAVA to point at the desired jvm instance to run
-        * set the variable METVIEWER to point at [install]/metviewer
+        * set the variable MV_HOME to point at [install]/metviewer
         
    * edit [install]/metviewer/webapp/metviewer/WEB-INF/classes/log4j.properties:
         
