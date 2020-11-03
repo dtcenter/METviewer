@@ -2097,7 +2097,7 @@ function updateFixedVarVal(index, selectedVals, equalize) {
         var selected_mode, statst;
         if (currentTab === 'Perf') {
             selected_mode = 'stat';
-            statst = '<stat><fcst_var><val>FAR</val></fcst_var></stat>';
+            statst = '<stat><fcst_var><val>FAR</val><val>NBR_FAR</val></fcst_var></stat>';
         } else if (currentTab === 'Eclv') {
             selected_mode = 'eclv';
             statst = '<stat><fcst_var><val>NA</val></fcst_var></stat>';
@@ -2196,7 +2196,7 @@ function populateIndyVarVal(selectedVals) {
         var selected_mode, statst;
         if (currentTab === 'Perf') {
             selected_mode = 'stat';
-            statst = '<stat><fcst_var><val>FAR</val></fcst_var></stat>';
+            statst = '<stat><fcst_var><val>FAR</val><val>NBR_FAR</val></fcst_var></stat>';
         } else if (currentTab === 'Contour') {
             selected_mode = 'stat';
             statst = '<stat><fcst_var name="' + $("#fcst_var_y1_1").val() + '" ><val>' + $("#fcst_stat_y1_1").val() + '</val></fcst_var></stat>';
