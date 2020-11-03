@@ -3565,7 +3565,6 @@ function interpolateColor(rel) {
  */
 function hex(val) {
     var strRet = Math.round(val * 255).toString(16).toUpperCase();
-    var strRet = Math.round(val * 255).toString(16).toUpperCase();
     while (2 > strRet.length) {
         strRet = "0" + strRet;
     }
