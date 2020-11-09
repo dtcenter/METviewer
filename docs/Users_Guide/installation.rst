@@ -85,7 +85,7 @@ METviewer relies on the following tools. These must be installed and tested prio
 
 #. Create a METviewer database:
    
-   * create a database to store MET data, which has the prefix 'mv_', e.g. mv_met_data:
+   * create a database to store MET data, which has the prefix 'mv\_', e.g. mv_met_data:
    
    .. code-block:: none
         
