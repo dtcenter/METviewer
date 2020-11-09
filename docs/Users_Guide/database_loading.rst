@@ -6,6 +6,7 @@ The database loading module is used to insert, update, and delete MET output dat
 ---- MVLoad ----
 
 Usage: mv_load
+
         load_spec_file
         [-index]
 
@@ -55,27 +56,22 @@ The **load_spec_file** passes information about the MET output files to load int
 
 **<description>:** The description of the database.
 
-**<load_files>:** A list structure containing individual MET output files to load into the database.
-
-        **<file>:** Contains a single MET output file to load.
+| **<load_files>:** A list structure containing individual MET output files to load into the database.|         **<file>:** Contains a single MET output file to load.
+|
 
 **<folder_tmpl>:** A template string describing the file structure of the input MET files, which is populated with values specified in the **<load_val>** tag structure.
 
-**<load_val>:** A tree structure containing values used to populate the **<folder_tmpl>** template.
-
-        **<field>:** A template value, its name is specified by the attribute name, and its values are specified by its children **<val>** tags.
-        
-                **<val>:** A single template value which will slot into the template in the value specified by the parent field's name.
-                
-                **<date_list>:** Specifies a previously declared **<date_list>** element, using the name attribute, which represents a list of dates in a particular format.
-                
-        **<line_type>:** A list structure containing the MET output file line types to load. If omitted, all line types are loaded.
-        
-                **<val>:** Contains a single MET output file line type to be loaded, for example, CNT.
-
-        **<load_note>:** If present, creates a record in the instance_info database table with a note containing the body of this tag
-        
-        **<load_xml>:** **TRUE** or **FALSE**, this option indicates whether or not to save the load xml; only effective if **<load_note>** is present - default: TRUE
+| **<load_val>:** A tree structure containing values used to populate the **<folder_tmpl>** template.
+|        **<field>:** A template value, its name is specified by the attribute name, and its values are specified by its children **<val>** tags.       
+|                **<val>:** A single template value which will slot into the template in the value specified by the parent field's name.                
+|                **<date_list>:** Specifies a previously declared **<date_list>** element, using the name attribute, which represents a list of dates in a particular format.
+|                
+|        **<line_type>:** A list structure containing the MET output file line types to load. If omitted, all line types are loaded.       
+|                **<val>:** Contains a single MET output file line type to be loaded, for example, CNT.
+|
+|       **<load_note>:** If present, creates a record in the instance_info database table with a note containing the body of this tag
+|       **<load_xml>:** **TRUE** or **FALSE**, this option indicates whether or not to save the load xml; only effective if **<load_note>** is present - default: TRUE
+|
 
 
 Example
@@ -147,6 +143,3 @@ In this example, the load module would attempt to load any files with the suffix
 
 Troubleshooting
 ---------------
-
-.. list-table:: Troubleshooting
-   :widths: 
