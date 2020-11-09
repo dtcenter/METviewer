@@ -6,6 +6,7 @@ The database scrubbing utility is used to to delete data from METviewer database
 ---- Database Scrubbing ----
 
 Usage: mv_prune.sh prune_db_spec_file
+
           where prune_db_spec_file specifies the XML pruning specification document
 
 ---- Database Scrubbing Done ----
@@ -16,39 +17,32 @@ The prune_db_spec_file passed to the pruning module contains information about t
 
 **<info_only>:** **TRUE** or **FASLE**, this option indicates if the data to be deleted should only be listed (**TRUE**) or the actual deletion performed (**FALSE**).
 
-**<fields>:** A list of fields used for pruning.
-
-        **<value_range>:** An inclusive range for continuous variables, such as dates.
-
-                **<start>:** Beginning of the range.
-                
-                **<end>:** End of the range.
-        **OR**
-        
-        **<value_list>:** A list of values, such as models.
-                
-                **<value>:** A single value.
-**OR**
-        
-**<files>:** A set of files to be removed.
-                
-        **<file>:** File name.
-          
-**OR**
-
-**<folders>:** A set of directories to be removed.
-
-        **<folder_tmpl>:** A template string describing the file structure of the MET files, which is populated with values specified in the **<load_val>** tag structure.
-
-        **<date_list>:** Please reference the “Common XML Structures” documentation. ??Link to Common XML Chapter once integrated??
-
-        **<load_val>:** A tree structure containing values used to populate the **<folder_tmpl>** template.
-
-                **<field>:** A template value, its name is specified by the attribute name, and its values are specified by its children **<val>** tags.
-
-                        **<val>:** A single template value which will slot into the template in the value specified by the parent field's name.
-          
-                        **<date_list>:** Specifies a previously declared **<date_list>** element, using the name attribute, which represents a list of dates in a particular format.
+| **<fields>:** A list of fields used for pruning.
+|       **<value_range>:** An inclusive range for continuous variables, such as dates.
+|                **<start>:** Beginning of the range.                
+|                **<end>:** End of the range.
+|
+|       **OR**
+|        
+|       **<value_list>:** A list of values, such as models.         
+|                **<value>:** A single value.
+| 
+| **OR**
+|        
+| **<files>:** A set of files to be removed.               
+|       **<file>:** File name.         
+|
+| **OR**
+|
+| **<folders>:** A set of directories to be removed.
+|       **<folder_tmpl>:** A template string describing the file structure of the MET files, which is populated with values specified in the **<load_val>** tag structure.
+|       **<date_list>:** Please reference the “Common XML Structures” documentation. ??Link to Common XML Chapter once integrated??
+|
+|       **<load_val>:** A tree structure containing values used to populate the **<folder_tmpl>** template.
+|               **<field>:** A template value, its name is specified by the attribute name, and its values are specified by its children **<val>** tags.
+|                        **<val>:** A single template value which will slot into the template in the value specified by the parent field's name.         
+|                        **<date_list>:** Specifies a previously declared **<date_list>** element, using the name attribute, which represents a list of dates in a particular format.
+|
 
 Examples
 --------
