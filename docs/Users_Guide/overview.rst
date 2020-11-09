@@ -58,8 +58,6 @@ Summary – scores computed per each combination of fixed values and independent
 
 Aggregate statistics – accumulates SL1L2 lines or CTC counts prior to calculating the statistics.
 
-Revision statistics - Creates a revision series (e.g. the temporal change in a statistic). 
-
 Confidence intervals - METviewer supports two statistical derivation methods... (1) plot the mean of the daily stats with confidence intervals defined by the "standard error"... that uses the standard deviation to add confidence intervals and assumes normality (2) plot the aggregated statistics with confidence intervals defined by bootstrapping that aggregation.
 
 Pairwise Differencing – computes the difference in statistics for two models on a pairwise basis (same forecast hour, same initialization, same region, etc…).  Confidence intervals may be applied to determine statistical significance.
@@ -96,7 +94,7 @@ METviewer plot formatting options appear in the tabbed boxes at the bottom right
 
 Titles and Labels: This menu contains boxes for the user to specify a plot title, caption, and axis labels.
 
-Common: This tab contains ten check boxes and a confidence level specification box. The ten check boxes add axes, stagger points from different axes, add sample sizes or statistics text to the plots. 
+Common: This tab contains multiple check boxes and a confidence level specification box. The check boxes add X2 axes, stagger points from different axes, print points.
 
 Formatting: Plot, title and grid formatting options are available here. Options include image type, height, width, and resolution. Margins, offsets, text size, line widths, etc. can all be set in units of text point size (e.g. 8 = 8 pt font)
 
@@ -118,7 +116,7 @@ Four radio buttons along the bottom of this menu allow users to create a derived
 METviewer History Menu
 ----------------------
 
-Along the left of the METviewer GUI, hidden by default, is the history menu. To open this menu, click the arrow at the top left side right underneath the “METviewer 2.6” label. This menu provides a list of all (or all successful) recent plotting attempts using the METviewer GUI. Users can select items from this menu to recover plots they may have neglected to save. Clicking on the button showing loads the plot. 
+Along the left of the METviewer GUI, hidden by default, is the history menu. To open this menu, click the arrow at the top left side right underneath the “METviewer” label. This menu provides a list of all (or all successful) recent plotting attempts using the METviewer GUI. Users can select items from this menu to recover plots they may have neglected to save. Clicking on the button showing loads the plot.
 
 Future development plans
 ------------------------
