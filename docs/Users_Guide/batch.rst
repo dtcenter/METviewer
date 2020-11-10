@@ -370,3 +370,200 @@ Template values have the syntax {var_name[?param1=val1[&amp;param2=val2[...]]]}.
 |      Elements specific to Rely plot:
 |      **<add_skill_line>:** **TRUE** or **FALSE**, indicating whether or not to display skill line on the graph. The default value is **TRUE** (display skill line).
 |      **<add_reference_line>:** **TRUE** or **FALSE**, indicating whether or not to display reference line on the graph. The default value is **TRUE** (display reference line).
+|
+
+MODE Statistics
+---------------
+
+Single Object Statistics
+~~~~~~~~~~~~~~~~~~~~~~~~
+MODE statistics are broken up into two categories: single and pair statistics. Single statistics are suffixed with a three letter code which indicates the group of objects over which the statistic should be calculated or aggregated. The syntax for the three letter code is as follows: STATNAME_CCC where STATNAME is one of the Single Ojbect Statistics in the table below, and CCC follows the following system:
+
+[A|F|O|D] - indicating All, Forecast, Observed or a Difference between the forecast statistic and the observed statistic
+
+[A|S|C] - indicating All, Simple or Cluster objects
+
+[A|M|U] - indicating All, Matched or Unmatched objects
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+                    
+  * - Single Object Stat
+    - METviewer Stat Name
+  * - SUM(area) / total
+    - ACOV
+  * - COUNT(object_id)
+    - CNT
+  * - COUNT(object_id)
+    - CNTSUM
+  * - centroid_x
+    - CENTX
+  * - centroid_y
+    - CENTY
+  * - centroid_lat
+    - CENTLAT
+  * - centroid_lon
+    - CENTLON
+  * - axis_avg
+    - AXAVG
+  * - length
+    - LEN
+  * - width
+    - WID
+  * - area
+    - AREA
+  * - area_threshold
+    - AREATHR
+  * - curvature
+    - CURV
+  * - curvature_x
+    - CURVX
+  * - curvature_y
+    - CURVY
+  * - complexity
+    - CPLX
+  * - intensity_10
+    - INT10
+  * - intensity_25
+    - INT25
+  * - intensity_50
+    - INT50
+  * - intensity_75
+    - INT75
+  * - intensity_90
+    - INT90
+  * - intensity_nn
+    - INTN
+  * - intensity_sum
+    - INTSUM
+
+In addition to the single object statistics, METviewer supports ratios of single object counts and areas, and also some contingency table statistics. These statistics are specified in the table below with their corresponding interpretation. For the area-weighted version of these statistics, replace RATIO\_ with AREARAT\_ and OBJ with OBJA.
+
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - Interpretation
+    - METviewer Stat Name
+  * - What percentage of simple objects are forecast?
+    - RATIO_FSA_ASA
+  * - What percentage of simple objects are observation?
+    - RATIO_OSA_ASA
+  * - What percentage of simple objects are matched?
+    - RATIO_ASM_ASA
+  * - What percentage of simple objects are unmatched?
+    - RATIO_ASU_ASA
+  * - What percentage of simple forecast objects are matched?
+    - RATIO_FSM_FSA
+  * - What percentage of simple forecast objects are unmatched?
+    - RATIO_FSU_FSA
+  * - What percentage of simple observation objects are matched?
+    - RATIO_OSM_OSA
+  * - What percentage of simple observation objects are unmatched?
+    - RATIO_OSU_OSA
+  * - What percentage of simple matched objects that are forecast?
+    - RATIO_FSM_ASM
+  * - What percentage of simple matched objects that are observation?
+    - RATIO_OSM_ASM
+  * - What percentage of simple unmatched objects that are forecast?
+    - RATIO_FSU_ASU
+  * - What percentage of simple unmatched objects that are observation?
+    - RATIO_OSU_ASU
+  * - What percentage of all objects are simple?
+    - RATIO_ASA_AAA
+  * - What percentage of all objects are cluster?
+    - RATIO_ACA_AAA
+  * - What percentage of all forecast objects are simple?
+    - RATIO_FSA_FAA
+  * - What percentage of all forecast objects are cluster?
+    - RATIO_FCA_FAA 
+  * - What percentage of all observation objects are simple?
+    - RATIO_OSA_OAA
+  * - What percentage of all observation objects are cluster?
+    - RATIO_OCA_OAA
+  * - What percentage of cluster objects are forecast?
+    - RATIO_FCA_ACA
+  * - What percentage of cluster objects are observation?
+    - RATIO_OCA_ACA  
+  * - What is the ratio of simple forecasts to simple observations (frequency bias)?
+    - RATIO_FSA_OSA
+  * - What is the ratio of simple observations to simple forecasts (1 / frequency bias)?
+    - RATIO_OSA_FSA
+  * - What is the ratio of cluster objects to simple objects?
+    - RATIO_ACA_ASA
+  * - What is the ratio of simple objects to cluster objects?
+    - RATIO_ASA_ACA
+  * - What is the ratio of cluster forecast objects to simple forecast objects?
+    - RATIO_FCA_FSA
+  * - What is the ratio of simple forecast objects to cluster forecast objects?
+    - RATIO_FSA_FCA
+  * - What is the ratio of cluster observation objects to simple observation objects?
+    - RATIO_OCA_OSA
+  * - What is the ratio of simple observation objects to cluster observation objects?
+    - RATIO_OSA_OCA
+  * - Hits = (FSM + OSM)/2
+    - OBJHITS
+  * - Misses = OSU
+    - OBJMISSES
+  * - False Alarms = FSU
+    - OBJFAS
+  * - Correct Negatives (areas only) = [(TOT - FSA) + (TOT - OSA)] / 2
+    - (not implemented)
+  * - CSI = hits / (hits + misses + false alarms) = [(FSM + OSM)/2] / [(FSM + OSM)/2 + OSU + FSU]
+    - OBJCSI
+  * - PODY = hits / (hits + misses) = [(FSM + OSM)/2] / [(FSM + OSM)/2 + OSU]
+    - OBJPODY
+  * - FAR = false alarms / (hits + false alarms) = FSU / [(FSM + OSM)/2 + FSU]
+    - OBJFAR
+  * - FBIAS = RATIO_FSA_OSA = FSA / OSA (a.k.a. RATIO_FSA_OSA above)
+    - OBJFBIAS
+
+Pair Object Statistics
+~~~~~~~~~~~~~~~~~~~~~~
+
+MODE object pair statistics are specified using the following format: STATNAME_CC where STATNAME is one of the Object Pair Statistics in the table below, and CC follows the following system:
+
+[A|S|C] - indicating All, Simple or Cluster pairs
+
+[A|M|U] - indicating All, Matched or Unmatched objects
+
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+          
+  * - Object Pair Stat
+    - METviewer Stat Name
+  * - centroid_dist
+    - CENTDIST
+  * - boundary_dist
+    - BOUNDDIST
+  * - convex_hull_dist
+    - HULLDIST
+  * - angle_diff
+    - ANGLEDIFF
+  * - area_ratio
+    - AREARAT
+  * - intersection_area
+    - INTAREA
+  * - union_area
+    - UNIONAREA
+  * - symmetric_diff
+    - SYMDIFF
+  * - intersection_over_areai
+    - INTOVERAREA
+  * - complexity_ratio
+    - CMPLXRATIO
+  * - percentile_intensity_ratio
+    - PERCINTRATIO
+  * - interest
+    - INT
+  * - MAX(interest)
+    - MAXINT
+  * - MAX(interest) for fcst objects
+    - MAXINTF
+  * - MAX(interest) for obs objects
+    - MAXINTO
+

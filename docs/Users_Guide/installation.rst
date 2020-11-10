@@ -15,13 +15,13 @@ METviewer relies on the following tools. These must be installed and tested prio
 
 **Java JDK 1.8+**
 
-**ant** - `download <http://ant.apache.org/bindownload.cgi>`_ and install the latest version.
+**ant** - `download ant <http://ant.apache.org/bindownload.cgi>`_ and install the latest version.
 
-**MySQL** - `download <https://dev.mysql.com/downloads/mysql/>`_ and install the latest version. Use "SET GLOBAL max_allowed_packet=110000000;" by typing the command in MySQL and/or make the corresponding edit to /etc/my.cnf, so that the change persists after the next reboot.
+**MySQL** - `download MySQL <https://dev.mysql.com/downloads/mysql/>`_ and install the latest version. Use "SET GLOBAL max_allowed_packet=110000000;" by typing the command in MySQL and/or make the corresponding edit to /etc/my.cnf, so that the change persists after the next reboot.
 
-**Apache Tomcat** - `download <http://tomcat.apache.org/>`_ and install the latest version; test the sample JSP web apps.
+**Apache Tomcat** - `download Apache Tomcat <http://tomcat.apache.org/>`_ and install the latest version; test the sample JSP web apps.
 
-**R** - `download <https://dev.mysql.com/downloads/mysql/>`_ and install the latest version.
+**R** - `download R <https://dev.mysql.com/downloads/mysql/>`_ and install the latest version.
 
 #. Configure the batch tool, database loader tool, and web application:
    * edit [install]/metviewer/bin/mv_batch.sh:
