@@ -143,3 +143,13 @@ In this example, the load module would attempt to load any files with the suffix
 
 Troubleshooting
 ---------------
+.. _test:
+
+.. list-table:: 
+
+  * -  Error:
+    -  ** ERROR: Caught class com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException: Duplicate entry 'CT07-NMM-LIN-R2-0-2005-07-15 12:00:00-2005-07-15 12:00:00-0-2005' for key 2
+  * - Solution:
+    - This error is caused by trying to insert a stat_header record into the database when an identical one already exists. If identical stat_header information is present in more than one stat file, set the <stat_header_db_check> value to true. This setting will reduce performance, because the stat_header table is checked for duplicate stat_header each time a row is inserted. However, if a stat_header row already exists in the table with the insert information, then the existing record will be used instead of trying to insert a dupilcate.
+
+
