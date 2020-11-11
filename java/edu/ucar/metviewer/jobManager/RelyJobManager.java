@@ -9,8 +9,7 @@ package edu.ucar.metviewer.jobManager;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
@@ -85,8 +84,8 @@ public class RelyJobManager extends JobManager {
       String[] listFcstVar;
       if (objFcstVar instanceof String[]) {
         listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
-      }else if (objFcstVar instanceof String) {
-        listFcstVar = new String[]{(String)job.getPlotFixVal().get("fcst_var")};
+      } else if (objFcstVar instanceof String) {
+        listFcstVar = new String[]{(String) job.getPlotFixVal().get("fcst_var")};
       } else {
         MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
         listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
@@ -100,16 +99,68 @@ public class RelyJobManager extends JobManager {
 
 
       RscriptStatManager rscriptStatManager = new RscriptAggStatManager(mvBatch);
-      rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>(0));
-      rscriptStatManager.runRscript(job, info);
+      Map<String, Object> yamlInfo = null;
+      if (job.getExecutionType().equals("Rscript")) {
+        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>(0));
+        rscriptStatManager.runRscript(job, info);
+      } else {
+        yamlInfo = createYamlInfoMap(job);
+        yamlInfo.put("indy_var", "thresh_i");
+        List<String> indy_vals = new ArrayList<>();
+        indy_vals.add("0");
+        indy_vals.add("0.1");
+        indy_vals.add("0.2");
+        indy_vals.add("0.3");
+        indy_vals.add("0.4");
+        indy_vals.add("0.5");
+        indy_vals.add("0.6");
+        indy_vals.add("0.7");
+        indy_vals.add("0.8");
+        indy_vals.add("0.9");
+
+        yamlInfo.put("indy_vals", indy_vals);
+        List<String> list_stat = new ArrayList<>();
+        list_stat.add("PSTD_CALIBRATION");
+        list_stat.add("PSTD_BASER");
+        list_stat.add("PSTD_NI");
+        yamlInfo.put("list_stat_1", list_stat);
+        Map<String, List<String>> fcst_var_val = new HashMap<>();
+        for (String fcst_var : listFcstVar) {
+          fcst_var_val.put(fcst_var, new ArrayList<>(list_stat));
+        }
+        yamlInfo.put("fcst_var_val_1",fcst_var_val);
+        mapAggStatStatic.put("fcst_var", listFcstVar[0]);
+        yamlInfo.put("list_static_val", mapAggStatStatic);
+
+        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, new ArrayList<>(0));
+        rscriptStatManager.runPythonScript(job, yamlInfo);
+        yamlInfo.remove("agg_stat_output");
+        yamlInfo.remove("agg_stat_input");
+      }
 
 
       rscriptStatManager = new RscriptNoneStatManager(mvBatch);
-      rscriptStatManager
-              .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
-      info.put("data_file", dataFile);
+      if (job.getExecutionType().equals("Rscript")) {
+        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
+        info.put("data_file", dataFile);
+        rscriptStatManager.runRscript(job, info);
+      } else {
+        if (yamlInfo == null) {
+          yamlInfo = createYamlInfoMap(job);
+        }
+        yamlInfo.put("stat_input", dataFile);
+        yamlInfo.put("summary_curves", job.getSummaryCurve());
+        yamlInfo.put("add_skill_line", job.getAddSkillLine() ? "True" : "False");
+        yamlInfo.put("add_noskill_line", job.getAddNoSkillLine() ? "True" : "False");
+        yamlInfo.put("add_reference_line", job.getAddReferenceLine() ? "True" : "False");
+        yamlInfo.put("rely_event_hist", job.getRelyEventHist().equals("TRUE") ? "True" : "False");
 
-      rscriptStatManager.runRscript(job, info);
+        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, new ArrayList<>());
+        job.setPlotTmpl(this.getPythonScript());
+        yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);
+        rscriptStatManager.runPythonScript(job, yamlInfo);
+      }
+
 
     }
 
@@ -117,7 +168,7 @@ public class RelyJobManager extends JobManager {
 
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/reliability_diagram/reliability.py";
   }
 
 }
