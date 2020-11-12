@@ -323,6 +323,19 @@ listLtyDisp    = listLtyOrdered[listPlotDispOrdered];
 listPchDisp    = listPchOrdered[listPlotDispOrdered];
 listTypeDisp    = listTypeOrdered[listPlotDispOrdered];
 
+if(addNoSkillLine){
+  # draw the no-skill polygon
+  for (i in 1:length(env$o_bar)){
+      if(!is.na(env$o_bar[i][[1]])){
+      x.p <- c( env$o_bar[i][[1]], env$o_bar[i][[1]], 1, 1, env$o_bar[i][[1]], 0, 0)
+      y.p <- c( 0, 1, 1, (1 - env$o_bar[i][[1]]) / 2 + env$o_bar[i][[1]], env$o_bar[i][[1]], env$o_bar[i][[1]] , 0 )
+      polygon( x.p, y.p, col = 'gray93',border = NA )
+    }else{
+        cat("  WARNING: no-skill line can't be created for the " , i , "series \n");
+    }
+  }
+}
+
 
 
 if(boolEventHist == TRUE){
@@ -395,26 +408,24 @@ if(addNoSkillLine){
   # draw the no-skill line
   for (i in 1:length(env$o_bar)){
       if(!is.na(env$o_bar[i][[1]])){
-      x.p <- c( env$o_bar[i][[1]], env$o_bar[i][[1]], 1, 1, env$o_bar[i][[1]], 0, 0)
-      y.p <- c( 0, 1, 1, (1 - env$o_bar[i][[1]]) / 2 + env$o_bar[i][[1]], env$o_bar[i][[1]], env$o_bar[i][[1]] , 0 )
-      polygon( x.p, y.p, col = 'gray93',border = NA )
-      a = 0.5*env$o_bar[i][[1]]
-      b=0.5
-      abline(
-        a=0.5*env$o_bar[i][[1]],
-        b=0.5,
-        lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-        col=listColorsDisp[i], # line color
-        lend=1, # line end style - 0: rounded, 1: butt, 2: square
-        cex=1, # line magnification
-        lwd=1.5, # line width
-        xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
-      );
-      text(1, b + a,"No-Skill",srt=b*35,pos=3)
 
-    }else{
+        a = 0.5*env$o_bar[i][[1]]
+        b=0.5
+        abline(
+          a=0.5*env$o_bar[i][[1]],
+          b=0.5,
+          lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+          col=listColorsDisp[i], # line color
+          lend=1, # line end style - 0: rounded, 1: butt, 2: square
+          cex=1, # line magnification
+          lwd=1.5, # line width
+          xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
+        );
+        text(1, b + a,"No-Skill",srt=b*35,pos=3)
+
+      }else{
         cat("  WARNING: no-skill line can't be created for the " , i , "series \n");
-    }
+      }
   }
 }
 

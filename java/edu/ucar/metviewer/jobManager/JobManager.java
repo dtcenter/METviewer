@@ -606,6 +606,8 @@ public abstract class JobManager {
         result.add(Integer.valueOf(String.valueOf(rListArray[i])));
       } else if (MVUtil.isNumeric(String.valueOf(rListArray[i]))) {
         result.add(Double.valueOf(String.valueOf(rListArray[i])));
+      }else{
+        result.add(String.valueOf(rListArray[i]));
       }
     }
     return result;
