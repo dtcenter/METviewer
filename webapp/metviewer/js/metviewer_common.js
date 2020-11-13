@@ -561,7 +561,6 @@ indy_var_value_to_title_mtd_map['obs_t_beg'] = 'OBS_T_BEG';
 indy_var_value_to_title_mtd_map['obs_t_end'] = 'OBS_T_END';
 
 
-
 var phist_fixed_var_map = {};
 phist_fixed_var_map['fcst_var'] = 'FCST_VAR';
 phist_fixed_var_map['model'] = 'MODEL';
@@ -783,11 +782,11 @@ function getSelectedDatabases() {
         var item = document.getElementById("categories1").childNodes[0];
         item.replaceChild(textnode, item.childNodes[0]);
     }
-    if (typeof databases === 'undefined'){
+    if (typeof databases === 'undefined') {
         //try to get it from the text field
         databases = document.getElementById("categories1").childNodes[0].innerText;
     }
-    if (databases === "Select database"){
+    if (databases === "Select database") {
         databases = null;
     }
     return databases;
@@ -821,7 +820,7 @@ function updateStatVariable() {
 
     //get value of database
     var databases = getSelectedDatabases();
-    if(databases) {
+    if (databases) {
         $.ajax({
             async: false,
             url: "servlet",
@@ -2097,7 +2096,7 @@ function updateFixedVarVal(index, selectedVals, equalize) {
         var selected_mode, statst;
         if (currentTab === 'Perf') {
             selected_mode = 'stat';
-            statst = '<stat><fcst_var><val>FAR</val></fcst_var></stat>';
+            statst = '<stat><fcst_var><val>FAR</val><val>NBR_FAR</val></fcst_var></stat>';
         } else if (currentTab === 'Eclv') {
             selected_mode = 'eclv';
             statst = '<stat><fcst_var><val>NA</val></fcst_var></stat>';
@@ -2196,7 +2195,7 @@ function populateIndyVarVal(selectedVals) {
         var selected_mode, statst;
         if (currentTab === 'Perf') {
             selected_mode = 'stat';
-            statst = '<stat><fcst_var><val>FAR</val></fcst_var></stat>';
+            statst = '<stat><fcst_var><val>FAR</val><val>NBR_FAR</val></fcst_var></stat>';
         } else if (currentTab === 'Contour') {
             selected_mode = 'stat';
             statst = '<stat><fcst_var name="' + $("#fcst_var_y1_1").val() + '" ><val>' + $("#fcst_stat_y1_1").val() + '</val></fcst_var></stat>';
@@ -3565,7 +3564,6 @@ function interpolateColor(rel) {
  */
 function hex(val) {
     var strRet = Math.round(val * 255).toString(16).toUpperCase();
-    var strRet = Math.round(val * 255).toString(16).toUpperCase();
     while (2 > strRet.length) {
         strRet = "0" + strRet;
     }
@@ -4158,9 +4156,9 @@ function createXMLCommon(plot) {
     tmpl.append($('<listDiffSeries2 />').text("list(" + seriesDiffY2List.join() + ")"));
     plot.append(tmpl);
 
-    if($('#is_python').is(':checked')){
+    if ($('#is_python').is(':checked')) {
         plot.append($('<execution_type />').text("Python"));
-    }else {
+    } else {
         plot.append($('<execution_type />').text("Rscript"));
     }
 
@@ -4282,7 +4280,6 @@ function createXMLCommon(plot) {
     plot.append($('<ci_alpha />').text($('#ci_alpha').val()));
 
 
-
     var allSeries = sortSeries();
     var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [],
         orderArr = [], legendArr = [], showSignArr = [];
@@ -4371,14 +4368,15 @@ function createSeriesElementForAxis(y_axis, series_var_indexes) {
         var field = $('<field />').attr("name", $("#series_var_y" + y_axis + "_" + series_var_indexes[i]).val());
         var isGroup = $("#group_series_var_y" + y_axis + "_" + series_var_indexes[i]).is(':checked');
         var valArr;
-        try{
+        try {
             valArr = $("#series_var_val_y" + y_axis + "_" + series_var_indexes[i]).multiselect("getChecked");
-        }catch (e) {}
+        } catch (e) {
+        }
         if (!valArr) {
             valArr = [];
         }
 
-        if (Array.isArray(valArr) ) {
+        if (Array.isArray(valArr)) {
             if (valArr.length > 0) {
                 if (isGroup) {
                     var vals = "";
@@ -4751,7 +4749,8 @@ function addFixedVarHist() {
     var is_not_visible = $('#fixed_var_table').css("display") === 'none';
     var isEq = $('#event_equal').prop("checked");
 
-    var fixed_var, remove_var, fixed_var_val, fixed_var_val_date_period_button, fixed_var_val_date_range_button, fixed_var_val_date_range, dialog,
+    var fixed_var, remove_var, fixed_var_val, fixed_var_val_date_period_button, fixed_var_val_date_range_button,
+        fixed_var_val_date_range, dialog,
         fix_var_event_equal, fix_var_event_equal_label;
 
     if (is_not_visible) {
@@ -4909,7 +4908,7 @@ function addFixedVarHist() {
                 return createCalendarTopBarNoFormat(new_index);
             }
         }).bind('datepicker-apply', function (event, obj) {
-            onIndyCalendarClose(obj,new_index);
+            onIndyCalendarClose(obj, new_index);
         });
         $("#fixed_var_val_date_range_" + new_index).data('dateRangePicker').open();
     });
@@ -4933,7 +4932,8 @@ function addFixedVar() {
     var new_index = last_index;
 
 
-    var fixed_var, remove_var, fixed_var_val, fixed_var_val_date_period_button, fixed_var_val_date_range_button,fixed_var_val_date_range, dialog,
+    var fixed_var, remove_var, fixed_var_val, fixed_var_val_date_period_button, fixed_var_val_date_range_button,
+        fixed_var_val_date_range, dialog,
         fix_var_event_equal, fix_var_event_equal_label;
     var is_not_visible = $('#fixed_var_table').css("display") === 'none';
     var isEq = $('#event_equal').prop("checked");
@@ -4954,11 +4954,11 @@ function addFixedVar() {
                     $.each(fix_var_value_to_title_stat_map, function (key, val) {
                         fixed_var.append('<option value="' + key + '">' + val + '</option>');
                     });
-                } else if (selected_mode === "mode"){
+                } else if (selected_mode === "mode") {
                     $.each(fix_var_value_to_title_mode_map, function (key, val) {
                         fixed_var.append('<option value="' + key + '">' + val + '</option>');
                     });
-                }else{
+                } else {
                     $.each(fix_var_value_to_title_mtd_map, function (key, val) {
                         fixed_var.append('<option value="' + key + '">' + val + '</option>');
                     });
@@ -4975,7 +4975,7 @@ function addFixedVar() {
 
         fixed_var_val_date_period_button = $("#fixed_var_val_date_period_button_" + new_index);
         fixed_var_val_date_range_button = $("#fixed_var_val_date_range_button_" + new_index);
-        fixed_var_val_date_range =  $("#fixed_var_val_date_range_" + new_index);
+        fixed_var_val_date_range = $("#fixed_var_val_date_range_" + new_index);
         dialog = $("#fixed_var_val_date_period_" + new_index);
         $("#fix_var_event_equal_" + new_index).prop("checked", isEq).prop('disabled', !isEq);
 
@@ -5132,7 +5132,7 @@ function addFixedVar() {
                 return createCalendarTopBarNoFormat(new_index);
             }
         }).bind('datepicker-apply', function (event, obj) {
-            onIndyCalendarClose(obj,new_index);
+            onIndyCalendarClose(obj, new_index);
         });
         $("#fixed_var_val_date_range_" + new_index).data('dateRangePicker').open();
     });
@@ -6376,7 +6376,8 @@ function loadXMLSeries() {
     $("#txtPlotCond").val(initXML.find("plot").find("plot_cond").text());
     try {
         $("#annotation").val(initXML.find("plot").find("annotation_template").text());
-    }catch(err) {}
+    } catch (err) {
+    }
     //update indy var for mode
     if (selected_mode === 'mode') {
         updateIndyVar(selected_mode);
@@ -6618,7 +6619,7 @@ function updateFixVar(selected_mode) {
             $.each(fix_var_value_to_title_stat_map, function (key, val) {
                 $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
             });
-        } else if (selected_mode === "mode"){
+        } else if (selected_mode === "mode") {
             $.each(fix_var_value_to_title_mode_map, function (key, val) {
                 $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
             });
@@ -6644,11 +6645,11 @@ function updateIndyVar(selected_mode) {
         $.each(indy_var_value_to_title_stat_map, function (key, val) {
             $('#indy_var').append('<option value="' + key + '">' + val + '</option>');
         });
-    } else if (selected_mode === "mode"){
+    } else if (selected_mode === "mode") {
         $.each(indy_var_value_to_title_mode_map, function (key, val) {
             $('#indy_var').append('<option value="' + key + '">' + val + '</option>');
         });
-    }else {
+    } else {
         $.each(indy_var_value_to_title_mtd_map, function (key, val) {
             $('#indy_var').append('<option value="' + key + '">' + val + '</option>');
         });
@@ -6988,9 +6989,9 @@ function updateResult(result) {
     $('#plot_display_inner_header').text(resultName.replace("plot_", ""));
 
     $("#plot_image").empty();
-    $.get(urlOutput + 'plots/' + resultName + '.html', function(data) {
+    $.get(urlOutput + 'plots/' + resultName + '.html', function (data) {
         $('#plot_image').append(data);
-    }).fail(function() {
+    }).fail(function () {
         var img = $('<img>');
         img.attr('width', '100%');
         img.attr('height', '100%');
@@ -7022,7 +7023,7 @@ function updateResult(result) {
         url: urlOutput + "xml/" + resultName + ".sql",
         dataType: "text",
         contentType: 'text/plain',
-        mimeType:'text',
+        mimeType: 'text',
         complete: function (data) {
             document.getElementById('plot_sql').innerHTML = (data.responseText).replace(/\n/g, '<br />');
         },
@@ -7035,7 +7036,7 @@ function updateResult(result) {
         url: urlOutput + "scripts/" + resultName + ".R",
         dataType: "text",
         contentType: 'text/plain',
-        mimeType:'text',
+        mimeType: 'text',
         complete: function (data) {
             document.getElementById('r_script').innerHTML = (data.responseText).replace(/\n/g, '<br />');
         },
@@ -7048,7 +7049,7 @@ function updateResult(result) {
         url: urlOutput + "xml/" + resultName + ".log",
         dataType: "text",
         contentType: 'text/plain',
-        mimeType:'text',
+        mimeType: 'text',
         complete: function (data) {
             document.getElementById('plot_log').innerHTML = (data.responseText).replace(/\n/g, '<br />');
         },
@@ -7106,7 +7107,7 @@ function initPage() {
         , west__togglerClass: "history-toggler"
         , west__fxName: "slide"		// none, slide, drop, scale
         , autoBindCustomButtons: true
-        , south__togglerLength_open: 0
+        , south__togglerLength_open: 10
         , west__onopen_start: function () {
             refreshHistory();
         }
@@ -7124,7 +7125,7 @@ function initPage() {
             ui.panel.empty();
             ui.panel.append(pre);
         },
-        create: function( event, ui ) {
+        create: function (event, ui) {
         }
     });
 
@@ -7134,11 +7135,27 @@ function initPage() {
         name: "inner" // used for button binding
         , closable: false
         , center__paneSelector: "#plot_display_inner"
-        , south__spacing_closed: 0
+        , center__size: "70%"
+        , center__spacing_closed: 20
+        , center__togglerLength_closed: 20
+        , center__resizable: true
+        , center__closable: false
+        , center__togglerAlign_closed: "top"
+        , center__minSize: 0
+        , resizeWhileDragging: true
+        , south__togglerAlign_closed: "top"
+        , south__fxName: "slide"
+        , south__initClosed: false
+        , south__initClose: true
+        , south__togglerClass: "history-toggler"
+        , south__spacing_closed: 20
+        , south__togglerLength_closed: 20
         , south__size: "30%"
         , south__paneSelector: "#tab-south"
         , south__resizable: true
-        , south__minSize: 30
+        , south__minSize: 0
+        , south__closable: true
+        , autoBindCustomButtons: true
     });
 
 
@@ -7571,7 +7588,7 @@ function initPage() {
         sendXml();
     });
 
-    var upload_file_dialog =  $("#upload_file_dialog").dialog({
+    var upload_file_dialog = $("#upload_file_dialog").dialog({
         modal: true,
         autoOpen: false,
         buttons: {
@@ -7715,7 +7732,7 @@ function initPage() {
             currentTab = ui.newTab.text();
         },
         beforeLoad: function (event, ui) {
-            $.ajaxSetup({ cache: true });
+            $.ajaxSetup({cache: true});
             ui.jqXHR.error(function () {
                 ui.panel.html(
                     "Couldn't load this tab. We'll try to fix this as soon as possible. " +
@@ -8021,18 +8038,18 @@ function changeFixedVarHist(value) {
 }
 
 function onIndyCalendarClose(obj, index) {
-    var by ;
+    var by;
     var unit;
     var dates;
     var custom_format;
     var val_obj;
-    if(index){
+    if (index) {
         by = $("#fixed_var_val_date_range_by_" + index).val().trim();
         unit = $("#fixed_var_val_date_range_by_unit_" + index).val();
         dates = $(fixVarValResponse[index]).find("val");
         custom_format = 'YYYY-MM-DD HH:mm:ss';
         val_obj = $("#fixed_var_val_" + index);
-    }else {
+    } else {
         by = $("#date_range_by").val().trim();
         unit = $("#date_range_by_unit").val();
         dates = $(previousIndVarValResponse).find("val");
@@ -8096,7 +8113,7 @@ function onIndyCalendarClose(obj, index) {
         }
         start.add(by, 'seconds');
     }
-    if(index) {
+    if (index) {
         val_obj.multiselect("option", "indy_var_vals_to_attr", indy_var_vals_to_attr);
     }
     try {
@@ -8128,10 +8145,10 @@ function createCalendarTopBarWithFormat() {
 function createCalendarTopBarNoFormat(index) {
     var by_id;
     var unit_id;
-    if(index){
+    if (index) {
         by_id = "fixed_var_val_date_range_by_" + index;
         unit_id = "fixed_var_val_date_range_by_unit_" + index;
-    }else {
+    } else {
         by_id = "date_range_by";
         unit_id = "date_range_by_unit";
     }
@@ -8140,7 +8157,7 @@ function createCalendarTopBarNoFormat(index) {
         '<span class="selection-top">' + 'Selected:' + ' </span> <b class="start-day">...</b>';
 
     html += ' <span class="separator-day">' + " - " + '</span> <b class="end-day">...</b> <i class="selected-days">(<span class="selected-days-num">3</span> ' + 'Days' + ')</i>';
-    html += '<br/><label for="date_range_by" style="color: #333;">By:</label><input style="width: 30px;line-height: 1;" id="'+ by_id + '" type="text"><select id="'+unit_id+'" style="font-size: 10px;">' +
+    html += '<br/><label for="date_range_by" style="color: #333;">By:</label><input style="width: 30px;line-height: 1;" id="' + by_id + '" type="text"><select id="' + unit_id + '" style="font-size: 10px;">' +
         '            <option value="sec">sec</option>' +
         '            <option value="min">min</option>' +
         '            <option value="hours" selected="">hours</option>' +

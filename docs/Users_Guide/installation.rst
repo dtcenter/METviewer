@@ -24,6 +24,7 @@ METviewer relies on the following tools. These must be installed and tested prio
 **R** - `download R <https://dev.mysql.com/downloads/mysql/>`_ and install the latest version.
 
 #. Configure the batch tool, database loader tool, and web application:
+
    * edit [install]/metviewer/bin/mv_batch.sh:
      
         * set the variable JAVA to point at the desired jvm instance to run
@@ -50,10 +51,11 @@ METviewer relies on the following tools. These must be installed and tested prio
         * set folders.plots to the absolute path of [output_dir]/plots
         * set folders.data to the absolute path of [output_dir]/data
         * set folders.scripts to the absolute path of [output_dir]/scripts
-        * set redirect to the application name in url (ex. if the application URL is "http://www.dtcenter.org/met/metviewer/" tedirect is "metviewer")
+        * set redirect to the application name in url (ex. if the application URL is "http://www.dtcenter.org/met/metviewer/" redirect is "metviewer")
         * set url.output to the url to the output folder
 
 #. Configure the batch tool, database loader tool, and web application:
+
    * Create output folders: [output_dir]/plots, [output_dir]/data, [output_dir]/scripts, [output_dir]/xml
    
    * Include [output_dir] to Apache context
