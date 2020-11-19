@@ -2769,7 +2769,7 @@ function updateSeriesVarValHist(index, selectedVals) {
 }
 
 function updateSeriesRely() {
-    var rely_event_hist = $("input:radio[name='rely_event_hist']:checked").val();
+    var rely_event_hist = $('#rely_event_hist').prop("checked");
     var table = $("#listdt");
     table.jqGrid('clearGridData');
     var series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
@@ -3860,7 +3860,9 @@ function createXMLRely(plot) {
     }
     plot.append(createSeriesElementForAxis(1, series_var_y1_indexes));
     plot = createXMLPlotFix(plot);
-    plot.append($('<rely_event_hist />').text($("input:radio[name='rely_event_hist']:checked").val()));
+    var rely_event_hist = $('<rely_event_hist />');
+    rely_event_hist.text($('#rely_event_hist').prop("checked"));
+    plot.append(rely_event_hist);
     var selected_stats;
     var summary_curve = $('<summary_curve />');
     try {
@@ -3883,6 +3885,9 @@ function createXMLRely(plot) {
     var add_reference_line = $('<add_reference_line />');
     add_reference_line.text($('#add_reference_line').prop("checked"));
     plot.append(add_reference_line);
+    var inset_hist = $('<inset_hist />');
+    inset_hist.text($('#inset_hist').prop("checked"));
+    plot.append(inset_hist);
     var agg_stat = $('<agg_stat />');
     agg_stat.append($('<agg_pct />').text("true"));
     agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
@@ -6078,11 +6083,9 @@ function loadXMLRely() {
     }
 
     updatePlotFix();
-    var rely_event_hist = $(initXML.find("plot").find("rely_event_hist")).text();
 
-    $("input[name=rely_event_hist][value=true]").prop('checked', rely_event_hist == "TRUE" || rely_event_hist == "true");
-    $("input[name=rely_event_hist][value=false]").prop('checked', rely_event_hist == "FALSE" || rely_event_hist == "false");
-    $('#is_hist').buttonset("refresh");
+
+    
     if (initXML.find("plot").find("summary_curve") && initXML.find("plot").find("summary_curve").children().length > 0) {
         var stats = initXML.find("plot").find("summary_curve").children();
         for (var i = 0; i < stats.length; i++) {
@@ -6094,12 +6097,26 @@ function loadXMLRely() {
         }
     }
     var is_check = true;
+    is_check = $(initXML.find("plot").find("rely_event_hist")).text();
+    if (is_check === 'TRUE' || is_check === 'true') {
+        $('#rely_event_hist').prop('checked', true);
+    } else {
+        $('#rely_event_hist').prop('checked', false);
+    }
     if (initXML.find("plot").find("add_skill_line")) {
         is_check = $(initXML.find("plot").find("add_skill_line")).text();
         if (is_check === 'true') {
             $('#add_skill_line').prop('checked', true);
         } else {
             $('#add_skill_line').prop('checked', false);
+        }
+    }
+    if (initXML.find("plot").find("inset_hist")) {
+        is_check = $(initXML.find("plot").find("inset_hist")).text();
+        if (is_check === 'true') {
+            $('#inset_hist').prop('checked', true);
+        } else {
+            $('#inset_hist').prop('checked', false);
         }
     }
     if (initXML.find("plot").find("add_noskill_line")) {
@@ -6989,8 +7006,10 @@ function updateResult(result) {
     $('#plot_display_inner_header').text(resultName.replace("plot_", ""));
 
     $("#plot_image").empty();
+
     $.get(urlOutput + 'plots/' + resultName + '.html', function (data) {
         $('#plot_image').append(data);
+
     }).fail(function () {
         var img = $('<img>');
         img.attr('width', '100%');
