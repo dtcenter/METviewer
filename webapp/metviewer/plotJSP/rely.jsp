@@ -197,15 +197,17 @@
         });
         getForecastVariablesHist();
 
-        $("input:radio[name='rely_event_hist']").change(function () {
+        $('#rely_event_hist').prop('checked', true);
+        $("input:checkbox[name='rely_event_hist']").change(function () {
             updateSeriesHist();
         });
         updateSeriesHist();
-        $('#is_hist').buttonset();
         $('#summary_curve').val("none");
         $('#add_skill_line').prop('checked', true);
         $('#add_noskill_line').prop('checked', true);
         $('#add_reference_line').prop('checked', true);
+        $('#inset_hist').prop('checked', false);
+
 
         $("#summary_curve").multiselect({
             multiple: false,
@@ -237,8 +239,6 @@
         } else {
             updateSeriesVarValHist(1, []);
             updateSeriesHist();
-            $("input[name=rely_event_hist][value=false]").prop('checked', true);
-            $('#is_hist').buttonset("refresh");
         }
 
 
@@ -367,20 +367,19 @@
     <table style="width: 100%">
         <tr>
             <td>
-                <div id="is_hist">
-                    <input type="radio" name="rely_event_hist" value="true"
-                           id="true_is_hist" checked="checked"/>
-                    <label for="true_is_hist">Yes</label>
-                    <input type="radio" name="rely_event_hist" value="false"
-                           id="false_is_hist"/>
-                    <label for="false_is_hist">No</label>
-                </div>
+
+                    <input type="checkbox" name="rely_event_hist" value="false"
+                           id="rely_event_hist"/>
+                    <label for="rely_event_hist">Add Reliability Event Histogram </label><br/>
+                    <input type="checkbox" name="inset_hist" value="false"
+                           id="inset_hist"/>
+                    <label for="inset_hist">Inset Histogram (Python only)</label>
             </td>
-            <td style="text-align: right;">
+            <td style="text-align: left;">
                 <input type="checkbox" id="add_skill_line"><label for="add_skill_line">Add perfect reliability
-                line</label>
+                line</label><br/>
                 <input type="checkbox" id="add_reference_line"><label for="add_reference_line">Add no-resolution
-                line</label>
+                line</label><br/>
                 <input type="checkbox" id="add_noskill_line"><label for="add_noskill_line">Add no-skill
                 line</label>
             </td>
