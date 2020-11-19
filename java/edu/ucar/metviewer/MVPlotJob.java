@@ -206,6 +206,7 @@ public class MVPlotJob {
   protected List<String> summaryCurve = new ArrayList<>();
   protected boolean addPointThresholds = Boolean.TRUE;
   protected boolean addSkillLine = Boolean.TRUE;
+  protected boolean insetHist = Boolean.FALSE;
   protected boolean addNoSkillLine = Boolean.TRUE;
   protected boolean addReferenceLine = Boolean.TRUE;
   protected Boolean isModeRatio = null;
@@ -410,6 +411,7 @@ public class MVPlotJob {
     job.addNoSkillLine = addNoSkillLine;
     job.addReferenceLine = addReferenceLine;
     job.createHtml = createHtml;
+    job.insetHist = insetHist;
     job.summaryCurve.addAll(summaryCurve);
 
     job.isAddColorBar = isAddColorBar;
@@ -1983,6 +1985,14 @@ public class MVPlotJob {
 
   public void setAddSkillLine(boolean addSkillLine) {
     this.addSkillLine = addSkillLine;
+  }
+
+  public boolean getInsetHist() {
+    return insetHist;
+  }
+
+  public void setInsetHist(boolean insetHist) {
+    this.insetHist = insetHist;
   }
 
   public boolean getAddNoSkillLine() {

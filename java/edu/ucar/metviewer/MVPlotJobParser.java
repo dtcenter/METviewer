@@ -879,6 +879,8 @@ public final class MVPlotJobParser {
         xmlStr.append("<val>" + stat + "</val>");
       }
       xmlStr.append("</summary_curve>");
+      xmlStr.append("<inset_hist>").append(job.getInsetHist()).append("</inset_hist>");
+      xmlStr.append("<rely_event_hist>").append(job.getRelyEventHist()).append("</rely_event_hist>");
       xmlStr.append("<add_skill_line>").append(job.getAddSkillLine()).append("</add_skill_line>");
       xmlStr.append("<add_noskill_line>").append(job.getAddNoSkillLine()).append("</add_noskill_line>");
       xmlStr.append("<add_reference_line>").append(job.getAddReferenceLine())
@@ -1010,7 +1012,6 @@ public final class MVPlotJobParser {
                     "<box_boxwex>" + job.getBoxBoxwex() + "</box_boxwex>" +
                     "<box_notch>" + job.getBoxNotch() + "</box_notch>" +
                     "<box_avg>" + job.getBoxAvg() + "</box_avg>" +
-                    "<rely_event_hist>" + job.getRelyEventHist() + "</rely_event_hist>" +
                     "<ci_alpha>" + job.getCIAlpha() + "</ci_alpha>" +
 
                     "<plot_ci>" + job.getPlotCI() + "</plot_ci>" +
@@ -1863,6 +1864,8 @@ public final class MVPlotJobParser {
         job.setAddPointThresholds(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("add_skill_line")) {
         job.setAddSkillLine(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("inset_hist")) {
+        job.setInsetHist(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("add_noskill_line")) {
         job.setAddNoSkillLine(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("add_reference_line")) {
