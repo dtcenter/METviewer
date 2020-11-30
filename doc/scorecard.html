@@ -184,7 +184,10 @@
             </li>
 
             <li><span class="code">&lt;threshold_file&gt;</span>: full path to the XML file describing
-                configurations for thresholds, colors and symbols
+                configurations for thresholds, colors and symbols (optional)
+            </li>
+            <li><span class="code">&lt;weight_file&gt;</span>: full path to the XML file describing
+                configurations for weights definitions (optional)
             </li>
             <li><span class="code">&lt;left_column_names&gt;</span>: a list of names for the most left columns as
                 in &lt;val&gt;NAME&lt;/val&gt; format
@@ -209,7 +212,10 @@
             <a name="plot_fix"></a>
             <li><span class="code">&lt;plot_fix&gt;</span>: describes database fields - models, date range
                 and init hour - that are constant.<br/>
-                Model field contains two values - first and second model names.<br/>
+                Model field contains:<br>
+                two values - first and second model names.<br/>
+                one value - when the stat values for one model are requested<br/>
+                multiples pairs - for the aggregated scorecard<br/>
                 Date range can be specified using 'fcst_valid_beg' or 'fcst_init_beg' and contains ine or more groups of
                 two
                 values - start and end dates. This example will create a scorecard for two periods (07-01 00:00 - 07-03
@@ -732,6 +738,273 @@
      </legend_range>
 
    </ranges>
+   </textarea>
+
+
+
+
+<p>
+    Here is an example of weights configuration XML  :
+    <br/><br/>
+    <textarea rows="40" cols="100" style="border:none; font-size: 12px;">
+   <WeightRequirements name ="cbd_score">
+
+<WeightToColor weight="6.4" color="#091534" />
+<WeightToColor weight="3.2" color="#012998" />
+<WeightToColor weight="2.4" color="#0145FE" />
+<WeightToColor weight="2.0" color="#678FFE" />
+<WeightToColor weight="1.2" color="#DBE5FF" />
+
+	<Weight weight="6.4" >
+	    <Criteria field="fcst_var" value="PRMSL" />
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lead" value="240000" />
+	</Weight>
+
+	<Weight weight="6.4" >
+		<Criteria field="fcst_var" value="PRMSL" />
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lead" value="480000" />
+	</Weight>
+	<Weight weight="6.4" >
+	    <Criteria field="fcst_var" value="PRMSL" />
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lead" value="720000" />
+	</Weight>
+
+	<Weight weight="6.4">
+		 <Criteria field="fcst_var" value="PRMSL" />
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lead" value="960000" />
+	</Weight>
+	<Weight weight="6.4">
+		<Criteria field="fcst_var" value="PRMSL" />
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lead" value="1200000" />
+	</Weight>
+
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="240000" />
+	</Weight>
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="480000" />
+	</Weight>
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="720000" />
+	</Weight>
+
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="960000" />
+	</Weight>
+
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="1200000" />
+	</Weight>
+
+
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="240000" />
+	</Weight>
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="480000" />
+	</Weight>
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="720000" />
+	</Weight>
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="960000" />
+	</Weight>
+	<Weight weight="2.4" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="nhem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="1200000" />
+	</Weight>
+
+	<Weight weight="2.0" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P850" />
+		<Criteria field="fcst_lead" value="240000" />
+	</Weight>
+	<Weight weight="2.0" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P850" />
+		<Criteria field="fcst_lead" value="480000" />
+	</Weight>
+	<Weight weight="2.0" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P850" />
+		<Criteria field="fcst_lead" value="720000" />
+	</Weight>
+	<Weight weight="2.0" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P850" />
+		<Criteria field="fcst_lead" value="960000" />
+	</Weight>
+	<Weight weight="2.0" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P850" />
+		<Criteria field="fcst_lead" value="1200000" />
+	</Weight>
+
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="240000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="480000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="720000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="960000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="trop" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="1200000" />
+	</Weight>
+
+	<Weight weight="3.2" >
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lead" value="240000" />
+	</Weight>
+	<Weight weight="3.2" >
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lead" value="480000" />
+	</Weight>
+	<Weight weight="3.2" >
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lead" value="720000" />
+	</Weight>
+	<Weight weight="3.2" >
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lead" value="960000" />
+	</Weight>
+	<Weight weight="3.2" >
+		<Criteria field="fcst_lev" value="L0" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lead" value="1200000" />
+	</Weight>
+
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="240000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="480000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="720000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="960000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="HGT" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P500" />
+		<Criteria field="fcst_lead" value="1200000" />
+	</Weight>
+
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="240000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="480000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="720000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="960000" />
+	</Weight>
+	<Weight weight="1.2" >
+		<Criteria field="fcst_var" value="WIND" />
+		<Criteria field="vx_mask" value="shem" />
+		<Criteria field="fcst_lev" value="P250" />
+		<Criteria field="fcst_lead" value="1200000" />
+	</Weight>
+
+
+</WeightRequirements>
    </textarea>
 </body>
 </html>
