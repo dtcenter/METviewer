@@ -88,8 +88,7 @@ RUN Rscript -e "install.packages('boot')" \
  && Rscript -e "install.packages('plotrix')" \
  && Rscript -e "install.packages('gsl')" \
  && Rscript -e "install.packages('data.table')" \
- && Rscript -e "install.packages('verification')" \
- && Rscript -e "install.packages('reticulate')"
+ && Rscript -e "install.packages('verification')"
 
 #
 # Install Tomcat
