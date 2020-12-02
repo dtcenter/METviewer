@@ -61,11 +61,24 @@ RUN yum -y update \
 #
 # Install required packages
 #
-RUN yum -y install wget tar git ant java R gsl-devel mysql ksh \
+RUN yum -y install wget tar git ant java R mysql ksh \
  && rm -rf /var/cache/yum/* \
  && yum clean all
 
+#
+# Install gsl-2.5 on which the R gsl package depends.
+# The centos7 gal package is too old (version 1.5).
+#
+RUN echo "Compiling gsl-2.5" \
+ && curl -SL http://gnu.askapache.com/gsl/gsl-2.5.tar.gz | tar zxC /lib \
+ && cd /lib/gsl-2.5 \
+ && ./configure --prefix=/usr --libdir=/usr/lib64 >& configure.log \
+ && make >& make.log \
+ && make install >& make_install.log
+
+#
 # Setup default cran repo
+#
 RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
 
 #
@@ -75,7 +88,8 @@ RUN Rscript -e "install.packages('boot')" \
  && Rscript -e "install.packages('plotrix')" \
  && Rscript -e "install.packages('gsl')" \
  && Rscript -e "install.packages('data.table')" \
- && Rscript -e "install.packages('verification')"
+ && Rscript -e "install.packages('verification')" \
+ && Rscript -e "install.packages('reticulate')"
 
 #
 # Install Tomcat
@@ -169,7 +183,8 @@ RUN yum install -y python3 python3-devel python3-pip
 #
 # Install Python packages
 #
-RUN pip-3 install bootstrapped \
+RUN pip-3 install kiwisolver==1.0.1 \
+ && pip-3 install bootstrapped \
  && pip-3 install plotly==4.9.0 \
  && pip-3 install kaleido \
  && pip-3 install pandas \
