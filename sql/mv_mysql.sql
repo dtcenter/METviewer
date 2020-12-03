@@ -488,10 +488,7 @@ CREATE TABLE line_data_mctc_cnt
     j_value      INT UNSIGNED NOT NULL,
     fi_oj        INT UNSIGNED NOT NULL,
 
-    PRIMARY KEY (line_data_id, i_value, j_value),
-    CONSTRAINT line_data_mctc_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_mctc (line_data_id)
+    PRIMARY KEY (line_data_id, i_value, j_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 
@@ -584,10 +581,7 @@ CREATE TABLE line_data_pct_thresh
     oy_i         INT UNSIGNED,
     on_i         INT UNSIGNED,
 
-    PRIMARY KEY (line_data_id, i_value),
-    CONSTRAINT line_data_pct_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_pct (line_data_id)
+    PRIMARY KEY (line_data_id, i_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 
@@ -651,10 +645,7 @@ CREATE TABLE line_data_pstd_thresh
     i_value      INT UNSIGNED NOT NULL,
     thresh_i     DOUBLE,
 
-    PRIMARY KEY (line_data_id, i_value),
-    CONSTRAINT line_data_pstd_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_pstd (line_data_id)
+    PRIMARY KEY (line_data_id, i_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 
@@ -706,10 +697,7 @@ CREATE TABLE line_data_pjc_thresh
     likelihood_i  DOUBLE,
     baser_i       DOUBLE,
 
-    PRIMARY KEY (line_data_id, i_value),
-    CONSTRAINT line_data_pjc_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_pjc (line_data_id)
+    PRIMARY KEY (line_data_id, i_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 
@@ -757,10 +745,7 @@ CREATE TABLE line_data_prc_thresh
     pody_i       DOUBLE,
     pofd_i       DOUBLE,
 
-    PRIMARY KEY (line_data_id, i_value),
-    CONSTRAINT line_data_prc_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_prc (line_data_id)
+    PRIMARY KEY (line_data_id, i_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 
@@ -1341,10 +1326,7 @@ CREATE TABLE line_data_rhist_rank
     i_value      INT UNSIGNED NOT NULL,
     rank_i       INT UNSIGNED,
 
-    PRIMARY KEY (line_data_id, i_value),
-    CONSTRAINT line_data_rhist_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_rhist (line_data_id)
+    PRIMARY KEY (line_data_id, i_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 
@@ -1389,10 +1371,7 @@ CREATE TABLE line_data_relp_ens
     i_value      INT UNSIGNED NOT NULL,
     ens_i        DOUBLE,
 
-    PRIMARY KEY (line_data_id, i_value),
-    CONSTRAINT line_data_relp_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_relp (line_data_id)
+    PRIMARY KEY (line_data_id, i_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 
@@ -1440,10 +1419,7 @@ CREATE TABLE line_data_eclv_pnt
     x_pnt_i      DOUBLE,
     y_pnt_i      DOUBLE,
 
-    PRIMARY KEY (line_data_id, i_value),
-    CONSTRAINT line_data_eclv_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_eclv (line_data_id)
+    PRIMARY KEY (line_data_id, i_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 
@@ -1488,10 +1464,7 @@ CREATE TABLE line_data_phist_bin
     i_value      INT UNSIGNED NOT NULL,
     bin_i        INT UNSIGNED,
 
-    PRIMARY KEY (line_data_id, i_value),
-    CONSTRAINT line_data_phist_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_phist (line_data_id)
+    PRIMARY KEY (line_data_id, i_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 
@@ -1554,10 +1527,7 @@ CREATE TABLE line_data_orank_ens
     line_data_id INT UNSIGNED NOT NULL,
     i_value      INT UNSIGNED NOT NULL,
     ens_i        DOUBLE,
-    PRIMARY KEY (line_data_id, i_value),
-    CONSTRAINT line_data_orank_id_pk
-        FOREIGN KEY (line_data_id)
-            REFERENCES line_data_orank (line_data_id)
+    PRIMARY KEY (line_data_id, i_value)
 ) ENGINE = MyISAM
   CHARACTER SET = latin1;
 

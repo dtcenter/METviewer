@@ -189,7 +189,12 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
       }else{
         if(is.na( strtoi(dfVarsForEEPerm[index,strVarIndex]))){
           #for strings
-          dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == dfVarsForEEPerm[index,strVarIndex],];
+          if (dfVarsForEEPerm[index,strVarIndex] == 'NA'){
+            dfComp = dfComp[is.na(dfComp[[names(listVarsForEE)[strVarIndex]]]) ,];
+          }else{
+            dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == dfVarsForEEPerm[index,strVarIndex],];
+          }
+
         }else{
           #for integer string
           dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == strtoi(dfVarsForEEPerm[index,strVarIndex]) ,];
