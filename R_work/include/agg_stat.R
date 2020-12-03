@@ -134,6 +134,11 @@ if ( nrow(sampleData) > 0){
                 vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
             }  
           }
+          for (i in 1:length(vectValPerms)){
+            if (vectValPerms[i] == 'NA'){
+              vectValPerms[i] = NA
+            }
+          }
           fPlot = fPlot[ fPlot[[strSeriesVal]] %in% vectValPerms ,  ];
           if('fcst_var' %in%  names(fPlot)){
             fPlot = fPlot[ fPlot$fcst_var == strDep1Name,  ];
@@ -165,11 +170,15 @@ if ( nrow(sampleData) > 0){
                 vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
               }            
             }
+            for (i in 1:length(vectValPerms)){
+              if (vectValPerms[i] == 'NA'){
+                vectValPerms[i] = NA
+              }
+            }
             fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep2Stat,  ];
           }
 
-          #fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
-          fPlot = event_equalize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+          fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
           sys$stdout$flush()
           dfPlot2 = rbind(dfPlot2, fPlot);
         }
@@ -618,9 +627,17 @@ if ( nrow(sampleData) > 0){
               }
             }
             vectValPerms = lapply(vectValPerms, function(x) {if (grepl("^[0-9]+$", x)) { x = as.integer(x);}else {x = x}})
-            dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
+            if (vectValPerms[1] == 'NA'){
+              dfStatsPerm = dfStatsPerm[is.na(dfStatsPerm[[strSeriesVar]]),];
+            } else{
+              dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
+            }
             if (boolAggPct) {
-              dfStatsPermAllIndy = dfStatsPermAllIndy[dfStatsPermAllIndy[[strSeriesVar]] %in% vectValPerms,];
+              if (vectValPerms[1] == 'NA'){
+                dfStatsPermAllIndy = dfStatsPermAllIndy[is.na(dfStatsPermAllIndy[[strSeriesVar]]),];
+              } else{
+                dfStatsPermAllIndy = dfStatsPermAllIndy[dfStatsPermAllIndy[[strSeriesVar]] %in% vectValPerms,];
+              }
             }
           }
         }
