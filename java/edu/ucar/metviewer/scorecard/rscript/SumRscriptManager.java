@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVUtil;
@@ -122,109 +124,121 @@ public class SumRscriptManager extends RscriptManager {
 
   @Override
   public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) {
-    clean();
-    initModels();
-    if (models != null) {
-      Map<String, Object> tableCalcStatInfo = new HashMap<>(tableCalcStatInfoCommon);
-      init(mapRow);
-      tableCalcStatInfo.put("indy_var", indyVar);
-      tableCalcStatInfo.put("indy_list", "c(" + indyList + ")");
-      tableCalcStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
-      tableCalcStatInfo.put("dep2_plot", "list()");
-      tableCalcStatInfo.put("series_list", seriesList.toString());
-      tableCalcStatInfo.put("series1_list", seriesList.toString());
-      tableCalcStatInfo.put("series2_list", "list()");
-      tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
-      tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
-
-      String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
-      tableCalcStatInfo
-              .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
-      tableCalcStatInfo.put("sum_sl1l2", String.valueOf(Boolean.valueOf(aggType.equals("sl1l2")))
-              .toUpperCase());
-      tableCalcStatInfo.put("sum_grad", String.valueOf(Boolean.valueOf(aggType.equals("grad")))
-              .toUpperCase());
-      tableCalcStatInfo.put("sum_sal1l2", String.valueOf(Boolean.valueOf(aggType.equals("sal1l2")
-      )).toUpperCase());
-      tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
-              .toUpperCase());
-      tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
-              .toUpperCase());
-
-
-      boolean isAppend = false;
-
-      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-      int lastDot = sumStatDataFilePath.lastIndexOf('.');
-
-      tableCalcStatInfo.put("sum_stat_input", tableCalcStatInfoCommon.get("data_file"));
-      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-      String thredInfoFileName = strSumInfo.substring(0, lastDot)
-              + threadName + strSumInfo.substring(lastDot);
-
-      try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
-              .setLevel(org.apache.logging.log4j.Level.INFO)
-              .buildPrintStream()) {
-        String sumStatTemplScript;
-        String sumStatTemplFile;
-
-        sumStatTemplScript = sumStatTemplScriptDir + STAT_SCRIPT_FILE_NAME;
-        sumStatTemplFile = sumStatTemplFilePath + "/sum_stat.info_tmpl";
-        MVUtil.populateTemplateFile(sumStatTemplFile, thredInfoFileName, tableCalcStatInfo);
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        printStream.println("Running " + rScriptCommand + " " + sumStatTemplScript);
-
-
-        MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
-                new String[]{thredInfoFileName});
-
-        stopWatch.stop();
-        if (mvResponse.getInfoMessage() != null) {
-          printStream.println(mvResponse.getInfoMessage());
-        }
-        if (mvResponse.getErrorMessage() != null) {
-          printStream.println(mvResponse.getErrorMessage());
-        }
-        printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
-      } catch (StopWatchException | IOException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
+    List<Entry> allModels = null;
+    for (Field fixedField : fixedVars) {
+      if ("model".equals(fixedField.getName())) {
+        allModels = fixedField.getValues();
+        break;
       }
-      tableCalcStatInfo.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
-
-
-      //check if output file exists and its length is not 0
-      File output = new File((String) tableCalcStatInfo.get("plot_file"));
-      isAppend = output.exists() && output.length() > 0;
-      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-      tableCalcStatInfo.put("data_file",
-              tableCalcStatInfoCommon.get("sum_stat_output"));
-
-
-      try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
-              .setLevel(org.apache.logging.log4j.Level.INFO)
-              .buildPrintStream()) {
-        MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        printStream.println("Running " + rScriptCommand + " " + strRFile);
-
-
-        MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, strRFile);
-        stopWatch.stop();
-        if (mvResponse.getInfoMessage() != null) {
-          printStream.println(mvResponse.getInfoMessage());
+    }
+    if (allModels != null) {
+      for (int i = 0; i < allModels.size(); i = i + 2) {
+        clean();
+        models = new ArrayList<>(2);
+        models.add(allModels.get(i));
+        if (i + 1 < allModels.size()) {
+          models.add(allModels.get(i + 1));
         }
-        if (mvResponse.getErrorMessage() != null) {
-          printStream.println(mvResponse.getErrorMessage());
+        Map<String, Object> tableCalcStatInfo = new HashMap<>(tableCalcStatInfoCommon);
+        init(mapRow);
+        tableCalcStatInfo.put("indy_var", indyVar);
+        tableCalcStatInfo.put("indy_list", "c(" + indyList + ")");
+        tableCalcStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
+        tableCalcStatInfo.put("dep2_plot", "list()");
+        tableCalcStatInfo.put("series_list", seriesList.toString());
+        tableCalcStatInfo.put("series1_list", seriesList.toString());
+        tableCalcStatInfo.put("series2_list", "list()");
+        tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
+        tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
+
+        String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
+        tableCalcStatInfo
+                .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
+        tableCalcStatInfo.put("sum_sl1l2", String.valueOf(Boolean.valueOf(aggType.equals("sl1l2")))
+                .toUpperCase());
+        tableCalcStatInfo.put("sum_grad", String.valueOf(Boolean.valueOf(aggType.equals("grad")))
+                .toUpperCase());
+        tableCalcStatInfo.put("sum_sal1l2", String.valueOf(Boolean.valueOf(aggType.equals("sal1l2")
+        )).toUpperCase());
+        tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
+                .toUpperCase());
+        tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
+                .toUpperCase());
+
+
+        boolean isAppend = false;
+
+        tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+        int lastDot = sumStatDataFilePath.lastIndexOf('.');
+
+        tableCalcStatInfo.put("sum_stat_input", tableCalcStatInfoCommon.get("data_file"));
+        tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+        String thredInfoFileName = strSumInfo.substring(0, lastDot)
+                + threadName + strSumInfo.substring(lastDot);
+
+        try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
+                .setLevel(org.apache.logging.log4j.Level.INFO)
+                .buildPrintStream()) {
+          String sumStatTemplScript;
+          String sumStatTemplFile;
+
+          sumStatTemplScript = sumStatTemplScriptDir + STAT_SCRIPT_FILE_NAME;
+          sumStatTemplFile = sumStatTemplFilePath + "/sum_stat.info_tmpl";
+          MVUtil.populateTemplateFile(sumStatTemplFile, thredInfoFileName, tableCalcStatInfo);
+
+          StopWatch stopWatch = new StopWatch();
+          stopWatch.start();
+          printStream.println("Running " + rScriptCommand + " " + sumStatTemplScript);
+
+
+          MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
+                  new String[]{thredInfoFileName});
+
+          stopWatch.stop();
+          if (mvResponse.getInfoMessage() != null) {
+            printStream.println(mvResponse.getInfoMessage());
+          }
+          if (mvResponse.getErrorMessage() != null) {
+            printStream.println(mvResponse.getErrorMessage());
+          }
+          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+        } catch (StopWatchException | IOException e) {
+          logger.error(ERROR_MARKER, e.getMessage());
         }
-        printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
-      } catch (IOException | StopWatchException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
+        tableCalcStatInfo.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
+
+
+        //check if output file exists and its length is not 0
+        File output = new File((String) tableCalcStatInfo.get("plot_file"));
+        isAppend = output.exists() && output.length() > 0;
+        tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+        tableCalcStatInfo.put("data_file",
+                tableCalcStatInfoCommon.get("sum_stat_output"));
+
+
+        try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
+                .setLevel(org.apache.logging.log4j.Level.INFO)
+                .buildPrintStream()) {
+          MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
+
+          StopWatch stopWatch = new StopWatch();
+          stopWatch.start();
+          printStream.println("Running " + rScriptCommand + " " + strRFile);
+
+
+          MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, strRFile);
+          stopWatch.stop();
+          if (mvResponse.getInfoMessage() != null) {
+            printStream.println(mvResponse.getInfoMessage());
+          }
+          if (mvResponse.getErrorMessage() != null) {
+            printStream.println(mvResponse.getErrorMessage());
+          }
+          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+        } catch (IOException | StopWatchException e) {
+          logger.error(ERROR_MARKER, e.getMessage());
+        }
       }
-
     }
   }
 }

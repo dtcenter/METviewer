@@ -14,6 +14,8 @@ import java.util.List;
  */
 public class Field {
   private String name;
+  private String label;
+
   private List<Entry> values = new ArrayList<>();
   private List<Field> fields = new ArrayList<>();
 
@@ -40,6 +42,15 @@ public class Field {
   public void setValues(List<Entry> values) {
     this.values = values;
   }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
 
 
 }

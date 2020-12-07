@@ -17,6 +17,7 @@ import edu.ucar.metviewer.scorecard.db.SumDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.exceptions.MissingFileException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
+import edu.ucar.metviewer.scorecard.model.WeightRequirements;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
 import edu.ucar.metviewer.scorecard.rscript.*;
 import org.apache.logging.log4j.LogManager;
@@ -68,6 +69,7 @@ public class Scorecard {
   private String statValue;
   private String statSymbol;
   private String thresholdFile = null;
+  private String weightFile = null;
   private List<String> leftColumnsNames = new ArrayList<>();
   private String symbolSize = "100%";
   private String executionType = RSCRIPT;
@@ -420,6 +422,13 @@ public class Scorecard {
 
   public void setThresholdFile(String thresholdFile) {
     this.thresholdFile = thresholdFile;
+  }
+  public String getWeightFile() {
+    return weightFile;
+  }
+
+  public void setWeightFile(String weightFile) {
+    this.weightFile = weightFile;
   }
 
   public List<String> getLeftColumnsNames() {
