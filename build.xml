@@ -380,7 +380,7 @@
         </copy>
         <delete file="${build}/MANIFEST.MF"/>
         <manifest file="${build}/MANIFEST.MF">
-            <attribute name="Specification-Version" value="2.11"/>
+            <attribute name="Specification-Version" value="4.0-beta2"/>
         </manifest>
 
         <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">

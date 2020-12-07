@@ -185,6 +185,8 @@ class XmlParser {
           }
         } else if ("threshold_file".equals(plotNode.getNodeName())) {
           scorecard.setThresholdFile(plotNode.getTextContent());
+        } else if ("weight_file".equals(plotNode.getNodeName())) {
+          scorecard.setWeightFile(plotNode.getTextContent());
         } else if ("printSQL".equals(plotNode.getNodeName())) {
           if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
             scorecard.setPrintSQL(Boolean.TRUE);
@@ -241,6 +243,7 @@ class XmlParser {
   private Field constructField(Node fieldNode) {
     Field field = new Field();
     field.setName(getFieldName(fieldNode));
+    field.setLabel(getFieldLabel(fieldNode));
     List<Entry> values = new ArrayList<>();
     List<Field> fields = new ArrayList<>();
     NodeList fieldNodeList = fieldNode.getChildNodes();
@@ -280,15 +283,15 @@ class XmlParser {
   }
 
   private String getFieldLabel(Node fieldsNode) {
-    String fieldName = null;
+    String fieldLabel = null;
     NamedNodeMap fieldAtts = fieldsNode.getAttributes();
     for (int k = 0; k < fieldAtts.getLength(); k++) {
       if ("label".equals(fieldAtts.item(k).getNodeName())) {
-        fieldName = fieldAtts.item(k).getNodeValue();
+        fieldLabel = fieldAtts.item(k).getNodeValue();
         break;
       }
     }
-    return fieldName;
+    return fieldLabel;
   }
 
   private void setFolders(Scorecard scorecard, Node scorecardSpecNode) {

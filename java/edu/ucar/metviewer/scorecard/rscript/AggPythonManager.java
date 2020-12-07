@@ -13,6 +13,7 @@ import edu.ucar.metviewer.StopWatchException;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
+import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -75,65 +76,77 @@ public class AggPythonManager extends PythonManager {
 
   @Override
   public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) {
-    clean();
-    initModels();
-    if (models != null) {
-
-      init(mapRow);
-      initAggBool(yamlInfo, Util.getAggTypeForStat(stat));
-
-      //create a template
-      yamlInfo.put("indy_var", indyVar);
-      yamlInfo.put("indy_vals", indyList.get(indyVar));
-
-      List<String> statList = new ArrayList<>();
-      statList.add(stat);
-      yamlInfo.put("list_stat_1", statList);
-
-
-      Map<String, String> list_static_val = new HashMap<>();
-      list_static_val.put("fcst_var", fcstVar);
-      yamlInfo.put("list_static_val", list_static_val);
-      yamlInfo.put("series_val_1", seriesList);
-
-      yamlInfo.put("derived_series_1", seriesDiffList);
-      Map<String, List<String>> fcst_var_val_1 = new HashMap<>();
-      List<String> fcst_var_val_1_list = new ArrayList<>();
-      fcst_var_val_1_list.add(stat);
-      fcst_var_val_1.put(fcstVar, fcst_var_val_1_list);
-      yamlInfo.put("fcst_var_val_1", fcst_var_val_1);
-
-      //check id output file exists and its length not 0
-      File output = new File((String) yamlInfo.get("agg_stat_output"));
-      boolean isAppend = false;
-      if (output.exists() && output.length() > 0) {
-        isAppend = true;
+    List<Entry> allModels = null;
+    for (Field fixedField : fixedVars) {
+      if ("model".equals(fixedField.getName())) {
+        allModels = fixedField.getValues();
+        break;
       }
-      yamlInfo.put("append_to_file", isAppend ? "True" : "False");
-
-      try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
-              .setLevel(org.apache.logging.log4j.Level.INFO)
-              .buildPrintStream()) {
-        createYamlFile(aggInfoFileName, yamlInfo);
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        printStream.println("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
-
-
-        MvResponse mvResponse = MVUtil.runRscript(python,
-                metCalcpyHome + PYTHON_SCRIPT,
-                new String[]{aggInfoFileName},
-                new String[]{"PYTHONPATH=" + metCalcpyHome});
-        stopWatch.stop();
-        if (mvResponse.getInfoMessage() != null) {
-          printStream.println(mvResponse.getInfoMessage());
+    }
+    if (allModels != null) {
+      for (int i = 0; i < allModels.size(); i = i + 2) {
+        clean();
+        models = new ArrayList<>(2);
+        models.add(allModels.get(i));
+        if (i + 1 < allModels.size()) {
+          models.add(allModels.get(i + 1));
         }
-        if (mvResponse.getErrorMessage() != null) {
-          printStream.println(mvResponse.getErrorMessage());
+        init(mapRow);
+        initAggBool(yamlInfo, Util.getAggTypeForStat(stat));
+
+        //create a template
+        yamlInfo.put("indy_var", indyVar);
+        yamlInfo.put("indy_vals", indyList.get(indyVar));
+
+        List<String> statList = new ArrayList<>();
+        statList.add(stat);
+        yamlInfo.put("list_stat_1", statList);
+
+
+        Map<String, String> list_static_val = new HashMap<>();
+        list_static_val.put("fcst_var", fcstVar);
+        yamlInfo.put("list_static_val", list_static_val);
+        yamlInfo.put("series_val_1", seriesList);
+
+        yamlInfo.put("derived_series_1", seriesDiffList);
+        Map<String, List<String>> fcst_var_val_1 = new HashMap<>();
+        List<String> fcst_var_val_1_list = new ArrayList<>();
+        fcst_var_val_1_list.add(stat);
+        fcst_var_val_1.put(fcstVar, fcst_var_val_1_list);
+        yamlInfo.put("fcst_var_val_1", fcst_var_val_1);
+
+        //check id output file exists and its length not 0
+        File output = new File((String) yamlInfo.get("agg_stat_output"));
+        boolean isAppend = false;
+        if (output.exists() && output.length() > 0) {
+          isAppend = true;
         }
-        printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
-      } catch (IOException | StopWatchException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
+        yamlInfo.put("append_to_file", isAppend ? "True" : "False");
+
+        try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
+                .setLevel(org.apache.logging.log4j.Level.INFO)
+                .buildPrintStream()) {
+          createYamlFile(aggInfoFileName, yamlInfo);
+          StopWatch stopWatch = new StopWatch();
+          stopWatch.start();
+          printStream.println("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
+
+
+          MvResponse mvResponse = MVUtil.runRscript(python,
+                  metCalcpyHome + PYTHON_SCRIPT,
+                  new String[]{aggInfoFileName},
+                  new String[]{"PYTHONPATH=" + metCalcpyHome});
+          stopWatch.stop();
+          if (mvResponse.getInfoMessage() != null) {
+            printStream.println(mvResponse.getInfoMessage());
+          }
+          if (mvResponse.getErrorMessage() != null) {
+            printStream.println(mvResponse.getErrorMessage());
+          }
+          printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
+        } catch (IOException | StopWatchException e) {
+          logger.error(ERROR_MARKER, e.getMessage());
+        }
       }
     }
   }
