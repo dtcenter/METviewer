@@ -48,6 +48,9 @@ METviewer relies on the following tools. These must be installed and tested prio
 
 **METviewer** - clone   `METviewer repository <https://github.com/dtcenter/METviewer>`_
 
+**METcalcpy** - clone   `METcalkpy repository <https://github.com/dtcenter/METcalcpy>`_
+
+**METplotpy** - clone   `METplotpy repository <https://github.com/dtcenter/METplotpy>`_
 
 ***************
 Configure and build METviewer
