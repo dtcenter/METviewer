@@ -17,18 +17,19 @@ public class TestMariaDbDatabaseManager extends MysqlDatabaseManager implements 
           = org.apache.logging.log4j.LogManager.getLogger("TestMysqlDatabaseManager");
 
   public int getNumberOfRows(String lineDataType) throws Exception {
-    String tableName = lineDataType;
     int rows = -1;
     try (
-            java.sql.Connection con = getConnection();
             java.sql.Statement statement = getConnection().createStatement();
-            java.sql.ResultSet resultSet = statement.executeQuery("select count(*) from " + tableName);
+            java.sql.ResultSet resultSet = statement.executeQuery("select count(*) from " + lineDataType);
     ) {
       if (resultSet.next()) {
         rows = resultSet.getInt("count(*)");
+      }else{
+        out.println("Table " + lineDataType + " doesn't have rows");
       }
     } catch (Exception e) {
       logger.error(e.getMessage());
+      out.println(e.getMessage());
     }
     return rows;
   }
