@@ -15,25 +15,59 @@ METviewer relies on the following tools. These must be installed and tested prio
 
 **Java JDK 1.8+**
 
-**ant** - `download ant <http://ant.apache.org/bindownload.cgi>`_ and install the latest version.
+**Ant** - `download ant <http://ant.apache.org/bindownload.cgi>`_ and install the latest version.
 
-**MySQL** - `download MySQL <https://dev.mysql.com/downloads/mysql/>`_ and install the latest version. Use "SET GLOBAL max_allowed_packet=110000000;" by typing the command in MySQL and/or make the corresponding edit to /etc/my.cnf, so that the change persists after the next reboot.
+**Database** - METviewer works wit MySQL and MariaDB. `Download MySQL <https://dev.mysql.com/downloads/mysql/>`_ or `download MariaDB <https://mariadb.org/download/>`_ and install the latest version. Use "SET GLOBAL max_allowed_packet=110000000;" by typing the command in MySQL and/or make the corresponding edit to /etc/my.cnf, so that the change persists after the next reboot.
 
-**Apache Tomcat** - `download Apache Tomcat <http://tomcat.apache.org/>`_ and install the latest version; test the sample JSP web apps.
+**Apache Tomcat** - `download Apache Tomcat 8 <https://tomcat.apache.org/download-80.cgi>`_ and install the latest version; test the sample JSP web apps.
 
-**R** - `download R <https://dev.mysql.com/downloads/mysql/>`_ and install the latest version.
+**R and R packages** - `download R <https://www.r-project.org/>`_ and install the latest version. Install required R packages:
+ * boot
+ * plotrix
+ * data.table
+ * verification
+ * gsl
 
-#. Configure the batch tool, database loader tool, and web application:
 
-   * edit [install]/metviewer/bin/mv_batch.sh:
-     
+**Python**: install Python 3.6 or higher. Create an envinroment (METviewer_py3.6.3) and install required packages:
+ * kiwisolver==1.0.1
+ * bootstrapped
+ * plotly==4.9.0
+ * kaleido
+ * pandas
+ * numpy
+ * scipy
+ * PyYAML
+ * psutil
+ * requests
+ * matplotlib
+ * lxml
+ * pymysql
+ * retrying
+
+
+**METviewer** - clone   `METviewer repository <https://github.com/dtcenter/METviewer>`_
+
+
+***************
+Configure and build METviewer
+***************
+
+
+#. Configure the batch and loading tools:
+
+   * edit METviewer/bin/mv_batch.sh:
+
         * set the variable JAVA to point at the desired jvm instance to run
-        * set the variable MV_HOME to point at [install]/metviewer
+        * set the variable MV_HOME to point at [install]/METviewer
+        * set the variable PYTHON_ENV to point at the Python envinroment
+        * set the variable METCALCPY_HOME to point to METcalcpy directory
+        * set the variable METPLOTPY_HOME to point to METplotpy directory
 
    * edit [install]/metviewer/bin/mv_load.sh:
-        
+
         * set the variable JAVA to point at the desired jvm instance to run
-        * set the variable MV_HOME to point at [install]/metviewer
+        * set the variable PYTHON_ENV to point at [install]/metviewer
         
    * edit [install]/metviewer/webapp/metviewer/WEB-INF/classes/log4j.properties:
         
