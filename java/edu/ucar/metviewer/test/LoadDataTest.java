@@ -30,7 +30,7 @@ public class LoadDataTest {
   @Before
   public void init() {
     TABLES_TO_ROWS.put("data_file", 1701);
-    TABLES_TO_ROWS.put("data_file_lu", 7);
+    TABLES_TO_ROWS.put("data_file_lu", 14);
     TABLES_TO_ROWS.put("line_data_cnt", 149385);//148057
     TABLES_TO_ROWS.put("line_data_ctc", 164512);
     TABLES_TO_ROWS.put("line_data_cts", 38575);//38527
