@@ -30,7 +30,7 @@ public class LoadDataTest {
   @Before
   public void init() {
     TABLES_TO_ROWS.put("data_file", 1701);
-    TABLES_TO_ROWS.put("data_file_lu", 7);
+    TABLES_TO_ROWS.put("data_file_lu", 14);
     TABLES_TO_ROWS.put("line_data_cnt", 149385);//148057
     TABLES_TO_ROWS.put("line_data_ctc", 164512);
     TABLES_TO_ROWS.put("line_data_cts", 38575);//38527
@@ -38,7 +38,7 @@ public class LoadDataTest {
     TABLES_TO_ROWS.put("line_data_isc", 0);
     TABLES_TO_ROWS.put("line_data_mctc", 0);
     TABLES_TO_ROWS.put("line_data_mctc_cnt", 0);
-    TABLES_TO_ROWS.put("line_data_mcts", 0);
+    TABLES_TO_ROWS.put("line_data_mcts", 2);
     TABLES_TO_ROWS.put("line_data_mpr", 2939590);
     TABLES_TO_ROWS.put("line_data_nbrcnt", 80);
     TABLES_TO_ROWS.put("line_data_nbrctc", 40);
@@ -67,7 +67,7 @@ public class LoadDataTest {
     TABLES_TO_ROWS.put("mode_obj_pair", 174290);
     TABLES_TO_ROWS.put("mode_obj_single", 22909);
     TABLES_TO_ROWS.put("mv_rev", 6);
-    TABLES_TO_ROWS.put("stat_header", 6097);
+    TABLES_TO_ROWS.put("stat_header", 6636);
     TABLES_TO_ROWS.put("line_data_enscnt", 1276);
     // recreate database
     Reader reader = null;
