@@ -54,9 +54,9 @@ Create a output directory under <Tomcat>/webapps for METviewer output files. Und
 
 **METplotpy** - clone   `METplotpy repository <https://github.com/dtcenter/METplotpy>`_
 
-***************
+*****************************
 Configure and build METviewer
-***************
+*****************************
 
 
 #. Configure the batch and loading tools:
