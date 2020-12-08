@@ -17,13 +17,14 @@ METviewer relies on the following tools. These must be installed and tested prio
 
 **Ant** - `download ant <http://ant.apache.org/bindownload.cgi>`_ and install the latest version.
 
-**Database** - METviewer works wit MySQL and MariaDB. `Download MySQL <https://dev.mysql.com/downloads/mysql/>`_ or `download MariaDB <https://mariadb.org/download/>`_ and install the latest version. Use "SET GLOBAL max_allowed_packet=110000000;" by typing the command in MySQL and/or make the corresponding edit to /etc/my.cnf, so that the change persists after the next reboot.
+**Database** - METviewer works with MySQL and MariaDB. `Download MySQL <https://dev.mysql.com/downloads/mysql/>`_ or `download MariaDB <https://mariadb.org/download/>`_ and install the latest version. Use "SET GLOBAL max_allowed_packet=110000000;" by typing the command in MySQL and/or make the corresponding edit to */etc/my.cnf*, so that the change persists after the next reboot.
 
 **Apache Tomcat** - `download Apache Tomcat 8 <https://tomcat.apache.org/download-80.cgi>`_ and install the latest version; test the sample JSP web apps.
 
-Create a output directory under <Tomcat>/webapps for METviewer output files. Under this directory create 4 subdirectories: xml, plots, data, scripts
+Create an output directory under *<Tomcat>/webapps* for METviewer output files. Under this directory create 4 subdirectories: *xml, plots, data, scripts*
 
 **R and R packages** - `download R <https://www.r-project.org/>`_ and install the latest version. Install required R packages:
+
  * boot
  * plotrix
  * data.table
@@ -31,7 +32,8 @@ Create a output directory under <Tomcat>/webapps for METviewer output files. Und
  * gsl
 
 
-**Python**: install Python 3.6 or higher. Create an envinroment (METviewer_py3.6.3) and install required packages:
+**Python**: install Python 3.6 or higher. Create an environment (METviewer_py3.6.3) and install required packages:
+
  * kiwisolver==1.0.1
  * bootstrapped
  * plotly==4.9.0
@@ -54,39 +56,39 @@ Create a output directory under <Tomcat>/webapps for METviewer output files. Und
 
 **METplotpy** - clone   `METplotpy repository <https://github.com/dtcenter/METplotpy>`_
 
-***************
 Configure and build METviewer
-***************
+_____________________________
 
 
 #. Configure the batch and loading tools:
 
-   * edit METviewer/bin/mv_batch.sh:
+   * edit *METviewer/bin/mv_batch.sh*:
 
         * set the variable JAVA to point at the desired jvm instance to run
-        * set the variable MV_HOME to point at [install]/METviewer
-        * set the variable PYTHON_ENV to point at the Python envinroment
+        * set the variable MV_HOME to point at *[install]/METviewer*
+        * set the variable PYTHON_ENV to point at the Python environment
         * set the variable METCALCPY_HOME to point to METcalcpy directory
         * set the variable METPLOTPY_HOME to point to METplotpy directory
 
-   * edit METviewer/bin/mv_load.sh:
+   * edit *METviewer/bin/mv_load.sh*:
 
         * set the variable JAVA to point at the desired jvm instance to run
         * set the variable MV_HOME to point at METviewer
 
-   * edit METviewer/bin/mv_prune.sh:
+   * edit *METviewer/bin/mv_prune.sh*:
 
         * set the variable JAVA to point at the desired jvm instance to run
         * set the variable MV_HOME to point at METviewer
 
-   * edit METviewer/bin/mv_scorecard.sh:
+   * edit *METviewer/bin/mv_scorecard.sh*:
 
         * set the variable JAVA to point at the desired jvm instance to run
         * set the variable MV_HOME to point at METviewer
-        * set the variable PYTHON_ENV to point at the Python envinroment
+        * set the variable PYTHON_ENV to point at the Python environment
         * set the variable METPLOTPY_HOME to point to METplotpy directory
 
-   * create a custom property file by copiing METviewer/webapp/metviewer/WEB-INF/classes/build.properties to METviewer and providing custom valies for the parameters:
+   * create a custom property file by copying *METviewer/webapp/metviewer/WEB-INF/classes/build.properties* to *METviewer* and providing custom valies for the parameters:
+     
         * set db.host to the database server host and port, e.g. db.ncep.gov:3306
         * set db.user and db.password to the database username and password
         * set db.management.system to the database type - mysql or mariadb
@@ -94,19 +96,19 @@ Configure and build METviewer
         * set output.dir to the absolute path of the output directory
         * set webapps.dir to the absolute path of the Tomcat's webapps directory
         * set url.output to the url to the output folder
-        * set python.env to the absolute path of the Pyhton environment directory
+        * set python.env to the absolute path of the Python environment directory
         * set metcalcpy.home to the absolute path of the METcalcpy directory
         * set metplotpy.home to the absolute path of the METplotpy directory
 
 
-   * edit METviewer/webapp/metviewer/WEB-INF/classes/log4j.properties:
+   * edit *METviewer/webapp/metviewer/WEB-INF/classes/log4j.properties*:
 
         * set log4j.appender.logfile.File setting to the absolute path of a log file
 
 
 #. Build and deploy the application:
 
-   * Build METviewer and the web application. ``Replace the parameters values in the Ant command to what is appropriate for your setup``:
+   * Build METviewer and the web application. ``Replace the parameters values in the Ant command to what is appropriate for the user's setup``:
 
    .. code-block:: none
 
@@ -122,7 +124,7 @@ Configure and build METviewer
         $ cp METviewer/dist/metviewer.war Tomcat/webapps
 
 
-#. Create a METviewer database:
+3. Create a METviewer database:
 
    * create a database to store MET data, which has the prefix 'mv\_', e.g. mv_met_data:
 
@@ -135,7 +137,7 @@ Configure and build METviewer
 
 #. Install test directory (for development, optional):
    
-   * check out test_data (.../apps/verif/metviewer_test_data/test_data/) from CVS and move test_data directory to /d3/projects/METViewer/:
+   * check out test_data *(../apps/verif/metviewer_test_data/test_data/*) from CVS and move test_data directory to */d3/projects/METViewer/*:
    
    * create links to R script and sql files
 
@@ -154,5 +156,5 @@ Configure and build METviewer
 
 Making a Database Accessible in the METviewer Web Application
 -------------------------------------------------------------
-To make a new database accessible in the METviewer Web Application click on "Reload list of databases" button in the upper right corner of the main JSP page. The list of available databases should be updated and a new database should be in it
+To make a new database accessible in the METviewer Web Application click on "Reload list of databases" button in the upper right corner of the main JSP page. The list of available databases should be updated and a new database should be in it.
 
