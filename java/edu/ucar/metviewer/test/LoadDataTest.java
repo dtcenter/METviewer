@@ -74,7 +74,6 @@ public class LoadDataTest {
     TABLES_TO_ROWS.put("mode_header", 399);
     TABLES_TO_ROWS.put("mode_obj_pair", 174295);
     TABLES_TO_ROWS.put("mode_obj_single", 22909);
-    TABLES_TO_ROWS.put("mv_rev", 6);
     TABLES_TO_ROWS.put("stat_header", 6636);
     TABLES_TO_ROWS.put("line_data_enscnt", 1276);
     TABLES_TO_ROWS.put("mtd_2d_obj", 9576);
