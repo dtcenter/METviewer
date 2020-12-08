@@ -59,7 +59,6 @@ Create an output directory under *<Tomcat>/webapps* for METviewer output files. 
 Configure and build METviewer
 _____________________________
 
-
 #. Configure the batch and loading tools:
 
    * edit *METviewer/bin/mv_batch.sh*:
