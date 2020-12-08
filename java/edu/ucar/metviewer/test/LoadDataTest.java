@@ -38,7 +38,7 @@ public class LoadDataTest {
     TABLES_TO_ROWS.put("line_data_isc", 0);
     TABLES_TO_ROWS.put("line_data_mctc", 0);
     TABLES_TO_ROWS.put("line_data_mctc_cnt", 0);
-    TABLES_TO_ROWS.put("line_data_mcts", 0);
+    TABLES_TO_ROWS.put("line_data_mcts", 2);
     TABLES_TO_ROWS.put("line_data_mpr", 2939590);
     TABLES_TO_ROWS.put("line_data_nbrcnt", 80);
     TABLES_TO_ROWS.put("line_data_nbrctc", 40);
