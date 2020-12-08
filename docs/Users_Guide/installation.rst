@@ -21,6 +21,8 @@ METviewer relies on the following tools. These must be installed and tested prio
 
 **Apache Tomcat** - `download Apache Tomcat 8 <https://tomcat.apache.org/download-80.cgi>`_ and install the latest version; test the sample JSP web apps.
 
+Create a output directory under <Tomcat>/webapps for METviewer output files. Under this directory create 4 subdirectories: xml, plots, data, scripts
+
 **R and R packages** - `download R <https://www.r-project.org/>`_ and install the latest version. Install required R packages:
  * boot
  * plotrix
@@ -67,79 +69,69 @@ Configure and build METviewer
         * set the variable METCALCPY_HOME to point to METcalcpy directory
         * set the variable METPLOTPY_HOME to point to METplotpy directory
 
-   * edit [install]/metviewer/bin/mv_load.sh:
+   * edit METviewer/bin/mv_load.sh:
 
         * set the variable JAVA to point at the desired jvm instance to run
-        * set the variable PYTHON_ENV to point at [install]/metviewer
-        
-   * edit [install]/metviewer/webapp/metviewer/WEB-INF/classes/log4j.properties:
-        
-        * set log4j.appender.logfile.File setting to the absolute path of [install]/metviewer/log file
-        
-   * edit [install]/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties:
-        
-        * set db.host to the MySQL database server host and port, e.g. db.ncep.gov:3306
+        * set the variable MV_HOME to point at METviewer
+
+   * edit METviewer/bin/mv_prune.sh:
+
+        * set the variable JAVA to point at the desired jvm instance to run
+        * set the variable MV_HOME to point at METviewer
+
+   * edit METviewer/bin/mv_scorecard.sh:
+
+        * set the variable JAVA to point at the desired jvm instance to run
+        * set the variable MV_HOME to point at METviewer
+        * set the variable PYTHON_ENV to point at the Python envinroment
+        * set the variable METPLOTPY_HOME to point to METplotpy directory
+
+   * create a custom property file by copiing METviewer/webapp/metviewer/WEB-INF/classes/build.properties to METviewer and providing custom valies for the parameters:
+        * set db.host to the database server host and port, e.g. db.ncep.gov:3306
         * set db.user and db.password to the database username and password
-        * set cache.val to true/false depending on whether value caching should be enabled (recommend true)
-        * set cache.stat to true/false depending on whether statistics caching should be enabled (recommend true)
-        * set folders.plot_xml to the absolute path of [output_dir]/xml
-        * set folders.r_tmpl to the absolute path of [tomcat]/metviewer/R_tmpl
-        * set folders.r_work to the absolute path of [tomcat]/metviewer/R_work
-        * set folders.plots to the absolute path of [output_dir]/plots
-        * set folders.data to the absolute path of [output_dir]/data
-        * set folders.scripts to the absolute path of [output_dir]/scripts
+        * set db.management.system to the database type - mysql or mariadb
         * set redirect to the application name in url (ex. if the application URL is "http://www.dtcenter.org/met/metviewer/" redirect is "metviewer")
+        * set output.dir to the absolute path of the output directory
+        * set webapps.dir to the absolute path of the Tomcat's webapps directory
         * set url.output to the url to the output folder
+        * set python.env to the absolute path of the Pyhton environment directory
+        * set metcalcpy.home to the absolute path of the METcalcpy directory
+        * set metplotpy.home to the absolute path of the METplotpy directory
 
-#. Configure the batch tool, database loader tool, and web application:
 
-   * Create output folders: [output_dir]/plots, [output_dir]/data, [output_dir]/scripts, [output_dir]/xml
-   
-   * Include [output_dir] to Apache context
+   * edit METviewer/webapp/metviewer/WEB-INF/classes/log4j.properties:
+
+        * set log4j.appender.logfile.File setting to the absolute path of a log file
+
 
 #. Build and deploy the application:
-   
-   * Build METviewer and the web application:
-     
-   .. code-block:: none
-        
-        $ cd [install]/metviewer
-        $ ant
 
-  * Install load_batch module:
-   
-   .. code-block:: none
-
-        $ cd [tomcat_base]/webapps
-        $ cp [install]/dist/metviewer.war ./
-
-   * Deploy the web app to tomcat:
+   * Build METviewer and the web application. ``Replace the parameters values in the Ant command to what is appropriate for your setup``:
 
    .. code-block:: none
-        
-        $ cd [install]/dist
-        $ cp [install]/dist/batch_load.tar [load_batch_dir]
-        $ cd [load_batch_dir]
-        $ tar -zxvf batch_load.tar
+
+        $ cd MRTviewer
+        $ ant -Dbuild.properties.file=METViewer/build.properties \
+         -Ddb.management.system=mariadb -Dmetcalcpy.path=METcalcpy/ -Dmetplotpy.path=METplotpy/\
+         -Dpython.env.path=METviewer_py3.6.3/  clean all
+
+  * Deploy the web app to tomcat
+
+   .. code-block:: none
+
+        $ cp METviewer/dist/metviewer.war Tomcat/webapps
+
 
 #. Create a METviewer database:
-   
+
    * create a database to store MET data, which has the prefix 'mv\_', e.g. mv_met_data:
-   
+
    .. code-block:: none
-        
-        $ cd [install]/metviewer
+
+        $ cd METviewer
         $ mysql -u[db_username] -p[db_password] -e'create database [db_name];'
         $ mysql -u[db_username] -p[db_password] [db_name] < sql/mv_mysql.sql
 
-   * create an XML load specification document which contains information about the MET data
-   
-   * run the METviewer load tool using the XML load specification as input (called [load_xml] here) and monitor progress:
-
-   .. code-block:: none
-        
-        $ cd [install]/metviewer
-        $ bin/mv_load.sh [load_xml] [optional redirection of output, e.g. &> log/load_[date].log &]'
 
 #. Install test directory (for development, optional):
    
