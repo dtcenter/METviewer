@@ -118,8 +118,6 @@ Event Equalization – performs the filtering on two datasets to produce a
 “homogeneous” intersection between the samples (same forecast hour, same
 initialization, same region, etc…).  Use of this method is recommended when
 trying to compare the skill of one or more predictions.
-To test, I tried method (1) and it works fine for some of the categorical
-stats, like BASER and FMEAN. However, applying it to Gilbert Skill Score  (GSS) results in this error:
 
 
 METviewer Output
