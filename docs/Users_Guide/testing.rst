@@ -4,11 +4,15 @@ Testing Module
 Testing example - install and run on dakota
 -------------------------------------------
 
+**Testing directory and branch information**
+
 | Testing HOME directory: */d3/projects/METViewer/auto_test*
 | Testing data directory: */d3/projects/METViewer/test_data/load_data/load*
 | Branch to verify against: mv_2_5_dev
 | Branch to verify : mv_2_6
-|
+| 
+
+**Steps**
 
 #. Check out and copy to the HOME script : **auto_test.sh**
    
@@ -36,7 +40,7 @@ Testing example - install and run on dakota
    
         ./auto_test.sh -UGIT_USER -t/d3/projects/METViewer/auto_test/METViewerTest -bmv_2_6 -Bmv_2_5_dev -l/d3/projects/METViewer/test_data/load_data/load -dmv_test_2_6 -uUSER -m/d3/projects/METViewer/auto_test/METViewer -pUSER -hHOST -P3306
 
-If the testing is done using crontab the gituser credentials should be
+If the testing is done using crontab the git user credentials should be
 stored in the
 `git store <https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage>`_ .
 Also, **auto_test.sh** should be modified to send emails with testing results.
@@ -45,12 +49,12 @@ Testing - capture
 -----------------
 
 The testing module is used to execute the regression testing of a specified
-version of METviewer. The capture tool is invoked by using the mv_test
+version of METviewer. The capture tool is invoked by using the mv_test.sh
 script. During test capture, system or processing errors will be reported
 but images and data are not verified. Verification of data or images is
-performed by the mv_compare script. The mv_test script essentially generates
-output files and copies them from the output directory to the appropriate
-directory test_cases directory.
+performed by the mv_compare.sh script. The mv_test.sh script essentially
+generates output files and copies them from the output directory to the
+appropriate directory test_cases directory.
 
 Capture and Verification are performed against a specified METviewer branch
 and tag. It is expected that the proper branch or tag has been previously
@@ -63,32 +67,31 @@ images, scripts and data for a given test run, along with the corresponding
 test_data (use case xml files) and load data (load specification xml
 files). The actual load data files are not yet source controlled and so they
 are linked from the path to the met data that is specified with the -l
-option. The auto_test script takes branch and tag parameters and creates
+option. The auto_test.sh script takes branch and tag parameters and creates
 the proper test subdirectory and reconciles properly with the remote
-repository. All the mv_test script needs is the proper test subdirectory.
+repository. All the mv_test.sh script needs is the proper test subdirectory.
 Successfully generated output images will be copied to the appropriate
 test_cases directory.
 
 **NOTE ABOUT GIT TAGS**
 
-A short discussion of METviewer git tags is appropriate here. Git tags are
-not directly related to any git branches. They are different things. A git
-tag simply refers to a specific commit to the git repository. The branches
-that existed at the time of the tagging could all be deleted (except for
-the master) and the tag would still be a valid tag. For this  purpose,
-name the tags after the branches, i.e. MV_2_6_tagname or something like
-that. This creates a mnemonic relationship to a branch. Furthermore, only
-create tags after a commit to a specific branch that has been referenced
-in the tag name. That tagged commit was a special point in the history of
-the repository, a point that was captured with a name on behalf of a
-branch. Specifying the tag and branch sets the repository pointer to the
-specific commit that is wanted to capture for a given branch. Including a
-branch name is only a mnemonic that serves as a reminder as to which branch
-the tag was set on behalf of. The mnemonic allows organization of the
-tests for regression checking against special times in the repository
-commit history.
+A short discussion of METviewer git tags is appropriate here. Git tags are not
+directly related to any git branches. They are different things. A git tag
+simply refers to a specific commit to the git repository. The branches that
+existed at the time of the tagging could all be deleted (except for the master)
+and the tag would still be a valid tag. In METviewer, tags are named after the
+branches, i.e. MV_2_6_<tag_name>. This creates a mnemonic relationship to a
+branch. Furthermore, only create tags after a commit to a specific branch that
+is then referenced in the tag name. That tagged commit is a special point in
+the history of the repository, a point to be captured for a given branch. By
+specifying the tag and branch, the repository pointer is set to a specific
+commit for a given branch.  Including a branch name is only a mnemonic that
+serves as a reminder of the branch the tag was set on behalf of. The mnemonic
+allows organization of the tests for regression checking against special times
+in the repository commit history.
 
-**NOTE** to do binary comparisons on captured test data,
+
+**NOTE** To do binary comparisons on captured test data,
 the test data is saved in a directory structure that is mnemonically tied
 to the product branches or tags. The METviewer code under test is only ever
 checked out to one specific branch HEAD, or to a tag point, at a time. Its
@@ -173,24 +176,24 @@ directory structure might look like this, for example...
 Testing - verify
 ----------------
 
-The mv_compare script accepts a branch and a tag that it uses to identify a test subdirectory and a second "expected" branch and tag that it uses to identify a comparison test directory. If tags are omitted the HEAD is used. The compare script looks for corresponding image files in the corresponding plots directories and does a binary comparison of the corresponding files. Differences will be reported as errors.
+The mv_compare.sh script accepts a branch and a tag that it uses to identify a test subdirectory and a second "expected" branch and tag that it uses to identify a comparison test directory. If tags are omitted the HEAD is used. The compare script looks for corresponding image files in the corresponding plots directories and does a binary comparison of the corresponding files. Differences will be reported as errors.
 
 auto test
 ---------
 
-The auto_test script defines the branch, optionally a tag, directories, and database credentials for a version under test and a comparison version. It performs the following steps...
+The auto_test.sh script defines the branch, optionally a tag, directories, and database credentials for a version under test and a comparison version. It performs the following steps.
 
 #. Remove any *METviewer* directory and *METviewerTestSource* directory.
 
 #. Do a git clone into the *METviewer* home directory and checkout the corresponding branch or tag.
                                                                      
-#. Do a git clone of the METviewer testing repository into the *METviewerTestSource* directory (this is not the test directory)          
+#. Do a git clone of the METviewer testing repository into the *METviewerTestSource* directory (this is not the test directory).          
 
 #. If needed create a *METVIEWER_TEST_DIR* subdirectory for the specified branch and load common data from the *METviewerTestSource* into it.
 
 #. Run the testing capture program to capture test data for the specified branch, and copy the data to the corresponding test subdirectory.
 
-#. Run the testing verify program to verify the images in the two corresponding test subdirectories
+#. Run the testing verify program to verify the images in the two corresponding test subdirectories.
  
 auto_test example: 
 
@@ -223,7 +226,7 @@ mv_compare example:
   -b <git branch>
   -B <compare git branch>
   -l <path to met data> causes the LoadDataTest submodule to be executed, gets met data from specified path
-  -d <mv_database>
+  \-d <mv_database>
   -m <path to METviewer home>
   [-a <address list>] commas separated email addresses - default sends output to console
   [-g <git tag>] default is HEAD
@@ -288,29 +291,28 @@ Testing submodules
                
 **LoadDataTest** recreates and refills the mv_test database with MET output
 data and compares the number of rows in each table with the expected number.
-Test data and XML configuration file are located in *<test_dir>/load_data*
-directory
+Test data and XML configuration file are located in the *<test_dir>/load_data*
+directory.
 
 **CreatePlotBatchTest** runs MVBatch with testing plot specification files
 and creates output files with the expected output. Any errors encountered
 with creating plots will be reported. Images are not compared
-Plot specification files and expected output are located in
-*<test_dir>/plots_batch/<test_type>* directory  
+Plot specification files and expected output are located in the
+*<test_dir>/plots_batch/<test_type>* directory.
 
-**ComparePlotBatchTest** \compares a test ROOT_DIR with a test COMPARE+DIR
+**ComparePlotBatchTest** compares a test ROOT_DIR with a test COMPARE+DIR.
 These directories are specified by the testdir and compare dir.
-plot specification files and expected output are located in
+plot specification files and expected output are located in the
 *<test_dir>/test_data_test_cases/<test_type>* directories.
 
 **TestMVServlet** simulates POST intermediate requests (ex. get a list of
 variables), send them to MVServlet and compare the servlet's response
-with the expected output.
-Requests files and expected response are located in *<test_dir>/servlet/*
-directory
+with the expected output. Requests files and expected response are located
+in the *<test_dir>/servlet/* directory.
 
-**CreatePlotServletTest** simulates POST, creates plot requests , sends
+**CreatePlotServletTest** simulates POST, creates plot requests, sends
 them to MVServlet and compares produced output files with the expected output.
-Requests files and expected output files are located in
-*<test_dir>/plots_web/<test_type>* directory
+Requests files and expected output files are located in the
+*<test_dir>/plots_web/<test_type>* directory.
 
 Location of *<test_dir>* : */d3/projects/METViewer/test_data/*
