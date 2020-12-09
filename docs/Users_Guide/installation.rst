@@ -93,28 +93,28 @@ _____________________________
 
    * Edit *METviewer/bin/mv_batch.sh*:
 
-        * Set the variable JAVA to point at the desired jvm instance to run
-        * Set the variable MV_HOME to point at *[install]/METviewer*
-        * Set the variable PYTHON_ENV to point at the Python environment
-        * Set the variable METCALCPY_HOME to point to *METcalcpy* directory
-        * Set the variable METPLOTPY_HOME to point to *METplotpy* directory
+        * Set the variable **JAVA** to point at the desired jvm instance to run
+        * Set the variable **MV_HOME** to point at *[install]/METviewer*
+        * Set the variable **PYTHON_ENV** to point at the Python environment
+        * Set the variable **METCALCPY_HOME** to point to *METcalcpy* directory
+        * Set the variable **METPLOTPY_HOME** to point to *METplotpy* directory
 
    * Edit *METviewer/bin/mv_load.sh*:
 
-        * Set the variable JAVA to point at the desired jvm instance to run
-        * Set the variable MV_HOME to point at *METviewer*
+        * Set the variable **JAVA** to point at the desired jvm instance to run
+        * Set the variable **MV_HOME** to point at *METviewer*
 
    * Edit *METviewer/bin/mv_prune.sh*:
 
-        * Set the variable JAVA to point at the desired jvm instance to run
-        * Set the variable MV_HOME to point at *METviewer*
+        * Set the variable **JAVA** to point at the desired jvm instance to run
+        * Set the variable **MV_HOME** to point at *METviewer*
 
    * Edit *METviewer/bin/mv_scorecard.sh*:
 
-        * Set the variable JAVA to point at the desired jvm instance to run
-        * Set the variable MV_HOME to point at METviewer
-        * Set the variable PYTHON_ENV to point at the Python environment
-        * Set the variable METPLOTPY_HOME to point to METplotpy directory
+        * Set the variable **JAVA** to point at the desired jvm instance to run
+        * Set the variable **MV_HOME** to point at METviewer
+        * Set the variable **PYTHON_ENV** to point at the Python environment
+        * Set the variable **METPLOTPY_HOME** to point to METplotpy directory
 
    * Create a custom property file by copying
      *METviewer/webapp/metviewer/WEB-INF/classes/build.properties*
