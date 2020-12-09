@@ -331,7 +331,7 @@ public class TestUtil {
 
 
   public static void cleanWorkingDirs() {
-    boolean doClean = true;
+    boolean doClean = false;
     if (doClean) {
       try {
         File testDir = new File(PLOTS_DIR);
