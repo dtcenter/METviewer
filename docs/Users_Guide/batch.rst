@@ -268,7 +268,7 @@ starting at 1 for each fcst_var.
 |               **<calc_ctc>:** **TRUE** or **FALSE**, indicating whether or not to calculate CTC stats.
 |               **<calc_sl1l2>:** **TRUE** or **FALSE**, indicating whether or not to calculate SL1L2 stats.
 |               **<calc_sal1l2>:** **TRUE** or **FALSE**, indicating whether or not to calculate SAL1L2 stats.
-|               **<calc_vl1l2>:?** **TRUE** or **FALSE**, indicating whether or not to calculate VL1L2 stats.
+|               **<calc_vl1l2>:** **TRUE** or **FALSE**, indicating whether or not to calculate VL1L2 stats.
 |        
 |        When using **<calc_stat>**, the following constraints apply:
 
