@@ -117,6 +117,26 @@ the **<load_val>** tag structure.
 | **<load_xml>:   TRUE** or **FALSE**, this option indicates whether or not to save the load xml; only effective if **<load_note>** is present - default: TRUE
 | 
 
+**Note**
+
+If <folder_tmpl> is used, at least one of <load_val> entry should be presented. For example, if the path is:
+
+.. code-block:: XML
+
+  <folder_tmpl>/path/to/data</folder_tmpl>
+
+change it to
+
+.. code-block:: XML
+
+       <folder_tmpl>/path/to/{type}</folder_tmpl>
+       <load_val>
+          <field name="type">
+             <val>data</val>
+          </field>
+       </load_val>
+
+
 Example
 -------
 
