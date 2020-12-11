@@ -29,46 +29,56 @@ public class LoadDataTest {
 
   @Before
   public void init() {
-    TABLES_TO_ROWS.put("data_file", 1701);
-    TABLES_TO_ROWS.put("data_file_lu", 7);
-    TABLES_TO_ROWS.put("line_data_cnt", 149385);//148057
+    TABLES_TO_ROWS.put("data_file", 1982);
+    TABLES_TO_ROWS.put("data_file_lu", 14);
+    TABLES_TO_ROWS.put("line_data_cnt", 149457);//148057
     TABLES_TO_ROWS.put("line_data_ctc", 164512);
-    TABLES_TO_ROWS.put("line_data_cts", 38575);//38527
-    TABLES_TO_ROWS.put("line_data_fho", 38495);//38527
+    TABLES_TO_ROWS.put("line_data_cts", 38697);//38527
+    TABLES_TO_ROWS.put("line_data_fho", 38550);//38527
     TABLES_TO_ROWS.put("line_data_isc", 0);
-    TABLES_TO_ROWS.put("line_data_mctc", 0);
-    TABLES_TO_ROWS.put("line_data_mctc_cnt", 0);
-    TABLES_TO_ROWS.put("line_data_mcts", 0);
-    TABLES_TO_ROWS.put("line_data_mpr", 2939590);
-    TABLES_TO_ROWS.put("line_data_nbrcnt", 80);
-    TABLES_TO_ROWS.put("line_data_nbrctc", 40);
-    TABLES_TO_ROWS.put("line_data_nbrcts", 80);
-    TABLES_TO_ROWS.put("line_data_orank", 3980);
-    TABLES_TO_ROWS.put("line_data_orank_ens", 19900);
+    TABLES_TO_ROWS.put("line_data_mctc", 1);
+    TABLES_TO_ROWS.put("line_data_mctc_cnt", 16);
+    TABLES_TO_ROWS.put("line_data_mcts", 2);
+    TABLES_TO_ROWS.put("line_data_mpr", 2988780);
+    TABLES_TO_ROWS.put("line_data_nbrcnt", 248);
+    TABLES_TO_ROWS.put("line_data_nbrctc", 124);
+    TABLES_TO_ROWS.put("line_data_nbrcts", 248);
+    TABLES_TO_ROWS.put("line_data_orank", 7327);
+    TABLES_TO_ROWS.put("line_data_orank_ens", 38061);
     TABLES_TO_ROWS.put("line_data_pct", 1277);
     TABLES_TO_ROWS.put("line_data_pct_thresh", 23656);
-    TABLES_TO_ROWS.put("line_data_phist", 19);
-    TABLES_TO_ROWS.put("line_data_phist_bin", 380);
+    TABLES_TO_ROWS.put("line_data_perc", 200);
+    TABLES_TO_ROWS.put("line_data_phist", 52);
+    TABLES_TO_ROWS.put("line_data_phist_bin", 1040);
     TABLES_TO_ROWS.put("line_data_pjc", 1);
     TABLES_TO_ROWS.put("line_data_pjc_thresh", 4);
     TABLES_TO_ROWS.put("line_data_prc", 1);
+    TABLES_TO_ROWS.put("line_data_probrirw", 0);
+    TABLES_TO_ROWS.put("line_data_probrirw_thresh", 0);
     TABLES_TO_ROWS.put("line_data_prc_thresh", 4);
     TABLES_TO_ROWS.put("line_data_pstd", 1277);
     TABLES_TO_ROWS.put("line_data_pstd_thresh", 5);
-    TABLES_TO_ROWS.put("line_data_rhist", 1295);
-    TABLES_TO_ROWS.put("line_data_rhist_rank", 23766);
-    TABLES_TO_ROWS.put("line_data_sal1l2", 18);
-    TABLES_TO_ROWS.put("line_data_sl1l2", 153444);//140530
-    TABLES_TO_ROWS.put("line_data_ssvar", 2001);
-    TABLES_TO_ROWS.put("line_data_val1l2", 18);
-    TABLES_TO_ROWS.put("line_data_vl1l2", 4146);
-    TABLES_TO_ROWS.put("mode_cts", 1161);
+    TABLES_TO_ROWS.put("line_data_relp", 1312);
+    TABLES_TO_ROWS.put("line_data_relp_ens", 22568);
+    TABLES_TO_ROWS.put("line_data_rhist", 1331);
+    TABLES_TO_ROWS.put("line_data_rhist_rank", 23994);
+    TABLES_TO_ROWS.put("line_data_rps", 18);
+    TABLES_TO_ROWS.put("line_data_sal1l2", 40);
+    TABLES_TO_ROWS.put("line_data_sl1l2", 153500);//140530
+    TABLES_TO_ROWS.put("line_data_ssvar", 5515);
+    TABLES_TO_ROWS.put("line_data_val1l2", 24);
+    TABLES_TO_ROWS.put("line_data_tcmpr", 0);
+    TABLES_TO_ROWS.put("line_data_vl1l2", 4156);
+    TABLES_TO_ROWS.put("line_data_vcnt", 12);
+    TABLES_TO_ROWS.put("mode_cts", 1163);
     TABLES_TO_ROWS.put("mode_header", 399);
-    TABLES_TO_ROWS.put("mode_obj_pair", 174290);
+    TABLES_TO_ROWS.put("mode_obj_pair", 174295);
     TABLES_TO_ROWS.put("mode_obj_single", 22909);
-    TABLES_TO_ROWS.put("mv_rev", 6);
-    TABLES_TO_ROWS.put("stat_header", 6097);
+    TABLES_TO_ROWS.put("stat_header", 6636);
     TABLES_TO_ROWS.put("line_data_enscnt", 1276);
+    TABLES_TO_ROWS.put("mtd_2d_obj", 9576);
+    TABLES_TO_ROWS.put("mtd_3d_obj_pair", 57);
+    TABLES_TO_ROWS.put("mtd_3d_obj_single", 773);
     // recreate database
     Reader reader = null;
     try {

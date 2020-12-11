@@ -24,6 +24,8 @@ import static edu.ucar.metviewer.test.util.TestUtil.*;
 public class ComparePlotBatchTest {
   private static String testDataDir;
   private static String testCompareDataDir;
+  private static String testOutputDir;
+  private static String testCompareOutputDir;
   private String plotType = null;
 
   public ComparePlotBatchTest(String plotType) {
@@ -41,9 +43,17 @@ public class ComparePlotBatchTest {
   public static Collection<String[]> data() throws Exception {
     testDataDir = ROOT_DIR + FILE_SEPARATOR + "test_data" + FILE_SEPARATOR + "test_cases";
     testCompareDataDir = ROOT_COMPARE_DIR + FILE_SEPARATOR + "test_data" + FILE_SEPARATOR + "test_cases";
+
+    testOutputDir = ROOT_DIR + FILE_SEPARATOR +"output" + FILE_SEPARATOR + "plots" + FILE_SEPARATOR;
+    testCompareOutputDir = ROOT_COMPARE_DIR + FILE_SEPARATOR +"output" + FILE_SEPARATOR + "plots" + FILE_SEPARATOR;
     File file = new File(testDataDir);
     if (!file.exists()) {
       throw new Exception(testDataDir + " doesn't exist.");
+    }
+
+    File file1 = new File(testOutputDir);
+    if (!file1.exists()) {
+      throw new Exception(testOutputDir + " doesn't exist.");
     }
     // does the testDataDir directory exist and does it have any files and are any of them .xml files?
     String[] directories = file.list(DIRECTORY_FILTER);
@@ -70,6 +80,6 @@ public class ComparePlotBatchTest {
   @Test
   public void compareOutputFiles() {
     System.out.println("Comparing " + plotType);
-    compareBinaryTestFiles(testDataDir, testCompareDataDir, plotType);
+    compareBinaryTestFiles(testOutputDir, testCompareOutputDir, plotType);
   }
 }

@@ -71,193 +71,206 @@ public class SumPythonManager extends PythonManager {
 
   @Override
   public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) throws NotSupportedException {
-    clean();
-    initModels();
-    if (models != null) {
-      init(mapRow);
-
-      String lineType = getLineType(Util.getAggTypeForStat(stat));
-      if (lineType.equals("N/A")){
-        throw new NotSupportedException(stat, "sum_stat");
+    List<Entry> allModels = null;
+    for (Field fixedField : fixedVars) {
+      if ("model".equals(fixedField.getName())) {
+        allModels = fixedField.getValues();
+        break;
       }
-      yamlInfo.put("line_type", lineType);
-      yamlInfo.put("indy_var", indyVar);
-      yamlInfo.put("indy_vals", indyList.get(indyVar));
-
-
-      Map<String, List<String>> fcstVarVal1 = new HashMap<>();
-      List<String> fcstVarVal1List = new ArrayList<>();
-      fcstVarVal1List.add(stat);
-      fcstVarVal1.put(fcstVar, fcstVarVal1List);
-      yamlInfo.put("fcst_var_val_1", fcstVarVal1);
-      yamlInfo.put("fcst_var_val_2", new HashMap<>());
-      yamlInfo.put("series_val_1", seriesList);
-      yamlInfo.put("series_val_2", new HashMap<>());
-      yamlInfo.put("append_to_file", "False");
-      yamlInfo.put("derived_series_1", seriesDiffList);
-
-
-      try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
-              .setLevel(org.apache.logging.log4j.Level.INFO)
-              .buildPrintStream()) {
-
-        createYamlFile(sumInfoFileName, yamlInfo);
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        printStream.println("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
-
-
-        MvResponse mvResponse = MVUtil.runRscript(python,
-                metCalcpyHome + PYTHON_SCRIPT,
-                new String[]{sumInfoFileName},
-                new String[]{"PYTHONPATH=" + metCalcpyHome});
-
-        stopWatch.stop();
-        if (mvResponse.getInfoMessage() != null) {
-          printStream.println(mvResponse.getInfoMessage());
+    }
+    if (allModels != null) {
+      for (int i = 0; i < allModels.size(); i = i + 2) {
+        clean();
+        models = new ArrayList<>(2);
+        models.add(allModels.get(i));
+        if (i + 1 < allModels.size()) {
+          models.add(allModels.get(i + 1));
         }
-        if (mvResponse.getErrorMessage() != null) {
-          printStream.println(mvResponse.getErrorMessage());
+        init(mapRow);
+
+        String lineType = getLineType(Util.getAggTypeForStat(stat));
+        if (lineType.equals("N/A")) {
+          throw new NotSupportedException(stat, "sum_stat");
         }
-        printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
-      } catch (StopWatchException | IOException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
-      }
-
-      //done with summary aggregation - start with scorecard
-
-      tableCalcStatInfo.put("indy_var", indyVar);
-      tableCalcStatInfo.put("indy_list", "c(" + indyList + ")");
-      tableCalcStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
-      tableCalcStatInfo.put("dep2_plot", "list()");
-
-      tableCalcStatInfo.put("series_list", seriesList.toString());
-      tableCalcStatInfo.put("series1_list", seriesList.toString());
-
-      tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
-      tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
-      String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
-      tableCalcStatInfo
-              .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
-      tableCalcStatInfo.put("sum_sl1l2", String.valueOf(Boolean.valueOf(aggType.equals("sl1l2")))
-              .toUpperCase());
-      tableCalcStatInfo.put("sum_grad", String.valueOf(Boolean.valueOf(aggType.equals("grad")))
-              .toUpperCase());
-      tableCalcStatInfo.put("sum_sal1l2", String.valueOf(Boolean.valueOf(aggType.equals("sal1l2")
-      )).toUpperCase());
-      tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
-              .toUpperCase());
-      tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
-              .toUpperCase());
-      boolean isAppend = false;
-      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-      tableCalcStatInfo.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
+        yamlInfo.put("line_type", lineType);
+        yamlInfo.put("indy_var", indyVar);
+        yamlInfo.put("indy_vals", indyList.get(indyVar));
 
 
-      //check if output file exists and its length is not 0
-      File output = new File((String) tableCalcStatInfo.get("plot_file"));
-      isAppend = output.exists() && output.length() > 0;
-      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+        Map<String, List<String>> fcstVarVal1 = new HashMap<>();
+        List<String> fcstVarVal1List = new ArrayList<>();
+        fcstVarVal1List.add(stat);
+        fcstVarVal1.put(fcstVar, fcstVarVal1List);
+        yamlInfo.put("fcst_var_val_1", fcstVarVal1);
+        yamlInfo.put("fcst_var_val_2", new HashMap<>());
+        yamlInfo.put("series_val_1", seriesList);
+        yamlInfo.put("series_val_2", new HashMap<>());
+        yamlInfo.put("append_to_file", "False");
+        yamlInfo.put("derived_series_1", seriesDiffList);
 
 
-      tableCalcStatInfo.put("indy_plot_val", "list()");
-      tableCalcStatInfo.put("fix_val_list_eq", "list()");
+        try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
+                .setLevel(org.apache.logging.log4j.Level.INFO)
+                .buildPrintStream()) {
 
-      long ndays = 0;
-      for (Field fixedField : fixedVars) {
-        if ("fcst_valid_beg".equals(fixedField.getName())
-                || "fcst_init_beg".equals(fixedField.getName())) {
-          int fixedFieldValsSize = fixedField.getValues().size();
-          boolean isSizeEven = fixedFieldValsSize % 2 == 0;
-          if (!isSizeEven) {
-            fixedFieldValsSize = fixedFieldValsSize - 1;
-            ndays = 1;
+          createYamlFile(sumInfoFileName, yamlInfo);
+
+          StopWatch stopWatch = new StopWatch();
+          stopWatch.start();
+          printStream.println("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
+
+
+          MvResponse mvResponse = MVUtil.runRscript(python,
+                  metCalcpyHome + PYTHON_SCRIPT,
+                  new String[]{sumInfoFileName},
+                  new String[]{"PYTHONPATH=" + metCalcpyHome});
+
+          stopWatch.stop();
+          if (mvResponse.getInfoMessage() != null) {
+            printStream.println(mvResponse.getInfoMessage());
           }
-          for (int i = 0; i < fixedFieldValsSize; i = i + 2) {
-            LocalDate localDate1 = LocalDate.parse(fixedField.getValues().get(i).getName().split("\\s")[0]);
-            LocalDate localDate2 = LocalDate.parse(fixedField.getValues().get(i + 1).getName().split("\\s")[0]);
-            ndays = ndays + DAYS.between(localDate1, localDate2) + 1;
+          if (mvResponse.getErrorMessage() != null) {
+            printStream.println(mvResponse.getErrorMessage());
           }
-
-
-          break;
+          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+        } catch (StopWatchException | IOException e) {
+          logger.error(ERROR_MARKER, e.getMessage());
         }
-      }
-      tableCalcStatInfo.put("ndays", String.valueOf(ndays));
-      tableCalcStatInfo.put("equalize_by_indep", "TRUE");
-      StringBuilder strForList = new StringBuilder();
-      for (Map.Entry<String, List<String>> entry : indyList.entrySet()) {
-        strForList.append("`").append(entry.getKey()).append("` = c(");
-        for (String val : entry.getValue()) {
-          if (strForList.indexOf(val) == -1) {
-            strForList.append("\"").append(val).append("\",");
+
+        //done with summary aggregation - start with scorecard
+
+        tableCalcStatInfo.put("indy_var", indyVar);
+        tableCalcStatInfo.put("indy_list", "c(" + indyList + ")");
+        tableCalcStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
+        tableCalcStatInfo.put("dep2_plot", "list()");
+
+        tableCalcStatInfo.put("series_list", seriesList.toString());
+        tableCalcStatInfo.put("series1_list", seriesList.toString());
+
+        tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
+        tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
+        String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
+        tableCalcStatInfo
+                .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
+        tableCalcStatInfo.put("sum_sl1l2", String.valueOf(Boolean.valueOf(aggType.equals("sl1l2")))
+                .toUpperCase());
+        tableCalcStatInfo.put("sum_grad", String.valueOf(Boolean.valueOf(aggType.equals("grad")))
+                .toUpperCase());
+        tableCalcStatInfo.put("sum_sal1l2", String.valueOf(Boolean.valueOf(aggType.equals("sal1l2")
+        )).toUpperCase());
+        tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
+                .toUpperCase());
+        tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
+                .toUpperCase());
+        boolean isAppend = false;
+        tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+        tableCalcStatInfo.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
+
+
+        //check if output file exists and its length is not 0
+        File output = new File((String) tableCalcStatInfo.get("plot_file"));
+        isAppend = output.exists() && output.length() > 0;
+        tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+
+
+        tableCalcStatInfo.put("indy_plot_val", "list()");
+        tableCalcStatInfo.put("fix_val_list_eq", "list()");
+
+        long ndays = 0;
+        for (Field fixedField : fixedVars) {
+          if ("fcst_valid_beg".equals(fixedField.getName())
+                  || "fcst_init_beg".equals(fixedField.getName())) {
+            int fixedFieldValsSize = fixedField.getValues().size();
+            boolean isSizeEven = fixedFieldValsSize % 2 == 0;
+            if (!isSizeEven) {
+              fixedFieldValsSize = fixedFieldValsSize - 1;
+              ndays = 1;
+            }
+            for (int k = 0; k < fixedFieldValsSize; k = k + 2) {
+              LocalDate localDate1 = LocalDate.parse(fixedField.getValues().get(k).getName().split("\\s")[0]);
+              LocalDate localDate2 = LocalDate.parse(fixedField.getValues().get(k + 1).getName().split("\\s")[0]);
+              ndays = ndays + DAYS.between(localDate1, localDate2) + 1;
+            }
+
+
+            break;
           }
+        }
+        tableCalcStatInfo.put("ndays", String.valueOf(ndays));
+        tableCalcStatInfo.put("equalize_by_indep", "TRUE");
+        StringBuilder strForList = new StringBuilder();
+        for (Map.Entry<String, List<String>> entry : indyList.entrySet()) {
+          strForList.append("`").append(entry.getKey()).append("` = c(");
+          for (String val : entry.getValue()) {
+            if (strForList.indexOf(val) == -1) {
+              strForList.append("\"").append(val).append("\",");
+            }
+          }
+          if (strForList.length() > 0) {
+            strForList.deleteCharAt(strForList.length() - 1);
+          }
+          strForList.append(")");
+        }
+        tableCalcStatInfo.put("indy_list", "c(" + strForList + ")");
+        strForList = new StringBuilder();
+        for (Map.Entry<String, List<String>> entry : seriesList.entrySet()) {
+          strForList.append("`").append(entry.getKey()).append("` = c(");
+          for (String val : entry.getValue()) {
+            if (strForList.indexOf(val) == -1) {
+              strForList.append("\"").append(val).append("\",");
+            }
+          }
+          if (strForList.length() > 0) {
+            strForList.deleteCharAt(strForList.length() - 1);
+          }
+          strForList.append("),");
         }
         if (strForList.length() > 0) {
           strForList.deleteCharAt(strForList.length() - 1);
         }
-        strForList.append(")");
-      }
-      tableCalcStatInfo.put("indy_list", "c(" + strForList + ")");
-      strForList = new StringBuilder();
-      for (Map.Entry<String, List<String>> entry : seriesList.entrySet()) {
-        strForList.append("`").append(entry.getKey()).append("` = c(");
-        for (String val : entry.getValue()) {
-          if (strForList.indexOf(val) == -1) {
-            strForList.append("\"").append(val).append("\",");
+        tableCalcStatInfo.put("series_list", "list(" + strForList + ")");
+
+        strForList = new StringBuilder();
+        for (List<String> diff : seriesDiffList) {
+          StringBuilder diffSeries = new StringBuilder("c(");
+          for (String var : diff) {
+            diffSeries.append("\"").append(var).append("\",");
           }
+          if (diffSeries.length() > 0) {
+            diffSeries.deleteCharAt(diffSeries.length() - 1);
+          }
+          strForList.append(diffSeries).append("),");
         }
         if (strForList.length() > 0) {
           strForList.deleteCharAt(strForList.length() - 1);
         }
-        strForList.append("),");
-      }
-      if (strForList.length() > 0) {
-        strForList.deleteCharAt(strForList.length() - 1);
-      }
-      tableCalcStatInfo.put("series_list", "list(" + strForList + ")");
+        tableCalcStatInfo.put("series_diff_list", "list(" + strForList + ")");
+        tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
 
-      strForList = new StringBuilder();
-      for (List<String> diff : seriesDiffList) {
-        StringBuilder diffSeries = new StringBuilder("c(");
-        for (String var : diff) {
-          diffSeries.append("\"").append(var).append("\",");
+        try (PrintStream printStream = IoBuilder.forLogger(SumPythonManager.class)
+                .setLevel(org.apache.logging.log4j.Level.INFO)
+                .buildPrintStream()) {
+          MVUtil.populateTemplateFile(calcStatTemplScript, rScriptFileName, tableCalcStatInfo);
+
+          StopWatch stopWatch = new StopWatch();
+          stopWatch.start();
+          printStream.println("Running " + rScriptCommand + " " + rScriptFileName);
+
+
+          MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, rScriptFileName);
+          stopWatch.stop();
+          if (mvResponse.getInfoMessage() != null) {
+            printStream.println(mvResponse.getInfoMessage());
+          }
+          if (mvResponse.getErrorMessage() != null) {
+            printStream.println(mvResponse.getErrorMessage());
+          }
+          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+        } catch (IOException | StopWatchException e) {
+          logger.error(ERROR_MARKER, e.getMessage());
         }
-        if (diffSeries.length() > 0) {
-          diffSeries.deleteCharAt(diffSeries.length() - 1);
-        }
-        strForList.append(diffSeries).append("),");
+
       }
-      if (strForList.length() > 0) {
-        strForList.deleteCharAt(strForList.length() - 1);
-      }
-      tableCalcStatInfo.put("series_diff_list", "list(" + strForList + ")");
-      tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-
-      try (PrintStream printStream = IoBuilder.forLogger(SumPythonManager.class)
-              .setLevel(org.apache.logging.log4j.Level.INFO)
-              .buildPrintStream()) {
-        MVUtil.populateTemplateFile(calcStatTemplScript, rScriptFileName, tableCalcStatInfo);
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        printStream.println("Running " + rScriptCommand + " " + rScriptFileName);
-
-
-        MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, rScriptFileName);
-        stopWatch.stop();
-        if (mvResponse.getInfoMessage() != null) {
-          printStream.println(mvResponse.getInfoMessage());
-        }
-        if (mvResponse.getErrorMessage() != null) {
-          printStream.println(mvResponse.getErrorMessage());
-        }
-        printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
-      } catch (IOException | StopWatchException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
-      }
-
     }
   }
 

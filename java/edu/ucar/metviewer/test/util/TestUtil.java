@@ -331,7 +331,7 @@ public class TestUtil {
 
 
   public static void cleanWorkingDirs() {
-    boolean doClean = true;
+    boolean doClean = false;
     if (doClean) {
       try {
         File testDir = new File(PLOTS_DIR);
@@ -547,9 +547,10 @@ public class TestUtil {
           boolean isCompareContent,
           CustomFilenameFilter filter) {
     //get all test results datafiles
-    File testDir = new File(testDataDir + FILE_SEPARATOR + plotType);
-    File compDir = new File(compareDataDir + FILE_SEPARATOR + plotType);
-    File[] expectedFiles = compDir.listFiles(filter);
+    File testDir = new File(testDataDir );
+    File compDir = new File(compareDataDir );
+    //File[] expectedFiles = compDir.listFiles(filter);
+    File[] expectedFiles = compDir.listFiles(new PlotNameFilter(plotType));
     for (File expectedFile : expectedFiles) {
       File actualFile = new File(testDir, expectedFile.getName());
 
@@ -627,6 +628,22 @@ public class TestUtil {
       return name.endsWith(getFileExtension());
     }
   }
+
+  public static class PlotNameFilter implements FilenameFilter {
+
+    private String plotType;
+
+    public PlotNameFilter(String plotType) {
+      this.plotType = plotType;
+    }
+
+    @Override
+    public boolean accept(File dir, String name) {
+      return name.equals(plotType + ".png");
+    }
+
+  }
+
 
 
 }
