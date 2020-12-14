@@ -56,6 +56,10 @@ The histogram shows the relative frequency with which the event has been predict
 
 	    Figure 7.1 Example reliability (attributes diagram) with histogram of observation counts and bootstrap confidence intervals.
 
-Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here ??[insert link to XML]??.
+Here is the associated xml for this example. It can be copied into an
+empty file and saved to the desktop then uploaded into the system by
+clicking on the "Load XML" button in the upper-right corner of the GUI.
+This XML can be downloaded from this link: 
+`reliability_xml.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/reliability_xml.xml>`_. 
 
 .. literalinclude:: ../_static/xml/reliability_xml.xml 

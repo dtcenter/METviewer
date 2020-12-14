@@ -118,7 +118,8 @@ for the boxplot.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
-clicking on the “Load XML” button in the upper-right corner of the GUI.
-This XML can be downloaded by visiting GitHub here ??[insert link to XML]??.
+clicking on the "Load XML" button in the upper-right corner of the GUI.
+This XML can be downloaded from this link: 
+`boxplots_xml.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/boxplots_xml.xml>`_.
 
 .. literalinclude:: ../_static/xml/boxplots_xml.xml

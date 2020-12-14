@@ -43,7 +43,10 @@ The example is a contour plot of temperature mean error (bias) for one model at 
 
 	    Figure 10.1:  Example METviewer contour plot showing temperature bias by pressure level over a series of initialization times.
 
-Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here ??[insert link to XML]??.
-
+Here is the associated xml for this example. It can be copied into an
+empty file and saved to the desktop then uploaded into the system by
+clicking on the "Load XML" button in the upper-right corner of the GUI.
+This XML can be downloaded from this link: 
+`contour_xml.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/contour_xml.xml>`_. 
 
 .. literalinclude:: ../_static/xml/contour_xml.xml

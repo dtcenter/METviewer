@@ -44,7 +44,11 @@ This example shows the 2-m temperature RMSE and spread for a series of forecast 
 .. figure:: figure/spreadskill_plot.png
 	    
 	    Figure 11.1 Example METviewer Spread vs. Skill plot showing temperature RMSE and spread for a series of forecast lead times.
-	   
-Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here ??[insert link to XML]??.
+
+Here is the associated xml for this example. It can be copied into an
+empty file and saved to the desktop then uploaded into the system by
+clicking on the "Load XML" button in the upper-right corner of the GUI.
+This XML can be downloaded from this link: 
+`spreadskill_xml.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/spreadskill_xml.xml>`_. 
 
 .. literalinclude:: ../_static/xml/spreadskill_xml.xml
