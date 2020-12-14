@@ -115,4 +115,4 @@ empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded by visiting GitHub here ??[insert link to XML]??. 
 
-.. literalinclude:: xml/bar_plots_xml.xml
+.. literalinclude:: ../_static/xml/bar_plots_xml.xml
