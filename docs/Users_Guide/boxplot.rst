@@ -5,7 +5,8 @@ Description
 -----------
 
 Box plots, or box and whisker plots, are a way to summarize a distribution
-of values using Tukey's 5-number summary (Hoaglin et al., 1983). The dark
+of values using Tukey's 5-number summary
+(:ref:`Hoaglin et al., 1983<Hoaglin>`). The dark
 line in the middle of the boxes (sometimes called the 'waist') is the
 median of data. Half of the data values have a value greater than the
 median, and half have a value lower. The actual box (i.e. the central

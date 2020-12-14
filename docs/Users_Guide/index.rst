@@ -90,6 +90,7 @@ Foundation (NSF).
    spreadskillplot
    eclvplots
    scorecard
+   references
    
 Indices and tables
 ==================
