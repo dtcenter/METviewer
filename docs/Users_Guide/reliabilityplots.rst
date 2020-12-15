@@ -114,7 +114,7 @@ example, when the forecast probability of precipitation is equal to 55%
 the actual chance of observing the event is closer to 35%.
 
 The histogram shows the relative frequency with which the event has been
-predicted (typically over the reference period and at all gridpoints) with
+predicted (typically over the reference period and at all grid points) with
 different levels of probability. In the example, the majority of forecasts
 predict low probabilities of precipitation (near the climatological
 probability of ~5%). The forecast system is also capable of predicting
