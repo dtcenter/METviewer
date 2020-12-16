@@ -6,12 +6,14 @@ References
 | Hoaglin, D. C., Mosteller F. and Tukey, J. W. (1983): *Understanding robust*
 |        *and exploratory data analysis.* Hoboken, NJ: Wiley
 |        https://doi.org/10.2307/2988240
+| 
 
 .. _Roebber:
    
 | Roebber, P. J., (2009). Visualizing multiple measures of forecast quality.
 |       *Weather and Forecasting*, v:24(2), 601–608.
 |       https://doi.org/10.1175/2008WAF2222159.1
+| 
 
 .. _Taylor:
 
@@ -19,3 +21,4 @@ References
 |       in a single diagram. *Journal of Geophysical Research*, 106(D7),
 |       7183-7192. https://doi.org/10.1029/2000JD900719  ?? DOI is broken
 |        https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2000JD900719
+| 
