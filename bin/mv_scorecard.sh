@@ -18,7 +18,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/juli-6.0.53.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-api-1.7.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-log4j12-1.7.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/guava-14.0.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/j2html-0.7.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/j2html-0.7.jar\
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-core-2.8.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-databind-2.8.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.5.jar
@@ -30,6 +30,6 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-1.25.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
 PYTHON_ENV=<path_to_python_env>
-METCALCPY_HOME=<paht_to_metcalcpy_home>
+METCALCPY_HOME=<path_to_metcalcpy_home>
 
 $JAVA -classpath $CLASSPATH -Xmx4096M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME  edu.ucar.metviewer.scorecard.Scorecard $@
