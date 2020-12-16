@@ -9,6 +9,13 @@ References
 
 .. _Roebber:
    
-| Roebber, P. J., (2009). Visualizing Multiple Measures of Forecast Quality
-|       *American Meteorological Society*, v:24(2), 601–608
+| Roebber, P. J., (2009). Visualizing multiple measures of forecast quality.
+|       *Weather and Forecasting*, v:24(2), 601–608.
 |       https://doi.org/10.1175/2008WAF2222159.1
+
+.. _Taylor:
+
+| Taylor, K. E., (2001). Summarizing multiple aspects of model performance
+|       in a single diagram. *Journal of Geophysical Research*, 106(D7),
+|       7183-7192. https://doi.org/10.1029/2000JD900719  ?? DOI is broken
+|        https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2000JD900719
