@@ -3,8 +3,8 @@ References
 
 .. _Hoaglin:
 
-| Hoaglin, D. C., Mosteller F. and Tukey, J. W. (1983): *Understanding robust*
-|        *and exploratory data analysis.* Hoboken, NJ: Wiley
+| Hoaglin, D. C., Mosteller F. and Tukey, J. W. (1983). *Understanding robust*
+|        *and exploratory data analysis.* Hoboken, NJ: Wiley.
 |        https://doi.org/10.2307/2988240
 | 
 
@@ -19,6 +19,11 @@ References
 
 | Taylor, K. E., (2001). Summarizing multiple aspects of model performance
 |       in a single diagram. *Journal of Geophysical Research*, 106(D7),
-|       7183-7192. https://doi.org/10.1029/2000JD900719  ?? DOI is broken
-|        https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2000JD900719
+|       7183-7192. https://doi.org/10.1029/2000JD900719
 | 
+
+.. _Wilks:
+
+| Wilks, D. S., (2011). *Statistical Methods in the Atmospheric Sciences*.
+|       Oxford, England; Elsevier.
+|
