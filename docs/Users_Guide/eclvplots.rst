@@ -5,7 +5,7 @@ Description
 -----------
 
 The Economic Cost Loss Value statistic is sometimes also called the
-Relative value score (:ref:`Richardson, 2000;<Richardson>`
+Relative value score (:ref:`Richardson, 2000<Richardson>`;
 :ref:`Wilks, 2001<Wilks_2001>`). This plot produces the relative value
 curve for deterministic forecasts based on counts in a 2x2
 contingency table along with the expected cost-to-loss ratio. 
