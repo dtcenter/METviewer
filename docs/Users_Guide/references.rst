@@ -8,6 +8,11 @@ References
 |        https://doi.org/10.2307/2988240
 | 
 
+.. _Richardson:
+
+HELP!!  Which Richardson, 2000??? See first paragraph Section 18
+https://dtcenter.github.io/METviewer/latest/Users_Guide/eclvplots.html
+
 .. _Roebber:
    
 | Roebber, P. J., (2009). Visualizing multiple measures of forecast quality.
@@ -20,7 +25,12 @@ References
 | Taylor, K. E., (2001). Summarizing multiple aspects of model performance
 |       in a single diagram. *Journal of Geophysical Research*, 106(D7),
 |       7183-7192. https://doi.org/10.1029/2000JD900719
-| 
+|
+
+.. _Wilks_2001:
+
+Need a reference!! Is this Barbara or Daniel?? See first paragraph Section 18
+https://dtcenter.github.io/METviewer/latest/Users_Guide/eclvplots.html
 
 .. _Wilks:
 
