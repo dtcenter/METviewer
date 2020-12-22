@@ -21,3 +21,4 @@ dependencies:
   - plotly=4.9
   - statsmodels
   - netCDF4
+  - pingouin
