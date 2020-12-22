@@ -22,7 +22,7 @@ Selection of options to produce the spread vs. skill plot  proceeds approximatel
 
 #. Select the desired variable to calculate statistics for in the “Y1 Axis Variables” tab. The first pulldown menu in the “Y1 Dependent (Forecast) Variables” section lists the variables available in the selected database.
 
-#. Select the desired statistic to calculate in the second pulldown menu which is to the right of variable menu. This lists the available attribute statistics in the selected dataset. Multiple statistics can be selected and they will each be plotted as a separate line on the plot. For a Spread/Skill plot, two statistics must be selected. In the example below the statistics are "SSVAR_RMSE" and "SSVAR_Spread". 
+#. Select the desired statistic to calculate in the second pulldown menu which is to the right of the variable menu. This lists the available attribute statistics in the selected dataset. Multiple statistics can be selected and they will each be plotted as a separate line on the plot. For a Spread/Skill plot, two statistics must be selected. In the example below the statistics are "SSVAR_RMSE" and "SSVAR_Spread". 
 
 #. Select the Y1 Series Variable from the first pulldown menu in that section. There are many options. “MODEL” is used in the included example. In the second pulldown menu to the right of the first are the series variable options, for example, different models.
 
@@ -32,7 +32,7 @@ Selection of options to produce the spread vs. skill plot  proceeds approximatel
 
 #. Select the type of statistics summary by selecting the “Aggregation Statistics” button in the “Statistics” section. Aggregated statistics must be selected for certain varieties of statistics. The selection can be made from the leftmost dropdown menu in the “Statistics” section. Select the "Spread/Skill Variance (SSVAR)" option in the dropdown menu.
 
-#. Now enough information has been entered to produce a graph. To do this, click the “Generate Plot” button at the top of the METviewer window (this is in red text). Typically, if a plot is not produced, it is because the database selected does not contain the correct type of data. Also, it is imperative to check the data used for the plot by selecting the “R data” tab on the righthand side, above the plot area. The data from the database that is being used to calculate the statistics is listed in this tab. This tab should be checked to avoid the accidental accumulation of inappropriate database lines. For example, it does not make sense to accumulate statistics over different domains, thresholds, models, etc.
+#. Now enough information has been entered to produce a graph. To do this, click the “Generate Plot” button at the top of the METviewer window (this is in red text). Typically, if a plot is not produced, it is because the database selected does not contain the correct type of data. Also, it is imperative to check the data used for the plot by selecting the “R data” tab on the right hand side, above the plot area. The data from the database that is being used to calculate the statistics is listed in this tab. This tab should be checked to avoid the accidental accumulation of inappropriate database lines. For example, it does not make sense to accumulate statistics over different domains, thresholds, models, etc.
 
 There are many other options for plots, but these are the basics.
 
@@ -43,8 +43,12 @@ This example shows the 2-m temperature RMSE and spread for a series of forecast 
 
 .. figure:: figure/spreadskill_plot.png
 	    
-	    Figure 11.1 Example METviewer Spread vs. Skill plot showing temperature RMSE and spread for a series of forecast lead times.
-	   
-Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the “Load XML” button in the upper-right corner of the GUI. This XML can be downloaded by visiting GitHub here ??[insert link to XML]??.
+	    Example METviewer Spread vs. Skill plot showing temperature RMSE and spread for a series of forecast lead times.
 
-.. literalinclude:: xml/spreadskill_xml.xml
+Here is the associated xml for this example. It can be copied into an
+empty file and saved to the desktop then uploaded into the system by
+clicking on the "Load XML" button in the upper-right corner of the GUI.
+This XML can be downloaded from this link: 
+`spreadskill_xml.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/spreadskill_xml.xml>`_. 
+
+.. literalinclude:: ../_static/xml/spreadskill_xml.xml

@@ -50,6 +50,10 @@ The plot shown below is for two different probability of precipitation forecasts
 
 	    Figure 6.1: Example ROC diagram showing POD vs. POFD for two different POP forecasts at thresholds of (0%, 25%, 50%, and 75%).
 
-Here is the associated xml for this example. It can be copied into an empty file and saved to the desktop then uploaded into the system by clicking on the "Load XML" button in the upper-right corner of the GUI.  This XML can be downloaded by visiting GitHub here ??[insert link to XML]??. 
+Here is the associated xml for this example. It can be copied into an
+empty file and saved to the desktop then uploaded into the system by
+clicking on the "Load XML" button in the upper-right corner of the GUI.
+This XML can be downloaded from this link: 
+`roc_xml.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/roc_xml.xml>`_. 
 
-.. literalinclude:: xml/roc_xml.xml
+.. literalinclude:: ../_static/xml/roc_xml.xml

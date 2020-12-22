@@ -5,7 +5,8 @@ Description
 -----------
 
 Box plots, or box and whisker plots, are a way to summarize a distribution
-of values using Tukey's 5-number summary (Hoaglin et al., 1983). The dark
+of values using Tukey's 5-number summary
+(:ref:`Hoaglin et al., 1983<Hoaglin>`). The dark
 line in the middle of the boxes (sometimes called the 'waist') is the
 median of data. Half of the data values have a value greater than the
 median, and half have a value lower. The actual box (i.e. the central
@@ -117,7 +118,8 @@ for the boxplot.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
-clicking on the “Load XML” button in the upper-right corner of the GUI.
-This XML can be downloaded by visiting GitHub here ??[insert link to XML]??.
+clicking on the "Load XML" button in the upper-right corner of the GUI.
+This XML can be downloaded from this link: 
+`boxplots_xml.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/boxplots_xml.xml>`_.
 
-.. literalinclude:: xml/boxplots_xml.xml
+.. literalinclude:: ../_static/xml/boxplots_xml.xml
