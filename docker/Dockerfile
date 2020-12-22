@@ -195,7 +195,8 @@ RUN pip-3 install kiwisolver==1.0.1 \
  && pip-3 install matplotlib \
  && pip-3 install lxml \
  && pip-3 install pymysql \
- && pip-3 install retrying
+ && pip-3 install retrying \
+ && pip-3 install pingouin
 
 #
 # Create a link for python3
