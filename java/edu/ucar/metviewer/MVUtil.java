@@ -2800,6 +2800,23 @@ public class MVUtil {
       yaml.dump(sortedMap, writer);
     }
   }
-
+  public static boolean isEtbJob(MVPlotJob job){
+    if (job.getDiffSeries1Count() == 0 && job.getDiffSeries2Count() == 0){
+      return false;
+    }
+    String[][] diffs = MVUtil.getDiffSeriesArr(job.getDiffSeries1());
+    for (String[] diff : diffs){
+      if (diff[2].equals("ETB")){
+        return true;
+      }
+    }
+    diffs = MVUtil.getDiffSeriesArr(job.getDiffSeries2());
+    for (String[] diff : diffs){
+      if (diff[2].equals("ETB")){
+        return true;
+      }
+    }
+    return false;
+  }
 
 }

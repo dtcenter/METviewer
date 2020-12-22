@@ -7390,7 +7390,10 @@ function initPage() {
 
             for (var i = 0; i < allSeries.length; i++) {
                 var isInclude = false;
-                if (allSeries[i].title.indexOf('DIFF') != 0 && allSeries[i].title.indexOf('RATIO') != 0 && allSeries[i].title.indexOf('SS') != 0) {
+                if (allSeries[i].title.indexOf('DIFF') != 0
+                    && allSeries[i].title.indexOf('RATIO') != 0
+                    && allSeries[i].title.indexOf('SS') != 0
+                    && allSeries[i].title.indexOf('ETB') != 0) {
                     // curve can be included ONLY if it is MODE Ratio stat or any of Stat stats
                     if (selected_mode == "mode") {
                         var desc = allSeries[i].title.split(" ");
@@ -7482,7 +7485,8 @@ function initPage() {
                 var rowData = $(this).getRowData(sr);
                 if (rowData.title.startsWith("DIFF")
                     || rowData.title.startsWith("RATIO")
-                    || rowData.title.startsWith("SS")) {
+                    || rowData.title.startsWith("SS")
+                    || rowData.title.startsWith("ETB")) {
                     $(this).jqGrid('delRowData', sr);
                     $("#1", "#gbox_listdt").css({display: ""});
                     var titleArr, title;
@@ -7499,12 +7503,18 @@ function initPage() {
                             titleArr[i] = titleArr[i].replace('"', "");
                         }
                         title = titleArr.join() + ",RATIO";
-                    } else {
+                    } else if (rowData.title.startsWith("SS")){
                         titleArr = titleMinusOne.replace("SS (", "").split('"and"');
                         for (var i = 0; i < titleArr.length; i++) {
                             titleArr[i] = titleArr[i].replace('"', "");
                         }
                         title = titleArr.join() + ",SS";
+                    }else{
+                        titleArr = titleMinusOne.replace("ETB (", "").split('"and"');
+                        for (var i = 0; i < titleArr.length; i++) {
+                            titleArr[i] = titleArr[i].replace('"', "");
+                        }
+                        title = titleArr.join() + ",ETB";
                     }
 
 

@@ -207,7 +207,7 @@ public class SeriesJobManager extends JobManager {
 
       //run summary or agg stats - if needed
       if (rscriptStatManager != null) {
-        if (job.getExecutionType().equals("Rscript")) {
+        if (job.getExecutionType().equals("Rscript") && !MVUtil.isEtbJob(job)) {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
           rscriptStatManager.runRscript(job, info);
         } else {
@@ -253,7 +253,7 @@ public class SeriesJobManager extends JobManager {
         }
 
       }
-      if (job.getExecutionType().equals("Rscript") || this.getPythonScript().isEmpty()) {
+      if ((job.getExecutionType().equals("Rscript") || this.getPythonScript().isEmpty()) && !MVUtil.isEtbJob(job)) {
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
         info.put("data_file", dataFileName);
         rscriptStatManager.runRscript(job, info);
@@ -262,8 +262,6 @@ public class SeriesJobManager extends JobManager {
           yamlInfo = createYamlInfoMap(job);
         }
         yamlInfo.put("stat_input", dataFileName);
-
-
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
         job.setPlotTmpl(this.getPythonScript());
         yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);

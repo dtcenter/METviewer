@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer 4.0-beta2</TITLE>
+  <TITLE>METviewer 4.0-beta3</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -182,7 +182,7 @@
   <script type="application/javascript" src="js/moment-timezone-with-data.js"></script>
   <script type="application/javascript" src="js/multilevel-dropdown.js"></script>
   <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
-  <script type="application/javascript" src="js/metviewer_common.min.js"></script>
+  <script type="application/javascript" src="js/metviewer_common.js"></script>
   <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
   <script type="application/javascript" src="js/plotly-latest.min.js"></script>
 
@@ -252,7 +252,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 4.0-beta2<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 4.0-beta3<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
@@ -1079,10 +1079,11 @@
         </tr>
       </table>
       <div>
-        <input type="radio" name="derive_oper" value="DIFF" id="derive_oper_diff" checked/><label for="derive_oper_diff">DIFF</label>
-        <input type="radio" name="derive_oper" value="RATIO" id="derive_oper_ratio" checked/><label for="derive_oper_ratio">RATIO</label>
-        <input type="radio" name="derive_oper" value="SS" id="derive_oper_ss" checked/><label for="derive_oper_ss">SKILL
-        SCORE</label>
+        <input type="radio" name="derive_oper" value="DIFF" id="derive_oper_diff" checked/><label for="derive_oper_diff">Diff</label>
+        <input type="radio" name="derive_oper" value="RATIO" id="derive_oper_ratio" checked/><label for="derive_oper_ratio">Ratio</label>
+        <input type="radio" name="derive_oper" value="SS" id="derive_oper_ss" checked/><label for="derive_oper_ss">Skill
+        Score</label>
+        <input type="radio" name="derive_oper" value="ETB" id="derive_oper_etb" checked/><label for="derive_oper_etb">Equivalence Testing Bounds</label>
       </div>
       <div id="newDiffSeriesName" class="diffSelect" style="font-weight:bold;"></div>
     </div>

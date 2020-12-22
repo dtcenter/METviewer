@@ -29,17 +29,7 @@ import java.util.stream.Collectors;
 
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseManager;
-import edu.ucar.metviewer.jobManager.ContourJobManager;
-import edu.ucar.metviewer.jobManager.EclvJobManager;
-import edu.ucar.metviewer.jobManager.EnsSsJobManager;
-import edu.ucar.metviewer.jobManager.JobManager;
-import edu.ucar.metviewer.jobManager.PerformanceJobManager;
-import edu.ucar.metviewer.jobManager.RelpJobManager;
-import edu.ucar.metviewer.jobManager.RelyJobManager;
-import edu.ucar.metviewer.jobManager.RhistJobManager;
-import edu.ucar.metviewer.jobManager.RocJobManager;
-import edu.ucar.metviewer.jobManager.SeriesJobManager;
-import edu.ucar.metviewer.jobManager.TaylorJobManager;
+import edu.ucar.metviewer.jobManager.*;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -93,9 +83,9 @@ public class MVServlet extends HttpServlet {
   private String data = "";
   private String scripts = "";
   private String managementSystem = "";
-  private String metCalcpyHome="";
-  private String metPlotpyHome="";
-  private String pythonEnv="";
+  private String metCalcpyHome = "";
+  private String metPlotpyHome = "";
+  private String pythonEnv = "";
   private boolean isValCache = false;
   private boolean isStatCache = false;
   private AppDatabaseManager databaseManager;
@@ -473,7 +463,7 @@ public class MVServlet extends HttpServlet {
           MVUtil.safeClose(fileWriter);
         }
       }
-      return "<response><plot>"+plotPrefix+"</plot></response>";
+      return "<response><plot>" + plotPrefix + "</plot></response>";
     }
 
     //  run the plot job and write the batch output to the log file
@@ -581,7 +571,7 @@ public class MVServlet extends HttpServlet {
         throw new ValidationException("query returned no data");
       }
 
-    } catch (IOException | TransformerFactoryConfigurationError | IllegalArgumentException | ValidationException  e) {
+    } catch (IOException | TransformerFactoryConfigurationError | IllegalArgumentException | ValidationException e) {
 
 
       strRErrorMsg = strRErrorMsg.replace("&", "&amp;").replace("<", "&lt;")
@@ -722,7 +712,11 @@ public class MVServlet extends HttpServlet {
         jobManager = new ContourJobManager(bat);
         break;
       default:
-        jobManager = new SeriesJobManager(bat);
+        if (MVUtil.isEtbJob(job)) {
+          jobManager = new EtbJobManager(bat);
+        } else {
+          jobManager = new SeriesJobManager(bat);
+        }
         break;
     }
     jobManager.runJob(job);
@@ -1351,8 +1345,8 @@ public class MVServlet extends HttpServlet {
     } catch (ParserConfigurationException | FileUploadException | IOException | SAXException | ValidationException
             | DatabaseException | ServletException e) {
       errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage());
-      logger.info("doPost() - caught " + e.getClass() + ": " + e.getMessage() )  ;
-      System.out.println("doPost() - caught " + e.getClass() + ": " + e.getMessage() )  ;
+      logger.info("doPost() - caught " + e.getClass() + ": " + e.getMessage());
+      System.out.println("doPost() - caught " + e.getClass() + ": " + e.getMessage());
     }
   }
 

@@ -341,6 +341,8 @@ public final class MVPlotJobParser {
     return documentBuilder;
   }
 
+
+
   /**
    * Determine if the input plot job has many necessary components to build a plot.  If not, return
    * the structure name that has been found to be missing.
@@ -353,12 +355,14 @@ public final class MVPlotJobParser {
       return "lacks template";
     } else if (job.getIndyVar().isEmpty()
             && !job.getPlotTmpl().contains("taylor")
-            && !job.getPlotTmpl().contains("eclv")) {
+            && !job.getPlotTmpl().contains("eclv")
+            && !MVUtil.isEtbJob(job)) {
       return "lacks indep";
     } else if (1 > job.getIndyVal().length
             && null == job.getIndyDep()
             && !job.getPlotTmpl().contains("taylor")
-            && !job.getPlotTmpl().contains("eclv")) {
+            && !job.getPlotTmpl().contains("eclv")
+            && !MVUtil.isEtbJob(job)) {
       return "lacks indep";
     } else if (1 > job.getDepGroups().length && !job.getPlotTmpl().contains("eclv")) {
       return "lacks dep";

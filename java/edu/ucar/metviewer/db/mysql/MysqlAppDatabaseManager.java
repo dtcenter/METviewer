@@ -1068,13 +1068,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                   + (job.isModeJob() ? "mode" : "stat")
                   + "_header field: " + indyVar);
         }
-        if (1 > listIndyVal.length) {
+        if (1 > listIndyVal.length && !MVUtil.isEtbJob(job)) {
           throw new ValidationException("no independent variable values specified");
         }
 
         //  construct the select list item, where clause
         // and temp table entry for the independent variable
-        if (!selectList.contains(indyVar)) {
+        if (!selectList.contains(indyVar) && listIndyVal.length != 0) {
           selectList += ",\n  " + formatField(indyVar, job.isModeJob() || job.isMtdJob(),
                   true);
           selectPlotList += ",\n  " + formatField(indyVar, job.isModeJob() || job.isMtdJob(),
@@ -1094,8 +1094,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         } else {
           field = BINARY + indyVarFormatted;
         }
-        whereClause += (!whereClause.isEmpty() ? "  AND " : "") + field
-                + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
+        if( listIndyVal.length > 0) {
+          whereClause += (!whereClause.isEmpty() ? "  AND " : "") + field
+                  + " IN (" + MVUtil.buildValueList(listIndyVal) + ")\n";
+        }
       }
       //  add fcst_var to the select list and temp table entries
       //selectList += ",\n  h.fcst_var";
@@ -2705,7 +2707,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         throw new ValidationException("unrecognized indep " + (job.isModeJob() ? "mode" : "stat")
                 + "_header field: " + strIndyVar);
       }
-      if (1 > listIndyVal.length) {
+      if (1 > listIndyVal.length && !MVUtil.isEtbJob(job)) {
         throw new ValidationException("no independent variable values specified");
       }
 
