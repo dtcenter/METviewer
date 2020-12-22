@@ -155,7 +155,7 @@ Here is an explanation for the sections:
 
 
            **<rows>:** Describes an individual row in the scorecard table.
-           Contains one or more nested **<field>** elements.
+           Contains 3 or more nested **<field>** elements.
            
                 **<field>:** Describes an individual row or row group in the scorecard table. Attributes:
                 
