@@ -199,15 +199,16 @@ public class SeriesJobManager extends JobManager {
       Map<String, Object> info = createInfoMap(job, intNumDepSeries);
       Map<String, Object> yamlInfo = null;
       RscriptStatManager rscriptStatManager = null;
-      if (job.isModeJob() || job.isMtdJob() || isAggStat) {
+      Class<?> enclosingClass = getClass().getEnclosingClass();
+      if ((job.isModeJob() || job.isMtdJob() || isAggStat) &&  enclosingClass.getName().equals("SeriesJobManager")) {
         rscriptStatManager = new RscriptAggStatManager(mvBatch);
-      } else if (isCalcStat) {
+      } else if (isCalcStat && enclosingClass.getName().equals("SeriesJobManager")) {
         rscriptStatManager = new RscriptSumStatManager(mvBatch);
       }
 
       //run summary or agg stats - if needed
       if (rscriptStatManager != null) {
-        if (job.getExecutionType().equals("Rscript") && !MVUtil.isEtbJob(job)) {
+        if (job.getExecutionType().equals("Rscript") ) {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
           rscriptStatManager.runRscript(job, info);
         } else {
