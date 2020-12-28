@@ -112,7 +112,7 @@ system folders.
         **<stat>:** **DIFF** (display a difference between models) or
 	**DIFF_SIG** ( display p_value ) or **SINGLE** (display a value
 	of statistic for the 1st model. In this case the value of the 2nd
-	model is optional), indicating which statistic to display for both
+	model is optional. This mode works only for <agg_stat>**true**</agg_stat>), indicating which statistic to display for both
 	- values and symbols - in the cell. The default value is DIFF_SIG
 	(display p_value).
         
@@ -121,13 +121,13 @@ system folders.
         **<stat_value>:** **DIFF** (display a difference between models)
 	or **DIFF_SIG** (display p_value) or **SINGLE** (display a value
 	of statistic for the 1st model. In this case the value of the 2nd
-	model is optional), indicating which statistic to use to display
+	model is optional. This mode works only for <agg_stat>**true**</agg_stat>), indicating which statistic to use to display
 	for values in the cell.
         
         **<stat_symbol>:** **DIFF** (display a difference between models)
 	or **DIFF_SIG** (display p_value) or **SINGLE** (display a value
 	of statistic for the 1st model. In this case the value of the 2nd
-	model is optional), indicating which statistic to use to display
+	model is optional. This mode works only for <agg_stat>**true**</agg_stat>), indicating which statistic to use to display
 	for symbols in the cell.
         
         **<threshold_file>:** full path to the XML file describing
