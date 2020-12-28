@@ -683,7 +683,8 @@ if ( nrow(sampleData) > 0){
           dfStatsPerm = aggregateFieldValues(listSetiesIndyVal, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
         }
         #can't calculate differences if  multiple values for one valid date/fcst_lead
-        if (length(listDiffSeries) > 0) {
+        # don't check for SINGLE
+        if (length(listDiffSeries) > 0 && !'SINGLE' %in% listDiffSeries[[1]]) {
           listFields = names(dfStatsPerm);
           if ("fcst_valid_beg" %in% listFields) {
             uniqueDates = nrow(unique(dfStatsPerm[c("fcst_valid_beg", "fcst_lead", "stat_name")]))
