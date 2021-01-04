@@ -162,7 +162,7 @@ class GraphicalOutputManager {
           titleText.append(", ");
         }
         titleText.append(models.get(i));
-        if (!scorecard.getStatSymbol().equals("SINGLE") && !scorecard.getStatValue().equals("SINGLE")) {
+        if (scorecard.getStatSymbol() != null && !scorecard.getStatSymbol().equals("SINGLE") && !scorecard.getStatValue().equals("SINGLE")) {
           titleText.append(" and ").append(models.get(i + 1));
         }
 
