@@ -26,12 +26,12 @@ tag is <load_spec> which contains the following elements, divided into
 functional sections:
 
 **<connection>:** Please reference the
-“`Common XML Structures
-<https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_”
+`Common XML Structures
+<https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_
 documentation.
 
-**<date_list>:** Please reference the “`Common XML Structures
-<https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_”
+**<date_list>:** Please reference the `Common XML Structures
+<https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_
 documentation.
 
 **<load_stat>:** **TRUE** or **FALSE**, this option indicates whether or
