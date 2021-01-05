@@ -4283,6 +4283,8 @@ function createXMLCommon(plot) {
     plot.append($('<caption_offset />').text($('#caption_offset').val()));
     plot.append($('<caption_align />').text($('#caption_align').val()));
     plot.append($('<ci_alpha />').text($('#ci_alpha').val()));
+    plot.append($('<low_eqbound />').text($('#low_eqbound').val()));
+    plot.append($('<high_eqbound />').text($('#high_eqbound').val()));
 
 
     var allSeries = sortSeries();
@@ -4615,6 +4617,8 @@ function resetFormatting() {
     $("#indy2_stag").prop('checked', false);
     $("#varianceInflationFactor").prop('checked', true);
     $("#ci_alpha").val("0.05");
+    $("#low_eqbound").val("-0.001");
+    $("#high_eqbound").val("0.001");
 
     $("#plot_type").val("png16m");
     $("#plot_height").val("8.5");
@@ -7212,7 +7216,7 @@ function initPage() {
                 editable: true,
                 edittype: "select",
                 formatter: 'select',
-                editoptions: {value: "none:none;boot:boot;norm:norm;brier:brier;std:std"},
+                editoptions: {value: "none:none;boot:boot;norm:norm;brier:brier;std:std;etb:etb"},
                 align: "center"
             },
             {
@@ -7795,6 +7799,8 @@ function initPage() {
         $("#indy2_stag").prop('checked', $(initXML.find("plot").find("indy2_stag")).text() == "true");
         $("#varianceInflationFactor").prop('checked', $(initXML.find("plot").find("varianceinflationfactor")).text() === "true");
         $("#ci_alpha").val($(initXML.find("plot").find("ci_alpha")).text());
+        $("#low_eqbound").val($(initXML.find("plot").find("low_eqbound")).text());
+        $("#high_eqbound").val($(initXML.find("plot").find("high_eqbound")).text());
 
         $("#plot_type").val($(initXML.find("plot").find("plot_type")).text());
         $("#plot_height").val($(initXML.find("plot").find("plot_height")).text());
