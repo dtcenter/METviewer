@@ -199,16 +199,16 @@ public class SeriesJobManager extends JobManager {
       Map<String, Object> info = createInfoMap(job, intNumDepSeries);
       Map<String, Object> yamlInfo = null;
       RscriptStatManager rscriptStatManager = null;
-      Class<?> enclosingClass = getClass().getEnclosingClass();
-      if ((job.isModeJob() || job.isMtdJob() || isAggStat) &&  enclosingClass.getName().equals("SeriesJobManager")) {
+      String className = getClass().getSimpleName();
+      if ((job.isModeJob() || job.isMtdJob() || isAggStat) && className.equals("SeriesJobManager")) {
         rscriptStatManager = new RscriptAggStatManager(mvBatch);
-      } else if (isCalcStat && enclosingClass.getName().equals("SeriesJobManager")) {
+      } else if (isCalcStat && className.equals("SeriesJobManager")) {
         rscriptStatManager = new RscriptSumStatManager(mvBatch);
       }
 
       //run summary or agg stats - if needed
       if (rscriptStatManager != null) {
-        if (job.getExecutionType().equals("Rscript") ) {
+        if (job.getExecutionType().equals("Rscript")) {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
           rscriptStatManager.runRscript(job, info);
         } else {
@@ -254,7 +254,8 @@ public class SeriesJobManager extends JobManager {
         }
 
       }
-      if ((job.getExecutionType().equals("Rscript") || this.getPythonScript().isEmpty()) && !MVUtil.isEtbJob(job)) {
+      boolean isEtb = MVUtil.isEtbJob(job);
+      if ((job.getExecutionType().equals("Rscript") || this.getPythonScript().isEmpty()) && !isEtb) {
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
         info.put("data_file", dataFileName);
         rscriptStatManager.runRscript(job, info);
@@ -262,6 +263,9 @@ public class SeriesJobManager extends JobManager {
         if (yamlInfo == null) {
           yamlInfo = createYamlInfoMap(job);
         }
+        yamlInfo.put("eqbound_low", job.getEqboundLow());
+        yamlInfo.put("eqbound_high", job.getEqboundHigh());
+
         yamlInfo.put("stat_input", dataFileName);
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
         job.setPlotTmpl(this.getPythonScript());
