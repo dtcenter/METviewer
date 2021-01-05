@@ -86,49 +86,53 @@ system folders.
 
 **<plot>:** A structure that specifies scorecard characteristics.
         
-        **<execution_type>:** **Rscript** or **Python**, indicating whether
+        **<execution_type>: Rscript** or **Python**, indicating whether
 	to use Rscript or Python for the statistics calculation and
 	plotting (if available). This is an optional element. The default
 	value is Rscript.
         
-        **<view_value>:** **TRUE** or **FALSE**, indicating whether or
+        **<view_value>: TRUE** or **FALSE**, indicating whether or
 	not to display statistical values in the scorecard cells. The
 	default value is FALSE (do not display).
         
-        **<view_symbol>:** **TRUE** or **FALSE**, indicating whether or
+        **<view_symbol>: TRUE** or **FALSE**, indicating whether or
 	not to display a symbol in the scorecard cells. The default value
 	is TRUE (display).
         
-        **<view_legend>:** **TRUE** or **FALSE**, indicating whether or
+        **<view_legend>: TRUE** or **FALSE**, indicating whether or
 	not to display a legend for the scorecard. The default value is
 	TRUE (display).
         
-        **<stat_flag>:** **NCAR** or **EMC**, which algorithm to use to
+        **<stat_flag>: NCAR** or **EMC**, which algorithm to use to
 	calculate statistics. The default value is NCAR.
         
-        **<printSQL>:** **FALSE** or **TRUE**, indicating whether or not
+        **<printSQL>: FALSE** or **TRUE**, indicating whether or not
 	to print SQL queries. The default value is FALSE (do not print).
         
-        **<stat>:** **DIFF** (display a difference between models) or
+        **<stat>: DIFF** (display a difference between models) or
 	**DIFF_SIG** ( display p_value ) or **SINGLE** (display a value
 	of statistic for the 1st model. In this case the value of the 2nd
-	model is optional. This mode works only for <agg_stat>**true**</agg_stat>), indicating which statistic to display for both
+	model is optional. This mode works only for
+	<agg_stat> **true** </agg_stat>), indicating which statistic
+	to display for both
 	- values and symbols - in the cell. The default value is DIFF_SIG
 	(display p_value).
         
         or
         
-        **<stat_value>:** **DIFF** (display a difference between models)
+        **<stat_value>: DIFF** (display a difference between models)
 	or **DIFF_SIG** (display p_value) or **SINGLE** (display a value
 	of statistic for the 1st model. In this case the value of the 2nd
-	model is optional. This mode works only for <agg_stat>**true**</agg_stat>), indicating which statistic to use to display
-	for values in the cell.
+	model is optional. This mode works only for
+	<agg_stat> **true** </agg_stat>), indicating which statistic
+	to use to display for values in the cell.
         
-        **<stat_symbol>:** **DIFF** (display a difference between models)
+        **<stat_symbol>: DIFF** (display a difference between models)
 	or **DIFF_SIG** (display p_value) or **SINGLE** (display a value
 	of statistic for the 1st model. In this case the value of the 2nd
-	model is optional. This mode works only for <agg_stat>**true**</agg_stat>), indicating which statistic to use to display
-	for symbols in the cell.
+	model is optional. This mode works only for
+	<agg_stat> **true** </agg_stat>), indicating which statistic
+	to use to display for symbols in the cell.
         
         **<threshold_file>:** full path to the XML file describing
 	configurations for thresholds, colors and symbols (optional).
@@ -153,7 +157,8 @@ system folders.
 
                 * two values - first and second model names
 
-                * one value - when the stat values for one model are requested
+                * one value - when the stat values for one model are
+		  requested
 
                 * multiples pairs - for the aggregated scorecard
 
@@ -247,7 +252,7 @@ system folders.
                         **<field>:** next level database field name. Field
 			can have more than one field element
 
-           **<agg_stat>:** **TRUE** (bootstrapping) or **FALSE**
+           **<agg_stat>: TRUE** (bootstrapping) or **FALSE**
 	   (student-T/normal), indicating whether or not to create
 	   a scorecard using aggregated statistics. The default value
 	   is TRUE (use bootstrapping).
