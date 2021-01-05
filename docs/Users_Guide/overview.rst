@@ -62,7 +62,7 @@ statistics.
 
 .. figure:: figure/MV_flowchart.png
 	    
-	    Figure 1.1 METviewer flowchart, showing types of input data,
+	    METviewer flowchart, showing types of input data,
 	    output types, and options for use. 
 
 

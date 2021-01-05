@@ -108,7 +108,7 @@ are the defaults.
 
 .. figure:: figure/barplots_plot.png
 
-Figure 4.1 Example Bar Plot created by METviewer.
+            Example Bar Plot created by METviewer.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
