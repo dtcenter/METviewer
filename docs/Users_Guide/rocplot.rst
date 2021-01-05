@@ -53,8 +53,8 @@ counter-clockwise around the METviewer window.
 #. Select the desired series variable to calculate statistics for in the
    “Series Variables” tab. Press the "+ Series Variable" button to reveal
    two pulldown menus. The first pulldown menu lists the categories available
-   in the selected dataset. The second pulldown menu allows you to select
-   the value of that category. 
+   in the selected dataset. The second pulldown menu allows the selection
+   of the value of that category. 
 
 #. It usually does not make sense to mix statistics for different groups.
    The desired group to calculate statistics over can be specified in the

@@ -41,8 +41,8 @@ counter-clockwise around the METviewer window.
 #. Select the desired series variable to calculate statistics for in the
    “Series Variables” tab. Press the “+ Series Variable” button to reveal
    two pulldown menus. The first pulldown menu lists the categories
-   available in the selected dataset. The second pulldown menu allows you
-   to select the value of that category.
+   available in the selected dataset. The second pulldown menu allows the
+   selection of the value of that category.
 
 #. For a ECLV plot, the forecast variable (“FCST_VAR”) must be selected.
    This is found in the "Specialized Plot Fixed Values" section. In the

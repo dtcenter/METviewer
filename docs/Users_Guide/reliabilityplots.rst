@@ -46,10 +46,10 @@ approximately counter-clockwise around the METviewer window.
 #. Select the desired series variable to calculate statistics for in the
    “Series Variables” tab. Press the “+ Series Variable” button to reveal
    two pulldown menus. The first pulldown menu in the lists the categories
-   available in the selected dataset. The second pulldown menu allows you
-   to select the value of that category. The reliability diagram only makes
-   sense for probability forecasts. These can be from ensemble forecasts or
-   from a traditional forecast. 
+   available in the selected dataset. The second pulldown menu allows the
+   selection of the value of that category. The reliability diagram only
+   makes sense for probability forecasts. These can be from ensemble
+   forecasts or from a traditional forecast. 
 
 #. It usually does not make sense to mix statistics for different groups.
    The desired group to calculate statistics over can be specified in the
