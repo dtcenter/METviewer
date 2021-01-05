@@ -33,10 +33,6 @@ documentation.
 **<date_list>:** Please reference the “`Common XML Structures
 <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_”
 documentation.
-		
-
-**NOTE:** **<met_version>** is obsolete and has been removed; remove it
-from the XML load specification document
 
 **<load_stat>:** **TRUE** or **FALSE**, this option indicates whether or
 not to load STAT data.
