@@ -19,13 +19,17 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2348,7 +2352,7 @@ public class MVUtil {
     }
   }
 
-  private static void populateInt(Map<String, Object> tableRTags, String tagName, String strValue, int def){
+  private static void populateInt(Map<String, Object> tableRTags, String tagName, String strValue, int def) {
     int valInt = def;
     try {
       valInt = Integer.parseInt(strValue);
@@ -2357,7 +2361,7 @@ public class MVUtil {
     tableRTags.put(tagName, valInt);
   }
 
-  private static void populateDouble(Map<String, Object> tableRTags, String tagName, String strValue, double def){
+  private static void populateDouble(Map<String, Object> tableRTags, String tagName, String strValue, double def) {
     double valDouble = def;
     try {
       valDouble = Double.parseDouble(strValue);
@@ -2383,20 +2387,20 @@ public class MVUtil {
 
     tableRTags.put("plot_units", job.getPlotUnits());
 
-    String[] valArr = job.getMar().replace("c(", "").replace(")","").split(",");
+    String[] valArr = job.getMar().replace("c(", "").replace(")", "").split(",");
     List<Integer> vals = new ArrayList<>();
     try {
-      for (String s : valArr){
+      for (String s : valArr) {
         vals.add(Integer.parseInt(s));
       }
     } catch (Exception e) {
     }
     tableRTags.put("mar", vals);
 
-    valArr = job.getMgp().replace("c(", "").replace(")","").split(",");
+    valArr = job.getMgp().replace("c(", "").replace(")", "").split(",");
     vals = new ArrayList<>();
     try {
-      for (String s : valArr){
+      for (String s : valArr) {
         vals.add(Integer.parseInt(s));
       }
     } catch (Exception e) {
@@ -2481,9 +2485,6 @@ public class MVUtil {
     tableRTags.put("box_avg", job.getBoxAvg().equalsIgnoreCase("true") ? "True" : "False");
 
   }
-
-
-
 
 
   /**
@@ -2799,6 +2800,37 @@ public class MVUtil {
     try (FileWriter writer = new FileWriter(fileName)) {
       yaml.dump(sortedMap, writer);
     }
+  }
+
+  /**
+   * Reads the version of METviewer from MANIFEST.MF file
+   * @return version number
+   */
+  public static String getVersionNumber() {
+    String version = "";
+    String className = MVUtil.class.getSimpleName() + ".class";
+    String classPath = MVUtil.class.getResource(className).toString();
+    if (classPath.startsWith("jar")) {
+      // Class  from JAR
+      String manifestPath = classPath.substring(0,
+              classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
+      URL url = null;
+      try {
+        url = new URL(manifestPath);
+      } catch (MalformedURLException e) {
+        // Do nothing
+      }
+      if (url != null) {
+        try (InputStream inputStream = url.openStream()) {
+          Manifest manifest = new Manifest(inputStream);
+          Attributes attr = manifest.getMainAttributes();
+          version = attr.getValue("Specification-Version");
+        } catch (IOException e) {
+          //do nothing
+        }
+      }
+    }
+    return version;
   }
 
 
