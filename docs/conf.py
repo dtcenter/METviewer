@@ -69,6 +69,16 @@ html_static_path = ['_static']
 # of the sidebar.
 html_logo = os.path.join('_static','met_viewer_logo_2019_09.png')
 
+# -- Intersphinx control -----------------------------------------------------
+intersphinx_mapping = {'numpy':("https://docs.scipy.org/doc/numpy/", None)}
+
+numfig = True
+
+numfig_format = {
+    'figure': 'Figure %s',
+}
+
+
 # -- Export variables --------------------------------------------------------
 
 rst_epilog = """
