@@ -76,7 +76,6 @@ Foundation (NSF).
    common
    database_loading
    database_scrubbing
-   testing
    web_service
    batch
    seriesplots
