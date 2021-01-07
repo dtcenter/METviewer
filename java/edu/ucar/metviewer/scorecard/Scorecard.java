@@ -6,6 +6,7 @@
 
 package edu.ucar.metviewer.scorecard;
 
+import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.aurora.AuroraAppDatabaseManager;
@@ -17,7 +18,6 @@ import edu.ucar.metviewer.scorecard.db.SumDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.exceptions.MissingFileException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
-import edu.ucar.metviewer.scorecard.model.WeightRequirements;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
 import edu.ucar.metviewer.scorecard.rscript.*;
 import org.apache.logging.log4j.LogManager;
@@ -41,8 +41,6 @@ public class Scorecard {
   private static final Logger logger = LogManager.getLogger("Scorecard");
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
-  private static final String USAGE = "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
-          "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
   private List<String> databaseNames;
   private String user;
   private String pwd;
@@ -74,6 +72,22 @@ public class Scorecard {
   private String symbolSize = "100%";
   private String executionType = RSCRIPT;
 
+
+  public static String getUsage() {
+    String version = MVUtil.getVersionNumber();
+    String message;
+    if (!version.isEmpty()) {
+      message = "Version: " + version + "\n";
+    } else {
+      message = "";
+    }
+
+    return message +
+            "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
+            "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
+
+  }
+
   public static void main(String[] args) throws Exception {
 
 
@@ -83,7 +97,7 @@ public class Scorecard {
     stopWatch.start();
     if (0 == args.length) {
       logger.info("  Error: no arguments!!!");
-      logger.info(USAGE);
+      logger.info(getUsage());
 
     } else {
 
@@ -95,10 +109,18 @@ public class Scorecard {
           dbType = "mariadb";
         } else if (args[intArg].equals("aurora")) {
           dbType = "aurora";
+        } else if ("-h".equalsIgnoreCase(args[intArg]) || "--h".equalsIgnoreCase(args[intArg]) || "-help".equalsIgnoreCase(args[intArg])) {
+          logger.info(getUsage());
+          return;
         }
       }
 
       filename = args[intArg];
+
+      String version  = MVUtil.getVersionNumber();
+      if (!version.isEmpty()){
+        logger.info("Version: " + version + "\n");
+      }
       XmlParser xmlParser = new XmlParser();
       // parce XML and init parameters
       Scorecard scorecard = xmlParser.parseParameters(filename);

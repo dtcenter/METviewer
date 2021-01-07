@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.aurora.AuroraAppDatabaseManager;
 import edu.ucar.metviewer.db.mariadb.MariaDbAppDatabaseManager;
@@ -30,8 +31,6 @@ public class MVPruneDB {
 
   private static final Logger logger = LogManager.getLogger("MVPruneDB");
 
-  private static final String USAGE = "USAGE:  mv_prune.sh <prune_db_spec_file>\n" +
-          "                    where <prune_db_spec_file> specifies the XML pruning specification document\n";
   private final Map<String, List<String>> fieldToRangeValues = new HashMap<>();
   private final Map<String, List<String>> fieldToListValues = new HashMap<>();
   private final List<String> files = new ArrayList<>();
@@ -42,12 +41,27 @@ public class MVPruneDB {
   private String host;
   private Boolean isInfoOnly = null;
 
+  public static String getUsage() {
+    String version = MVUtil.getVersionNumber();
+    String message;
+    if (!version.isEmpty()) {
+      message = "Version: " + version + "\n";
+    } else {
+      message = "";
+    }
+
+    return message +
+            "USAGE:  mv_prune.sh <prune_db_spec_file>\n" +
+            "                    where <prune_db_spec_file> specifies the XML pruning specification document\n";
+  }
+
+
   public static void main(String[] args) throws Exception {
     String filename;
     String dbType = "mysql";
     if (0 == args.length) {
       logger.error("  Error: no arguments!!!");
-      logger.info(USAGE);
+      logger.info(getUsage());
 
     } else {
       filename = args[0];
@@ -62,7 +76,14 @@ public class MVPruneDB {
           case "aurora":
             dbType = "aurora";
             break;
+          default:
+            logger.info(getUsage());
+            return;
         }
+      }
+      String version  = MVUtil.getVersionNumber();
+      if (!version.isEmpty()){
+        logger.info("Version: " + version + "\n");
       }
       PruneXmlParser pruneXmlParser = new PruneXmlParser();
       MVPruneDB mvPruneDB = pruneXmlParser.parseParameters(filename);

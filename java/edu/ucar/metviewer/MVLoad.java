@@ -1,11 +1,15 @@
 package edu.ucar.metviewer;
 
 import java.io.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 
 import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.db.LoadDatabaseManager;
@@ -74,7 +78,7 @@ public class MVLoad {
 
   public static void main(String[] argv) {
 
-    logger.info( "----  MVLoad  ----\n");
+    logger.info("----  MVLoad  ----\n");
 
     try {
 
@@ -88,6 +92,9 @@ public class MVLoad {
       for (; intArg < argv.length && !argv[intArg].matches(".*\\.xml$"); intArg++) {
         if ("-index".equalsIgnoreCase(argv[0])) {
           indexOnly = true;
+        }else if ("-h".equalsIgnoreCase(argv[0]) || "--h".equalsIgnoreCase(argv[0]) || "-help".equalsIgnoreCase(argv[0])) {
+          logger.info(getUsage() + "\n\n----  MVLoad Done  ----");
+          return;
         } else {
           logger.error(
                   "  **  ERROR: unrecognized option '" + argv[intArg]
@@ -98,6 +105,11 @@ public class MVLoad {
       String strXML = argv[intArg];
 
       //  parse the plot job
+      String version  = MVUtil.getVersionNumber();
+      if (!version.isEmpty()){
+        logger.info("Version: " + version + "\n");
+      }
+
       logger.info("Begin time: " + MVUtil.APP_DATE_FORMATTER.format(LocalDateTime.now()));
       logger.info("Parsing: " + strXML + "\n"
               + (indexOnly ? "Applying Index Settings Only\n" : ""));
@@ -312,7 +324,16 @@ public class MVLoad {
 
 
   public static String getUsage() {
-    return "Usage:  mv_load\n" +
+    String version = MVUtil.getVersionNumber();
+    String message;
+    if (!version.isEmpty()) {
+      message = "Version: " + version + "\n";
+    } else {
+      message = "";
+    }
+
+    return message +
+            "Usage:  mv_load\n" +
             "          [-index]\n" +
             "          load_spec_file\n" +
             "\n" +
