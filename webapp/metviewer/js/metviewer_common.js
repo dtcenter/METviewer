@@ -7012,6 +7012,15 @@ function updateResult(result) {
     $("#plot_image").empty();
 
     $.get(urlOutput + 'plots/' + resultName + '.html', function (data) {
+        var style =  $(data).find('div').attr('style');
+        var size = style.match(/\d+/g);
+
+        var k_h = $('#plot_image').outerHeight()/size[0];
+        var k_w = $('#plot_image').outerWidth()/size[1];
+
+        var new_style = "<div style=\"transform: translateY(-50px) scale(" + k_w + "," + k_h + " ) ; width: 100%; height: 100%;\">";
+        data = data.replace("<div>", new_style);
+
         $('#plot_image').append(data);
 
     }).fail(function () {
@@ -7216,7 +7225,7 @@ function initPage() {
                 editable: true,
                 edittype: "select",
                 formatter: 'select',
-                editoptions: {value: "none:none;boot:boot;norm:norm;brier:brier;std:std;etb:etb"},
+                editoptions: {value: "none:none;boot:boot;norm:norm;brier:brier;std:std"},
                 align: "center"
             },
             {
