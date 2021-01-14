@@ -57,6 +57,7 @@ public class MVBatch {
   public String getPythonEnv() {
     return pythonEnv;
   }
+
   public String getPython() {
     return python;
   }
@@ -128,8 +129,8 @@ public class MVBatch {
     this.databaseManager = databaseManager;
   }
 
-  public void closeDataSource(){
-    if(this.databaseManager != null) {
+  public void closeDataSource() {
+    if (this.databaseManager != null) {
       this.databaseManager.closeDataSource();
     }
   }
@@ -222,7 +223,15 @@ public class MVBatch {
   }
 
   public static String getUsage() {
-    return "Usage:  mv_batch\n"
+    String version = MVUtil.getVersionNumber();
+    String message;
+    if (!version.isEmpty()) {
+      message = "Version: " + version + "\n";
+    } else {
+      message = "";
+    }
+    return message +
+            "Usage:  mv_batch\n"
             + "          [-list]\n"
             + "          [-printSql]\n"
             + "          plot_spec_file\n"
@@ -259,6 +268,9 @@ public class MVBatch {
           boolList = true;
         } else if (argv[intArg].equals("-printSql")) {
           mvBatch.setVerbose(true);
+        }else if ("-h".equalsIgnoreCase(argv[0]) || "--h".equalsIgnoreCase(argv[0]) || "-help".equalsIgnoreCase(argv[0])) {
+          mvBatch.print(getUsage() + "\n\n----  MVBatch Done  ----");
+          return;
         } else {
           mvBatch.print(
                   "  **  ERROR: unrecognized option '"
@@ -267,6 +279,10 @@ public class MVBatch {
         }
       }
 
+      String version  = MVUtil.getVersionNumber();
+      if (!version.isEmpty()){
+        mvBatch.print("Version: " + version + "\n");
+      }
       mvBatch.setPythonEnv(System.getProperty("python.env"));
       mvBatch.setMetCalcpyHome(System.getProperty("metcalcpy.home"));
       mvBatch.setMetPlotpyHome(System.getProperty("metplotpy.home"));

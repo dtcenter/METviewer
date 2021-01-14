@@ -162,7 +162,7 @@ class GraphicalOutputManager {
           titleText.append(", ");
         }
         titleText.append(models.get(i));
-        if (!scorecard.getStatSymbol().equals("SINGLE") && !scorecard.getStatValue().equals("SINGLE")) {
+        if (scorecard.getStatSymbol() != null && !scorecard.getStatSymbol().equals("SINGLE") && !scorecard.getStatValue().equals("SINGLE")) {
           titleText.append(" and ").append(models.get(i + 1));
         }
 
@@ -880,7 +880,7 @@ class GraphicalOutputManager {
             colspan++;
           } else {
             //create a cell
-            htmlTrH.with(createHeaderCellColspan(thead.children.size(), previousField, colspan));
+            htmlTrH.with(createHeaderCellColspan(thead.getNumChildren(), previousField, colspan));
             //init colspan and field
             colspan = 1;
             previousField = column.get(field).getLabel();
@@ -888,7 +888,7 @@ class GraphicalOutputManager {
         }
       }
       //add a cell for the last column
-      htmlTrH.with(createHeaderCellColspan(thead.children.size(), previousField, colspan));
+      htmlTrH.with(createHeaderCellColspan(thead.getNumChildren(), previousField, colspan));
       thead.with(htmlTrH);
     }
     return thead;
