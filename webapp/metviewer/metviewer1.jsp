@@ -482,14 +482,14 @@
 
             <td><label for="ci_alpha">Conf Interval Alpha</label>
               <input type="text" size="6" id="ci_alpha" value="0.05"></td>
-            <td><label for="low_eqbound">Lower equivalence bound</label>
-              <input type="text" size="6" id="low_eqbound" value="-0.001">(dz)</td>
+            <td><label for="eqbound_low">Lower equivalence bound</label>
+              <input type="text" size="6" id="eqbound_low" value="-0.001">(dz)</td>
           </tr>
           <tr>
             <td><input type="checkbox" id="is_python"/>
               <label for="is_python">Use Python</label></td>
-            <td><label for="high_eqbound">Upper equivalence bound</label>
-              <input type="text" size="6" id="high_eqbound" value="0.001">(dz)</td>
+            <td><label for="eqbound_high">Upper equivalence bound</label>
+              <input type="text" size="6" id="eqbound_high" value="0.001">(dz)</td>
           </tr>
 
         </table>
