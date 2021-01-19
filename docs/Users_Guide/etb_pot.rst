@@ -75,6 +75,9 @@ series plot are:
    sum may be selected instead. Choosing this option will cause a
    single statistic to be calculated from the individual database lines.
 
+#. Select Lower and Upper equivalence bounds in the Common section.
+   The default values are -0.001 and 0.001
+
 #. Create ETB derived curve by opening a pop-up menu with 'Add Derived Curve"
    button in the bottom of the 'Series Formatting" table. Select curves of interest
    and check 'Equivalence Testing Bounds" radio button. Since the data for both
