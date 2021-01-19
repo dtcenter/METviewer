@@ -27,6 +27,10 @@ questions being addressed; in addition, the equivalence interval need not be sym
 For a conclusive result, both one-sided tests must be rejected, concluding the difference of the
 means falls within the upper and lower equivalence bounds.
 
+MET employs CI's along with the user-defined tolerance bounds, which can be used to employ an equivalence test.
+In this case, H0 is accepted if the CI bounds fall completely between the tolerance bounds,
+and H0 is rejected otherwise.
+
 How-To
 -------
 
