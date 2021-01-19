@@ -1,6 +1,7 @@
 db:
     image: mysql:5.7
     container_name: mysql_mv
+    user: "mysql:mysql"
     ports:
         - "6603:3306"
     volumes:
