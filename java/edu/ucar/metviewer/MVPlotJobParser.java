@@ -209,6 +209,12 @@ public final class MVPlotJobParser {
               MVPlotJob.class.getDeclaredMethod("setRelyEventHist", String.class));
       formatToStrValues
               .put("ci_alpha", MVPlotJob.class.getDeclaredMethod("setCIAlpha", String.class));
+
+      formatToStrValues
+              .put("eqbound_low", MVPlotJob.class.getDeclaredMethod("setEqboundLow", String.class));
+      formatToStrValues
+              .put("eqbound_high", MVPlotJob.class.getDeclaredMethod("setEqboundHigh", String.class));
+
       formatToStrValues
               .put("ensss_pts", MVPlotJob.class.getDeclaredMethod("setEnsSsPts", String.class));
       formatToStrValues.put("ensss_pts_disp",
@@ -341,6 +347,8 @@ public final class MVPlotJobParser {
     return documentBuilder;
   }
 
+
+
   /**
    * Determine if the input plot job has many necessary components to build a plot.  If not, return
    * the structure name that has been found to be missing.
@@ -353,12 +361,14 @@ public final class MVPlotJobParser {
       return "lacks template";
     } else if (job.getIndyVar().isEmpty()
             && !job.getPlotTmpl().contains("taylor")
-            && !job.getPlotTmpl().contains("eclv")) {
+            && !job.getPlotTmpl().contains("eclv")
+            && !MVUtil.isEtbJob(job)) {
       return "lacks indep";
     } else if (1 > job.getIndyVal().length
             && null == job.getIndyDep()
             && !job.getPlotTmpl().contains("taylor")
-            && !job.getPlotTmpl().contains("eclv")) {
+            && !job.getPlotTmpl().contains("eclv")
+            && !MVUtil.isEtbJob(job)) {
       return "lacks indep";
     } else if (1 > job.getDepGroups().length && !job.getPlotTmpl().contains("eclv")) {
       return "lacks dep";
@@ -1039,7 +1049,9 @@ public final class MVPlotJobParser {
                     "<reverse_y>" + job.getReverseY() + "</reverse_y>" +
                     "<reverse_x>" + job.getReverseX() + "</reverse_x>" +
                     "<add_contour_overlay>" + job.getAddContourOverlay() + "</add_contour_overlay>" +
-                    "<plot_stat>" + job.getPlotStat() + "</plot_stat>");
+                    "<plot_stat>" + job.getPlotStat() + "</plot_stat>" +
+                    "<eqbound_low>" + job.getEqboundLow() + "</eqbound_low>" +
+                    "<eqbound_high>" + job.getEqboundHigh() + "</eqbound_high>");
     if (job.getContourIntervals() != null) {
       xmlStr.append("<contour_intervals>" + job.getContourIntervals() + "</contour_intervals>");
     }

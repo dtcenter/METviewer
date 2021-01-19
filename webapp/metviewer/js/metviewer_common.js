@@ -4283,6 +4283,8 @@ function createXMLCommon(plot) {
     plot.append($('<caption_offset />').text($('#caption_offset').val()));
     plot.append($('<caption_align />').text($('#caption_align').val()));
     plot.append($('<ci_alpha />').text($('#ci_alpha').val()));
+    plot.append($('<eqbound_low />').text($('#eqbound_low').val()));
+    plot.append($('<eqbound_high />').text($('#eqbound_high').val()));
 
 
     var allSeries = sortSeries();
@@ -4615,6 +4617,8 @@ function resetFormatting() {
     $("#indy2_stag").prop('checked', false);
     $("#varianceInflationFactor").prop('checked', true);
     $("#ci_alpha").val("0.05");
+    $("#eqbound_low").val("-0.001");
+    $("#eqbound_high").val("0.001");
 
     $("#plot_type").val("png16m");
     $("#plot_height").val("8.5");
@@ -7008,6 +7012,15 @@ function updateResult(result) {
     $("#plot_image").empty();
 
     $.get(urlOutput + 'plots/' + resultName + '.html', function (data) {
+        var style =  $(data).find('div').attr('style');
+        var size = style.match(/\d+/g);
+
+        var k_h = $('#plot_image').outerHeight()/size[0];
+        var k_w = $('#plot_image').outerWidth()/size[1];
+
+        var new_style = "<div style=\"transform: translateY(-50px) scale(" + k_w + "," + k_h + " ) ; width: 100%; height: 100%;\">";
+        data = data.replace("<div>", new_style);
+
         $('#plot_image').append(data);
 
     }).fail(function () {
@@ -7390,7 +7403,10 @@ function initPage() {
 
             for (var i = 0; i < allSeries.length; i++) {
                 var isInclude = false;
-                if (allSeries[i].title.indexOf('DIFF') != 0 && allSeries[i].title.indexOf('RATIO') != 0 && allSeries[i].title.indexOf('SS') != 0) {
+                if (allSeries[i].title.indexOf('DIFF') != 0
+                    && allSeries[i].title.indexOf('RATIO') != 0
+                    && allSeries[i].title.indexOf('SS') != 0
+                    && allSeries[i].title.indexOf('ETB') != 0) {
                     // curve can be included ONLY if it is MODE Ratio stat or any of Stat stats
                     if (selected_mode == "mode") {
                         var desc = allSeries[i].title.split(" ");
@@ -7482,7 +7498,8 @@ function initPage() {
                 var rowData = $(this).getRowData(sr);
                 if (rowData.title.startsWith("DIFF")
                     || rowData.title.startsWith("RATIO")
-                    || rowData.title.startsWith("SS")) {
+                    || rowData.title.startsWith("SS")
+                    || rowData.title.startsWith("ETB")) {
                     $(this).jqGrid('delRowData', sr);
                     $("#1", "#gbox_listdt").css({display: ""});
                     var titleArr, title;
@@ -7499,12 +7516,18 @@ function initPage() {
                             titleArr[i] = titleArr[i].replace('"', "");
                         }
                         title = titleArr.join() + ",RATIO";
-                    } else {
+                    } else if (rowData.title.startsWith("SS")){
                         titleArr = titleMinusOne.replace("SS (", "").split('"and"');
                         for (var i = 0; i < titleArr.length; i++) {
                             titleArr[i] = titleArr[i].replace('"', "");
                         }
                         title = titleArr.join() + ",SS";
+                    }else{
+                        titleArr = titleMinusOne.replace("ETB (", "").split('"and"');
+                        for (var i = 0; i < titleArr.length; i++) {
+                            titleArr[i] = titleArr[i].replace('"', "");
+                        }
+                        title = titleArr.join() + ",ETB";
                     }
 
 
@@ -7785,6 +7808,8 @@ function initPage() {
         $("#indy2_stag").prop('checked', $(initXML.find("plot").find("indy2_stag")).text() == "true");
         $("#varianceInflationFactor").prop('checked', $(initXML.find("plot").find("varianceinflationfactor")).text() === "true");
         $("#ci_alpha").val($(initXML.find("plot").find("ci_alpha")).text());
+        $("#eqbound_low").val($(initXML.find("plot").find("eqbound_low")).text());
+        $("#eqbound_high").val($(initXML.find("plot").find("eqbound_high")).text());
 
         $("#plot_type").val($(initXML.find("plot").find("plot_type")).text());
         $("#plot_height").val($(initXML.find("plot").find("plot_height")).text());

@@ -199,9 +199,10 @@ public class SeriesJobManager extends JobManager {
       Map<String, Object> info = createInfoMap(job, intNumDepSeries);
       Map<String, Object> yamlInfo = null;
       RscriptStatManager rscriptStatManager = null;
-      if (job.isModeJob() || job.isMtdJob() || isAggStat) {
+      String className = getClass().getSimpleName();
+      if ((job.isModeJob() || job.isMtdJob() || isAggStat) && className.equals("SeriesJobManager")) {
         rscriptStatManager = new RscriptAggStatManager(mvBatch);
-      } else if (isCalcStat) {
+      } else if (isCalcStat && className.equals("SeriesJobManager")) {
         rscriptStatManager = new RscriptSumStatManager(mvBatch);
       }
 
@@ -253,7 +254,8 @@ public class SeriesJobManager extends JobManager {
         }
 
       }
-      if (job.getExecutionType().equals("Rscript") || this.getPythonScript().isEmpty()) {
+      boolean isEtb = MVUtil.isEtbJob(job);
+      if ((job.getExecutionType().equals("Rscript") || this.getPythonScript().isEmpty()) && !isEtb) {
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
         info.put("data_file", dataFileName);
         rscriptStatManager.runRscript(job, info);
@@ -261,9 +263,10 @@ public class SeriesJobManager extends JobManager {
         if (yamlInfo == null) {
           yamlInfo = createYamlInfoMap(job);
         }
+        yamlInfo.put("eqbound_low", job.getEqboundLow());
+        yamlInfo.put("eqbound_high", job.getEqboundHigh());
+
         yamlInfo.put("stat_input", dataFileName);
-
-
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
         job.setPlotTmpl(this.getPythonScript());
         yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);

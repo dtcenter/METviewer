@@ -9,17 +9,7 @@ import java.util.Map;
 
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseManager;
-import edu.ucar.metviewer.jobManager.ContourJobManager;
-import edu.ucar.metviewer.jobManager.EclvJobManager;
-import edu.ucar.metviewer.jobManager.EnsSsJobManager;
-import edu.ucar.metviewer.jobManager.JobManager;
-import edu.ucar.metviewer.jobManager.PerformanceJobManager;
-import edu.ucar.metviewer.jobManager.RelpJobManager;
-import edu.ucar.metviewer.jobManager.RelyJobManager;
-import edu.ucar.metviewer.jobManager.RhistJobManager;
-import edu.ucar.metviewer.jobManager.RocJobManager;
-import edu.ucar.metviewer.jobManager.SeriesJobManager;
-import edu.ucar.metviewer.jobManager.TaylorJobManager;
+import edu.ucar.metviewer.jobManager.*;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
@@ -418,7 +408,11 @@ public class MVBatch {
             jobManager = new ContourJobManager(mvBatch);
             break;
           default:
-            jobManager = new SeriesJobManager(mvBatch);
+            if (MVUtil.isEtbJob(jobs[intJob])){
+              jobManager = new EtbJobManager(mvBatch);
+            }else {
+              jobManager = new SeriesJobManager(mvBatch);
+            }
             break;
         }
         jobManager.runJob(jobs[intJob]);

@@ -222,6 +222,8 @@ public class MVPlotJob {
   protected String executionType = RSCRIPT;
   protected String annotationTemplate = "";
   protected boolean createHtml = Boolean.FALSE;
+  protected double eqboundLow = -0.001;
+  protected double eqboundHigh = -0.001;
 
 
 
@@ -424,9 +426,40 @@ public class MVPlotJob {
     job.annotationTemplate = annotationTemplate;
 
     job.keepRevisions = keepRevisions;
+
+    job.eqboundLow = eqboundLow;
+    job.eqboundHigh = eqboundHigh;
     return job;
   }
 
+  public double getEqboundLow() {
+    return eqboundLow;
+  }
+
+  public void setEqboundLow(double eqboundLow) {
+    this.eqboundLow = eqboundLow;
+  }
+  public void setEqboundLow(String eqboundLow) {
+    try {
+      double le = Double.parseDouble(eqboundLow);
+      this.eqboundLow = le;
+    }catch (Exception e){}
+
+  }
+
+  public double getEqboundHigh() {
+    return eqboundHigh;
+  }
+
+  public void setEqboundHigh(double eqboundHigh) {
+    this.eqboundHigh = eqboundHigh;
+  }
+  public void setEqboundHigh(String eqboundHigh) {
+    try {
+      double he = Double.parseDouble(eqboundHigh);
+      this.eqboundHigh = he;
+    }catch (Exception e){}
+  }
 
   public String getJobName() {
     return jobName;

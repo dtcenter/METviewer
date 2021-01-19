@@ -1068,13 +1068,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                   + (job.isModeJob() ? "mode" : "stat")
                   + "_header field: " + indyVar);
         }
-        if (1 > listIndyVal.length) {
+        if (1 > listIndyVal.length && !MVUtil.isEtbJob(job)) {
           throw new ValidationException("no independent variable values specified");
         }
 
         //  construct the select list item, where clause
         // and temp table entry for the independent variable
-        if (!selectList.contains(indyVar)) {
+        if (!selectList.contains(indyVar) && listIndyVal.length != 0) {
           selectList += ",\n  " + formatField(indyVar, job.isModeJob() || job.isMtdJob(),
                   true);
           selectPlotList += ",\n  " + formatField(indyVar, job.isModeJob() || job.isMtdJob(),
@@ -1094,8 +1094,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         } else {
           field = BINARY + indyVarFormatted;
         }
-        whereClause += (!whereClause.isEmpty() ? "  AND " : "") + field
-                + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
+        if( listIndyVal.length > 0) {
+          whereClause += (!whereClause.isEmpty() ? "  AND " : "") + field
+                  + " IN (" + MVUtil.buildValueList(listIndyVal) + ")\n";
+        }
       }
       //  add fcst_var to the select list and temp table entries
       //selectList += ",\n  h.fcst_var";
@@ -1617,25 +1619,25 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           //  add the appropriate stat table members, depending
           // on the use of aggregation and stat calculation
           if (job.getAggCtc() || job.getAggNbrCtc()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  "
+            selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  "
                     + "ld.fn_oy,\n  ld.fn_on";
           } else if (job.getAggSl1l2()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  "
+            selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  "
                     + "ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
           } else if (job.getAggGrad()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fgbar,\n  ld.ogbar,\n  "
+            selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.fgbar,\n  ld.ogbar,\n  "
                     + "ld.mgbar,\n  ld.egbar,\n  ld.s1,\n ld.s1_og, \n ld.fgog_ratio";
           } else if (job.getAggSsvar()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  "
+            selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  "
                     + "ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n  "
                     + "ld.var_mean, \n  ld.bin_n";
           } else if (job.getAggSal1l2()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  "
+            selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  "
                     + "ld.foabar,\n  ld.ffabar,\n  ld.ooabar,\n ld.mae";
 
           } else if (job.getAggEcnt()) {
 
-            selectStat += ",\n  0 stat_value,"
+            selectStat += ",\n  'NA' stat_value,"
                     + "\n ld.total,\n  ld.me, \n  ld.rmse,\n  ld.crps,\n  ld.crpss,"
                     + "\n  ld.ign,  "
                     + "\n ld.spread,\n  ld.me_oerr,\n  ld.rmse_oerr,"
@@ -1644,12 +1646,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (job.getAggPct()) {
 
             if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
-              selectStat += ",\n  0 stat_value,\n  ld.n_thresh,\n ldt.thresh_i,\n ldt.oy_i\n,"
+              selectStat += ",\n  'NA' stat_value,\n  ld.n_thresh,\n ldt.thresh_i,\n ldt.oy_i\n,"
                       + " ldt.on_i";
             } else if (strStat.endsWith("_TOTAL")) {
-              selectStat += ",\n  0 stat_value,\n  ld.total ";
+              selectStat += ",\n  'NA' stat_value,\n  ld.total ";
             } else {
-              selectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
+              selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 selectStat += ",\n";
                 if (i < pctThreshInfo.get("pctThresh") - 1) {
@@ -1663,15 +1665,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               }
             }
           } else if (job.getAggNbrCnt()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss, ld.afss, ld.ufss, ld.f_rate, ld.o_rate ";
+            selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss, ld.afss, ld.ufss, ld.f_rate, ld.o_rate ";
           } else if (job.getAggRps()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.rps,\n  ld.rpss,\n  ld.rps_comp ";
+            selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.rps,\n  ld.rpss,\n  ld.rps_comp ";
           } else if (job.getAggVl1l2()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,"
+            selectStat += ",\n  'NA' stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,"
                     + "\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar,"
                     + " \n ld.f_speed_bar, \n ld.o_speed_bar";
           } else if (job.getAggVal1l2()) {
-            selectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufabar,\n ld.vfabar,\n "
+            selectStat += ",\n  'NA' stat_value,\n  ld.total,\n ld.ufabar,\n ld.vfabar,\n "
                     + "ld.uoabar,\n ld.voabar,\n ld.uvfoabar,\n ld.uvffabar,\n"
                     + " ld.uvooabar";
           } else if (job.getCalcCtc()) {
@@ -2705,7 +2707,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         throw new ValidationException("unrecognized indep " + (job.isModeJob() ? "mode" : "stat")
                 + "_header field: " + strIndyVar);
       }
-      if (1 > listIndyVal.length) {
+      if (1 > listIndyVal.length && !MVUtil.isEtbJob(job)) {
         throw new ValidationException("no independent variable values specified");
       }
 

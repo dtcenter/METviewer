@@ -1400,25 +1400,25 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           //  add the appropriate stat table members, depending
           // on the use of aggregation and stat calculation
           if (job.getAggCtc()) {
-            strSelectStat += ",   0 stat_value,   ld.total,   ld.fy_oy,   ld.fy_on,   "
+            strSelectStat += ",   'NA' stat_value,   ld.total,   ld.fy_oy,   ld.fy_on,   "
                     + "ld.fn_oy,   ld.fn_on";
           } else if (job.getAggSl1l2()) {
-            strSelectStat += ",   0 stat_value,   ld.total,   ld.fbar,   ld.obar,   "
+            strSelectStat += ",   'NA' stat_value,   ld.total,   ld.fbar,   ld.obar,   "
                     + "ld.fobar,   ld.ffbar,   ld.oobar,  ld.mae";
           } else if (job.getAggGrad()) {
-            strSelectStat += ",   0 stat_value,   ld.total,   ld.fgbar,   ld.ogbar,   "
+            strSelectStat += ",   'NA' stat_value,   ld.total,   ld.fgbar,   ld.ogbar,   "
                     + "ld.mgbar,   ld.egbar,   ld.s1,  ld.s1_og,   ld.fgog_ratio";
           } else if (job.getAggSsvar()) {
-            strSelectStat += ",   0 stat_value,   ld.total,   ld.fbar,   ld.obar,   "
+            strSelectStat += ",   'NA' stat_value,   ld.total,   ld.fbar,   ld.obar,   "
                     + "ld.fobar,   ld.ffbar,   ld.oobar,   "
                     + "ld.var_mean,    ld.bin_n";
           } else if (job.getAggSal1l2()) {
-            strSelectStat += ",   0 stat_value,   ld.total,   ld.fabar,   ld.oabar,   "
+            strSelectStat += ",   'NA' stat_value,   ld.total,   ld.fabar,   ld.oabar,   "
                     + "ld.foabar,   ld.ffabar,   ld.ooabar,  ld.mae";
 
           } else if (job.getAggEcnt()) {
 
-            strSelectStat += ",  0 stat_value,"
+            strSelectStat += ",  'NA' stat_value,"
                     + " ld.total,  ld.me,   ld.rmse,  ld.crps,  ld.crpss,"
                     + "  ld.ign,  "
                     + " ld.spread,  ld.me_oerr,  ld.rmse_oerr,"
@@ -1426,7 +1426,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                     + " ld.spread_plus_oerr";
           } else if (job.getAggPct()) {
             if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
-              strSelectStat += ",   0 stat_value,   ld.total,   (ld.n_thresh - 1)";
+              strSelectStat += ",   'NA' stat_value,   ld.total,   (ld.n_thresh - 1)";
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 strSelectStat += ", ";
                 if (i < pctThreshInfo.get("pctThresh") - 1) {
@@ -1439,17 +1439,17 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                         + "  ldt" + i + ".on_i";
               }
             } else {
-              strSelectStat += ",   0 stat_value,   ld.n_thresh,  ldt.thresh_i,  ldt.oy_i ,"
+              strSelectStat += ",   'NA' stat_value,   ld.n_thresh,  ldt.thresh_i,  ldt.oy_i ,"
                       + " ldt.on_i";
             }
           } else if (job.getAggNbrCnt()) {
-            strSelectStat += ",   0 stat_value,   ld.total,   ld.fbs,   ld.fss";
+            strSelectStat += ",   'NA' stat_value,   ld.total,   ld.fbs,   ld.fss";
           } else if (job.getAggVl1l2()) {
-            strSelectStat += ",   0 stat_value,   ld.total,  ld.ufbar,  ld.vfbar,  ld.uobar,"
+            strSelectStat += ",   'NA' stat_value,   ld.total,  ld.ufbar,  ld.vfbar,  ld.uobar,"
                     + "  ld.vobar,  ld.uvfobar,  ld.uvffbar,  ld.uvoobar,"
                     + "   ld.f_speed_bar,   ld.o_speed_bar";
           } else if (job.getAggVal1l2()) {
-            strSelectStat += ",   0 stat_value,   ld.total,  ld.ufabar,  ld.vfabar,  "
+            strSelectStat += ",   'NA' stat_value,   ld.total,  ld.ufabar,  ld.vfabar,  "
                     + "ld.uoabar,  ld.voabar,  ld.uvfoabar,  ld.uvffabar, "
                     + " ld.uvooabar";
           } else if (job.getCalcCtc()) {

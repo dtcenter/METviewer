@@ -400,6 +400,8 @@ starting at 1 for each fcst_var.
 |      **<box_avg>:** points() - draw box averages as asterisks - **TRUE**: on, **FALSE**: off - default value: **FALSE**
 |      **<rely_event_hist>:** - draw histogram of events by threshold on reliability diagram - **TRUE**: draw, **FALSE**: no draw - default value: **TRUE**
 |      **<ci_alpha>:** alpha value used to calculate the standard median error confidence intervals - default value: .05
+|      **<eqbound_low>:** lower equivalence bounds expressed in standardized mean difference (Cohen's dz) - default value: -0.001
+|      **<eqbound_high>:** upper equivalence bounds expressed in standardized mean difference (Cohen's dz) - default value: 0.001
 |
 
        The following group of settings should be set to lists of values
