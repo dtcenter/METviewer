@@ -209,6 +209,12 @@ RUN ln -s /usr/bin/python3 /usr/local/bin/python
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/metplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/metplotpy/"
 
+# change permissions of the scripts
+RUN chmod 755 /METviewer/bin/mv_batch.sh \
+  && chmod 755 /METviewer/bin/mv_load.sh \
+  && chmod 755 /METviewer/bin/mv_prune.sh \
+  && chmod 755 /METviewer/bin/mv_scorecard.sh
+
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
 
