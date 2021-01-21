@@ -210,7 +210,7 @@ RUN ln -s /usr/bin/python3 /usr/local/bin/python
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/metplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/metplotpy/"
 
-# change permissiond of the scripts
+# change permissions of the scripts
 RUN chmod 755 /METviewer/bin/mv_batch.sh \
   && chmod 755 /METviewer/bin/mv_load.sh \
   && chmod 755 /METviewer/bin/mv_prune.sh \
