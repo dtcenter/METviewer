@@ -196,6 +196,7 @@ RUN pip-3 install kiwisolver==1.0.1 \
  && pip-3 install lxml \
  && pip-3 install pymysql \
  && pip-3 install retrying \
+ && pip-3 install cython \
  && pip-3 install pingouin
 
 #
@@ -208,6 +209,13 @@ RUN ln -s /usr/bin/python3 /usr/local/bin/python
 #
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/metplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/metplotpy/"
+
+# change permissions of the scripts
+RUN chmod 755 /METviewer/bin/mv_batch.sh \
+  && chmod 755 /METviewer/bin/mv_load.sh \
+  && chmod 755 /METviewer/bin/mv_prune.sh \
+  && chmod 755 /METviewer/bin/mv_scorecard.sh
+
 
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
