@@ -224,7 +224,7 @@ starting at 1 for each fcst_var.
 |               **<boot_random_seed>:** Bootstrapping seed.
 |               **<boot_ci>:** Type of confidence interval to calculate, passed to the boot.ci() R function (e.g. bca).
 |               **<cache_agg_stat>:** **true** or **false**, turns on/off the prevention the reuse of existing bootstrapping output data. Default: FALSE
-|               **<circular_block_bootstrap>:** **true** or **false**, turns on/off the circular block bootstrap method. Default: TRUE
+|               **<circular_block_bootstrap>:** **true** or **false**, turns on/off the circular block bootstrap method. Default: TRUE. Python only.
 |
 
                 When using **<agg_stat>**, the following constraints and
