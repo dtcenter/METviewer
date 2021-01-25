@@ -224,6 +224,7 @@ public class MVPlotJob {
   protected boolean createHtml = Boolean.FALSE;
   protected double eqboundLow = -0.001;
   protected double eqboundHigh = -0.001;
+  protected Boolean isCircularBlockBootstrap = Boolean.TRUE;
 
 
 
@@ -419,6 +420,7 @@ public class MVPlotJob {
     job.isAddColorBar = isAddColorBar;
     job.isReverseY = isReverseY;
     job.isAddContourOverlay = isAddContourOverlay;
+    job.isCircularBlockBootstrap = isCircularBlockBootstrap;
     job.isReverseX = isReverseX;
     job.contourIntervals = contourIntervals;
     job.colorPalette = colorPalette;
@@ -2208,6 +2210,14 @@ public class MVPlotJob {
 
   public void setAddContourOverlay(Boolean addContourOverlay) {
     isAddContourOverlay = addContourOverlay;
+  }
+
+  public Boolean getCircularBlockBootstrap() {
+    return isCircularBlockBootstrap;
+  }
+
+  public void setCircularBlockBootstrap(Boolean addCircularBlockBootstrap) {
+    isCircularBlockBootstrap = addCircularBlockBootstrap;
   }
 
   public Boolean getReverseX() {

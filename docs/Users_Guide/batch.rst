@@ -209,7 +209,6 @@ starting at 1 for each fcst_var.
 |               **<fix>:** Do not use **<fix>**, use **<plot_fix>** instead.
 |
 
-        **<bootstrapping>:** Replaced by **<agg_stat>**, do not use **<bootstrapping>**.
 
 |       **<agg_stat>:** Contains information about how to calculate and display aggregated statistics. If present, agg_stat is turned on. Depending on the selected **<dep>** statistics, only certain settings are appropriate.
 |               **<agg_ctc>:** **TRUE** or **FALSE**, indicating whether or not to aggregate CTCs.
@@ -224,7 +223,8 @@ starting at 1 for each fcst_var.
 |               **<boot_repl>:** Number of bootstrapping replications, use 1 for no bootstrapping.
 |               **<boot_random_seed>:** Bootstrapping seed.
 |               **<boot_ci>:** Type of confidence interval to calculate, passed to the boot.ci() R function (e.g. bca).
-|               **<cache_agg_stat>:** **true** or **false**, turns on/off the prevention the reuse of existing bootstrapping output data.
+|               **<cache_agg_stat>:** **true** or **false**, turns on/off the prevention the reuse of existing bootstrapping output data. Default: FALSE
+|               **<circular_block_bootstrap>:** **true** or **false**, turns on/off the circular block bootstrap method. Default: TRUE. Python only.
 |
 
                 When using **<agg_stat>**, the following constraints and
