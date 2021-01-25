@@ -395,6 +395,7 @@ public abstract class JobManager {
     yamlInfo.put("line_type", job.getLineType().equals("N/A") ? "None" : job.getLineType());
     yamlInfo.put("indy_var", job.getIndyVar());
     yamlInfo.put("event_equal", job.getEventEqual() ? "True" : "False");
+    yamlInfo.put("circular_block_bootstrap", job.getCircularBlockBootstrap() ? "True" : "False");
     String[] listIndyValFmt = job.getIndyVal();
     if (job.getIndyVar().matches(".*_hour")) {
       for (int i = 0; i < listIndyValFmt.length; i++) {

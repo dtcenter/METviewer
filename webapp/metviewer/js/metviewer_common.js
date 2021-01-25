@@ -4110,6 +4110,8 @@ function createXMLSeries(plot) {
         agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
         agg_stat.append($('<cache_agg_stat />').text($('#cacheAggStat').is(':checked')));
+        agg_stat.append($('<circular_block_bootstrap />').text($('#is_cbb').is(':checked')));
+
         plot.append(agg_stat);
     } else if ((currentTab === 'Bar' || statistic === 'calculations_statistics')
         && calc_stat_val !== "none") {
@@ -5841,6 +5843,7 @@ function loadXMLStatistics(fcst_stat) {
         }
         $("#boot_ci").val($(initXML.find("plot").find("agg_stat").find("boot_ci")).text());
         $('#cacheAggStat').prop('checked', $(initXML.find("plot").find("agg_stat").find("cache_agg_stat")).text() == "TRUE");
+        $("#is_cbb").prop('checked', $(initXML.find("plot").find("circular_block_bootstrap")).text() == "true");
 
     } else if (initXML.find("plot").find("calc_stat").length > 0) {
         $("input[name=statistics][value=calculations_statistics]").prop('checked', true);

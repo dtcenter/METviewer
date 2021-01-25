@@ -483,6 +483,7 @@
             }).click(function () {
                 removeFixedVar($(this).attr('id'));
             });
+            $("#is_cbb").prop('checked', true);
 
 
             if (initXML != null) {
@@ -991,6 +992,11 @@
                             <option selected value="perc">perc</option>
                         </select></td>
                         <td><label for="boot_ci">Confidence Interval method</label></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td style="text-align:right;"><input type="checkbox"  id="is_cbb" ></td>
+                        <td><label for="is_cbb">Circular block bootstrap(*)</label></td>
                     </tr>
                     <tr>
                         <td>&nbsp;</td>

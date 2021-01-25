@@ -348,7 +348,6 @@ public final class MVPlotJobParser {
   }
 
 
-
   /**
    * Determine if the input plot job has many necessary components to build a plot.  If not, return
    * the structure name that has been found to be missing.
@@ -837,8 +836,8 @@ public final class MVPlotJobParser {
                       + "<cl_step>" + job.getCl_step() + "</cl_step>"
                       + "<boot_ci>" + job.getAggBootCI() + "</boot_ci>"
                       + "<eveq_dis>" + (job.getEveqDis() ? "TRUE" : "FALSE") + "</eveq_dis>"
-                      + "<cache_agg_stat>" + (job.getCacheAggStat() ? "TRUE" : "FALSE")
-                      + "</cache_agg_stat>"
+                      + "<cache_agg_stat>" + (job.getCacheAggStat() ? "TRUE" : "FALSE") + "</cache_agg_stat>"
+                      + "<circular_block_bootstrap>" + job.getCircularBlockBootstrap() + "</circular_block_bootstrap>"
                       + "</agg_stat>");
     }
 
@@ -940,7 +939,7 @@ public final class MVPlotJobParser {
             "<execution_type>" + job.getExecutionType() + "</execution_type>");
 
     //  annotation_template
-    if(!job.getAnnotationTemplate().isEmpty()) {
+    if (!job.getAnnotationTemplate().isEmpty()) {
       xmlStr.append(
               "<annotation_template>" + job.getAnnotationTemplate() + "</annotation_template>");
     }
@@ -1060,7 +1059,8 @@ public final class MVPlotJobParser {
     xmlStr.append("</plot></plot_spec>");
     return xmlStr;
   }
-  private static String sanitise(String str){
+
+  private static String sanitise(String str) {
     return str.replace("&", "&#38;")
             .replace(">", "&gt;")
             .replace("<", "&lt;");
@@ -1300,9 +1300,9 @@ public final class MVPlotJobParser {
               MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
               listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
             }
-            if(job.getAggNbrCtc()){
+            if (job.getAggNbrCtc()) {
               mapFarPody.put(listFcstVar[0], new String[]{"NBR_FAR", "NBR_PODY"});
-            }else {
+            } else {
               mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
             }
             mapDep.put("dep1", mapFarPody);
@@ -1786,6 +1786,8 @@ public final class MVPlotJobParser {
             job.setEveqDis(val);
           } else if (nodeAggStat.tag.equals("cache_agg_stat")) {
             job.setCacheAggStat(val);
+          } else if (nodeAggStat.tag.equals("circular_block_bootstrap")) {
+            job.setCircularBlockBootstrap(val);
           }
         }
 
