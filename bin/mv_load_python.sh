@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PYTHON_ENV=/Volumes/d1/tatiana/miniconda3/envs/METdatadb/
-METDATADB_HOME=/Users/tatiana/PycharmProjects/METdatadb
+PYTHON_ENV=<path_to_python_env>
+METDATADB_HOME=<path_to_metdatadb_home>
 
 export PYTHONPATH=${PYTHONPATH}:$METDATADB_HOME
 
