@@ -22,6 +22,8 @@ listStatisticsCurvs	= #<summary_curves>#;
 
 addPointThresholds = #<add_point_thresholds>#;
 
+reverseConnectionOrder = #<reverse_connection_order>#;
+
 boolEqualizeByIndep = #<equalize_by_indep>#;
 boolEventEqual  = #<event_equal>#;
 listFixedValEx = #<fix_val_list_eq>#;
@@ -38,7 +40,12 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
     } else if( TRUE == boolRocCtc ){
 
       # create the ROC point data from the components of the contingency tables
-      dfROC = dfPerm[rev(order(dfPerm$fcst_thresh)),];
+      if(reverseConnectionOrder){
+        dfROC = dfPerm[order(dfPerm$fcst_thresh),];
+      }else{
+        dfROC = dfPerm[rev(order(dfPerm$fcst_thresh)),];
+      }
+
       dfROC$pody = dfROC$fy_oy / (dfROC$fy_oy + dfROC$fn_oy);
       dfROC$pofd = dfROC$fy_on / (dfROC$fy_on + dfROC$fn_on);
 

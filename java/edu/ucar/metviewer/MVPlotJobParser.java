@@ -896,6 +896,8 @@ public final class MVPlotJobParser {
               .append("</add_reference_line>");
       xmlStr.append("<add_point_thresholds>").append(job.getAddPointThresholds())
               .append("</add_point_thresholds>");
+      xmlStr.append("<reverse_connection_order>").append(job.getReverseConnectionOrder())
+              .append("</reverse_connection_order>");
       xmlStr.append("<create_html>").append(job.getCreateHtml())
               .append("</create_html>");
     }
