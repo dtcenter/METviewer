@@ -86,6 +86,7 @@ public class RocJobManager extends JobManager {
         yamlInfo.put("roc_pct", job.getRocPct());
         yamlInfo.put("roc_ctc", job.getRocCtc());
         yamlInfo.put("add_point_thresholds", job.getAddPointThresholds() ? "True" : "False");
+        yamlInfo.put("reverse_connection_order", job.getReverseConnectionOrder() ? "True" : "False");
         job.setPlotTmpl(this.getPythonScript());
         yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);
         rscriptStatManager.runPythonScript(job, yamlInfo);

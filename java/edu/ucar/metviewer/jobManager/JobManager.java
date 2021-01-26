@@ -316,6 +316,7 @@ public abstract class JobManager {
     info.put("add_noskill_line", job.getAddNoSkillLine() ? "TRUE" : FALSE);
     info.put("add_reference_line", job.getAddReferenceLine() ? "TRUE" : FALSE);
     info.put("add_point_thresholds", job.getAddPointThresholds() ? "TRUE" : FALSE);
+    info.put("reverse_connection_order", job.getReverseConnectionOrder() ? "TRUE" : FALSE);
     info.put("plot_type", job.getPlotType());
     info.put("legend_ncol", job.getLegendNcol());
     info.put("legend_size", job.getLegendSize());

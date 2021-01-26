@@ -216,6 +216,7 @@
         $('#roc_type').buttonset();
         $('#summary_curve').val("none");
         $('#add_point_thresholds').prop('checked', true);
+        $('#reverse_connection_order').prop('checked', false);
         $("#summary_curve").multiselect({
          multiple: false,
          header: false,
@@ -376,7 +377,8 @@
     <input type="radio" name="roc_type" id="ctc_roc_pct" value="ctc"/>
     <label for="ctc_roc_pct">CTC</label>
   </div>
-  <div style="float: right;"><input type="checkbox" id="add_point_thresholds"><label for="add_point_thresholds">Add point thresholds</label> </div>
+  <div style="float: right;"><input type="checkbox" id="add_point_thresholds"><label for="add_point_thresholds">Add point thresholds</label>
+      <input type="checkbox" id="reverse_connection_order"><label for="reverse_connection_order">Reverse connection order (CTC)</label></div>
 </div>
 
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all">

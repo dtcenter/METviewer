@@ -3801,8 +3801,13 @@ function createXMLRoc(plot) {
     }
     var add_point_thresholds = $('<add_point_thresholds />');
     add_point_thresholds.text($('#add_point_thresholds').prop("checked"));
+
+    var reverse_connection_order = $('<reverse_connection_order />');
+    reverse_connection_order.text($('#reverse_connection_order').prop("checked"));
+
     plot.append(summary_curve);
     plot.append(add_point_thresholds);
+    plot.append(reverse_connection_order);
     plot = createXMLCommon(plot);
     return plot;
 }

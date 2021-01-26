@@ -434,6 +434,7 @@ starting at 1 for each fcst_var.
 |
 |      Elements specific to ROC curve:
 |      **<add_point_thresholds>:** **TRUE** or **FALSE**, indicating whether or not to display threshold points on the plot. The default value is **TRUE** (display threshold points).
+|      **<reverse_connection_order>:** **TRUE** or **FALSE**, indicating whether or not to reverse the connection order of the points on the graph created from CTC data. The default value is **FALSE** (standard order).
 |
 |      Elements specific to Rely plot:
 |      **<add_skill_line>:** **TRUE** or **FALSE**, indicating whether or not to display skill line on the graph. The default value is **TRUE** (display skill line).

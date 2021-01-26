@@ -205,6 +205,7 @@ public class MVPlotJob {
   protected String _strShowSignif = "";
   protected List<String> summaryCurve = new ArrayList<>();
   protected boolean addPointThresholds = Boolean.TRUE;
+  protected boolean reverseConnectionOrder = Boolean.FALSE;
   protected boolean addSkillLine = Boolean.TRUE;
   protected boolean insetHist = Boolean.FALSE;
   protected boolean addNoSkillLine = Boolean.TRUE;
@@ -225,7 +226,6 @@ public class MVPlotJob {
   protected double eqboundLow = -0.001;
   protected double eqboundHigh = -0.001;
   protected Boolean isCircularBlockBootstrap = Boolean.TRUE;
-
 
 
   /**
@@ -410,6 +410,7 @@ public class MVPlotJob {
     job._strY2Bufr = _strY2Bufr;
     job._plotStat = _plotStat;
     job.addPointThresholds = addPointThresholds;
+    job.reverseConnectionOrder = reverseConnectionOrder;
     job.addSkillLine = addSkillLine;
     job.addNoSkillLine = addNoSkillLine;
     job.addReferenceLine = addReferenceLine;
@@ -441,11 +442,13 @@ public class MVPlotJob {
   public void setEqboundLow(double eqboundLow) {
     this.eqboundLow = eqboundLow;
   }
+
   public void setEqboundLow(String eqboundLow) {
     try {
       double le = Double.parseDouble(eqboundLow);
       this.eqboundLow = le;
-    }catch (Exception e){}
+    } catch (Exception e) {
+    }
 
   }
 
@@ -456,11 +459,13 @@ public class MVPlotJob {
   public void setEqboundHigh(double eqboundHigh) {
     this.eqboundHigh = eqboundHigh;
   }
+
   public void setEqboundHigh(String eqboundHigh) {
     try {
       double he = Double.parseDouble(eqboundHigh);
       this.eqboundHigh = he;
-    }catch (Exception e){}
+    } catch (Exception e) {
+    }
   }
 
   public String getJobName() {
@@ -1812,18 +1817,18 @@ public class MVPlotJob {
     int indMax = -1;
     arr[0] = arr[0].trim();
     arr[1] = arr[1].trim();
-    for (int i=0; i< indyVal.length; i++){
-      if(indyVal[i].equals(arr[0])){
+    for (int i = 0; i < indyVal.length; i++) {
+      if (indyVal[i].equals(arr[0])) {
         indMin = i;
       }
-      if(indyVal[i].equals(arr[1])){
+      if (indyVal[i].equals(arr[1])) {
         indMax = i;
       }
-      if(indMin != -1 && indMax != -1){
+      if (indMin != -1 && indMax != -1) {
         break;
       }
     }
-    return "c("+ indMin + "," + indMax + ")";
+    return "c(" + indMin + "," + indMax + ")";
   }
 
   public void setY1Lim(String y1Lim) {
@@ -1996,6 +2001,14 @@ public class MVPlotJob {
 
   public void setAddPointThresholds(boolean addPointThresholds) {
     this.addPointThresholds = addPointThresholds;
+  }
+
+  public boolean getReverseConnectionOrder() {
+    return reverseConnectionOrder;
+  }
+
+  public void setReverseConnectionOrder(boolean reverseConnectionOrder) {
+    this.reverseConnectionOrder = reverseConnectionOrder;
   }
 
   public boolean getAddReferenceLine() {
@@ -2266,62 +2279,63 @@ public class MVPlotJob {
     return _boolAggNbrCtc;
   }
 
-  public void setAggNbrCtc(boolean  nbrCtc) {
-     _boolAggNbrCtc = nbrCtc;
+  public void setAggNbrCtc(boolean nbrCtc) {
+    _boolAggNbrCtc = nbrCtc;
   }
-  public String getLineType(){
-    if(this.getAggCtc()){
+
+  public String getLineType() {
+    if (this.getAggCtc()) {
       return "ctc";
     }
-    if(this.getAggSl1l2()){
+    if (this.getAggSl1l2()) {
       return "sl1l2";
     }
-    if(this.getAggSal1l2()){
+    if (this.getAggSal1l2()) {
       return "sal1l2";
     }
-    if(this.getAggNbrCnt()){
+    if (this.getAggNbrCnt()) {
       return "nbr_cnt";
     }
-    if(this.getAggNbrCtc()){
+    if (this.getAggNbrCtc()) {
       return "nbr_ctc";
     }
-    if(this.getAggSsvar()){
+    if (this.getAggSsvar()) {
       return "ssvar";
     }
-    if(this.getAggVl1l2()){
+    if (this.getAggVl1l2()) {
       return "vl1l2";
     }
-    if(this.getAggVal1l2()){
+    if (this.getAggVal1l2()) {
       return "val1l2";
     }
-    if(this.getAggGrad()){
+    if (this.getAggGrad()) {
       return "grad";
     }
-    if(this.getAggPct()){
+    if (this.getAggPct()) {
       return "pct";
     }
-    if(this.getAggEcnt()){
+    if (this.getAggEcnt()) {
       return "ecnt";
     }
-    if(this.getAggRps()){
+    if (this.getAggRps()) {
       return "rps";
     }
-    if(this.getCalcCtc()){
+    if (this.getCalcCtc()) {
       return "ctc";
     }
-    if(this.getCalcGrad()){
+    if (this.getCalcGrad()) {
       return "grad";
     }
-    if(this.getCalcSal1l2()){
+    if (this.getCalcSal1l2()) {
       return "sal1l2";
     }
-    if(this.getCalcSl1l2()){
+    if (this.getCalcSl1l2()) {
       return "sl1l2";
     }
-    if(this.getCalcVal1l2()){
+    if (this.getCalcVal1l2()) {
       return "val1l2";
     }
-    if(this.getCalcVl1l2()){
+    if (this.getCalcVl1l2()) {
       return "vl1l2";
     }
     return "N/A";
