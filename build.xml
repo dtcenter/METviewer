@@ -41,6 +41,9 @@
     use -Dmetplotpy.path to define a path to METplotpy directory.
         e.g -Dmetplotpy.path=/d1/python/METplotpy/
 
+    use -Dmetdatadb.path to define a path to METdatadb directory.
+        e.g -Dmetdatadb.path=/d1/python/METplotpy/
+
         use -Dpython.env.path to define a path to METplotpy directory.
         e.g -Dpython.env.path=/d1/python/METviewer_py3.6.3/
 
@@ -48,7 +51,7 @@
     ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties \
          -Dlog4j2.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml \
          -Ddb.management.system=cb -Dmetcalcpy.path=/d1/python/METcalcpy/ -Dmetplotpy.path=/d1/python/METplotpy/\
-         -Dpython.env.path=/d1/python/METviewer_py3.6.3/ -Dcontext.path.suffix="-cb" clean all
+         -Dmetdatadb.path=/d1/python/METdatadb/ -Dpython.env.path=/d1/python/METviewer_py3.6.3/ -Dcontext.path.suffix="-cb" clean all
 
     will produce a war file named metviewer-cb.war with jar files appropriate for couchbase and the properties from the
     $HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties file, and a tar file
@@ -656,10 +659,12 @@
               tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
     </target>
 
-    <target name="batch_load" depends="dist, test.db.management.system"
-            description="Create load_batch module">
+
+    <target name="batch_load_all" depends="dist, test.db.management.system"
+            description="Create load_batch module" >
         <fail unless="metcalcpy.path">You must specify the path to METcalcpy directory</fail>
         <fail unless="metplotpy.path">You must specify the path to METplotpy directory</fail>
+        <fail unless="metdatadb.path">You must specify the path to METdatadb directory</fail>
         <fail unless="python.env.path">You must specify the path to METviewer_py3.6.3</fail>
 
         <tar destfile="${dist}/batch_load.tar" >
@@ -685,13 +690,50 @@
                 <include name="lib/**"/>
             </tarfileset>
 
+
+
             <tarfileset dir="${metcalcpy.path}"  prefix="METcalcpy/">
                 <include name="metcalcpy/**"/>
+            </tarfileset>
+
+            <tarfileset dir="${metdatadb.path}"  prefix="METcalcpy/">
+                <include name="METdbLoad/**"/>
+                <include name="docs/**"/>
+                <include name="README.md"/>
             </tarfileset>
 
             <tarfileset dir="${metplotpy.path}"  prefix="METplotpy/">
                 <include name="metplotpy/**"/>
             </tarfileset>
+        </tar>
+    </target>
+
+    <target name="batch_load" depends="dist, test.db.management.system"
+            description="Create load_batch module" >
+
+        <tar destfile="${dist}/batch_load.tar" >
+            <tarfileset dir="."  prefix="METviewer/">
+                <exclude name="**/*.war"/>
+                <exclude name="**/*.tar"/>
+                <exclude name="lib/couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mysql"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.mysql"/>
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.mariadb"/>
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.aurora"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.aurora"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.aurora"/>
+                <exclude name="mariadb-java-client-2.7.1.jar" if="db.management.system.cb"/>
+                <include name="bin/**"/>
+                <include name="dist/lib/metviewer.jar"/>
+                <include name="R_work/**"/>
+                <include name="R_tmpl/**"/>
+                <include name="sql/**"/>
+                <include name="lib/**"/>
+            </tarfileset>
+
         </tar>
     </target>
 
