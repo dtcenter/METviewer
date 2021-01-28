@@ -2814,13 +2814,13 @@ public class MVUtil {
     }
     String[][] diffs = MVUtil.getDiffSeriesArr(job.getDiffSeries1());
     for (String[] diff : diffs){
-      if (diff[2].equals("ETB")){
+      if (diff.length > 2 && diff[2].equals("ETB")){
         return true;
       }
     }
     diffs = MVUtil.getDiffSeriesArr(job.getDiffSeries2());
     for (String[] diff : diffs){
-      if (diff[2].equals("ETB")){
+      if (diff.length > 2 && diff[2].equals("ETB")){
         return true;
       }
     }
