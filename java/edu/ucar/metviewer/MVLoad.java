@@ -174,7 +174,6 @@ public class MVLoad {
 
       //  if there are <load_file> files specified, load them
       String[] listLoadFiles = job.getLoadFiles();
-      System.out.println("first file to load " + listLoadFiles[0]);
       File file;
       if (!indexOnly && listLoadFiles != null) {
         for (int i = 0; i < listLoadFiles.length; i++) {
@@ -201,6 +200,7 @@ public class MVLoad {
 
         //  build a folder with each permutation of load values and load the data therein
         MVOrderedMap[] listPerm = MVUtil.permute(job.getLoadVal()).getRows();
+        System.out.println("files to load = " + listPerm.length);
         String baseFolder;
         long intPermStart;
         File fileBaseFolder;
@@ -213,6 +213,7 @@ public class MVLoad {
           baseFolder = MVUtil.buildTemplateString(job.getFolderTmpl(), listPerm[intPerm],
                   printStream);
           baseFolder = MVUtil.cleanString(baseFolder);
+          System.out.println("baseFolder = " + baseFolder);
           printStream.close();
           logger.info(
                   "Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + baseFolder);
