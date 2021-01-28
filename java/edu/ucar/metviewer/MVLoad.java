@@ -206,6 +206,7 @@ public class MVLoad {
         File fileBaseFolder;
         File[] listDataFiles;
         for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
+          System.out.println("about to build  printStream");
           PrintStream printStream = IoBuilder.forLogger(MVServlet.class)
                   .setLevel(org.apache.logging.log4j.Level.INFO)
                   .buildPrintStream();
