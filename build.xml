@@ -643,7 +643,7 @@
                        byline="true"/>
         <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
                        match="python.env=(.*)"
-                       replace="python.env=${python.env.path}"
+                       replace="python.env=${python.env}"
                        byline="true"/>
 
         <delete file="${dist}/metviewer*.war"/>
