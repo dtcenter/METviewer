@@ -66,12 +66,7 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R?" o; do
             export METviewerCompareBranch=${OPTARG}
             ;;
         s)
-            optarglower=$(echo ${OPTARG} | /bin/tr '[:upper:]' '[:lower:]')
-            if [ "${optarglower}" != "mysql" -a "${optarglower}" != "cb" -a "${optarglower}" != "mariadb" -a "${optarglower}" != "aurora" ]; then
-                echo "db management system ${OPTARG} is not mysql or cb"
-                usage
-            fi
-            export managementSystem=${optarglower}
+            export managementSystem=${OPTARG}
             ;;
         l)
 			if [ ! -d "${OPTARG}" ]; then
@@ -90,13 +85,13 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R?" o; do
             export addressList=${OPTARG}
             ;;
         g)
-            METviewerTag="${OPTARG}"
+            export METviewerTag="${OPTARG}"
             ;;
         G)
-            METviewerCompareTag="${OPTARG}"
+            export METviewerCompareTag="${OPTARG}"
             ;;
         u)
-            mv_user=${OPTARG}
+            export mv_user=${OPTARG}
             ;;
         p)
             mv_pass=${OPTARG}
@@ -126,6 +121,11 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R?" o; do
             METCALCPY_HOME=${OPTARG}
             ;;
         R)
+
+            if [ ! -d "${OPTARG}" ]; then
+				      echo "METPLOTPY_HOME directory ${OPTARG} does not exist"
+				      OPTARG="/d3/projects/METViewer/METplotpy/metplotpy/"
+			      fi
             METPLOTPY_HOME=${OPTARG}
             ;;
 		?)
