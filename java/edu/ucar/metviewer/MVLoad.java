@@ -114,13 +114,10 @@ public class MVLoad {
       logger.info("Parsing: " + strXML + "\n"
               + (indexOnly ? "Applying Index Settings Only\n" : ""));
       MVLoadJobParser parser = new MVLoadJobParser(strXML);
-      System.out.println("Parsing is done");
       MVLoadJob job = parser.getLoadJob();
-      System.out.println("Job is created");
 
       String management_system = parser.getLoadJob().getDBManagementSystem();
       loadDatabaseManager = (LoadDatabaseManager) DatabaseManager.getLoadManager(management_system, job.getDBHost(), job.getDBUser(), job.getDBPassword(), job.getDBName());
-      System.out.println("loadDatabaseManager is created");
       verbose = job.getVerbose();
       insertSize = job.getInsertSize();
       modeHeaderDBCheck = job.getModeHeaderDBCheck();
@@ -200,13 +197,11 @@ public class MVLoad {
 
         //  build a folder with each permutation of load values and load the data therein
         MVOrderedMap[] listPerm = MVUtil.permute(job.getLoadVal()).getRows();
-        System.out.println("files to load = " + listPerm.length);
         String baseFolder;
         long intPermStart;
         File fileBaseFolder;
         File[] listDataFiles;
         for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
-          System.out.println("about to build  printStream");
           PrintStream printStream = null;
           try {
              printStream = IoBuilder.forLogger(MVLoad.class)
@@ -216,12 +211,12 @@ public class MVLoad {
             System.out.println(e.getMessage());
           }
           //  determine the name of the current folder
-          System.out.println("about to build  baseFolder= " );
           baseFolder = MVUtil.buildTemplateString(job.getFolderTmpl(), listPerm[intPerm],
                   printStream);
           baseFolder = MVUtil.cleanString(baseFolder);
-          System.out.println("baseFolder = " + baseFolder);
-          printStream.close();
+          if (printStream != null) {
+            printStream.close();
+          }
           logger.info(
                   "Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + baseFolder);
           intPermStart = new Date().getTime();
