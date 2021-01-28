@@ -85,6 +85,7 @@ public class LoadDataTest {
       myDatabaseManager = TestDatabaseManager.getManager(type, host, USERNAME, PWD, database);
       myDatabaseManager.checkCreateDatabase(host, USERNAME, PWD, database);
       String fname = LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql";
+      System.out.println("About to run myDatabaseManager.loadData with " + fname + " and " + database);
       myDatabaseManager.loadData(fname, database);
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -93,8 +94,9 @@ public class LoadDataTest {
 
     // replace credentials from system properties
     xlateTestSpec(args[0]);
-
+    System.out.println("About to run MVLoad with " + args[0]);
     MVLoad.main(args);
+    System.out.println("End to run MVLoad with " + args[0]);
   }
 
   @Test
