@@ -210,6 +210,7 @@ public class MVLoad {
                   .setLevel(org.apache.logging.log4j.Level.INFO)
                   .buildPrintStream();
           //  determine the name of the current folder
+          System.out.println("about to build  baseFolder= " );
           baseFolder = MVUtil.buildTemplateString(job.getFolderTmpl(), listPerm[intPerm],
                   printStream);
           baseFolder = MVUtil.cleanString(baseFolder);
