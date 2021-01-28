@@ -114,9 +114,13 @@ public class MVLoad {
       logger.info("Parsing: " + strXML + "\n"
               + (indexOnly ? "Applying Index Settings Only\n" : ""));
       MVLoadJobParser parser = new MVLoadJobParser(strXML);
+      System.out.println("Parsing is done");
       MVLoadJob job = parser.getLoadJob();
+      System.out.println("Job is created");
+
       String management_system = parser.getLoadJob().getDBManagementSystem();
       loadDatabaseManager = (LoadDatabaseManager) DatabaseManager.getLoadManager(management_system, job.getDBHost(), job.getDBUser(), job.getDBPassword(), job.getDBName());
+      System.out.println("loadDatabaseManager is created");
       verbose = job.getVerbose();
       insertSize = job.getInsertSize();
       modeHeaderDBCheck = job.getModeHeaderDBCheck();
@@ -170,6 +174,7 @@ public class MVLoad {
 
       //  if there are <load_file> files specified, load them
       String[] listLoadFiles = job.getLoadFiles();
+      System.out.println("first file to load " + listLoadFiles[0]);
       File file;
       if (!indexOnly && listLoadFiles != null) {
         for (int i = 0; i < listLoadFiles.length; i++) {

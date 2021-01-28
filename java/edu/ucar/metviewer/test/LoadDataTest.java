@@ -95,7 +95,11 @@ public class LoadDataTest {
     // replace credentials from system properties
     xlateTestSpec(args[0]);
     System.out.println("About to run MVLoad with " + args[0]);
+    try {
     MVLoad.main(args);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
     System.out.println("End to run MVLoad with " + args[0]);
   }
 
