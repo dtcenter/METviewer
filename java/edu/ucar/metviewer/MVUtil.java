@@ -2035,107 +2035,111 @@ public class MVUtil {
 
 
     String strRet = tmpl;
-    Matcher matTmpl = plotTmpl.matcher(tmpl);
-    SimpleDateFormat formatDate = new SimpleDateFormat("yyyyMMdd", Locale.US);
-    formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
-    while (matTmpl.find()) {
-      String strTmplTag = matTmpl.group(1);
-      String strTmplTagName = matTmpl.group(2);
+    try {
+      Matcher matTmpl = plotTmpl.matcher(tmpl);
+      SimpleDateFormat formatDate = new SimpleDateFormat("yyyyMMdd", Locale.US);
+      formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+      while (matTmpl.find()) {
+        String strTmplTag = matTmpl.group(1);
+        String strTmplTagName = matTmpl.group(2);
 
-      MVOrderedMap mapParms = parseTagParams(strTmplTag);
-      if (strTmplTagName.equals("date")) {
-        vals.put("date", formatDate.format(new Date()));
-      }
-
-      if (!vals.containsKey(strTmplTagName)) {
-        printStream.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg"
-                + " perm");
-        continue;
-      }
-
-      String strVal = (String) vals.get(strTmplTagName);
-
-
-      //  if there is a corresponding tag value map, use the map value
-      if (mapParms.containsKey("map")) {
-        String strMapName = mapParms.get("map").toString();
-        if (strMapName.equalsIgnoreCase("true")) {
-          strMapName = strTmplTagName;
-        }
-        MVOrderedMap mapTmplVal = (MVOrderedMap) tmplMaps.get(strMapName);
-        if (null == mapTmplVal) {
-          throw new ValidationException(
-                  "template tag " + strTmplTagName + " does not have a val_map defined");
-        }
-        if (mapTmplVal.containsKey(strVal)) {
-          strVal = mapTmplVal.getStr(strVal);
+        MVOrderedMap mapParms = parseTagParams(strTmplTag);
+        if (strTmplTagName.equals("date")) {
+          vals.put("date", formatDate.format(new Date()));
         }
 
-      }
-      if (stringType.equals("fileName")) {
-        strVal = strVal.replace(">", "gt").replace("<", "lt").replaceAll("=", "e");
-      }
+        if (!vals.containsKey(strTmplTagName)) {
+          printStream.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg"
+                  + " perm");
+          continue;
+        }
 
-      //  if there is a format parameter, apply it to the value
-      if (mapParms.containsKey("format")) {
-        String strFormat = mapParms.getStr("format");
+        String strVal = (String) vals.get(strTmplTagName);
 
-        if (strTmplTagName.equals("fcst_lead")) {
-          if (strVal.equals("0")) {
-            strVal = "00000";
+
+        //  if there is a corresponding tag value map, use the map value
+        if (mapParms.containsKey("map")) {
+          String strMapName = mapParms.get("map").toString();
+          if (strMapName.equalsIgnoreCase("true")) {
+            strMapName = strTmplTagName;
           }
-          if (strFormat.equals("HH")) {
-            strVal = strVal.substring(0, strVal.length() - 4);
+          MVOrderedMap mapTmplVal = (MVOrderedMap) tmplMaps.get(strMapName);
+          if (null == mapTmplVal) {
+            throw new ValidationException(
+                    "template tag " + strTmplTagName + " does not have a val_map defined");
           }
-          if (strFormat.equals("HHmm")) {
-            strVal = strVal.substring(0, strVal.length() - 2);
-          }
-          while (strFormat.length() > strVal.length()) {
-            strVal = "0" + strVal;
+          if (mapTmplVal.containsKey(strVal)) {
+            strVal = mapTmplVal.getStr(strVal);
           }
 
-        } else if (strTmplTagName.equals("init_hour")
-                || strTmplTagName.equals("valid_hour") && strFormat.equals("HH")) {
-          while (2 > strVal.length()) {
-            strVal = "0" + strVal;
+        }
+        if (stringType.equals("fileName")) {
+          strVal = strVal.replace(">", "gt").replace("<", "lt").replaceAll("=", "e");
+        }
+
+        //  if there is a format parameter, apply it to the value
+        if (mapParms.containsKey("format")) {
+          String strFormat = mapParms.getStr("format");
+
+          if (strTmplTagName.equals("fcst_lead")) {
+            if (strVal.equals("0")) {
+              strVal = "00000";
+            }
+            if (strFormat.equals("HH")) {
+              strVal = strVal.substring(0, strVal.length() - 4);
+            }
+            if (strFormat.equals("HHmm")) {
+              strVal = strVal.substring(0, strVal.length() - 2);
+            }
+            while (strFormat.length() > strVal.length()) {
+              strVal = "0" + strVal;
+            }
+
+          } else if (strTmplTagName.equals("init_hour")
+                  || strTmplTagName.equals("valid_hour") && strFormat.equals("HH")) {
+            while (2 > strVal.length()) {
+              strVal = "0" + strVal;
+            }
+          }
+
+
+          if (mapParms.getStr("format").equalsIgnoreCase("R")) {
+            strVal = MVUtil.replaceSpecialChars(strVal);
           }
         }
 
+        //  if the tag value is a date, format it accordingly
 
-        if (mapParms.getStr("format").equalsIgnoreCase("R")) {
-          strVal = MVUtil.replaceSpecialChars(strVal);
-        }
-      }
-
-      //  if the tag value is a date, format it accordingly
-
-      try {
-        SimpleDateFormat formatDb = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-        formatDb.setTimeZone(TimeZone.getTimeZone("UTC"));
-        SimpleDateFormat formatDBms = new SimpleDateFormat(MVUtil.DB_DATE_MS, Locale.US);
-        formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date dateParse = formatDb.parse(strVal);
-        if (null != dateParse) {
-          strVal = formatPlotFormat(dateParse);
-        } else {
-          dateParse = formatDBms.parse(strVal);
+        try {
+          SimpleDateFormat formatDb = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+          formatDb.setTimeZone(TimeZone.getTimeZone("UTC"));
+          SimpleDateFormat formatDBms = new SimpleDateFormat(MVUtil.DB_DATE_MS, Locale.US);
+          formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));
+          Date dateParse = formatDb.parse(strVal);
           if (null != dateParse) {
             strVal = formatPlotFormat(dateParse);
+          } else {
+            dateParse = formatDBms.parse(strVal);
+            if (null != dateParse) {
+              strVal = formatPlotFormat(dateParse);
+            }
           }
+        } catch (ParseException e) {
+          logger.debug(e.getMessage());
         }
-      } catch (ParseException e) {
-        logger.debug(e.getMessage());
-      }
 
-      //  if the tag is a threshold, format it accordingly
-      if (strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr")
-              || strTmplTagName.equals("obs_thresh") || strTmplTagName.equals("obs_thr")) {
-        strVal = formatThresh(strTmplTag, strVal);
-      }
-      //replace "/" with "_"  - file names can't have "/"!!!!!
-      strVal = strVal.replace("/", "_");
+        //  if the tag is a threshold, format it accordingly
+        if (strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr")
+                || strTmplTagName.equals("obs_thresh") || strTmplTagName.equals("obs_thr")) {
+          strVal = formatThresh(strTmplTag, strVal);
+        }
+        //replace "/" with "_"  - file names can't have "/"!!!!!
+        strVal = strVal.replace("/", "_");
 
-      strRet = strRet.replace("{" + strTmplTag + "}", strVal);
+        strRet = strRet.replace("{" + strTmplTag + "}", strVal);
+      }
+    }catch (Exception e){
+      System.out.println(e.getMessage());
     }
     return strRet;
   }
