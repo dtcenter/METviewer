@@ -63,6 +63,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
     dfROC=NA;
   }
   if(!envir$isPlotCreated & !all(is.na(dfROC))) {
+     cat('pody=', listPODY, ' pofd=', listPOFD, '\n')
     # create a new plot with no axes
     plot(
       x=listPOFD, # series x data
@@ -167,7 +168,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
 
   #if do not show or no data - continue to the next
   if(listPlotDisp[actualInd] & !all(is.na(dfROC))) {
-
+     cat('pody=', listPODY, ' pofd=', listPOFD, '\n')
     # plot the series line
     lines(
       x=listPOFD, # x coordinates
@@ -293,18 +294,18 @@ if( FALSE != boolEventEqual  ){
   }
 
   if(length(listSeries1Val) > 0){
-    for(intPermVal in 1:nrow(matPermVal)){
-      listPermVal = matPermVal[intPermVal,];
-      dfPerm = dfData;
-      for(intVar in 1:length(listSeriesVar)){
-        valPerm = listPermVal[intVar];
-        if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
-        dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
-        dfData_ee = eventEqualize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-
-        dfPlot = rbind(dfPlot, dfData_ee);
+    for(strSeriesVal in names(listSeries1Val)){
+      vectValPerms = c();
+      for(index in 1:length(listSeries1Val[[strSeriesVal]])){
+        vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
       }
+
+      dfPerm = dfData;
+      dfPerm = dfPerm[dfPerm[[ strSeriesVal ]] %in% vectValPerms,];
+      dfData_ee = eventEqualize(dfPerm, "fcst_valid_beg", NA, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+      dfPlot = rbind(dfPlot, dfData_ee);
     }
+
   }else{
     dfPlot = eventEqualize(dfData, "fcst_valid_beg", NA, list(), listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
   }
