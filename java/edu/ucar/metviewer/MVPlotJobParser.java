@@ -587,9 +587,7 @@ public final class MVPlotJobParser {
         } else {
           listIndyLabel.add(nodeIndyVal.value);
         }
-        if (!nodeIndyVal.plotVal.equals("")) {
-          listIndyPlotVal.add(nodeIndyVal.plotVal);
-        }
+        listIndyPlotVal.add(nodeIndyVal.plotVal);
       }
 
       //  <date_list>
@@ -1878,6 +1876,8 @@ public final class MVPlotJobParser {
         }
       } else if (node.tag.equals("add_point_thresholds")) {
         job.setAddPointThresholds(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("reverse_connection_order")) {
+        job.setReverseConnectionOrder(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("add_skill_line")) {
         job.setAddSkillLine(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("inset_hist")) {
