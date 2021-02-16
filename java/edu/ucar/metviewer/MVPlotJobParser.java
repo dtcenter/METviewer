@@ -587,7 +587,9 @@ public final class MVPlotJobParser {
         } else {
           listIndyLabel.add(nodeIndyVal.value);
         }
-        listIndyPlotVal.add(nodeIndyVal.plotVal);
+        if (!nodeIndyVal.plotVal.equals("")) {
+          listIndyPlotVal.add(nodeIndyVal.plotVal);
+        }
       }
 
       //  <date_list>
@@ -1371,6 +1373,18 @@ public final class MVPlotJobParser {
           job.setIndyDep(new MVPlotDep(node.depends, node));
         } else {
           String[][] listIndy = parseIndyNode(node, "");
+          int size = listIndy[0].length;
+          if(listIndy[2].length < size) {
+            String[] newListIndy = new String[size];
+            for (int j = 0; j < size; j++) {
+              if (j < listIndy[2].length) {
+                newListIndy[j] = listIndy[2][j];
+              } else {
+                newListIndy[j] = "";
+              }
+            }
+            listIndy[2] = newListIndy;
+          }
           job.setIndyVal(listIndy[0]);
           job.setIndyLabel(listIndy[1]);
           job.setIndyPlotVal(listIndy[2]);
