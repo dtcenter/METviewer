@@ -229,6 +229,117 @@ calcBASER    = function(d){
     return( (d$fy_oy + d$fn_oy) / d$total );
   }
 }
+
+calcLODDS = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fy_on) || is.na(d$fn_oy) || is.na(d$fn_on)){
+    return (NA);
+  }
+  if(d$fy_oy == 0 || d$fy_on ==0  || d$fn_oy==0 || d$fn_on==0){
+    return (NA);
+  }
+  v = log( d$fy_oy()) + log(d$fn_on()) - log(d$fy_on()) - log(d$fn_oy());
+  return (v)
+
+}
+pod_yes = function(d){
+  num = d$fy_oy
+  den = (d$fy_oy + d$fn_oy)
+  if (den == 0){
+    return (NA);
+  }
+  return (num/den)
+}
+pod_no = function (d){
+  num = d$fn_on
+  den = (d$fn_on + d$fy_on)
+  if (den == 0){
+    return (NA);
+  }
+  return(num/den)
+}
+
+pofd = function (d){
+  p_no = pod_no(d);
+
+  if(is.na(p_no)){
+    return(NA)
+  }
+  return (1-p_no)
+}
+
+
+
+
+calcSEDI = function(d){
+  f = d$fy_on / (d$fy_on + d$fn_on);
+  h = pod_yes(d);
+
+  if(is.na(f) || is.na(h) || f == 0.0  || h == 0.0  || f== 1.0  || h == 1.0) {
+    return(NA)
+  }
+
+  num = (log(f) - log(h) - log(1 - f) + log(1 - h));
+  den = (log(f) + log(h) + log(1 - f) + log(1 - h));
+  if(den == 0.0){
+    return(NA)
+  }
+  return (num/den);
+}
+
+calcSEDS = function(d){
+  if(d$fy_oy == 0 || d$total == 0 || d$fy_oy + d$fn_oy == 0 || d$fy_oy + d$fy_on == 0) {
+    return(NA)
+  }
+
+  num = log((d$fy_oy + d$fy_on) / d$total) + log( (d$fy_oy + d$fn_oy) / d$total);
+  den = log( d$fy_oy / d$total);
+
+  if(den == 0.0) {
+    return(NA)
+  }
+  return(num / den - 1.0);
+}
+
+calcEDI = function(d){
+  f = d$fy_on / (d$fy_on + d$fn_on);
+  h = pod_yes(d);
+
+  if(is.na(f) || is.na(h) || f == 0.0 || h == 0.0) {
+    return(NA)
+  }
+  num = log(f) - log(h);
+  den = log(f) + log(h);
+  if(den == 0.0){
+    return(NA)
+  }
+  return(num/den);
+}
+
+calcEDS = function(d){
+  if(d$fy_oy == 0 || d$fy_oy + d$fn_oy == 0 || d$total == 0) {
+    return(NA)
+  }
+
+  num = log( (d$fy_oy + d$fn_oy) / d$total);
+  den = log( d$fy_oy / d$total);
+
+  if(den == 0.0) {
+     return  ( NA )
+  }
+  return( 2.0 * num / den - 1.0 );
+}
+
+
+calcORSS = function(d){
+
+  num = d$fy_oy * d$fn_on - d$fy_on * d$fn_oy
+  den = d$fy_oy * d$fn_on + d$fy_on * d$fn_oy
+  if(den == 0){
+    return (NA)
+  }
+  return(num/den)
+}
+
 calcACC      = function(d){
   if(is.na(d$fy_oy) || is.na(d$fn_on) || is.na(d$total) ){
     return (NA);
