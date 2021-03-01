@@ -178,7 +178,7 @@ for(n in 2:length(names(res))){
 
 if( boolNormalizedHistogram ){
   for(row in 1:nrow(listHistData)){
-    listHistData[row,] = listHistData[row,] / sum( listHistData[row,] );
+    listHistData[row,] = listHistData[row,] / sum( listHistData[row,], na.rm = TRUE  );
   }
 }
 
