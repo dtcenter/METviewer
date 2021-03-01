@@ -231,9 +231,11 @@ public abstract class JobManager {
     info.put("indy_label",
             0 < listIndyLabel.length ? MVUtil.printRCol(listIndyLabel, true) : "c()"
     );
-    info.put("indy_plot_val",
-            0 < job.getIndyPlotVal().length ? MVUtil
-                    .printRCol(job.getIndyPlotVal(), false) : "c()");
+
+    // check if all IndyPlotVals are empty strings
+    Set<String> indyPlotValsSet = new HashSet<>(Arrays.asList(job.getIndyPlotVal()));
+    boolean allEmpty = indyPlotValsSet.size() == 0 || (indyPlotValsSet.size() == 1 && job.getIndyPlotVal()[0].isEmpty());
+    info.put("indy_plot_val", !allEmpty ? MVUtil.printRCol(job.getIndyPlotVal(), false) : "c()");
     info.put("dep1_plot", null != mapDep1Plot ? mapDep1Plot.getRDecl() : "c()");
     info.put("dep2_plot", null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()");
     info.put("agg_list", new MVOrderedMap().getRDecl());
