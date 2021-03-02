@@ -435,6 +435,11 @@ CREATE TABLE line_data_ecnt
     spread_oerr      DOUBLE,
     spread_plus_oerr DOUBLE,
 
+    crpscl           DOUBLE,
+    crps_emp         DOUBLE,
+    crpscl_emp       DOUBLE,
+    crpss_emp        DOUBLE,
+
     CONSTRAINT line_data_ecnt_data_file_id_pk
         FOREIGN KEY (data_file_id)
             REFERENCES data_file (data_file_id),

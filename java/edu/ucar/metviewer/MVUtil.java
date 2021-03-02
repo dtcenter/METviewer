@@ -580,7 +580,7 @@ public class MVUtil {
     statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VL1L2});
   }
 
-  //TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR
+  //TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR CRPSCL  CRPS_EMP CRPSCL_EMP CRPSS_EMP
   static {
     statsEcnt.put("ECNT_CRPS", new String[]{"bc", ECNT});
     statsEcnt.put("ECNT_CRPSS", new String[]{"bc", ECNT});
@@ -592,6 +592,10 @@ public class MVUtil {
     statsEcnt.put("ECNT_RMSE_OERR", new String[]{"bc", ECNT});
     statsEcnt.put("ECNT_SPREAD_OERR", new String[]{"bc", ECNT});
     statsEcnt.put("ECNT_SPREAD_PLUS_OERR", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_CRPSCL", new String[]{});
+    statsEcnt.put("ECNT_CRPS_EMP", new String[]{});
+    statsEcnt.put("ECNT_CRPSCL_EMP", new String[]{});
+    statsEcnt.put("ECNT_CRPSS_EMP", new String[]{});
     statsEcnt.put("ECNT_TOTAL", new String[]{ECNT});
   }
 
