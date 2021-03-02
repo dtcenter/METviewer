@@ -502,10 +502,11 @@ public class MVUtil {
     statsOrank.put("ORANK_RANK", new String[]{""});
     statsOrank.put("ORANK_ENS_MEAN", new String[]{""});
     statsOrank.put("ORANK_SPREAD", new String[]{""});
-    statsOrank.put("ORANK_CLIMO", new String[]{""});
+    statsOrank.put("ORANK_CLIMO_MEAN", new String[]{""});
     statsOrank.put("ORANK_ENS_MEAN_OERR", new String[]{""});
     statsOrank.put("ORANK_SPREAD_OERR", new String[]{""});
     statsOrank.put("ORANK_SPREAD_PLUS_OERR", new String[]{""});
+    statsOrank.put("ORANK_CLIMO_STDEV", new String[]{""});
   }
 
   static {

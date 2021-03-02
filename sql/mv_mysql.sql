@@ -1505,11 +1505,13 @@ CREATE TABLE line_data_orank
     n_ens            INT UNSIGNED,
     obs_qc           DOUBLE DEFAULT -9999,
     ens_mean         DOUBLE DEFAULT -9999,
-    climo            DOUBLE DEFAULT -9999,
+    climo_mean       DOUBLE DEFAULT -9999,
     spread           DOUBLE DEFAULT -9999,
     ens_mean_oerr    DOUBLE DEFAULT -9999,
     spread_oerr      DOUBLE DEFAULT -9999,
     spread_plus_oerr DOUBLE DEFAULT -9999,
+
+    climo_stdev      DOUBLE DEFAULT -9999,
 
 
     PRIMARY KEY (line_data_id),
