@@ -21,13 +21,9 @@ Version `4.0.0-beta4 <https://github.com/dtcenter/METviewer/projects/18>`_ relea
 * New Features:
 
   * LODDS, ODDS, ORSS, SEDI, SEDS, EDI, EDS statistics are available for aggregation logic `#252 <https://github.com/dtcenter/METviewer/issues/252>`_
-  * Additional climatology column CLIMO_STDEV in the ORANK line type (update for met-10.0.0) `#261 <https://github.com/dtcenter/METviewer/issues/261>`_
-  * Additional CRPS columns CRPSCL, CRPS_EMP, CRPSCL_EMP, CRPSS_EMP in the ECNT line type (update for met-10.0.0) `#259 <https://github.com/dtcenter/METviewer/issues/259>`_
 
 
 * Enhancements:
-
-  * CLIMO column the ORANK line type was renamed to CLIMO_MEAN `#261 <https://github.com/dtcenter/METviewer/issues/261>`_
 
 
 
