@@ -593,9 +593,9 @@ public class MVUtil {
     statsEcnt.put("ECNT_RMSE_OERR", new String[]{"bc", ECNT});
     statsEcnt.put("ECNT_SPREAD_OERR", new String[]{"bc", ECNT});
     statsEcnt.put("ECNT_SPREAD_PLUS_OERR", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_CRPSCL", new String[]{});
-    statsEcnt.put("ECNT_CRPS_EMP", new String[]{});
-    statsEcnt.put("ECNT_CRPSCL_EMP", new String[]{});
+    statsEcnt.put("ECNT_CRPSCL", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_CRPS_EMP", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_CRPSCL_EMP", new String[]{"bc", ECNT});
     statsEcnt.put("ECNT_CRPSS_EMP", new String[]{});
     statsEcnt.put("ECNT_TOTAL", new String[]{ECNT});
   }

@@ -802,6 +802,39 @@ calcECNT_CRPSS = function(d){
   return ( round(crpss, digits=5) )
 }
 
+calcECNT_CRPS = function(d){
+  if( is.na(d$crps) )
+    return ( NA );
+  return ( round(d$crps, digits=5) )
+}
+
+calcECNT_CRPSCL = function(d){
+  if( is.na(d$crpscl) )
+    return ( NA );
+  return ( round(d$crpscl, digits=5) )
+}
+
+calcECNT_CRPS_EMP = function(d){
+  if( is.na(d$crps_emp) )
+    return ( NA );
+  return ( round(d$crpscl_emp, digits=5) )
+}
+
+calcECNT_CRPSCL_EMP = function(d){
+  if( is.na(d$crpscl_emp) )
+    return ( NA );
+  return ( round(d$crpscl_emp, digits=5) )
+}
+
+calcECNT_CRPSS_EMP = function(d){
+  if( is.na(d$crps_climo) || d$crps_climo == 0 || is.na(d$crps) )
+    return ( NA );
+  crpss = ( d$crps_climo - d$crps ) / d$crps_climo;
+  return ( round(crpss, digits=5) )
+}
+
+
+
 calcECNT_RMSE = function(d){
   if( is.na(d$mse) )
   return ( NA );
@@ -821,11 +854,7 @@ calcECNT_ME = function(d){
   return ( NA );
   return ( round(d$me, digits=5) )
 }
-calcECNT_CRPS = function(d){
-  if( is.na(d$crps) )
-  return ( NA );
-  return ( round(d$crps, digits=5) )
-}
+
 
 calcECNT_IGN = function(d){
   if( is.na(d$ign) )

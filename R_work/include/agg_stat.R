@@ -35,7 +35,7 @@ if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
   numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss','afss', 'ufss', 'f_rate', 'o_rate',
 'fbar',	'obar',	'fobar',	'ffbar',	'oobar',	'var_mean','total', 'me', 'rmse', 'crps',
-  'crpss', 'ign', 'spread', 'me_oerr','rmse_oerr','spread_oerr', 'spread_plus_oerr', 'mae'
+  'crpss', 'ign', 'spread', 'me_oerr','rmse_oerr','spread_oerr', 'spread_plus_oerr', 'mae', 'crpscl', 'crps_emp', 'crpscl_emp', 'crpss_emp'
 );
   integer_columns <- c('fcst_lead','nstats');
   character_columns <- c('fcst_var', 'model', 'stat_name')
@@ -660,7 +660,8 @@ if ( nrow(sampleData) > 0){
         } else if( boolAggSsvar  ){
           listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "var_mean", "bin_n");
         } else if( boolAggEcnt  ){
-          listFields = c("total", "me", "rmse", "crps","crpss", "ign", "spread", "me_oerr","rmse_oerr","spread_oerr", "spread_plus_oerr");
+          listFields = c("total", "me", "rmse", "crps","crpss", "ign", "spread", "me_oerr","rmse_oerr","spread_oerr", "spread_plus_oerr",
+                         "crpscl", "crps_emp", "crpscl_emp", "crpss_emp");
         } else if( boolAggNbrCnt ){
           listFields = c("total", "fbs", "fss",'afss', 'ufss', 'f_rate', 'o_rate');
         } else if( boolAggRps ){
