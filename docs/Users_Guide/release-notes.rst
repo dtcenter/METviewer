@@ -9,6 +9,25 @@ https://github.com/dtcenter/METviewer/issues
 Version |version| release notes (|release_date|)
 ------------------------------------------------
 
+Version `4.0.0-beta4 <https://github.com/dtcenter/METviewer/projects/18>`_ release notes (20210301)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Bugfixes:
+
+  * Fixed a bug when XML with variable indep plot_vals doesn't get loaded to UI correctly `#257 <https://github.com/dtcenter/METviewer/issues/257>`_
+  * Fixed Event Equalisation for ROC diagram with multiple series `#256 <https://github.com/dtcenter/METviewer/issues/256>`_
+  * Plot all series with different number of i_values on the Hist plot `#254 <https://github.com/dtcenter/METviewer/issues/254>`_
+
+* New Features:
+
+  * LODDS, ODDS, ORSS, SEDI, SEDS, EDI, EDS statistics are available for aggregation logic `#252 <https://github.com/dtcenter/METviewer/issues/252>`_
+
+
+* Enhancements:
+
+
+
+
 Version `4.0.0-beta3 <https://github.com/dtcenter/METviewer/projects/17>`_ release notes (20210128)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
