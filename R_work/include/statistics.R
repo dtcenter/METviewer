@@ -796,9 +796,10 @@ calcSSVAR_Spread = function(d){
 
 #ECNT "calculations"
 calcECNT_CRPSS = function(d){
-  if( is.na(d$crps_climo) || d$crps_climo == 0 || is.na(d$crps) )
+  #CRPSS = 1 - CRPS/CRPSCL.
+  if( is.na(d$crps) || d$crpscl == 0 || is.na(d$crpscl) )
   return ( NA );
-  crpss = ( d$crps_climo - d$crps ) / d$crps_climo;
+  crpss = 1 - d$crps/d$crpscl;
   return ( round(crpss, digits=5) )
 }
 
@@ -827,10 +828,11 @@ calcECNT_CRPSCL_EMP = function(d){
 }
 
 calcECNT_CRPSS_EMP = function(d){
-  if( is.na(d$crps_climo) || d$crps_climo == 0 || is.na(d$crps) )
+  #CRPSS_EMP = 1 - CRPS_EMP/CRPSCL_EMP
+  if( is.na(d$crpscl_emp) || d$crpscl_emp == 0 || is.na(d$crps_emp) )
     return ( NA );
-  crpss = ( d$crps_climo - d$crps ) / d$crps_climo;
-  return ( round(crpss, digits=5) )
+  crpss_emp = 1 - d$crps_emp/d$crpscl_emp;
+  return ( round(crpss_emp, digits=5) )
 }
 
 
