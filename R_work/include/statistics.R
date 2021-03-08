@@ -818,7 +818,7 @@ calcECNT_CRPSCL = function(d){
 calcECNT_CRPS_EMP = function(d){
   if( is.na(d$crps_emp) )
     return ( NA );
-  return ( round(d$crpscl_emp, digits=5) )
+  return ( round(d$crps_emp, digits=5) )
 }
 
 calcECNT_CRPSCL_EMP = function(d){
