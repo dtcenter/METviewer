@@ -1282,18 +1282,15 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     total    = custom_sum(listTotal, na.rm=TRUE);
     mse = as.numeric( d[[ paste(strPerm, "rmse", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "rmse", sep="_") ]] )
     mse_oerr = as.numeric( d[[ paste(strPerm, "rmse_oerr", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "rmse_oerr", sep="_") ]] )
-    crps_climo = as.numeric( d[[ paste(strPerm, "crps", sep="_") ]] ) / (1.0 - as.numeric( d[[ paste(strPerm, "crpss", sep="_") ]] ))
-    
+
     variance= as.numeric( d[[ paste(strPerm, "spread", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "spread", sep="_") ]] )
     variance_oerr= as.numeric( d[[ paste(strPerm, "spread_oerr", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "spread_oerr", sep="_") ]] )
     variance_plus_oerr= as.numeric( d[[ paste(strPerm, "spread_plus_oerr", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "spread_plus_oerr", sep="_") ]] )
-
 
     dfSeriescustom_sums = data.frame(
     total  = total,
     mse	= custom_sum( mse * listTotal, na.rm=TRUE ) / total,
     mse_oerr	= custom_sum( mse_oerr * listTotal, na.rm=TRUE ) / total,
-    crps_climo	= custom_sum( crps_climo * listTotal, na.rm=TRUE ) / total,
     me	= custom_sum( as.numeric( d[[ paste(strPerm, "me", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
     crps	= custom_sum( as.numeric( d[[ paste(strPerm, "crps", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
     crpscl	= custom_sum( as.numeric( d[[ paste(strPerm, "crpscl", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
