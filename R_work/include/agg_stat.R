@@ -179,7 +179,6 @@ if ( nrow(sampleData) > 0){
           }
 
           fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
-          sys$stdout$flush()
           dfPlot2 = rbind(dfPlot2, fPlot);
         }
       }
@@ -190,9 +189,7 @@ if ( nrow(sampleData) > 0){
       for( seriesVal in names(listSeries1Val) ){
         listSeriesVal[[seriesVal]] = unique(append(listSeries1Val[[seriesVal]], listSeries2Val[[seriesVal]]));
       }
-      #dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, TRUE);
-      dfStatsRec = event_equalize(dfStatsRec, strIndyVar, listIndyVal, listSeriesVal, listFixVars,listFixVarVals, boolEqualizeByIndep, TRUE);
-      sys$stdout$flush()
+      dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, TRUE);
     }else{
       dfStatsRec = dfPlot1;
     }
