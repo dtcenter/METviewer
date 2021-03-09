@@ -178,7 +178,7 @@ public abstract class JobManager {
 
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
         for (String[] aListFcstVarStat : listFcstVarStat) {
-          String strFcstVarCur = aListFcstVarStat[intY-1];
+          String strFcstVarCur = aListFcstVarStat[0];
          if (strFcstVar.isEmpty() ) {
             strFcstVar = strFcstVarCur;
           } else if (!strFcstVar.equals(strFcstVarCur)) {
