@@ -263,13 +263,9 @@ met_help@ucar.edu. We will endeavor to respond to requests for help in a
 timely fashion. 
 
 We welcome comments and suggestions for improvements to METviewer, especially
-information regarding errors. Comments may be submitted using the MET
-Feedback form available on the
-`MET website <https://dtcenter.github.io/MET/latest>`_. In addition,
-comments on this
-document would be greatly appreciated. While we cannot promise to
-incorporate all suggested changes, we will certainly take all suggestions
-into consideration.
+information regarding errors. In addition, comments on this document would be
+greatly appreciated. While we cannot promise to incorporate all suggested
+changes, we will certainly take all suggestions into consideration.
 
 METviewer is a "living" application. The goal is to continually enhance it
 and add to its capabilities. 
