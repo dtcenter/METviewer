@@ -97,7 +97,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//108
     tableToInsert
             .put("line_data_ecnt", "INSERT INTO line_data_ecnt VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
-                    + "?,?,?,?,?,?,?,?,?,?)");//22
+                    + "?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//26
     tableToInsert
             .put("line_data_mctc", "INSERT INTO line_data_mctc VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
                     + "?)");//13
@@ -174,7 +174,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     tableToInsert.put("line_data_phist_bin", "INSERT INTO line_data_phist_bin VALUES (?,?,?)");//3
     tableToInsert
             .put("line_data_orank", "INSERT INTO line_data_orank VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
-                    + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//30
+                    + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//31
     tableToInsert.put("line_data_orank_ens", "INSERT INTO line_data_orank_ens VALUES (?,?,?)");//3
     tableToInsert
             .put("line_data_ssvar", "INSERT INTO line_data_ssvar VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
@@ -1168,7 +1168,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               maxSize = 24;
               break;
             case "ORANK":
-              maxSize = 30;
+              maxSize = 31;
               break;
             case "CTS":
               maxSize = 104;
@@ -1199,7 +1199,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               maxSize = 20;
               break;
             case "ECNT":
-              maxSize = 22;
+              maxSize = 26;
               break;
             case "RPS":
               maxSize = 20;

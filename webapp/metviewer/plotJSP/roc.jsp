@@ -268,6 +268,7 @@
             <td>
                 <select id="series_var_y1_1">
                     <option value="model">MODEL</option>
+                    <option value="descr">DESC</option>
                     <option value="fcst_lead">FCST_LEAD</option>
                     <option value="fcst_valid_beg">FCST_VALID_BEG</option>
                     <option value="valid_hour">VALID_HOUR</option>

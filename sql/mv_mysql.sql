@@ -435,6 +435,11 @@ CREATE TABLE line_data_ecnt
     spread_oerr      DOUBLE,
     spread_plus_oerr DOUBLE,
 
+    crpscl           DOUBLE,
+    crps_emp         DOUBLE,
+    crpscl_emp       DOUBLE,
+    crpss_emp        DOUBLE,
+
     CONSTRAINT line_data_ecnt_data_file_id_pk
         FOREIGN KEY (data_file_id)
             REFERENCES data_file (data_file_id),
@@ -955,7 +960,7 @@ CREATE TABLE line_data_mpr
     mpr_fcst       DOUBLE,
     mpr_obs        DOUBLE,
     mpr_climo      DOUBLE,
-    obs_qc         DOUBLE DEFAULT -9999,
+    obs_qc         VARCHAR(32),
     climo_mean     DOUBLE,
     climo_stdev    DOUBLE,
     climo_cdf      DOUBLE,
@@ -1498,13 +1503,15 @@ CREATE TABLE line_data_orank
     rank             INT,
     n_ens_vld        INT UNSIGNED,
     n_ens            INT UNSIGNED,
-    obs_qc           DOUBLE DEFAULT -9999,
+    obs_qc           VARCHAR(32),
     ens_mean         DOUBLE DEFAULT -9999,
-    climo            DOUBLE DEFAULT -9999,
+    climo_mean       DOUBLE DEFAULT -9999,
     spread           DOUBLE DEFAULT -9999,
     ens_mean_oerr    DOUBLE DEFAULT -9999,
     spread_oerr      DOUBLE DEFAULT -9999,
     spread_plus_oerr DOUBLE DEFAULT -9999,
+
+    climo_stdev      DOUBLE DEFAULT -9999,
 
 
     PRIMARY KEY (line_data_id),

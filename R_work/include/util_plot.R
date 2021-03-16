@@ -776,7 +776,7 @@ perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
   na_perf_score_stats <- c('BASER','FMEAN','FBAR','FSTDEV', 'OBAR', 'OSTDEV', 'FRANK_TIES', 'ORANK_TIES',
     'FBAR',  'FSTDEV', 'OBAR', 'OSTDEV', 'RANKS', 'FRANK_TIES', 'ORANK_TIES','VL1L2_FBAR', 'VL1L2_OBAR',
     'VL1L2_FSTDEV','VL1L2_OSTDEV','VL1L2_FOSTDEV', 'PSTD_BASER','PSTD_RESOLUTION', 'PSTD_UNCERTAINTY',
-                           'PSTD_ROC_AUC',  'NBR_UFSS', 'NBR_F_RATE', 'NBR_O_RATE','NBR_BASER','NBR_FMEAN',
+                             'NBR_UFSS', 'NBR_F_RATE', 'NBR_O_RATE','NBR_BASER','NBR_FMEAN',
                            'RPS_RES', 'RPS_UNC'
   );
 
@@ -788,7 +788,7 @@ perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
   one_perf_score_stats <- c('ACC', 'FBIAS', 'PODY','PODN', 'CSI', 'GSS', 'HK', 'HSS', 'ORSS', 'EDS', 'SEDS',
     'EDI', 'SEDI', 'BAGSS','PR_CORR', 'SP_CORR', 'KT_CORR', 'MBIAS', 'ANOM_CORR','ANOM_CORR_UNCNTR', 'VL1L2_BIAS','VL1L2_CORR',
     'PSTD_BSS', 'PSTD_BSS_SMPL', 'NBR_FSS', 'NBR_AFSS',  'VAL1L2_ANOM_CORR', 'NBR_ACC','NBR_FBIAS', 'NBR_PODY',
-  'NBR_PODN', 'NBR_CSI', 'NBR_GSS','NBR_HK','NBR_HSS', 'RPSS', 'RPSS_SMPL');
+  'NBR_PODN', 'NBR_CSI', 'NBR_GSS','NBR_HK','NBR_HSS', 'RPSS', 'RPSS_SMPL', 'PSTD_ROC_AUC');
 
   if( statistic %in% na_perf_score_stats ){
     result = NA;
@@ -1282,26 +1282,30 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     total    = custom_sum(listTotal, na.rm=TRUE);
     mse = as.numeric( d[[ paste(strPerm, "rmse", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "rmse", sep="_") ]] )
     mse_oerr = as.numeric( d[[ paste(strPerm, "rmse_oerr", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "rmse_oerr", sep="_") ]] )
-    crps_climo = as.numeric( d[[ paste(strPerm, "crps", sep="_") ]] ) / (1.0 - as.numeric( d[[ paste(strPerm, "crpss", sep="_") ]] ))
-    
+
     variance= as.numeric( d[[ paste(strPerm, "spread", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "spread", sep="_") ]] )
     variance_oerr= as.numeric( d[[ paste(strPerm, "spread_oerr", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "spread_oerr", sep="_") ]] )
     variance_plus_oerr= as.numeric( d[[ paste(strPerm, "spread_plus_oerr", sep="_") ]] ) * as.numeric( d[[ paste(strPerm, "spread_plus_oerr", sep="_") ]] )
-
 
     dfSeriescustom_sums = data.frame(
     total  = total,
     mse	= custom_sum( mse * listTotal, na.rm=TRUE ) / total,
     mse_oerr	= custom_sum( mse_oerr * listTotal, na.rm=TRUE ) / total,
-    crps_climo	= custom_sum( crps_climo * listTotal, na.rm=TRUE ) / total,
     me	= custom_sum( as.numeric( d[[ paste(strPerm, "me", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
     crps	= custom_sum( as.numeric( d[[ paste(strPerm, "crps", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+    crpscl	= custom_sum( as.numeric( d[[ paste(strPerm, "crpscl", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+    crps_emp	= custom_sum( as.numeric( d[[ paste(strPerm, "crps_emp", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+    crpscl_emp	= custom_sum( as.numeric( d[[ paste(strPerm, "crpscl_emp", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+
+
     ign	= custom_sum( as.numeric( d[[ paste(strPerm, "ign", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
     me_oerr	= custom_sum( as.numeric( d[[ paste(strPerm, "me_oerr", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
     
     spread	= sqrt(custom_sum( variance * listTotal, na.rm=TRUE ) / total),
     spread_oerr	= sqrt(custom_sum( variance_oerr * listTotal, na.rm=TRUE ) / total),
     spread_plus_oerr	= sqrt(custom_sum( variance_plus_oerr * listTotal, na.rm=TRUE ) / total)
+
+
     );
   } else if( lineTypes$boolNbrCnt ){ # perform the aggregation of the sampled NBR_CNT lines
     listTotal = d[[ paste(strPerm, "total", sep="_") ]];
@@ -1341,7 +1345,7 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     o_rate = dblORate
     );
   } else if( lineTypes$boolPct ){
-    dfPerm = d[substring(colnames(d[1,]), 1, nchar(strPerm)) == strPerm];
+    dfPerm = d[startsWith(colnames(d[1,]), paste(strPerm, '_',sep=''))];
     dfAggPerm = dfPerm[1,];
     #drop equalize column
     if (paste(strPerm, "equalize", sep = "_") %in% colnames(dfAggPerm)) {

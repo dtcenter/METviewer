@@ -502,10 +502,11 @@ public class MVUtil {
     statsOrank.put("ORANK_RANK", new String[]{""});
     statsOrank.put("ORANK_ENS_MEAN", new String[]{""});
     statsOrank.put("ORANK_SPREAD", new String[]{""});
-    statsOrank.put("ORANK_CLIMO", new String[]{""});
+    statsOrank.put("ORANK_CLIMO_MEAN", new String[]{""});
     statsOrank.put("ORANK_ENS_MEAN_OERR", new String[]{""});
     statsOrank.put("ORANK_SPREAD_OERR", new String[]{""});
     statsOrank.put("ORANK_SPREAD_PLUS_OERR", new String[]{""});
+    statsOrank.put("ORANK_CLIMO_STDEV", new String[]{""});
   }
 
   static {
@@ -580,18 +581,22 @@ public class MVUtil {
     statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VL1L2});
   }
 
-  //TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR
+  //TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR CRPSCL  CRPS_EMP CRPSCL_EMP CRPSS_EMP
   static {
-    statsEcnt.put("ECNT_CRPS", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_CRPSS", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_IGN", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_ME", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_RMSE", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_SPREAD", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_ME_OERR", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_RMSE_OERR", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_SPREAD_OERR", new String[]{"bc", ECNT});
-    statsEcnt.put("ECNT_SPREAD_PLUS_OERR", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_CRPS", new String[]{ ECNT});
+    statsEcnt.put("ECNT_CRPSS", new String[]{ECNT});
+    statsEcnt.put("ECNT_IGN", new String[]{ECNT});
+    statsEcnt.put("ECNT_ME", new String[]{ECNT});
+    statsEcnt.put("ECNT_RMSE", new String[]{ECNT});
+    statsEcnt.put("ECNT_SPREAD", new String[]{ECNT});
+    statsEcnt.put("ECNT_ME_OERR", new String[]{ECNT});
+    statsEcnt.put("ECNT_RMSE_OERR", new String[]{ECNT});
+    statsEcnt.put("ECNT_SPREAD_OERR", new String[]{ECNT});
+    statsEcnt.put("ECNT_SPREAD_PLUS_OERR", new String[]{ECNT});
+    statsEcnt.put("ECNT_CRPSCL", new String[]{ECNT});
+    statsEcnt.put("ECNT_CRPS_EMP", new String[]{ECNT});
+    statsEcnt.put("ECNT_CRPSCL_EMP", new String[]{ECNT});
+    statsEcnt.put("ECNT_CRPSS_EMP", new String[]{ECNT});
     statsEcnt.put("ECNT_TOTAL", new String[]{ECNT});
   }
 
