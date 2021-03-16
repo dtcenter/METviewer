@@ -1345,7 +1345,7 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
     o_rate = dblORate
     );
   } else if( lineTypes$boolPct ){
-    dfPerm = d[substring(colnames(d[1,]), 1, nchar(strPerm)) == strPerm];
+    dfPerm = d[startsWith(colnames(d[1,]), paste(strPerm, '_',sep=''))];
     dfAggPerm = dfPerm[1,];
     #drop equalize column
     if (paste(strPerm, "equalize", sep = "_") %in% colnames(dfAggPerm)) {
