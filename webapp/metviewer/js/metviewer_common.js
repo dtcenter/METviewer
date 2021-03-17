@@ -2718,18 +2718,24 @@ function updateSeriesVarValHist(index, selectedVals) {
                 var opt, selected;
                 var options = [];
                 if (values.length > 0) {
+                    if(selectedVals.length > 0) {
+                        $("#series_var_table_y" + index).css("display", '');
+                    }
                     for (var i = 0; i < values.length; i++) {
                         var t = $(values[i]);
-                        selected = $.inArray(t.text(), selectedVals) >= 0;
-                        if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
-                            var text_formatted = t.text().formatAll();
+                        if ($.type(selectedVals) === "string") {
+                            selected = t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&") === selectedVals;
+                        } else {
+                            selected = $.inArray(t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&"), selectedVals) >= 0;
+                        }
+                        if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
                             opt = $('<option />', {
-                                value: text_formatted,
-                                text: text_formatted,
+                                value: t.text(),
+                                text: t.text(),
                                 selected: selected
                             });
                             options.push(opt);
-                        } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        } else if (i !== 0 && t.text() === $(values[i - 1]).text()) {
                             options[options.length - 1].text(options[options.length - 1].text() + '*');
                         }
                     }
@@ -5963,8 +5969,8 @@ function loadXMLRoc() {
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
         for (var i = 0; i < series_arr.length; i++) {
+
             series_var_val = [];
-            addSeriesVarHist();
 
             var value = $(series_arr[i]).attr('name');
             try {
@@ -5974,12 +5980,60 @@ function loadXMLRoc() {
             $(series_arr[i]).find("val").each(function () {
                 series_var_val.push($(this).text());
             });
-            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+            if (value === "fcst_init_beg" || value === "fcst_valid_beg" || value === "fcst_valid" || value === "fcst_init") {
                 $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "block");
             } else {
                 $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "none");
             }
             updateSeriesVarValHist((i + 1), series_var_val);
+
+            if (i === 0){
+                $("#series_var_val_y1_1").multiselect({
+                    selectedList: 100, // 0-based index
+                    noneSelectedText: "Select value",
+                    click: function () {
+                        updateSeriesHist();
+                    },
+                    checkAll: function () {
+                        updateSeriesHist();
+                    },
+                    uncheckAll: function () {
+                        updateSeriesHist();
+                    }
+                });
+                $("#series_var_y1_1").multiselect({
+                    multiple: false,
+                    selectedList: 1,
+                    header: false,
+                    minWidth: 'auto',
+                    click: function (event, ui) {
+                        $('#series_var_val_y1_date_period_start_' + (last_index + 1)).empty();
+                        $('#series_var_val_y1_date_period_end_' + (last_index + 1)).empty();
+
+                        if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                            $("#series_var_val_y1_date_period_button_1").css("display", "block");
+                        } else {
+                            $("#series_var_val_y1_date_period_button_1").css("display", "none");
+                        }
+                        var id_array = this.id.split("_");
+                        updateSeriesVarValHist(id_array[id_array.length - 1], []);
+                    }
+                });
+                $("#series_var_val_y1_date_period_button_1").button({
+                    icons: {
+                        primary: "ui-icon-check",
+                        secondary: "ui-icon-circlesmall-plus"
+                    },
+                    text: false
+                }).click(function () {
+                    $("#series_var_val_y1_date_period_1").dialog("open");
+                });
+            }
+
+            if (i<series_arr.length-1) {
+                addSeriesVarHist();
+            }
+
 
         }
     } else {
