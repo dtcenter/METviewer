@@ -39,6 +39,7 @@ public abstract class RscriptManager {
   //String diffStat;
   String diffStatValue;
   String diffStatSymbol;
+  StringBuilder listFixedValEx;
 
 
   RscriptManager(final Scorecard scorecard) {
@@ -178,6 +179,25 @@ public abstract class RscriptManager {
       seriesDiffList.deleteCharAt(seriesDiffList.length() - 1);
     }
     seriesDiffList.append(")");
+    for (Field fixedField : fixedVars) {
+      if (!"model".equals(fixedField.getName())
+              && !"fcst_lead".equals(fixedField.getName())
+              && !"fcst_valid_beg".equals(fixedField.getName())
+              && fixedField.isEqualize()) {
+        listFixedValEx.append("`").append(fixedField.getName()).append("`=c(");
+        for(Entry val : fixedField.getValues()){
+          listFixedValEx.append("\"").append(val.getName()).append("\"").append(",");
+        }
+        if (listFixedValEx.length() > 0) {
+          listFixedValEx.deleteCharAt(listFixedValEx.length() - 1);
+        }
+        listFixedValEx.append("),");
+      }
+    }
+    if (listFixedValEx.length() > 0 && !listFixedValEx.toString().equals("list(")) {
+      listFixedValEx.deleteCharAt(listFixedValEx.length() - 1);
+    }
+    listFixedValEx.append(")");
   }
 
   void clean() {
@@ -185,6 +205,7 @@ public abstract class RscriptManager {
     indyList = new StringBuilder();
     seriesList = new StringBuilder("list(");
     seriesDiffList = new StringBuilder("list(");
+    listFixedValEx = new StringBuilder("list(");
     models = null;
     diffVals = new StringBuilder();
     fcstVar = null;

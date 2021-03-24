@@ -244,6 +244,7 @@ class XmlParser {
     Field field = new Field();
     field.setName(getFieldName(fieldNode));
     field.setLabel(getFieldLabel(fieldNode));
+    field.setEqualize(getFieldEqualize(fieldNode));
     List<Entry> values = new ArrayList<>();
     List<Field> fields = new ArrayList<>();
     NodeList fieldNodeList = fieldNode.getChildNodes();
@@ -292,6 +293,21 @@ class XmlParser {
       }
     }
     return fieldLabel;
+  }
+
+  private boolean getFieldEqualize(Node fieldsNode) {
+    boolean fieldEqualize = false;
+    NamedNodeMap fieldAtts = fieldsNode.getAttributes();
+    for (int k = 0; k < fieldAtts.getLength(); k++) {
+      if ("equalize".equals(fieldAtts.item(k).getNodeName())) {
+        String equalize = fieldAtts.item(k).getNodeValue();
+        if ("true".equalsIgnoreCase(equalize) || "false".equalsIgnoreCase(equalize)) {
+          fieldEqualize = Boolean.parseBoolean(equalize);
+        }
+        break;
+      }
+    }
+    return fieldEqualize;
   }
 
   private void setFolders(Scorecard scorecard, Node scorecardSpecNode) {

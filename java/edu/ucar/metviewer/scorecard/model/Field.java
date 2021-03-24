@@ -15,6 +15,7 @@ import java.util.List;
 public class Field {
   private String name;
   private String label;
+  private boolean equalize = false;
 
   private List<Entry> values = new ArrayList<>();
   private List<Field> fields = new ArrayList<>();
@@ -51,6 +52,11 @@ public class Field {
     this.label = label;
   }
 
+  public boolean isEqualize() {
+    return equalize;
+  }
 
-
+  public void setEqualize(boolean equalize) {
+    this.equalize = equalize;
+  }
 }

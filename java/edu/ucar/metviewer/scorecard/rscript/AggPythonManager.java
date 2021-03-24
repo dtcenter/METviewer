@@ -114,6 +114,8 @@ public class AggPythonManager extends PythonManager {
         fcst_var_val_1_list.add(stat);
         fcst_var_val_1.put(fcstVar, fcst_var_val_1_list);
         yamlInfo.put("fcst_var_val_1", fcst_var_val_1);
+        yamlInfo.put("fixed_vars_vals_input", listFixedValEx);
+
 
         //check id output file exists and its length not 0
         File output = new File((String) yamlInfo.get("agg_stat_output"));

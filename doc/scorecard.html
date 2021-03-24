@@ -212,6 +212,16 @@
             <a name="plot_fix"></a>
             <li><span class="code">&lt;plot_fix&gt;</span>: describes database fields - models, date range
                 and init hour - that are constant.<br/>
+                <br/><b>Attributes:</b>
+                <ul style="list-style-image:url('att_bullet.gif')">
+                    <li><span class="code">name</span>: the database field name whose values are contained
+                        in the child tags
+                    </li>
+                    <li><span class="code">equalize</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>,
+                        indicating whether or not to include this field to the Event Equalisation case.
+                        The default value is FALSE (do not include)
+                    </li>
+                </ul>
                 Model field contains:<br>
                 two values - first and second model names.<br/>
                 one value - when the stat values for one model are requested<br/>
