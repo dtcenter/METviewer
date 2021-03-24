@@ -153,6 +153,9 @@ system folders.
 
 	**<plot_fix>:** describes database fields - models, date range
 	and init hour - that are constant.
+  Attributes
+          **name:** the database field name whose values are contained in the child tags
+          **equalize: TRUE** or **FALSE**, indicating whether or not to include this field to the Event Equalisation case. The default value is FALSE (do not include)
 	
                 Model field contains:
 

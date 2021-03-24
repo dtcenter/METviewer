@@ -107,6 +107,7 @@ public class SumPythonManager extends PythonManager {
         yamlInfo.put("series_val_2", new HashMap<>());
         yamlInfo.put("append_to_file", "False");
         yamlInfo.put("derived_series_1", seriesDiffList);
+        yamlInfo.put("fixed_vars_vals_input", listFixedValEx);
 
 
         try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)

@@ -28,6 +28,7 @@ public abstract class PythonManager {
   protected String indyVar;
   protected Map<String, List<String>> indyList;
   protected Map<String, List<String>> seriesList;
+  protected Map<String, Map<String, List<String>>> listFixedValEx;
   protected List<List<String>> seriesDiffList;
   protected List<Entry> models;
   private StringBuilder diffVals;
@@ -144,7 +145,20 @@ public abstract class PythonManager {
           seriesDiffList.add(diffSeries);
         }
       }
-
+      for (Field fixedField : fixedVars) {
+        if (!"model".equals(fixedField.getName())
+                && !"fcst_lead".equals(fixedField.getName())
+                && !"fcst_valid_beg".equals(fixedField.getName())
+                && fixedField.isEqualize()) {
+          List<String> fixVals = new ArrayList<>();
+          for (Entry val : fixedField.getValues()) {
+            fixVals.add(val.getName());
+          }
+          Map<String, List<String>> fixedMap = new LinkedHashMap<>();
+          fixedMap.put(fixedField.getName() + "_0", fixVals);
+          listFixedValEx.put(fixedField.getName(), fixedMap);
+        }
+      }
     }
 
 
@@ -162,6 +176,7 @@ public abstract class PythonManager {
     indyList = new LinkedHashMap<>();
     seriesList = new LinkedHashMap<>();
     seriesDiffList = new ArrayList<>();
+    listFixedValEx = new LinkedHashMap<>();
     models = null;
     diffVals = new StringBuilder();
     fcstVar = null;

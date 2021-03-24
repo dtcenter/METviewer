@@ -165,6 +165,7 @@ public class SumRscriptManager extends RscriptManager {
         tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
                 .toUpperCase());
 
+        tableCalcStatInfo.put("fix_val_list_eq", listFixedValEx.toString());
 
         boolean isAppend = false;
 

@@ -125,6 +125,8 @@ public class AggRscriptManager extends RscriptManager {
 
         tableAggStatInfo.put("series1_diff_list", seriesDiffList.toString());
         tableAggStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
+        tableAggStatInfo.put("fix_val_list_eq", listFixedValEx.toString());
+
 
         //check id output file exists and its length not 0
         File output = new File((String) tableAggStatInfo.get("agg_stat_output"));
