@@ -789,6 +789,9 @@
                                 <option value="fcst_thresh">FCST_THRESH</option>
                                 <option value="obs_thresh">OBS_THRESH</option>
                                 <option value="obs_var">OBS_VAR</option>
+                                <option value="fcst_perc">FCST_PERC</option>
+                                <option value="obs_perc">OBS_PERC</option>
+
                             </select>
                         </td>
                         <td>
@@ -900,6 +903,8 @@
                         <option value="fcst_thresh">FCST_THRESH</option>
                         <option value="obs_thresh">OBS_THRESH</option>
                         <option value="descr">DESC</option>
+                        <option value="cov_thresh">COV_THRESH</option>
+
                     </select>
                 </td>
                 <td>

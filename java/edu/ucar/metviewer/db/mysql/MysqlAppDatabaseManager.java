@@ -38,9 +38,22 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
   private final List<String> mtdHeaderSqlType = new ArrayList<>();
+  List<String> covThreshTables = new ArrayList<>();
+
 
   public MysqlAppDatabaseManager(DatabaseInfo databaseInfo, String password) {
     super(databaseInfo, password);
+    covThreshTables.add("line_data_pct");
+    covThreshTables.add("line_data_pstd");
+    covThreshTables.add("line_data_pjc");
+    covThreshTables.add("line_data_prc");
+    covThreshTables.add("line_data_nbrctc");
+    covThreshTables.add("line_data_nbrcts");
+    covThreshTables.add("line_data_prc");
+    covThreshTables.add("line_data_nbrctc");
+    covThreshTables.add("line_data_nbrcts");
+
+
     statHeaderSqlType.add("model");
     statHeaderSqlType.add("descr");
     statHeaderSqlType.add("fcst_lead");
@@ -498,8 +511,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
           String strFieldDB = formatField(field, boolMode || boolMtd, true);
           String whereReplaced = where.toString().replaceAll("h\\.", "");
-          strSql = "SELECT DISTINCT " + strFieldDB + " FROM "
-                  + strHeaderTable + " " + whereReplaced + " ORDER BY " + field;
+
+          if (strFieldDB.equals("cov_thresh")) {
+            strSql = "";
+            for (int i = 0; i < covThreshTables.size(); i++) {
+              strSql = strSql + "SELECT DISTINCT " + strFieldDB + " FROM " + covThreshTables.get(i);
+              if (i < covThreshTables.size() - 1) {
+                strSql = strSql + " UNION ";
+              }
+            }
+
+          } else {
+            strSql = "SELECT DISTINCT " + strFieldDB + " FROM "
+                    + strHeaderTable + " " + whereReplaced + " ORDER BY " + field;
+          }
         }
         //  execute the query
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
@@ -726,9 +751,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               "  **  ERROR: Caught " + e.getClass()
                       + " in printFormattedTable(ResultSet res): " + e.getMessage());
       logger.info("  **  ERROR: Caught " + e.getClass()
-              + " in printFormattedTable(ResultSet res): " + e.getMessage() )  ;
+              + " in printFormattedTable(ResultSet res): " + e.getMessage());
       System.out.println("  **  ERROR: Caught " + e.getClass()
-              + " in printFormattedTable(ResultSet res): " + e.getMessage() )  ;
+              + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
   }
 
@@ -1094,7 +1119,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         } else {
           field = BINARY + indyVarFormatted;
         }
-        if( listIndyVal.length > 0) {
+        if (listIndyVal.length > 0) {
           whereClause += (!whereClause.isEmpty() ? "  AND " : "") + field
                   + " IN (" + MVUtil.buildValueList(listIndyVal) + ")\n";
         }
@@ -1149,7 +1174,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                   if (!vars[varsInd].equals("NA")) {
                     String varReplaced = vars[varsInd].replace("&#38;", "&").replace("&gt;", ">")
                             .replace("&lt;", "<");
-                    selRpsProb = selRpsProb + " AND" + BINARY + " fcst_var='" +varReplaced + "' ";
+                    selRpsProb = selRpsProb + " AND" + BINARY + " fcst_var='" + varReplaced + "' ";
                   }
                   if (plotFixWhere.length() > 0) {
                     selRpsProb = selRpsProb + "  AND  " + plotFixWhere;
@@ -1532,7 +1557,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsRps.containsKey(strStat)) {
             tableStats = MVUtil.statsRps;
             statTable = "line_data_rps ld\n";
-            if(strStat.contains("TOTAL")) {
+            if (strStat.contains("TOTAL")) {
               statField = strStat.replace("RPS_", "").toLowerCase();
             }
           } else if (MVUtil.statsCtc.containsKey(strStat)) {
@@ -1786,6 +1811,26 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
 
           //  build the query
+          //remove cov_thresh if not needed
+          if (!covThreshTables.contains(statTable.split("\\s+")[0])) {
+            if (whereClause.contains("cov_thresh")) {
+              String[] whereComponents = whereClause.split("AND");
+              String newWhere = "";
+              for (int i = 0; i < whereComponents.length; i++) {
+                if (!whereComponents[i].contains("cov_thresh")) {
+                  newWhere = newWhere + " " + whereComponents[i];
+                  if (i < whereComponents.length - 1) {
+                    newWhere = newWhere + " AND ";
+                  }
+                }
+              }
+              whereClause = newWhere;
+            }
+            if (selectStat.contains("cov_thresh")) {
+              selectStat = selectStat.replace("cov_thresh,", "").replace("cov_thresh", "");
+            }
+          }
+
           strSelectSql += (strSelectSql.isEmpty() ? "" : "\nUNION ALL\n")
                   + "SELECT\n" + selectStat + "\n"
                   + "FROM\n  stat_header h,\n  " + statTable;
@@ -2888,6 +2933,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       binColumnName = "bin_size";
     }
     strWhere = strWhere.replaceAll("h\\.n_" + type, "ld.n_" + type);
+    strWhere = removeCovThresh(strWhere);
+
     strNumSelect =
             "SELECT DISTINCT\n"
                     + "  ld.n_" + type + " \n"
@@ -2930,7 +2977,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (listPlotFixVal.length > 0) {
       for (int i = 0; i < listPlotFixVal.length; i++) {
         String strField = (String) listPlotFixVal[i].getKey();
-        if (!strField.equals("fcst_var") && listPlotFixVal[i].getValue() != null) {
+        if (!strField.equals("fcst_var") && !strField.equals("cov_thresh") && listPlotFixVal[i].getValue() != null) {
           strPlotDataSelect += strField + ",\n";
 
         }
@@ -3015,6 +3062,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String strWhere = buildPlotFixWhere(listPlotFixVal, job, false);
     strWhere = strWhere + strWhereSeries;
 
+    //remove cov_thresh if present and job.getRocPct() is false
+    if (!job.getRocPct() && strWhere.contains("cov_thresh")) {
+      strWhere = removeCovThresh(strWhere);
+    }
 
     //  check to ensure only a single obs_thresh is used
     String strObsThreshSelect =
@@ -3128,7 +3179,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
-          if (!strField.equals("fcst_var") && !strField.equals("fcst_thresh") && listPlotFixVal[i].getValue() != null) {
+          if (!strField.equals("fcst_var")
+                  && !strField.equals("fcst_thresh")
+                  && !strField.equals("cov_thresh")
+                  && listPlotFixVal[i].getValue() != null) {
             strPlotDataSelect += formatField(strField, job.isModeJob() || job.isMtdJob(), true) + ",\n";
 
           }
@@ -3255,7 +3309,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the stat_header where clauses of the sql
     String strWhere = buildPlotFixWhere(listPlotFixVal, job, false);
-
+    if (strWhere.contains("cov_thresh")) {
+      strWhere = removeCovThresh(strWhere);
+    }
     strWhere = strWhere.replaceAll("h\\.n_pnt", "ld.n_pnt");
     String strNumSelect =
             "SELECT DISTINCT\n"
@@ -3330,7 +3386,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (listPlotFixVal.length > 0) {
       for (Map.Entry aListPlotFixVal : listPlotFixVal) {
         String strField = (String) aListPlotFixVal.getKey();
-        if (!strPlotDataSelect.contains(strField)) {
+        if (!strField.equals("cov_thresh") && !strPlotDataSelect.contains(strField)) {
           strPlotDataSelect = strPlotDataSelect + strField + ",\n";
         }
       }
@@ -3426,6 +3482,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       return mode ? "ld.obs_init" : "ld.obs_init_beg";
     } else if (field.equals("obs_init_beg") && fmtSel) {
       return mode ? " obs_init" : " obs_init_beg";
+    } else if (field.equals("cov_thresh")) {
+      return field;
     } else {
       if (!fmtSel) {
         return "h." + field;
@@ -3434,7 +3492,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
     }
   }
-
 
 
   private BuildMysqlQueryStrings build(
@@ -3488,6 +3545,21 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     }
     return buildMysqlQueryStrings;
+  }
+
+  private String removeCovThresh(String whereClause) {
+    String[] whereComponents = whereClause.split("AND");
+    String newWhere = "";
+    for (int i = 0; i < whereComponents.length; i++) {
+      if (!whereComponents[i].contains("cov_thresh")) {
+        newWhere = newWhere + " " + whereComponents[i];
+        if (i < whereComponents.length - 1) {
+          newWhere = newWhere + " AND ";
+        }
+      }
+    }
+    return newWhere;
+
   }
 
 }

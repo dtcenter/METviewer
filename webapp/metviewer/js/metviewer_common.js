@@ -465,6 +465,9 @@ series_var_value_to_title_stat_map['interp_pnts'] = 'INTERP_PNTS';
 series_var_value_to_title_stat_map['fcst_thresh'] = 'FCST_THRESH';
 series_var_value_to_title_stat_map['obs_thresh'] = 'OBS_THRESH';
 series_var_value_to_title_stat_map['obs_var'] = 'OBS_VAR';
+series_var_value_to_title_stat_map['fcst_perc'] = 'FCST_PERC';
+series_var_value_to_title_stat_map['obs_perc'] = 'OBS_PERC';
+
 
 var fix_var_value_to_title_stat_map = {};
 fix_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
@@ -482,6 +485,7 @@ fix_var_value_to_title_stat_map['interp_pnts'] = 'INTERP_PNTS';
 fix_var_value_to_title_stat_map['fcst_thresh'] = 'FCST_THRESH';
 fix_var_value_to_title_stat_map['obs_thresh'] = 'OBS_THRESH';
 fix_var_value_to_title_stat_map['obs_var'] = 'OBS_VAR';
+fix_var_value_to_title_stat_map['cov_thresh'] = 'COV_THRESH';
 
 var fix_var_value_to_title_mode_map = {};
 fix_var_value_to_title_mode_map['fcst_lead'] = 'FCST_LEAD';
@@ -577,6 +581,7 @@ phist_fixed_var_map['interp_pnts'] = 'INTERP_PNTS';
 phist_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
 phist_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
 phist_fixed_var_map['n_bin'] = 'N_BIN';
+phist_fixed_var_map['cov_thresh'] = 'COV_THRESH';
 
 var rhist_fixed_var_map = {};
 rhist_fixed_var_map['fcst_var'] = 'FCST_VAR';
@@ -594,6 +599,8 @@ rhist_fixed_var_map['interp_pnts'] = 'INTERP_PNTS';
 rhist_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
 rhist_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
 rhist_fixed_var_map['n_rank'] = 'N_RANK';
+rhist_fixed_var_map['cov_thresh'] = 'COV_THRESH';
+
 
 var relp_fixed_var_map = {};
 relp_fixed_var_map['fcst_var'] = 'FCST_VAR';
@@ -611,6 +618,8 @@ relp_fixed_var_map['interp_pnts'] = 'INTERP_PNTS';
 relp_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
 relp_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
 relp_fixed_var_map['n_ens'] = 'N_ENS';
+relp_fixed_var_map['cov_thresh'] = 'COV_THRESH';
+
 
 var perf_fixed_var_map = {};
 perf_fixed_var_map['fcst_var'] = 'FCST_VAR';
@@ -627,6 +636,7 @@ perf_fixed_var_map['interp_mthd'] = 'INTERP_MTHD';
 perf_fixed_var_map['interp_pnts'] = 'INTERP_PNTS';
 perf_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
 perf_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
+perf_fixed_var_map['cov_thresh'] = 'COV_THRESH';
 
 
 var fcst_var_y1_indexes = [1];
@@ -6038,7 +6048,7 @@ function loadXMLRoc() {
         }
     } else {
         series_var_val = $("#series_var_y1_1").first().val();
-        updateSeriesVarValHist(1, series_var_val);
+        updateSeriesVarValHist(1, []);
     }
     updatePlotFix();
     var roc_pct = $(initXML.find("plot").find("roc_calc").find("roc_pct")).text();
@@ -6144,8 +6154,8 @@ function loadXMLRely() {
 
         }
     } else {
-        series_var_val = $("#series_var_y1_1").first().val();
-        updateSeriesVarValHist(1, series_var_val);
+        //series_var_val = $("#series_var_y1_1").first().val();
+        updateSeriesVarValHist(1, []);
     }
 
     updatePlotFix();

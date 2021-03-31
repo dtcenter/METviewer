@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer 4.0-beta4</TITLE>
+  <TITLE>METviewer 4.0-beta5</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -252,7 +252,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 4.0-beta4<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 4.0-beta5<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
