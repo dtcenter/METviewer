@@ -1249,29 +1249,42 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         for (int forecastVarsInd = 0; forecastVarsInd < forecastVars.length; forecastVarsInd++) {
           MVOrderedMap stats = forecastVars[forecastVarsInd];
           String[] vars = stats.getKeyList();
+          int seriesLength = series.length;
+          if (seriesLength == 0) {
+            seriesLength = 1;
+          }
           for (int varsInd = 0; varsInd < vars.length; varsInd++) {
-            int[] seriesNthresh = new int[series.length];
-            for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
-              MVOrderedMap ser = series[seriesInd];
-              String[] serName = ser.getKeyList();
+            int[] seriesNthresh = new int[seriesLength];
+            for (int seriesInd = 0; seriesInd < seriesLength; seriesInd++) {
+              MVOrderedMap ser = new MVOrderedMap();
+              String[] serName = new String[]{"NA"};
+              if (series.length > 0) {
+                ser = series[seriesInd];
+                serName = ser.getKeyList();
+              }
               for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
                 String selPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  "
                         + "stat_header h,\n  line_data_pct ld\n";
-                selPctThresh = selPctThresh + "WHERE\n";
+                selPctThresh = selPctThresh + "WHERE";
                 if (indyVarFormatted.length() > 0 && job.getIndyVal().length > 0) {
                   selPctThresh = selPctThresh + BINARY + indyVarFormatted
                           + " IN (" + MVUtil.buildValueList(
                           job.getIndyVal()) + ")\n  AND ";
                 }
-                selPctThresh = selPctThresh + BINARY + serName[serNameInd]
-                        + " = '" + ser.getStr(serName[serNameInd]) + "'";
+                if (!serName[serNameInd].equals("NA")) {
+                  selPctThresh = selPctThresh + BINARY + serName[serNameInd]
+                          + " = '" + ser.getStr(serName[serNameInd]) + "'";
+                }
                 if (!vars[varsInd].equals("NA")) {
                   String varReplaced = vars[varsInd].replace("&#38;", "&").replace("&gt;", ">")
                           .replace("&lt;", "<");
                   selPctThresh = selPctThresh + " AND" + BINARY + " fcst_var='" + varReplaced + "' ";
                 }
                 if (plotFixWhere.length() > 0) {
-                  selPctThresh = selPctThresh + "  AND  " + plotFixWhere;
+                  if (!selPctThresh.endsWith("WHERE")) {
+                    selPctThresh = selPctThresh + "  AND";
+                  }
+                  selPctThresh = selPctThresh + plotFixWhere;
                 }
                 selPctThresh = selPctThresh + "  AND ld.stat_header_id = h.stat_header_id;";
 
@@ -1285,19 +1298,26 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                   pctThreshInfo = getPctThreshInfo(selPctThresh, job.getCurrentDBName().get(i));
                   if (1 != pctThreshInfo.get("numPctThresh")) {
                     String error = "number of PCT thresholds (" + pctThreshInfo.get(
-                            "numPctThresh") + ") not distinct for " + serName[serNameInd]
-                            + " = '" + ser.getStr(serName[serNameInd])
-                            + "' AND database  " + job.getCurrentDBName().get(i) + "'";
+                            "numPctThresh") + ") not distinct for ";
+                    if (!serName[serNameInd].equals("NA")) {
+                      error = error + "for " + serName[serNameInd]
+                              + " = '" + ser.getStr(serName[serNameInd]) + "' AND ";
+                    }
+
+
+                    error = error + "database  " + job.getCurrentDBName().get(i) + "'";
                     if (!vars[varsInd].equals("NA")) {
                       error = error + "' AND fcst_var='" + vars[varsInd] + "'";
                     }
                     errors.add(error);
                   } else if (1 > pctThreshInfo.get("numPctThresh")) {
                     String error = "invalid number of PCT thresholds ("
-                            + pctThreshInfo.get("numPctThresh") + ") found for "
-                            + serName[serNameInd] + " = '"
-                            + ser.getStr(serName[serNameInd])
-                            + "' AND database " + job.getCurrentDBName().get(i) + "'";
+                            + pctThreshInfo.get("numPctThresh") + ") found for ";
+                    if (!serName[serNameInd].equals("NA")) {
+                      error = error +serName[serNameInd] + " = '"
+                              + ser.getStr(serName[serNameInd]) + "' AND ";
+                    }
+                    error = error + "database " + job.getCurrentDBName().get(i) + "'";
                     if (!vars[varsInd].equals("NA")) {
                       error = error + "' AND fcst_var='" + vars[varsInd] + "'";
                     }
