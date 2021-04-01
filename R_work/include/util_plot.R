@@ -657,7 +657,6 @@ listPlotCI, dblAlpha=.05, boolVarianceInflationFactor=TRUE, strPlotStat="median"
     dblUpCI = dblMed;
 
 
-
     if( "std" == strPlotCI & 0 < sum(listStats != 0, na.rm = TRUE) ){
       dblStdErr = 0;
       if("mean" == strPlotStat){
@@ -674,18 +673,35 @@ listPlotCI, dblAlpha=.05, boolVarianceInflationFactor=TRUE, strPlotStat="median"
     if( 1 < length(seModel) && 0 == seModel[2] ){ dblStdErr = dblZVal * seModel[1]; }
     dblLoCI = dblMed - dblStdErr;
     dblUpCI  = dblMed + dblStdErr;
-    } else if( "norm" == strPlotCI ){
+    } else if( "met_prm" == strPlotCI ){
        if( !is.null(dfStatsVal$stat_ncl) & !is.null(dfStatsVal$stat_ncu)){
-         if(!is.na(dfStatsVal$stat_ncl) & !is.na(dfStatsVal$stat_ncu) &-9999 != dfStatsVal$stat_ncl & -9999 != dfStatsVal$stat_ncu ){
-          dblLoCI = dfStatsVal$stat_ncl;
-          dblUpCI = dfStatsVal$stat_ncu;
+
+         if (length(dfStatsVal$stat_ncl) == 1){
+           if( !is.na(dfStatsVal$stat_ncl[1]) & !is.na(dfStatsVal$stat_ncu[1]) &-9999 != dfStatsVal$stat_ncl[1] & -9999 != dfStatsVal$stat_ncu[1]){
+             dblLoCI = dfStatsVal$stat_ncl[1];
+             dblUpCI = dfStatsVal$stat_ncu[1];
           }
+         }else{
+           cat("  WARNING: No CIs has been displays because there is more then one data value found\n");
+         }
+
       }
-    } else if( "boot" == strPlotCI | "brier" == strPlotCI ){
+    } else if( "met_boot" == strPlotCI ){
       if( !is.null(dfStatsVal$stat_bcl) & !is.null(dfStatsVal$stat_bcu)){
-        if( !is.na(dfStatsVal$stat_bcl) & !is.na(dfStatsVal$stat_bcu) & -9999 != dfStatsVal$stat_bcl & -9999 != dfStatsVal$stat_bcu ){
-          dblLoCI = dfStatsVal$stat_bcl;
-         dblUpCI = dfStatsVal$stat_bcu;
+        if (length(dfStatsVal$stat_bcl) == 1){
+          if( !is.na(dfStatsVal$stat_bcl[1]) & !is.na(dfStatsVal$stat_bcu[1]) &-9999 != dfStatsVal$stat_bcl[1] & -9999 != dfStatsVal$stat_bcu[1]){
+            dblLoCI = dfStatsVal$stat_bcl[1];
+            dblUpCI = dfStatsVal$stat_bcu[1];
+          }
+        }else{
+          cat("  WARNING: No CIs has been displays because there is more then one data value found\n");
+        }
+      }
+    } else if( "boot" == strPlotCI ){
+      if( !is.null(dfStatsVal$stat_btcl) & !is.null(dfStatsVal$stat_btcu)){
+        if( !is.na(dfStatsVal$stat_btcl) & !is.na(dfStatsVal$stat_btcu) & -9999 != dfStatsVal$stat_btcl & -9999 != dfStatsVal$stat_btcu ){
+          dblLoCI = dfStatsVal$stat_btcl;
+          dblUpCI = dfStatsVal$stat_btcu;
         }
       }
     } else if( "q98" == strPlotCI & 0 < sum(listStats != 0, na.rm = TRUE) ){

@@ -7298,7 +7298,7 @@ function initPage() {
                 editable: true,
                 edittype: "select",
                 formatter: 'select',
-                editoptions: {value: "none:none;boot:boot;norm:norm;brier:brier;std:std"},
+                editoptions: {value: "none:none;boot:boot;std:std;met_prm:met_prm;met_boot:met_boot"},
                 align: "center"
             },
             {
