@@ -1,5 +1,5 @@
 Equivalence Testing Bounds Plots
-============
+================================
 
 Description
 -----------
