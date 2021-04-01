@@ -179,14 +179,35 @@ for(intPermVal in 1:nrow(matPermVal)){
 
             listBcl[[length(listBcl)+1]] = dblMed - dblStdErr;
             listBcu[[length(listBcu)+1]] = dblMed + dblStdErr;
+            } else if( "met_prm" == strPlotCI ){
+               if( !is.null(xDfPermx$stat_ncl) & !is.null(xDfPermx$stat_ncu)){
+                if (length(xDfPermx$stat_ncl) == 1){
+                  if( !is.na(xDfPermx$stat_ncl[1]) & !is.na(xDfPermx$stat_ncu[1]) &-9999 != xDfPermx$stat_ncl[1] & -9999 != xDfPermx$stat_ncu[1]){
+                    listBcl[[length(listBcl)+1]] = xDfPermx$stat_ncl[1];
+                    listBcu[[length(listBcl)+1]] = xDfPermx$stat_ncu[1];
+                  }
+                }else{
+                  cat("  WARNING: No CIs has been displays because there is more then one data value found\n");
+                }
 
-          } else if( "boot" == strPlotCI | "brier" == strPlotCI ){
+          } else if( "met_boot " == strPlotCI ){
             if( !is.null(xDfPermx$stat_bcl) & !is.null(xDfPermx$stat_bcu)){
-              if( !is.na(xDfPermx$stat_bcl) & !is.na(xDfPermx$stat_bcu) & -9999 != xDfPermx$stat_bcl & -9999 != xDfPermx$stat_bcu ){
-                listBcl[[length(listBcl)+1]] = xDfPermx$stat_bcl;
-                listBcu[[length(listBcl)+1]] = xDfPermx$stat_bcu;
+              if (length(xDfPermx$stat_bcl) == 1){
+                if( !is.na(xDfPermx$stat_bcl[1]) & !is.na(xDfPermx$stat_bcu[1]) &-9999 != xDfPermx$stat_bcl[1] & -9999 != xDfPermx$stat_bcu[1]){
+                  listBcl[[length(listBcl)+1]] = xDfPermx$stat_bcl[1];
+                  listBcu[[length(listBcl)+1]] = xDfPermx$stat_bcu[1];
+                }
+              }else{
+                cat("  WARNING: No CIs has been displays because there is more then one data value found\n");
               }
             }
+           } else if( "boot" == strPlotCI ){
+                       if( !is.null(xDfPermx$stat_btcl) & !is.null(xDfPermx$stat_btcu)){
+                         if( !is.na(xDfPermx$stat_btcl) & !is.na(xDfPermx$stat_btcu) & -9999 != xDfPermx$stat_btcl & -9999 != xDfPermx$stat_btcu ){
+                           listBcl[[length(listBcl)+1]] = xDfPermx$stat_btcl;
+                           listBcu[[length(listBcl)+1]] = xDfPermx$stat_btcu;
+                         }
+                       }
           } else{
             listBcl[[length(listBcl)+1]] <- NA;
             listBcu[[length(listBcu)+1]] <- NA;
@@ -195,8 +216,8 @@ for(intPermVal in 1:nrow(matPermVal)){
 
         }else{
           dblMed = xDfPermx$y_pnt_i;
-          listBcl[[length(listBcl)+1]] <- xDfPermx$stat_bcl;
-          listBcu[[length(listBcu)+1]] <- xDfPermx$stat_bcu;
+          listBcl[[length(listBcl)+1]] <- NA;
+          listBcu[[length(listBcu)+1]] <- NA;
         }
 
         listX[[length(listX)+1]] <- uniqueX[[x]];

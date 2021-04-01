@@ -339,8 +339,8 @@ if ( nrow(sampleData) > 0){
 
   }
   listOutPerm$stat_value = rep(NA, intNumOut);
-  listOutPerm$stat_bcl = rep(NA, intNumOut);
-  listOutPerm$stat_bcu = rep(NA, intNumOut);
+  listOutPerm$stat_btcl = rep(NA, intNumOut);
+  listOutPerm$stat_btcu = rep(NA, intNumOut);
   dfOut = data.frame(listOutPerm);
   dfOut$nstats=rep(0, intNumOut);
 
@@ -800,31 +800,31 @@ if ( nrow(sampleData) > 0){
             }
             if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
               if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
-                dfOut[listOutInd,]$stat_bcl = bootCI[["percent"]][4];
-                dfOut[listOutInd,]$stat_bcu = bootCI[["percent"]][5];
+                dfOut[listOutInd,]$stat_btcl = bootCI[["percent"]][4];
+                dfOut[listOutInd,]$stat_btcu = bootCI[["percent"]][5];
 
               }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
-                dfOut[listOutInd,]$stat_bcl = bootCI[["normal"]][2];
-                dfOut[listOutInd,]$stat_bcu = bootCI[["normal"]][3];
+                dfOut[listOutInd,]$stat_btcl = bootCI[["normal"]][2];
+                dfOut[listOutInd,]$stat_btcu = bootCI[["normal"]][3];
 
               }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
-                dfOut[listOutInd,]$stat_bcl = bootCI[["basic"]][4];
-                dfOut[listOutInd,]$stat_bcu = bootCI[["basic"]][5];
+                dfOut[listOutInd,]$stat_btcl = bootCI[["basic"]][4];
+                dfOut[listOutInd,]$stat_btcu = bootCI[["basic"]][5];
 
               }else if( strCIType == "bca" && !is.null(bootCI[["bca"]]) ){
-                dfOut[listOutInd,]$stat_bcl = bootCI[["bca"]][4];
-                dfOut[listOutInd,]$stat_bcu = bootCI[["bca"]][5];
+                dfOut[listOutInd,]$stat_btcl = bootCI[["bca"]][4];
+                dfOut[listOutInd,]$stat_btcu = bootCI[["bca"]][5];
 
               }else if( strCIType == "stud" && !is.null(bootCI[["student"]]) ){
-                dfOut[listOutInd,]$stat_bcl = bootCI[["student"]][4];
-                dfOut[listOutInd,]$stat_bcu = bootCI[["student"]][5];
+                dfOut[listOutInd,]$stat_btcl = bootCI[["student"]][4];
+                dfOut[listOutInd,]$stat_btcu = bootCI[["student"]][5];
               }else{
-                dfOut[listOutInd,]$stat_bcl = NA;
-                dfOut[listOutInd,]$stat_bcu = NA;
+                dfOut[listOutInd,]$stat_btcl = NA;
+                dfOut[listOutInd,]$stat_btcu = NA;
               }
             } else {
-              dfOut[listOutInd,]$stat_bcl = NA;
-              dfOut[listOutInd,]$stat_bcu = NA;
+              dfOut[listOutInd,]$stat_btcl = NA;
+              dfOut[listOutInd,]$stat_btcu = NA;
             }
           } else{
             dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];

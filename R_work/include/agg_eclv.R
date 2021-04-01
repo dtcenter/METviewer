@@ -89,7 +89,7 @@ if ( nrow(sampleData) > 0){
   }
 
   listBoot = list();
-  x=c('thresh_i', 'x_pnt_i', 'y_pnt_i', 'stat_bcl', 'stat_bcu', 'nstats');
+  x=c('thresh_i', 'x_pnt_i', 'y_pnt_i', 'stat_btcl', 'stat_btcu', 'nstats');
 
   if(is.null(names(listSeries1Val))){
     listSeriesVar=c();
@@ -202,8 +202,8 @@ if ( nrow(sampleData) > 0){
     dfOutLocal$thresh_i = rep(NA, length(steps)+1);
     dfOutLocal$x_pnt_i = rep(NA, length(steps)+1);
     dfOutLocal$y_pnt_i = rep(NA, length(steps)+1);
-    dfOutLocal$stat_bcl = rep(NA, length(steps)+1);
-    dfOutLocal$stat_bcu = rep(NA, length(steps)+1);
+    dfOutLocal$stat_btcl = rep(NA, length(steps)+1);
+    dfOutLocal$stat_btcu = rep(NA, length(steps)+1);
     dfOutLocal$nstats=rep(0, length(steps)+1);
 
     if( 1 > nrow(dfStatsPerm) ){ next; }
@@ -283,8 +283,8 @@ if ( nrow(sampleData) > 0){
           # calculate the confidence interval for the current stat and series permutation for the each step
           stBootCI = Sys.time();
 
-          stat_bcl <- vector("list", length(stepsWithBaser));
-          stat_bcu <- vector("list", length(stepsWithBaser));
+          stat_btcl <- vector("list", length(stepsWithBaser));
+          stat_btcu <- vector("list", length(stepsWithBaser));
           for(index in 1:length(stepsWithBaser)){
             #the first index points to "vmax" so add 1
             if( length(valuesWithBaser) != sum(is.na(valuesWithBaser)) ){
@@ -297,8 +297,8 @@ if ( nrow(sampleData) > 0){
               strCIParm = "percent";
             }
             if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
-              stat_bcl[index] = bootCI[[strCIParm]][4];
-              stat_bcu[index] = bootCI[[strCIParm]][5];
+              stat_btcl[index] = bootCI[[strCIParm]][4];
+              stat_btcu[index] = bootCI[[strCIParm]][5];
             }
           }
           dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
@@ -312,11 +312,11 @@ if ( nrow(sampleData) > 0){
           dfOutLocal$y_pnt_i[stepInd] = valuesWithBaser[[stepInd]];
           dfOutLocal$nstats=nrow(dfBoot);
           if( 1 < intNumReplicates ){
-            if( !is.null(stat_bcl[[stepInd]])){
-              dfOutLocal$stat_bcl[stepInd] = stat_bcl[[stepInd]];
+            if( !is.null(stat_btcl[[stepInd]])){
+              dfOutLocal$stat_btcl[stepInd] = stat_btcl[[stepInd]];
             }
-            if( !is.null(stat_bcu[[stepInd]])){
-              dfOutLocal$stat_bcu[stepInd] = stat_bcu[[stepInd]];
+            if( !is.null(stat_btcu[[stepInd]])){
+              dfOutLocal$stat_btcu[stepInd] = stat_btcu[[stepInd]];
             }
           }
         }
