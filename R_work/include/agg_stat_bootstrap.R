@@ -1155,11 +1155,11 @@ for(strIndyVal in listIndyVal){
         strCIParm = strCIType;
         if( strCIType == "perc" ){ strCIParm = "percent"; }
         if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
-          listOutPerm$stat_bcl = bootCI[[strCIParm]][4];
-          listOutPerm$stat_bcu = bootCI[[strCIParm]][5];
+          listOutPerm$stat_btcl = bootCI[[strCIParm]][4];
+          listOutPerm$stat_btcu = bootCI[[strCIParm]][5];
         } else {
-          listOutPerm$stat_bcl = NA;
-          listOutPerm$stat_bcu = NA;
+          listOutPerm$stat_btcl = NA;
+          listOutPerm$stat_btcu = NA;
         }
         dfOut = rbind(dfOut, listOutPerm);
         intBootIndex = intBootIndex + 1;
@@ -1200,11 +1200,11 @@ for(strIndyVal in listIndyVal){
         strCIParm = strCIType;
         if( strCIType == "perc" ){ strCIParm = "percent"; }
         if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
-          listOutPerm$stat_bcl = bootCI[[strCIParm]][4];
-          listOutPerm$stat_bcu = bootCI[[strCIParm]][5];
+          listOutPerm$stat_btcl = bootCI[[strCIParm]][4];
+          listOutPerm$stat_btcu = bootCI[[strCIParm]][5];
         } else {
-          listOutPerm$stat_bcl = NA;
-          listOutPerm$stat_bcu = NA;
+          listOutPerm$stat_btcl = NA;
+          listOutPerm$stat_btcu = NA;
         }
         dfOut = rbind(dfOut, listOutPerm);
         intBootIndex = intBootIndex + 1;
