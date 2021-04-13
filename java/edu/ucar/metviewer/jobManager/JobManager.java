@@ -436,11 +436,12 @@ public abstract class JobManager {
     for (int intY = 1; intY <= 2; intY++) {
       MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
       if (mapDepY != null && !mapDepY.isEmpty()) {
-        strFcstVar = "";
+          strFcstVar = "";
+
         MVOrderedMap mapStat = new MVOrderedMap();
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
         for (String[] aListFcstVarStat : listFcstVarStat) {
-          String strFcstVarCur = aListFcstVarStat[intY-1];
+          String strFcstVarCur = aListFcstVarStat[0];
           if (strFcstVar.isEmpty()) {
             strFcstVar = strFcstVarCur;
           } else if (!strFcstVar.equals(strFcstVarCur)) {
