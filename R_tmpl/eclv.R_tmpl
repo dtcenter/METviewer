@@ -189,7 +189,7 @@ for(intPermVal in 1:nrow(matPermVal)){
                 }else{
                   cat("  WARNING: No CIs has been displays because there is more then one data value found\n");
                 }
-
+            }
           } else if( "met_boot " == strPlotCI ){
             if( !is.null(xDfPermx$stat_bcl) & !is.null(xDfPermx$stat_bcu)){
               if (length(xDfPermx$stat_bcl) == 1){
