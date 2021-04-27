@@ -8,6 +8,28 @@ https://github.com/dtcenter/METviewer/issues
 
 Version |version| release notes (|release_date|)
 ------------------------------------------------
+Version `4.0.0-beta5 <https://github.com/dtcenter/METviewer/projects/18>`_ release notes (20210427)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Bugfixes:
+
+  * Fixed loading XML for the ROC diagram to the UI `#266 <https://github.com/dtcenter/METviewer/issues/266>`_
+
+
+* New Features:
+
+  * Load the additional climatology column in the ORANK  line type updated for met-10.0.0 `#261 <https://github.com/dtcenter/METviewer/issues/261>`_
+  * Load the additional climatology column in the ECNT line type updated for met-10.0.0 `#259 <https://github.com/dtcenter/METviewer/issues/259>`_
+  * Add 'Equalize fixed var" option to scorecard `#235 <https://github.com/dtcenter/METviewer/issues/235>`_
+  * Add 'cov_thresh' to the menu lists in GUI `#206 <https://github.com/dtcenter/METviewer/issues/206>`_
+
+
+* Enhancements:
+  *  Using Github actions to build documentation `#274 <https://github.com/dtcenter/METviewer/issues/274>`_
+  *  Restructure the "Conf interval" dropdown list `#255 <https://github.com/dtcenter/METviewer/issues/255>`_
+
+
+
 
 Version `4.0.0-beta4 <https://github.com/dtcenter/METviewer/projects/18>`_ release notes (20210301)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
