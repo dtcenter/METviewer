@@ -1094,6 +1094,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               ecntLineDataValues.add(-9999);
               csvBuilder = new StringBuilder();
 
+              int size = ecntLineDataValues.size();
+              //ECNT max size
+              int maxSize = tableToInsert.get("line_data_ecnt").length() - tableToInsert.get("line_data_ecnt").replaceAll("\\?","").length();
+              while (size <= maxSize) {
+                ecntLineDataValues.add(-9999);
+                size++;
+              }
+
               for (int i = 1; i < ecntLineDataValues.size(); i++) {
                 Object value = ecntLineDataValues.get(i);
                 if (MVUtil.isNumeric(value)) {
@@ -1105,10 +1113,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   csvBuilder.append(MVUtil.SEPARATOR);
                 }
               }
+
+
+
               String csv = csvBuilder.toString();
               if (!insertData.getTableLineDataValues().containsKey("ECNT")) {
                 insertData.getTableLineDataValues().put("ECNT", new ArrayList<>());
               }
+
               insertData.getTableLineDataValues().get("ECNT").add("(" + csv + ")");
               dataInserts++;
 
@@ -1160,52 +1172,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           int size = lineDataValues.size();
           int maxSize = size;
-          switch (lineType) {
-            case "CNT":
-              maxSize = 108;
-              break;
-            case "MPR":
-              maxSize = 24;
-              break;
-            case "ORANK":
-              maxSize = 31;
-              break;
-            case "CTS":
-              maxSize = 104;
-              break;
-            case "NBRCTS":
-              maxSize = 105;
-              break;
-            case "NBRCNT":
-              maxSize = 30;
-              break;
-            case "SAL1L2":
-              maxSize = 17;
-              break;
-            case "SL1L2":
-              maxSize = 17;
-              break;
-            case "GRAD":
-              maxSize = 20;
-              break;
-            case "PSTD":
-              maxSize = 30;
-              break;
-            case "SSVAR":
-              maxSize = 46;
-              break;
-
-            case "VL1L2":
-              maxSize = 20;
-              break;
-            case "ECNT":
-              maxSize = 26;
-              break;
-            case "RPS":
-              maxSize = 20;
-              break;
-
-            default:
+          String tbl = "line_data_" + lineType.toLowerCase();
+          // get the number if columns in the table and add add -9999 to the end if needed
+          if(tableToInsert.containsKey(tbl)){
+            maxSize = tableToInsert.get(tbl).length() - tableToInsert.get(tbl).replaceAll("\\?","").length();
           }
 
           while (size < maxSize) {
