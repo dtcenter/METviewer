@@ -22,3 +22,5 @@ dependencies:
   - statsmodels
   - netCDF4
   - pingouin
+  -
+    #pip install kaleido 0.2.1
