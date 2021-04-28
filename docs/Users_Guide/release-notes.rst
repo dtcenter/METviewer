@@ -8,7 +8,7 @@ https://github.com/dtcenter/METviewer/issues
 
 Version |version| release notes (|release_date|)
 ------------------------------------------------
-Version `4.0.0-beta5 <https://github.com/dtcenter/METviewer/projects/18>`_ release notes (20210427)
+Version `4.0.0-beta5 <https://github.com/dtcenter/METviewer/projects/19>`_ release notes (20210427)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Bugfixes:
