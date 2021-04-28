@@ -559,7 +559,10 @@
     <target name="war" depends="replace_properties,webapp" description="Create web archive">
         <war destfile="${dist}/metviewer${context.path.suffix}.war"
              webxml="${dist}/metviewer/WEB-INF/web.xml"
-             basedir="${dist}/metviewer">
+             basedir="${dist}/metviewer"
+             manifest="${build}/MANIFEST.MF"
+        >
+
         </war>
         <antcall target="restore_properties"/>
     </target>
