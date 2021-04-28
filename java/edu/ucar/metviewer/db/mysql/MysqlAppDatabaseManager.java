@@ -2491,8 +2491,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     for (String selectStats : selectStatsArr) {
       selectStats = selectStats.trim();
       //add table prefix if it is missing
-      if (!selectStats.startsWith("s.")) {
-        newSelectListStat.append("s.");
+      if (!selectStats.startsWith("s.") ) {
+        if(!selectStats.startsWith("HOUR")) {
+          newSelectListStat.append("s.");
+        }else {
+          selectStats = selectStats.replace("(", "(s.");
+        }
       }
       newSelectListStat.append(selectStats).append(",");
     }
