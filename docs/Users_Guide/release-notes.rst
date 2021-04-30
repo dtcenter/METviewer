@@ -5,6 +5,27 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+METviewer 4.0.0-beta1- 4.0.0-beta5 highlights
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Bugfixes:
+
+  * Fixed Event Equalisation for ROC diagram
+  * Histogram plot
+
+* New Features:
+
+  * Option to use statistical calculations and methods implemented in Python in METcalcpy instead of R script
+  * Option to use Python implementation of Line plot, Performance diagram, Reliability diagram and ROC plot
+  * Scorecard enhancements: better labeling, new weights configurations, improved event equalisation options
+  * Implementation of the circular temporal block bootstrap based on the article by Eric Gilleland
+  * New Equivalence Testing Bounds plot
+  * Support for MET 10.0.0 output
+
+* Enhancements:
+
+  * Revise computation of No-Skill reference line on Reliability diagram
+  * Support to reverse the connection order in ROC curve
 
 Version `4.0.0-beta5 <https://github.com/dtcenter/METviewer/projects/19>`_ release notes (20210427)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
