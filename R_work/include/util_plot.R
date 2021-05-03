@@ -1412,8 +1412,8 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
 
         dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;        # o_bar_i
         T = sum(dfPctPerm$n_i);
-        oy_total = sum(dfPctPerm$oy_i);   
-        o_bar = oy_total / T; 
+        oy_total = sum(dfPctPerm$oy_i);
+        o_bar = oy_total / T;
         dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i
 
         # row-based calculations
