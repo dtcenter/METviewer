@@ -664,10 +664,18 @@ if ( nrow(sampleData) > 0){
         } else if( boolAggRps ){
           listFields = c("total", 'rps', 'rpss', 'rps_comp');
         }else if( boolAggPct ){
-          #calc T abd o_bar for pct
-          n_i = dfStatsPermAllIndy$oy_i + dfStatsPermAllIndy$on_i;
-          T[intPerm] = custom_sum(n_i);									# T
-          oy_total[intPerm] = custom_sum(dfStatsPermAllIndy$oy_i);							# n_.1
+          #calc T and o_bar for pct
+          oy_i_index = grep("oy_i", colnames(dfStatsPermAllIndy), value = FALSE);
+          on_i_index = grep("on_i", colnames(dfStatsPermAllIndy), value = FALSE);
+
+          dfPctPerm = data.frame(
+            oy_i = c(t(dfStatsPermAllIndy[, oy_i_index])),
+            on_i = c(t(dfStatsPermAllIndy[, on_i_index]))
+          );
+          dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;
+          dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;        # o_bar_i
+          T[intPerm] = sum(dfPctPerm$n_i);
+          oy_total[intPerm] = sum(dfPctPerm$oy_i);
           o_bar[intPerm] = oy_total[intPerm] / T[intPerm];
         }
         
