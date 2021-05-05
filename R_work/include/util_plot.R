@@ -1411,9 +1411,9 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
       } else {
 
         dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;        # o_bar_i
-        T = sum(dfPctPerm$n_i);
-        oy_total = sum(dfPctPerm$oy_i);
-        o_bar = oy_total / T;
+        T_table = sum(dfPctPerm$n_i);
+        oy_total_table = sum(dfPctPerm$oy_i);
+        o_bar_table = oy_total_table / T_table;
         dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i
 
         # row-based calculations
@@ -1428,10 +1428,10 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
         # table-based stat calculations
 
         dfSeriescustom_sums = list(
-          reliability = custom_sum(dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2) / T[intPerm],
-          resolution = custom_sum(dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar[intPerm])^2) / T[intPerm],
-          uncertainty = o_bar[intPerm] * (1 - o_bar[intPerm]),
-          baser = o_bar[intPerm],
+          reliability = custom_sum(dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2) / T_table,
+          resolution = custom_sum(dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar[intPerm])^2) / T_table,
+          uncertainty = o_bar_table * (1 - o_bar_table),
+          baser = o_bar_table,
           calibration = dfPctPerm$calibration,
           n_i = dfPctPerm$n_i,
           total = total
