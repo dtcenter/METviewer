@@ -36,8 +36,11 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See
 the License for the specific language governing permissions and limitations
 under the License.
 
+.. _citations:
 
-**The citation for this User's Guide should be:**
+**Citations**
+
+The citation for this User's Guide should be:
 
 |author_list|, |release_year|: The METviewer Version |version| User's Guide.
 Developmental Testbed Center. 
