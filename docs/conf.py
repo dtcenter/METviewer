@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('.'))
 
 project = 'METviewer'
 author = 'UCAR/NCAR'
-author_list = "Burek, T., Jensen, T., Blank, L., Fowler, T., Halley Gotway, J., Goodrich, L., and Prestopnik, J."
+author_list = "Burek, T., Jensen, T., Blank, L., and Fowler, T."
 version = "develop"
 verinfo = version
 release = f'{version}'
