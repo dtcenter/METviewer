@@ -17,10 +17,6 @@ packages. Previous releases of METviewer have occurred each year since 2010.
 This documentation describes the |release| release dated |release_date|.
 Intermediate releases may include bug fixes. 
 
-This User's Guide was prepared by current and former NCAR employees working
-on METviewer, including Tatiana Burek, Tara Jensen, Lindsay Blank,
-Tressa Fowler, John Halley Gotway, Lisa Goodrich, and Julie Prestopnik.
-
 **Model Evaluation Tools Viewer (METviewer)  TERMS OF USE - IMPORTANT!**
 
 Copyright |copyright|
@@ -48,24 +44,14 @@ Available at : https://github.com/dtcenter/METviewer/releases.
 
 **Acknowledgments**
 
-We thank the the National Science Foundation (NSF) along with three
-organizations within the National Oceanic and Atmospheric Administration
-(NOAA):
-1) Office of Atmospheric Research (OAR);
-2) Next Generation Global Prediction System project (NGGPS); and
-3) United States WeatherResearch Program (USWRP)
-for their support of this work. Thanks also go to the staff at
-the Developmental Testbed Center for their help, advice, and many
-types of support. We released METplus Alpha in February 2017 and
-would not have made a decade of cutting-edge verification support
-without those who participated in DTC planning workshops and the NGGPS
-United Forecast System Strategic Implementation Plan Working Groups
-(NGGPS UFS SIP WGs).
-
-The DTC is sponsored by the National Oceanic and Atmospheric
-Administration (NOAA), the United States Air Force, and the National
-Science Foundation (NSF). NCAR is sponsored by the National Science
-Foundation (NSF).
+We thank all of the METplus sponsors including: DTC partners (NOAA, NCAR,
+USAF, and NSF), along with NOAA/Office of Atmospheric Research (OAR),
+NOAA/National Weather Service, NOAA/Joint Technology Transfer Program (JTTI),
+NOAA/Subseasonal to Seasonal (S2S) Project, NOAA/Unified Forecast System
+Research to Operations Project (UFS R2O), Met Office and the Naval Research
+Laboratory (NRL). Thanks also go to the staff at the Developmental Testbed
+Center for their help, advice, and many types of support.Finally, the
+National Center for Atmospheric Research (NCAR) is sponsored by NSF.
 
 
 .. toctree::
