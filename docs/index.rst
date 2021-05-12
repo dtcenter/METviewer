@@ -96,10 +96,10 @@ Authors
 Many authors, listed below in alphabetical order, have contributed to the documentation of METplus.
 To cite this documentation in publications, please refer to the METviewer User's Guide :ref:`Citation Instructions<citations>`.
 
-* Lindsay Blank
 * Tatiana Burek [#NCAR]_
 * Tressa Fowler
 * Tara Jensen [#NCAR]_
+* Lindsay Blank
 
 .. rubric:: Organization
 
