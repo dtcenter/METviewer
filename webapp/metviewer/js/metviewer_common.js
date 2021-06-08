@@ -7990,7 +7990,7 @@ function initPage() {
     }
 
     $('#release').on('click', function () {
-        var win = window.open('doc/versions.html');
+        var win = window.open('https://metviewer.readthedocs.io/en/latest/');
         if (win) {
             //Browser has allowed it to be opened
             win.focus();
