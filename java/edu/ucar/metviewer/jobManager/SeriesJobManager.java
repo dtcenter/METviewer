@@ -200,9 +200,9 @@ public class SeriesJobManager extends JobManager {
       Map<String, Object> yamlInfo = null;
       RscriptStatManager rscriptStatManager = null;
       String className = getClass().getSimpleName();
-      if ((job.isModeJob() || job.isMtdJob() || isAggStat) && className.equals("SeriesJobManager")) {
+      if ((job.isModeJob() || job.isMtdJob() || isAggStat) && (className.equals("SeriesJobManager") || className.equals("PerformanceJobManager"))) {
         rscriptStatManager = new RscriptAggStatManager(mvBatch);
-      } else if (isCalcStat && className.equals("SeriesJobManager")) {
+      } else if (isCalcStat && (className.equals("SeriesJobManager") || className.equals("PerformanceJobManager"))) {
         rscriptStatManager = new RscriptSumStatManager(mvBatch);
       }
 
