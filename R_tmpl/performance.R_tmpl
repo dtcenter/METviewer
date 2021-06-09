@@ -176,14 +176,11 @@ if(length(listSeries1Val) > 0){
 
        #if aggregation statistics were calculated use bsu and bcl
            if('stat_ncl' %in% names(far) == TRUE){
-                     clVarName = 'stat_ncl';
-                     cuVarName = 'stat_ncu';
-           }else if ('stat_bcl' %in% names(far) == TRUE){
-                     clVarName = 'stat_bcl';
-                     cuVarName = 'stat_bcu';
-           }else if ('stat_btcl' %in% names(far) == TRUE){
-                     clVarName = 'stat_btcl';
-                     cuVarName = 'stat_btcu';
+             clVarName = 'stat_ncl';
+             cuVarName = 'stat_ncu';
+           }else{
+             clVarName = 'stat_bcl';
+             cuVarName = 'stat_bcu';
            }
            if("mean" == strPlotStat){
              listSeries1[[indyValInd]][["far"]] = mean(far$stat_value);
