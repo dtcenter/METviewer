@@ -183,6 +183,7 @@ RUN yum install -y python3 python3-devel python3-pip
 # Install Python packages
 #
 RUN pip-3 install kiwisolver==1.0.1 \
+ && pip-3 install bootstrapped \
  && pip-3 install plotly==4.9.0 \
  && pip-3 install kaleido \
  && pip-3 install pandas \
@@ -195,7 +196,8 @@ RUN pip-3 install kiwisolver==1.0.1 \
  && pip-3 install lxml \
  && pip-3 install pymysql \
  && pip-3 install retrying \
- && pip-3 install cython
+ && pip-3 install cython \
+ && pip-3 install pingouin
 
 #
 # Create a link for python3
