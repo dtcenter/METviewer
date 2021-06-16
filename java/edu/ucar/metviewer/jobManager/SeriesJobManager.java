@@ -199,6 +199,7 @@ public class SeriesJobManager extends JobManager {
       Map<String, Object> info = createInfoMap(job, intNumDepSeries);
       Map<String, Object> yamlInfo = null;
       RscriptStatManager rscriptStatManager = null;
+      //for the series plot and other plots derived fro series
       String className = getClass().getSimpleName();
       if ((job.isModeJob() || job.isMtdJob() || isAggStat) && className.equals("SeriesJobManager")) {
         rscriptStatManager = new RscriptAggStatManager(mvBatch);
