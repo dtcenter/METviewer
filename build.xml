@@ -532,14 +532,6 @@
         <copy todir="${dist}/metviewer/WEB-INF/lib"
               file="${dist}/lib/metviewer.jar"/>
 
-        <!-- Copy the documentation files -->
-        <mkdir dir="${dist}/metviewer/doc"/>
-        <copy todir="${dist}/metviewer/doc">
-            <fileset dir="doc">
-                <include name="**"/>
-            </fileset>
-        </copy>
-
     </target>
 
     <!-- Delete the ${build} and ${dist} directory trees -->
