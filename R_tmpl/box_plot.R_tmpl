@@ -22,6 +22,8 @@ boolEventEqual	= #<event_equal>#;
 boolBoxAvg		= #<box_avg>#;
 boolBoxPts		= #<box_pts>#;
 boolShowNStats	= #<show_nstats>#;
+boolDumpPoints1  = #<dump_points1>#;
+boolDumpPoints2  = #<dump_points2>#;
 
 listY1limUsr	= #<y1_lim>#;
 listY2limUsr	= #<y2_lim>#;
@@ -721,7 +723,7 @@ for(intPermIndex in 1:length(listBoxes1)){
           listAt = rev(listAt);
           listBox = rev(listBox);
     }
-    boxplot_ci(
+    boxes1=boxplot_ci(
       listBox,				# box data as a list of vectors
       at=listAt,				# vector of box positions
       notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
@@ -736,6 +738,13 @@ for(intPermIndex in 1:length(listBoxes1)){
       tck=.01, 				# length of tick marks as a fraction of plot window
       alpha=#<ci_alpha>#  # alpha value to use when calculating confidence intervals
     );
+    if( TRUE == boolDumpPoints1 ){
+      strPointsFile = sub("\\.data$", ".points1", strDataFile, perl=TRUE);
+      write('\nbox stats',file=strPointsFile,append=TRUE)
+      write.table(boxes1$stats[nrow(boxes1$stats):1,] , file = strPointsFile, sep = " ", row.names = FALSE, col.names = FALSE, append=TRUE)
+      write('\noutliers',file=strPointsFile,append=TRUE)
+      write.table(boxes1$out, file = strPointsFile, sep = " ", row.names = FALSE, col.names = FALSE, append=TRUE)
+    }
   }
   
   # add the average starts to the plot, if requested
@@ -859,7 +868,7 @@ if( 0 < length(listDep2Plot) ){
   else {
    if (boolAdd != TRUE){strYaxt="s";}
       else{strYaxt="n";} 
-    boxplot_ci(
+    boxes2 = boxplot_ci(
       listBox,				# box data as a list of vectors
       at=listAt,				# vector of box positions
       notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
@@ -874,6 +883,13 @@ if( 0 < length(listDep2Plot) ){
       tck=.01, 				# length of tick marks as a fraction of plot window
       alpha=#<ci_alpha>#  # alpha value to use when calculating confidence intervals
     );
+    if( TRUE == boolDumpPoints2 ){
+          strPointsFile = sub("\\.data$", ".points2", strDataFile, perl=TRUE);
+          write('\nbox stats',file=strPointsFile,append=TRUE)
+          write.table(boxes2$stats[nrow(boxes2$stats):1,] , file = strPointsFile, sep = " ", row.names = FALSE, col.names = FALSE, append=TRUE)
+          write('\noutliers',file=strPointsFile,append=TRUE)
+          write.table(boxes2$out, file = strPointsFile, sep = " ", row.names = FALSE, col.names = FALSE, append=TRUE)
+        }
   }
   
   # add the average starts to the plot, if requested
