@@ -505,11 +505,6 @@ public abstract class JobManager {
     yamlInfo.put("ylim", rListToListNumeric(job.getY1Lim()));
     yamlInfo.put("y2lim", rListToListNumeric(job.getY2Lim()));
     yamlInfo.put("xlim", rListToListNumeric(job.getX1Lim()));
-    yamlInfo.put("box_pts", job.getBoxPts() );
-
-    yamlInfo.put("box_notch", job.getBoxNotch() );
-    yamlInfo.put("box_outline", job.getBoxOutline() );
-    yamlInfo.put("box_avg", job.getBoxAvg() );
 
     return yamlInfo;
   }
