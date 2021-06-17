@@ -77,9 +77,10 @@ National Center for Atmospheric Research (NCAR) is sponsored by NSF.
    contourplot
    spreadskillplot
    eclvplots
+   etb_plot
    scorecard
    references
-   etb_plot.rst
+
    
 Indices and tables
 ==================
