@@ -505,6 +505,7 @@ public abstract class JobManager {
     yamlInfo.put("ylim", rListToListNumeric(job.getY1Lim()));
     yamlInfo.put("y2lim", rListToListNumeric(job.getY2Lim()));
     yamlInfo.put("xlim", rListToListNumeric(job.getX1Lim()));
+
     return yamlInfo;
   }
 
