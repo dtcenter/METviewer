@@ -469,6 +469,7 @@ CREATE TABLE line_data_mctc
     obs_valid_end  DATETIME,
     total          INT UNSIGNED,
     n_cat          INT UNSIGNED,
+    ec_value       DOUBLE DEFAULT -9999,
 
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_mctc_data_file_id_pk
@@ -531,6 +532,8 @@ CREATE TABLE line_data_mcts
     ger            DOUBLE,
     ger_bcl        DOUBLE,
     ger_bcu        DOUBLE,
+    hss_ec         DOUBLE DEFAULT -9999,
+    ec_value       DOUBLE DEFAULT -9999,
 
     CONSTRAINT line_data_mcts_data_file_id_pk
         FOREIGN KEY (data_file_id)
