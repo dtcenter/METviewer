@@ -533,6 +533,8 @@ CREATE TABLE line_data_mcts
     ger_bcl        DOUBLE,
     ger_bcu        DOUBLE,
     hss_ec         DOUBLE DEFAULT -9999,
+    hss_ec_bcl     DOUBLE DEFAULT -9999,
+    hss_ec_bcu     DOUBLE DEFAULT -9999,
     ec_value       DOUBLE DEFAULT -9999,
 
     CONSTRAINT line_data_mcts_data_file_id_pk
