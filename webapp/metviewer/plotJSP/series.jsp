@@ -265,6 +265,7 @@
                         $("#date_range_button").css("display", "none");
                     }
                     $("#indy_var_val").multiselect("uncheckAll");
+                    $("#x_label_title").text(ui.value);
 
                 },
                 position: {
