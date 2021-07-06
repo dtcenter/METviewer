@@ -30,6 +30,7 @@ import edu.ucar.metviewer.scorecard.model.LegendRange;
 import edu.ucar.metviewer.scorecard.model.WeightRequirements;
 import j2html.tags.ContainerTag;
 import j2html.tags.UnescapedText;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -86,6 +87,7 @@ class GraphicalOutputManager {
   private final boolean viewLegend;
   private final String diffStatValue;
   private final String diffStatSymbol;
+  private final List<String> modelsLabels = new ArrayList<>();
   private final List<String> models = new ArrayList<>();
   private final List<String> leftColumnsNames;
   private final String symbolSize;
@@ -150,20 +152,21 @@ class GraphicalOutputManager {
 
       } else if ("model".equals(fixField.getName())) {
         for (Entry entry : fixField.getValues()) {
-          models.add(entry.getLabel());
+          this.modelsLabels.add(entry.getLabel());
+          this.models.add(entry.getName());
         }
 
       }
     }
     StringBuilder titleText = new StringBuilder("for ");
-    for (int i = 0; i < this.models.size(); i = i + 2) {
-      if (i + 1 < this.models.size()) {
+    for (int i = 0; i < this.modelsLabels.size(); i = i + 2) {
+      if (i + 1 < this.modelsLabels.size()) {
         if (i > 0) {
           titleText.append(", ");
         }
-        titleText.append(models.get(i));
+        titleText.append(modelsLabels.get(i));
         if (scorecard.getStatSymbol() != null && !scorecard.getStatSymbol().equals("SINGLE") && !scorecard.getStatValue().equals("SINGLE")) {
-          titleText.append(" and ").append(models.get(i + 1));
+          titleText.append(" and ").append(modelsLabels.get(i + 1));
         }
 
       }
@@ -476,8 +479,8 @@ class GraphicalOutputManager {
       ContainerTag td2 = td().attr(CLASS, "legendText");
 
       try {
-        if (this.models.size() == 2) {
-          td2.with(new UnescapedText(String.format(range.getFormatString(), this.models.get(0), this.models.get(1))));
+        if (this.modelsLabels.size() == 2) {
+          td2.with(new UnescapedText(String.format(range.getFormatString(), this.modelsLabels.get(0), this.modelsLabels.get(1))));
         } else {
           td2.with(new UnescapedText(String.format(range.getFormatString(), "1st model", "2nd model")));
         }
@@ -844,7 +847,7 @@ class GraphicalOutputManager {
       // or with the names in the last heather's row
       if (isFirstHeatherRow) {
         int rowsapn = columnsVars.size();
-        if (this.models.size() > 2) {
+        if (this.modelsLabels.size() > 2) {
           rowsapn = rowsapn + 1;
         }
         for (int i = 0; i < listRows.get(0).size(); i++) {
@@ -857,12 +860,12 @@ class GraphicalOutputManager {
           }
         }
         isFirstHeatherRow = false;
-        if (this.models.size() > 2) {
+        if (this.modelsLabels.size() > 2) {
           //add extra row for models names
-          for (int i = 0; i < this.models.size(); i = i + 2) {
-            StringBuilder label = new StringBuilder(this.models.get(i));
-            if (i + 1 < this.models.size()) {
-              label.append(" - ").append(this.models.get(i + 1));
+          for (int i = 0; i < this.modelsLabels.size(); i = i + 2) {
+            StringBuilder label = new StringBuilder(this.modelsLabels.get(i));
+            if (i + 1 < this.modelsLabels.size()) {
+              label.append(" - ").append(this.modelsLabels.get(i + 1));
             }
             htmlTrH.with(createHeaderCellColspan(0, label.toString(), listColumns.size()));
           }
@@ -873,7 +876,7 @@ class GraphicalOutputManager {
 
       String previousField = listColumns.get(0).get(field).getLabel();
 
-      for (int i = 0; i < this.models.size(); i = i + 2) {
+      for (int i = 0; i < this.modelsLabels.size(); i = i + 2) {
         for (Map<String, Entry> column : listColumns) {
           if (column.get(field).getLabel().equals(previousField)) {
             //if this is the same field - do  create a cell but increase colspan
@@ -957,7 +960,13 @@ class GraphicalOutputManager {
       } else {
         row.put("derived_stat", values[i].split("\\(")[0]);
         // retrieve model names
-        String truncated = values[i].replace("DIFF_SIG(", "").replace(")", "").replace("-", "");
+
+        // verify that there is ony one '-' character. If there is more - create a warning
+        int count = StringUtils.countMatches(values[i], "-");
+        if (count > 1){
+          logger.error("WARNING: one of the fields contains '-'. The scorecard could be invalid!!!!! ");
+        }
+        String truncated = values[i].replace("DIFF_SIG(", "").replace(")", "").replace("-", " ");
         String[] truncatedArr = truncated.split(" ");
         String model1 = null;
         String model2 = null;
