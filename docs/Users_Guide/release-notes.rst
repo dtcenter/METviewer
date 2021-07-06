@@ -5,6 +5,28 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version |version| release notes (|release_date|)
+------------------------------------------------
+Version 4.1.0 release notes (20210706)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+beta1 release
+^^^^^^^^^^^^^
+* New Features:
+   * **Python implementation of the Box plot** (`#292 <https://github.com/dtcenter/METviewer/issues/292>`_)
+
+* Enhancements:
+   * **Deprecate 'doc' directory and use the link to readthedocs** (`#287 <https://github.com/dtcenter/METviewer/issues/287>`_)
+
+* Internal:
+
+* Bugfixes:
+   * **Error when using Agg stats in performance diagram** (`#284 <https://github.com/dtcenter/METviewer/issues/284>`_)
+   * **Scorecard is not created correctly if input models have 'label' attribute** (`#300 <https://github.com/dtcenter/METviewer/issues/300>`_)
+
+
+
+
 Version `v4.0.0 <https://github.com/dtcenter/METviewer/milestone/11>`_ release notes (20200512)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
