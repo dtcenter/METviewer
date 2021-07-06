@@ -22,6 +22,7 @@ beta1 release
 
 * Bugfixes:
    * **Error when using Agg stats in performance diagram** (`#284 <https://github.com/dtcenter/METviewer/issues/284>`_)
+   * **Scorecard is not created correctly if input models have 'label' attribute** (`#300 <https://github.com/dtcenter/METviewer/issues/300>`_)
 
 
 
