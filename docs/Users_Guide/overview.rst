@@ -233,8 +233,9 @@ the MET software are often required.
 Code support
 ------------
 
-METviewer support is provided through a MET-help e-mail address:
-met_help@ucar.edu. We will endeavor to respond to requests for help in a
+METviewer support is provided through the 
+`METplus GitHub Discussions Forum <https://github.com/dtcenter/METplus/discussions>`_.
+We will endeavor to respond to requests for help in a
 timely fashion. 
 
 We welcome comments and suggestions for improvements to METviewer, especially
