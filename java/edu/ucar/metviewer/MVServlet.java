@@ -714,6 +714,9 @@ public class MVServlet extends HttpServlet {
       case "box_plot.R_tmpl":
         jobManager = new BoxJobManager(bat);
         break;
+      case "bar_plot.R_tmpl":
+        jobManager = new BarJobManager(bat);
+        break;
       default:
         if (MVUtil.isEtbJob(job)) {
           jobManager = new EtbJobManager(bat);

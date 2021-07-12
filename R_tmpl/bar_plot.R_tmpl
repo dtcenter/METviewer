@@ -113,7 +113,7 @@ if( FALSE != boolEventEqual  ){
           for(index in 1:length(listSeries1Val[[strSeriesVal]])){
             vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
           }
-          fPlot = fPlot[dPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
+          fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
         }
         fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
         dfPlot1 = rbind(dfPlot1, fPlot);
@@ -149,7 +149,7 @@ depIndex=1;
 for( listAllStatsName in names(listAllStats) ){
 
   listPlotData1 = buildSeriesData(listAllStats[[listAllStatsName]], strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp,
-                                  listPlotCI[1:intNumSeries1],  boolVarianceInflationFactor, strPlotStat);
+                                  listPlotCI[1:intNumSeries1], .05, boolVarianceInflationFactor, strPlotStat);
   listSeries1 = append(listSeries1, listPlotData1$series);
   if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
   else                              { listNStats = listPlotData1$nstats; }
@@ -199,7 +199,7 @@ if(length(listDiffSeries1) > 0){
 
 
       listPlotData1 = buildSeriesData(plotData1, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp,
-    listPlotCI[(intNumSeries1 +1):(length(listPlotCI))],  boolVarianceInflationFactor, strPlotStat);
+    listPlotCI[(intNumSeries1 +1):(length(listPlotCI))],  .05, boolVarianceInflationFactor, strPlotStat);
     listSeries1 = append(listSeries1, listPlotData1$series);
     if( TRUE == exists("listNStats") ){
       listNStats = listNStats + listPlotData1$nstats;
