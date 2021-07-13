@@ -2571,8 +2571,7 @@ public class MVUtil {
     tableRTags.put("box_avg", job.getBoxAvg());
     tableRTags.put("rely_event_hist", job.getRelyEventHist());
     tableRTags.put("ci_alpha", job.getCIAlpha());
-    tableRTags.put("ensss_pts", job.getEnsSsPts());
-    tableRTags.put("ensss_pts_disp", job.getEnsSsPtsDisp());
+
   }
 
   /**

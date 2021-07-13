@@ -22,7 +22,7 @@ public class EnsSsJobManager extends SeriesJobManager {
   @Override
   protected int getNumDepSeries(int intNumDep1Series, int intNumDep2Series, MVPlotJob job) {
     int intNumDepSeries = intNumDep1Series + intNumDep2Series;
-    if (job.getEnsSsPtsDisp().equalsIgnoreCase("TRUE")) {
+    if (job.getEnsSsPtsDisp()) {
       intNumDepSeries *= 2;
     }
     return intNumDepSeries;
@@ -34,6 +34,6 @@ public class EnsSsJobManager extends SeriesJobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/ens_ss/ens_ss.py";
   }
 }

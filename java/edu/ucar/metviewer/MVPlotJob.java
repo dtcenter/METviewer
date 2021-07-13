@@ -144,7 +144,7 @@ public class MVPlotJob {
   protected String _strRelyEventHist = "TRUE";
   protected String _strCIAlpha = ".05";
   protected String _strEnsSsPts = "-1";
-  protected String _strEnsSsPtsDisp = "TRUE";
+  protected boolean ensSsPtsDisp = true;
 
   protected boolean _boolAggCtc = false;
   protected boolean _boolAggNbrCtc = false;
@@ -355,7 +355,7 @@ public class MVPlotJob {
     job._strRelyEventHist = _strRelyEventHist;
     job._strCIAlpha = _strCIAlpha;
     job._strEnsSsPts = _strEnsSsPts;
-    job._strEnsSsPtsDisp = _strEnsSsPtsDisp;
+    job.ensSsPtsDisp = ensSsPtsDisp;
 
     job._boolAggCtc = _boolAggCtc;
     job._boolAggNbrCtc = _boolAggNbrCtc;
@@ -1479,12 +1479,12 @@ public class MVPlotJob {
     _strEnsSsPts = ensSsPts;
   }
 
-  public String getEnsSsPtsDisp() {
-    return _strEnsSsPtsDisp;
+  public boolean getEnsSsPtsDisp() {
+    return ensSsPtsDisp;
   }
 
-  public void setEnsSsPtsDisp(String ensSsPtsDisp) {
-    _strEnsSsPtsDisp = ensSsPtsDisp.toUpperCase(Locale.US);
+  public void setEnsSsPtsDisp(boolean ensSsPtsDisp) {
+    this.ensSsPtsDisp = ensSsPtsDisp;
   }
 
   public boolean getAggCtc() {

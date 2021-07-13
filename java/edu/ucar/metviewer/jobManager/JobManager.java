@@ -384,6 +384,8 @@ public abstract class JobManager {
     info.put("contour_diff", FALSE);
     info.put("revision_run", job.getRevisionRun() ? "TRUE" : FALSE);
     info.put("revision_ac", job.getRevisionAc() ? "TRUE" : FALSE);
+    info.put("ensss_pts", job.getEnsSsPts());
+    info.put("ensss_pts_disp", job.getEnsSsPtsDisp() ? "TRUE" : FALSE);
 
 
     return info;
@@ -505,6 +507,8 @@ public abstract class JobManager {
     yamlInfo.put("ylim", rListToListNumeric(job.getY1Lim()));
     yamlInfo.put("y2lim", rListToListNumeric(job.getY2Lim()));
     yamlInfo.put("xlim", rListToListNumeric(job.getX1Lim()));
+    yamlInfo.put("ensss_pts", Integer.parseInt(job.getEnsSsPts()));
+    yamlInfo.put("ensss_pts_disp", job.getEnsSsPtsDisp() ? "True" : "False");
 
     return yamlInfo;
   }
