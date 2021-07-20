@@ -75,6 +75,8 @@ public final class MVPlotJobParser {
       formatToBoolValues.put("add_contour_overlay",
               MVPlotJob.class
                       .getDeclaredMethod("setAddContourOverlay", Boolean.class));
+      formatToBoolValues.put("ensss_pts_disp",
+              MVPlotJob.class.getDeclaredMethod("setEnsSsPtsDisp", boolean.class));
 
     } catch (NoSuchMethodException e) {
       logger.error(ERROR_MARKER, e.getMessage());
@@ -217,8 +219,6 @@ public final class MVPlotJobParser {
 
       formatToStrValues
               .put("ensss_pts", MVPlotJob.class.getDeclaredMethod("setEnsSsPts", String.class));
-      formatToStrValues.put("ensss_pts_disp",
-              MVPlotJob.class.getDeclaredMethod("setEnsSsPtsDisp", String.class));
 
       formatToStrValues
               .put("plot_ci", MVPlotJob.class.getDeclaredMethod("setPlotCI", String.class));
@@ -906,7 +906,7 @@ public final class MVPlotJobParser {
     if (job.getPlotTmpl().equals("ens_ss.R_tmpl")) {
       xmlStr.append(
               "<ensss_pts>" + job.getEnsSsPts() + "</ensss_pts>" +
-                      "<ensss_pts_disp>" + job.getEnsSsPtsDisp() + "</ensss_pts_disp>");
+                      "<ensss_pts_disp>" + (job.getEnsSsPtsDisp() ? "TRUE" : "FALSE")+ "</ensss_pts_disp>");
     }
 
     //taylor
