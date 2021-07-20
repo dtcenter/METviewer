@@ -16,11 +16,10 @@ dependencies:
   - matplotlib
   - lxml
   - pymysql
-  - bootstrapped
   - retrying
   - plotly=4.9
   - statsmodels
   - netCDF4
-  - pingouin
+  - statsmodels
   -
     #pip install kaleido 0.2.1
