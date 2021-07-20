@@ -101,6 +101,7 @@ public class MVUtil {
   public static final Map<String, String[]> statsSl1l2 = new HashMap<>();
   public static final Map<String, String[]> statsSal1l2 = new HashMap<>();
   public static final Map<String, String[]> statsGrad = new HashMap<>();
+  public static final Map<String, String[]> statsMctc = new HashMap<>();
 
 
   public static final int MAX_STR_LEN = 500;
@@ -645,6 +646,10 @@ public class MVUtil {
   }
 
   static {
+    statsMctc.put("MCTS_HSS_EC", new String[]{"bc", "MCTC"});
+  }
+
+  static {
     statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc", NBRCTC});
     statsNbrcts.put("NBR_FMEAN", new String[]{"nc", "bc", NBRCTC});
     statsNbrcts.put("NBR_ACC", new String[]{"nc", "bc", NBRCTC});
@@ -695,6 +700,7 @@ public class MVUtil {
     statsMcts.put("MCTS_HK", new String[]{"bc"});
     statsMcts.put("MCTS_HSS", new String[]{"bc"});
     statsMcts.put("MCTS_GER", new String[]{"bc"});
+    statsMcts.put("MCTS_HSS_EC", new String[]{"bc"});
     //statsMcts.put("MCTS_TOTAL", new String[]{MCTC});
   }
 

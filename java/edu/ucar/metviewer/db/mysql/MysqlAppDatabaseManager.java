@@ -1541,9 +1541,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             statField = strStat.replace("PSTD_", "").toLowerCase();
           } else if (MVUtil.statsMcts.containsKey(strStat)) {
             tableStats = MVUtil.statsMcts;
-            MVUtil.isAggTypeValid(MVUtil.statsMcts, strStat, aggType);
-            statTable = "line_data_mcts ld\n";
-            statField = strStat.replace("MCTS_", "").toLowerCase();
+            if (aggType != null) {
+              //TODO implement agg logic
+              statTable = "line_data_mctc ld";
+              MVUtil.isAggTypeValid(MVUtil.statsMctc, strStat, aggType);
+            }else{
+              statTable = "line_data_mcts ld\n";
+              statField = strStat.replace("MCTS_", "").toLowerCase();
+            }
           } else if (MVUtil.statsRhist.containsKey(strStat)) {
             tableStats = MVUtil.statsRhist;
             statTable = "line_data_rhist ld\n";
