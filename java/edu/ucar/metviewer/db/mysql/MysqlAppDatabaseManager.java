@@ -191,7 +191,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rps'  FROM "
             + "line_data_rps  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) rps)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pct'  FROM "
-            + "line_data_pct  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) pct)\n";
+            + "line_data_pct  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) pct)\n"
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mctc'  FROM "
+            + "line_data_mctc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mctc)\n";
 
 
     for (String database : currentDBName) {
@@ -199,7 +201,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       try (Connection con = getConnection(database);
            PreparedStatement stmt = con.prepareStatement(strSql, ResultSet.TYPE_FORWARD_ONLY,
                    ResultSet.CONCUR_READ_ONLY)) {
-        for (int i = 1; i <= 24; i++) {
+        for (int i = 1; i <= 25; i++) {
           stmt.setString(i, strFcstVar);
         }
         res = stmt.executeQuery();
@@ -303,6 +305,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 23:
                 listStatName.addAll(MVUtil.statsPct.keySet());
+                break;
+              case 24:
+                listStatName.addAll(MVUtil.statsMctc.keySet());
                 break;
               default:
 
@@ -778,6 +783,56 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
     result.put("numPctThresh", numPctThresh);
     result.put("pctThresh", pctThresh);
+
+    return result;
+  }
+
+  private Map<String, Integer> getMctcNcatInfo(String query, String currentDBName) {
+    int numNcat = 0;
+    int nCat = -1;
+    Map<String, Integer> result = new HashMap<>();
+    try (Connection con = getConnection(currentDBName);
+         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                 ResultSet.CONCUR_READ_ONLY);
+         ResultSet resultSet = stmt.executeQuery(query)
+    ) {
+
+      //  validate and save the number of thresholds
+      while (resultSet.next()) {
+        nCat = resultSet.getInt(1);
+        numNcat++;
+      }
+
+    } catch (SQLException e) {
+      logger.error(ERROR_MARKER, e.getMessage());
+    }
+    result.put("numNcat", numNcat);
+    result.put("nCat", nCat);
+
+    return result;
+  }
+
+  private Map<String, Integer> getMctcEcValueInfo(String query, String currentDBName) {
+    int numEcValue = 0;
+    int ecValue = -1;
+    Map<String, Integer> result = new HashMap<>();
+    try (Connection con = getConnection(currentDBName);
+         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                 ResultSet.CONCUR_READ_ONLY);
+         ResultSet resultSet = stmt.executeQuery(query)
+    ) {
+
+      //  validate and save the number of thresholds
+      while (resultSet.next()) {
+        ecValue = resultSet.getInt(1);
+        numEcValue++;
+      }
+
+    } catch (SQLException e) {
+      logger.error(ERROR_MARKER, e.getMessage());
+    }
+    result.put("numEcValue", numEcValue);
+    result.put("ecValue", ecValue);
 
     return result;
   }
@@ -1314,7 +1369,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     String error = "invalid number of PCT thresholds ("
                             + pctThreshInfo.get("numPctThresh") + ") found for ";
                     if (!serName[serNameInd].equals("NA")) {
-                      error = error +serName[serNameInd] + " = '"
+                      error = error + serName[serNameInd] + " = '"
                               + ser.getStr(serName[serNameInd]) + "' AND ";
                     }
                     error = error + "database " + job.getCurrentDBName().get(i) + "'";
@@ -1362,6 +1417,159 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       } else {
         pctThreshInfo.put("pctThresh", -1);
+      }
+
+
+      /*
+       *  For agg_stat MCTC plots, retrieve the sizes of MCTC dimension
+       * of the contingency table and ec_value for each series.
+       * Make sure that all sizes and ec_value are distinct and equal
+       */
+
+      // TODO  FCST_THRESH and OBS_THRESH columns would also remain constant. more in the issue
+      Map<String, Integer> mctcNCatInfo = new HashMap<>();
+      Map<String, Integer> mctcEcValueInfo = new HashMap<>();
+      if (job.getAggMctc()) {
+
+        MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap())
+                .getRows();
+        MVOrderedMap[] forecastVars;
+
+        forecastVars = MVUtil.permute((MVOrderedMap) job.getDepGroups()[0].get("dep" + intY))
+                .getRows();
+
+        for (int forecastVarsInd = 0; forecastVarsInd < forecastVars.length; forecastVarsInd++) {
+          MVOrderedMap stats = forecastVars[forecastVarsInd];
+          String[] vars = stats.getKeyList();
+          int seriesLength = series.length;
+          if (seriesLength == 0) {
+            seriesLength = 1;
+          }
+          for (int varsInd = 0; varsInd < vars.length; varsInd++) {
+            int[] seriesNcat = new int[seriesLength];
+            int[] seriesEcValue = new int[seriesLength];
+            for (int seriesInd = 0; seriesInd < seriesLength; seriesInd++) {
+              MVOrderedMap ser = new MVOrderedMap();
+              String[] serName = new String[]{"NA"};
+              if (series.length > 0) {
+                ser = series[seriesInd];
+                serName = ser.getKeyList();
+              }
+              for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
+                String selMctcNcat = "SELECT DISTINCT ld.n_cat\nFROM\n  "
+                        + "stat_header h,\n  line_data_mctc ld\n";
+                String selMctcEcValue = "SELECT DISTINCT ld.ec_value\nFROM\n  "
+                        + "stat_header h,\n  line_data_mctc ld\n";
+                String commonSelect= "WHERE";
+                if (indyVarFormatted.length() > 0 && job.getIndyVal().length > 0) {
+                  commonSelect = commonSelect + BINARY + indyVarFormatted
+                          + " IN (" + MVUtil.buildValueList(
+                          job.getIndyVal()) + ")\n  AND ";
+                }
+                if (!serName[serNameInd].equals("NA")) {
+                  commonSelect = commonSelect + BINARY + serName[serNameInd]
+                          + " = '" + ser.getStr(serName[serNameInd]) + "'";
+                }
+                if (!vars[varsInd].equals("NA")) {
+                  String varReplaced = vars[varsInd].replace("&#38;", "&").replace("&gt;", ">")
+                          .replace("&lt;", "<");
+                  commonSelect = commonSelect + " AND" + BINARY + " fcst_var='" + varReplaced + "' ";
+                }
+                if (plotFixWhere.length() > 0) {
+                  if (!commonSelect.endsWith("WHERE")) {
+                    commonSelect = commonSelect + "  AND";
+                  }
+                  commonSelect = commonSelect + plotFixWhere;
+                }
+                commonSelect = commonSelect + "  AND ld.stat_header_id = h.stat_header_id;";
+                selMctcNcat = selMctcNcat + commonSelect;
+                selMctcEcValue = selMctcEcValue + commonSelect;
+
+                printStreamSql.println(selMctcNcat + "\n");
+                printStreamSql.println(selMctcEcValue + "\n");
+                printStreamSql.flush();
+
+
+                //  run the MCTC thresh query
+                List<String> errors = new ArrayList<>();
+                for (int i = 0; i < job.getCurrentDBName().size(); i++) {
+                  mctcNCatInfo = getMctcNcatInfo(selMctcNcat, job.getCurrentDBName().get(i));
+                  mctcEcValueInfo = getMctcEcValueInfo(selMctcEcValue, job.getCurrentDBName().get(i));
+                  if (1 != mctcNCatInfo.get("numNcat") || 1 != mctcEcValueInfo.get("numEcValue")) {
+                    String error = "number of MCTC N_CAT (" + mctcNCatInfo.get("numNcat") + ") or EC_VALUE (" + mctcEcValueInfo.get("numEcValue") + " ) not distinct for ";
+                    if (!serName[serNameInd].equals("NA")) {
+                      error = error + "for " + serName[serNameInd]
+                              + " = '" + ser.getStr(serName[serNameInd]) + "' AND ";
+                    }
+
+
+                    error = error + "database  " + job.getCurrentDBName().get(i) + "'";
+                    if (!vars[varsInd].equals("NA")) {
+                      error = error + "' AND fcst_var='" + vars[varsInd] + "'";
+                    }
+                    errors.add(error);
+                  } else if (1 > mctcNCatInfo.get("numNcat") || 1 > mctcEcValueInfo.get("numEcValue")) {
+                    String error = "invalid number of MCTC N_CAT ("
+                            + mctcNCatInfo.get("numNcat") + ") or EC_VALUE (" + mctcEcValueInfo.get("numEcValue")+ ") found for ";
+                    if (!serName[serNameInd].equals("NA")) {
+                      error = error + serName[serNameInd] + " = '"
+                              + ser.getStr(serName[serNameInd]) + "' AND ";
+                    }
+                    error = error + "database " + job.getCurrentDBName().get(i) + "'";
+                    if (!vars[varsInd].equals("NA")) {
+                      error = error + "' AND fcst_var='" + vars[varsInd] + "'";
+                    }
+                    errors.add(error);
+                  } else {
+                    errors.add(null);
+                    seriesNcat[seriesInd] = mctcNCatInfo.get("nCat");
+                    seriesEcValue[seriesInd] = mctcEcValueInfo.get("ecValue");
+                  }
+                }
+                boolean noErrors = false;
+                for (String error : errors) {
+                  if (error == null) {
+                    noErrors = true;
+                    break;
+                  }
+                }
+                if (!noErrors) {
+                  for (String error : errors) {
+                    if (error != null) {
+                      throw new ValidationException(error);
+                    }
+                  }
+                }
+              }
+
+            }
+            boolean allEqual = true;
+            for (Integer s : seriesNcat) {
+              if (!s.equals(seriesNcat[0])) {
+                allEqual = false;
+                break;
+              }
+            }
+            for (Integer s : seriesEcValue) {
+              if (!s.equals(seriesEcValue[0])) {
+                allEqual = false;
+                break;
+              }
+            }
+            if (!allEqual) {
+              // TODO make the error message like in the issue
+              // ERROR  : aggr_mctc_lines() -> when aggregating MCTC lines the size of the contingency table must remain the same for all lines.
+              String error = "Different value for MCTC N_CAT or EC_VALUE  for individual series!";
+              throw new ValidationException(error);
+            } else {
+              mctcNCatInfo.put("nCat", seriesNcat[0]);
+              mctcEcValueInfo.put("ecValue", seriesEcValue[0]);
+            }
+          }
+        }
+
+      } else {
+        mctcNCatInfo.put("nCat", -1);
       }
 
 
@@ -1476,6 +1684,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             aggType = MVUtil.ECNT;
           } else if (job.getAggRps()) {
             aggType = MVUtil.RPS;
+          } else if (job.getAggMctc()) {
+            aggType = MVUtil.MCTC;
           }
 
 
@@ -1542,10 +1752,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsMcts.containsKey(strStat)) {
             tableStats = MVUtil.statsMcts;
             if (aggType != null) {
-              //TODO implement agg logic
-              statTable = "line_data_mctc ld";
+              statTable = "line_data_mctc ld, line_data_mctc_cnt ldt";
               MVUtil.isAggTypeValid(MVUtil.statsMctc, strStat, aggType);
-            }else{
+              for (int i = 1; i < mctcNCatInfo.get("nCat") * mctcNCatInfo.get("nCat"); i++) {
+                statTable += ",\n  line_data_mctc_cnt ldt" + i;
+              }
+              statTable += "\n";
+            } else {
               statTable = "line_data_mcts ld\n";
               statField = strStat.replace("MCTS_", "").toLowerCase();
             }
@@ -1718,6 +1931,23 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                         + "  ldt" + i + ".on_i";
               }
             }
+
+          } else if (job.getAggMctc()) {
+            selectStat += ",\n  'NA' stat_value,\n  ec_value,\n  ld.n_cat, total, \n";
+            for (int i = 0; i < mctcNCatInfo.get("nCat") * mctcNCatInfo.get("nCat"); i++) {
+              if (i == 0) {
+                selectStat += " ldt.i_value  i_value_0, ldt.j_value  j_value_0,  ldt.fi_oj  fi_oj_0,\n";
+              } else {
+                selectStat += " ldt" + i + ".i_value  i_value_" + i + ", ldt" + i + ".j_value  j_value_" + i + ", ldt" + i + ".fi_oj  fi_oj_" + i;
+                if (i != mctcNCatInfo.get("nCat") * mctcNCatInfo.get("nCat") - 1) {
+                  selectStat += ",";
+                }
+                selectStat += "\n";
+              }
+
+            }
+
+
           } else if (job.getAggNbrCnt()) {
             selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss, ld.afss, ld.ufss, ld.f_rate, ld.o_rate ";
           } else if (job.getAggRps()) {
@@ -1833,6 +2063,23 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                         + "  AND ldt" + i + ".i_value = " + i;
               }
             }
+          }
+          if (job.getAggMctc()) {
+            strStatNaClause = "\n  AND ld.line_data_id = ldt.line_data_id\n";
+            int counter = 0;
+            for (int i = 1; i <= mctcNCatInfo.get("nCat"); i++) {
+              for (int j = 1; j <= mctcNCatInfo.get("nCat"); j++) {
+                if (counter == 0) {
+                  strStatNaClause += "AND ld.line_data_id = ldt.line_data_id\n";
+                  strStatNaClause += "AND ldt.i_value = " + i + " AND ldt.j_value = " + j + "\n";
+                } else {
+                  strStatNaClause += "AND ld.line_data_id = ldt" + counter + ".line_data_id\n";
+                  strStatNaClause += "AND ldt" + counter + ".i_value = " + i + " AND ldt" + counter + ".j_value = " + j + "\n";
+                }
+                counter = counter + 1;
+              }
+            }
+
           }
 
           //  build the query
@@ -2496,10 +2743,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     for (String selectStats : selectStatsArr) {
       selectStats = selectStats.trim();
       //add table prefix if it is missing
-      if (!selectStats.startsWith("s.") ) {
-        if(!selectStats.startsWith("HOUR")) {
+      if (!selectStats.startsWith("s.")) {
+        if (!selectStats.startsWith("HOUR")) {
           newSelectListStat.append("s.");
-        }else {
+        } else {
           selectStats = selectStats.replace("(", "(s.");
         }
       }
