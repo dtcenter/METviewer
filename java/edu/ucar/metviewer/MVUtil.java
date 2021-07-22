@@ -62,6 +62,7 @@ public class MVUtil {
    */
   public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
   public static final String CTC = "ctc"; //Contingency Table Statistics
+  public static final String MCTC = "mctc"; //Multi-category Contingency Table Count
   public static final String NBRCTC = "nbrctc"; //Contingency Table Statistics
   public static final String SL1L2 = "sl1l2"; //Scalar partial sums
   public static final String GRAD = "grad"; //Gradient partial sums
@@ -646,7 +647,7 @@ public class MVUtil {
   }
 
   static {
-    statsMctc.put("MCTS_HSS_EC", new String[]{"bc", "MCTC"});
+    statsMctc.put("MCTS_HSS_EC", new String[]{"bc", MCTC});
   }
 
   static {
