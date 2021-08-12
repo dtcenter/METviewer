@@ -1426,7 +1426,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
        * Make sure that all sizes and ec_value are distinct and equal
        */
 
-      // TODO  FCST_THRESH and OBS_THRESH columns would also remain constant. more in the issue
       Map<String, Integer> mctcNCatInfo = new HashMap<>();
       Map<String, Integer> mctcEcValueInfo = new HashMap<>();
       if (job.getAggMctc()) {
@@ -1557,9 +1556,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               }
             }
             if (!allEqual) {
-              // TODO make the error message like in the issue
-              // ERROR  : aggr_mctc_lines() -> when aggregating MCTC lines the size of the contingency table must remain the same for all lines.
-              String error = "Different value for MCTC N_CAT or EC_VALUE  for individual series!";
+              String error = "ERROR  : aggr_mctc_lines() -> when aggregating MCTC lines the size of the contingency table and EC_VALUE must remain the same for all lines.";
               throw new ValidationException(error);
             } else {
               mctcNCatInfo.put("nCat", seriesNcat[0]);
