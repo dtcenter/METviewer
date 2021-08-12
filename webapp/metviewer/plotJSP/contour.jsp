@@ -610,7 +610,7 @@
                             <option value="grad">Gradient partial sums (GRAD)</option>
                             <option value="ecnt">Ensemble Continuous Statistics (ECNT)</option>
                             <option value="rps">Ranked Probability Score Statistics (RPS)</option>
-
+                            <option value="mctc">Multi-category Contingency Table Count (MCTC)</option>
                         </select>
                         </td>
 
