@@ -380,6 +380,7 @@ public final class MVPlotJobParser {
     } else if (job.getDataFileTmpl().isEmpty()) {
       return "lacks data_file";
     } else if ((job.getAggCtc()
+            || job.getAggMctc()
             || job.getAggSl1l2()
             || job.getAggSal1l2()
             || job.getAggGrad()
@@ -813,13 +814,14 @@ public final class MVPlotJobParser {
     xmlStr.append("</plot_fix>");
 
     //  agg_stat
-    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2() || job.getAggPct()
+    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2() || job.getAggPct()|| job.getAggMctc()
             || job.getAggNbrCnt() || job.getAggSsvar()
             || job.getAggVl1l2() || job.getAggGrad() || job.getAggEcnt())
             || job.isModeRatioJob()) {
       xmlStr.append(
               "<agg_stat>"
                       + "<agg_ctc>" + (job.getAggCtc() ? "TRUE" : "FALSE") + "</agg_ctc>"
+                      + "<agg_mctc>" + (job.getAggMctc() ? "TRUE" : "FALSE") + "</agg_mctc>"
                       + "<agg_nbrctc>" + (job.getAggNbrCtc() ? "TRUE" : "FALSE") + "</agg_nbrctc>"
                       + "<agg_sl1l2>" + (job.getAggSl1l2() ? "TRUE" : "FALSE") + "</agg_sl1l2>"
                       + "<agg_grad>" + (job.getAggGrad() ? "TRUE" : "FALSE") + "</agg_grad>"
@@ -1766,7 +1768,9 @@ public final class MVPlotJobParser {
           boolean val = nodeAggStat.value.equalsIgnoreCase("true");
           if (nodeAggStat.tag.equals("agg_ctc")) {
             job.setAggCtc(val);
-          } else if (nodeAggStat.tag.equals("agg_nbrctc")) {
+          } else if (nodeAggStat.tag.equals("agg_mctc")) {
+            job.setAggMctc(val);}
+          else if (nodeAggStat.tag.equals("agg_nbrctc")) {
             job.setAggNbrCtc(val);
           } else if (nodeAggStat.tag.equals("agg_sl1l2")) {
             job.setAggSl1l2(val);

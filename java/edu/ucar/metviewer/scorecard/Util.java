@@ -65,6 +65,8 @@ public class Util {
       orderedMap = MVUtil.statsNbrcnt;
     } else if (MVUtil.statsEcnt.containsKey(stat)) {
       orderedMap = MVUtil.statsEcnt;
+    } else if (MVUtil.statsMctc.containsKey(stat)) {
+      orderedMap = MVUtil.statsMctc;
     } else {
       orderedMap = new HashMap<>();
     }
