@@ -937,21 +937,16 @@ public class MVUtil {
    * @param date   (optional) String representation of the date from which to offset
    * @return String representation of the offset date
    */
-  public static String parseDateOffset(final MVNode node, final String format, final String date)
-          throws ValidationException {
+  public static String parseDateOffset(final MVNode node, final String format, final String date) {
     int intOffset = 0;
     int intHour = 0;
 
     for (int i = 0; i < node.children.length; i++) {
       MVNode nodeChild = node.children[i];
-      try {
-        if (nodeChild.tag.equals("day_offset")) {
-          intOffset = Integer.parseInt(nodeChild.value);
-        } else if (nodeChild.tag.equals("hour")) {
-          intHour = Integer.parseInt(nodeChild.value);
-        }
-      } catch (NumberFormatException e) {
-        throw new ValidationException("day_offset or hour is invalid");
+      if (nodeChild.tag.equals("day_offset")) {
+        intOffset = Integer.parseInt(nodeChild.value);
+      } else if (nodeChild.tag.equals("hour")) {
+        intHour = Integer.parseInt(nodeChild.value);
       }
     }
 
@@ -960,8 +955,7 @@ public class MVUtil {
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     try {
       cal.setTime(formatOffset.parse(date));
-    } catch (ParseException e) {
-      throw new ValidationException("date" + date + " is invalid");
+    } catch (Exception e) {
     }
     cal.set(Calendar.HOUR_OF_DAY, intHour);
     cal.set(Calendar.MINUTE, 0);
