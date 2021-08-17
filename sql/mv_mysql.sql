@@ -395,6 +395,10 @@ CREATE TABLE line_data_cnt
     anom_corr_uncntr_bcl DOUBLE DEFAULT -9999,
     anom_corr_uncntr_bcu DOUBLE DEFAULT -9999,
 
+    si                   DOUBLE DEFAULT -9999,
+    si_bcl               DOUBLE DEFAULT -9999,
+    si_bcu               DOUBLE DEFAULT -9999,
+
 
     CONSTRAINT line_data_cnt_data_file_id_pk
         FOREIGN KEY (data_file_id)
