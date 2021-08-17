@@ -546,6 +546,7 @@ public class MVUtil {
     statsCnt.put("MSESS", new String[]{"bc", SL1L2});
     statsCnt.put("RMSFA", new String[]{"bc", SAL1L2});
     statsCnt.put("RMSOA", new String[]{"bc", SAL1L2});
+    statsCnt.put("SI", new String[]{"bc", SL1L2});
   }
 
   static {

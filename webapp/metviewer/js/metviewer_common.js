@@ -202,6 +202,7 @@ value_to_desc_map['FGBAR'] = 'Mean of absolute value of forecast gradients';
 value_to_desc_map['MGBAR'] = 'Mean of maximum of absolute values of forecast and observed gradients';
 value_to_desc_map['EGBAR'] = 'Mean of absolute value of forecast minus observed gradients';
 value_to_desc_map['S1'] = 'S1 score';
+value_to_desc_map['SI'] = 'Scatter Index';
 value_to_desc_map['S1_OG'] = 'S1 score with respect to observed gradient';
 value_to_desc_map['FGOG_RATIO'] = 'Ratio of forecast and observed gradients';
 value_to_desc_map['SSVAR_SPREAD'] = 'RHIST_SPREAD is preferred';

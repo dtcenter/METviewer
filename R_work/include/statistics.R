@@ -117,6 +117,7 @@ calcRMSE    = function(d){ return( sqrt(calcMSE(d)) ); }
 calcESTDEV    = function(d){ return( calcStdDev( calcME(d) * d$total, calcMSE(d) * d$total, d$total) ); }
 calcBCMSE    = function(d){ return( calcMSE(d) - (d$fbar - d$obar)^2 ); }
 calcBCRMSE    = function(d){ return( sqrt(calcBCMSE(d)) ); }
+calcSI    = function(d){return( calcRMSE(d)/ calcOBAR(d));}
 
 # SSVAR stat calculations
 calcSSVAR_FBAR    = function(d){ return( calcFBAR(d) ); }
