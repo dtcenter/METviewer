@@ -112,18 +112,27 @@ public class RhistJobManager extends JobManager {
       }
       Map<String, Object> info = createInfoMap(job, intNumDepSeries);
       RscriptStatManager rscriptStatManager = new RscriptNoneStatManager(mvBatch);
-      rscriptStatManager
-              .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
-      info.put("data_file", dataFile);
+      if (job.getExecutionType().equals("Rscript")) {
+        rscriptStatManager
+                .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
+        info.put("data_file", dataFile);
 
-      rscriptStatManager.runRscript(job, info);
+        rscriptStatManager.runRscript(job, info);
+      } else {
+        Map<String, Object> yamlInfo = createYamlInfoMap(job);
+        yamlInfo.put("normalized_histogram", job.getNormalizedHistogram()  ? "True" : "False");
+        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, new ArrayList<>());
+        job.setPlotTmpl(this.getPythonScript());
+        yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);
+        rscriptStatManager.runPythonScript(job, yamlInfo);
+      }
 
     }
 
   }
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/line/rhist.py";
   }
 
 }
