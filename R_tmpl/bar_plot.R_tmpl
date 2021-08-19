@@ -155,8 +155,8 @@ for( listAllStatsName in names(listAllStats) ){
   else                              { listNStats = listPlotData1$nstats; }
    if ( strDep1Stat == 'DMAP_GBETA'){
             unique_beta_value = unique(listAllStats[[listAllStatsName]][c('beta_value')])
-            if (length(unique_beta_value) > 1){
-              cat("\n  WARNING: note that beta_value differs for one or more GBETA values for "+  listAllStatsName + ", so that comparisons across cases may not be comparable.\n");
+            if (nrow(unique_beta_value) > 1){
+              cat("\n  WARNING: note that beta_value differs for one or more GBETA values for ",listAllStatsName,", so that comparisons across cases may not be comparable.\n");
             }
          }
   listLegendNotOrdered[depIndex] = listAllStatsName;

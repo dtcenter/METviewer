@@ -363,8 +363,8 @@ for( ind in 1: length(listAllStats) ){
   }
   if ( strDep1Stat == 'DMAP_GBETA'){
       unique_beta_value = unique(listAllStats[[listAllStatsName]][c('beta_value')])
-      if (length(unique_beta_value) > 1){
-        cat("\n  WARNING: note that beta_value differs for one or more GBETA values for "+  listAllStatsName + ", so that comparisons across cases may not be comparable.\n");
+      if (nrow(unique_beta_value) > 1){
+        cat("\n  WARNING: note that beta_value differs for one or more GBETA values for ",listAllStatsName ,", so that comparisons across cases may not be comparable.\n");
       }
    }
   listLegendNotOrdered[intLegendIndex] = listAllStatsName;
@@ -430,8 +430,8 @@ if( 0 < length(listDep2Plot) ){
       }
       if ( strDep2Stat == 'DMAP_GBETA'){
             unique_beta_value = unique(listAllStats[[listAllStatsName]][c('beta_value')])
-            if (length(unique_beta_value) > 1){
-              cat("\n  WARNING: note that beta_value differs for one or more GBETA values for "+  listAllStatsName + ", so that comparisons across cases may not be comparable.\n");
+            if (nrow(unique_beta_value) > 1){
+              cat("\n  WARNING: note that beta_value differs for one or more GBETA values for ",listAllStatsName,", so that comparisons across cases may not be comparable.\n");
             }
          }
     listLegendNotOrdered[intLegendIndex] = listAllStatsName;
