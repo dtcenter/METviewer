@@ -121,6 +121,7 @@ public class RhistJobManager extends JobManager {
       } else {
         Map<String, Object> yamlInfo = createYamlInfoMap(job);
         yamlInfo.put("normalized_histogram", job.getNormalizedHistogram()  ? "True" : "False");
+        yamlInfo.put("stat_input", dataFile);
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, new ArrayList<>());
         job.setPlotTmpl(this.getPythonScript());
         yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);
