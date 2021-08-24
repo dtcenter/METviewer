@@ -2143,6 +2143,9 @@ CREATE TABLE line_data_dmap
     zhu_min        DOUBLE,
     zhu_max        DOUBLE,
     zhu_mean       DOUBLE,
+    g              DOUBLE,
+    gbeta          DOUBLE,
+    beta_value     DOUBLE,
     CONSTRAINT line_data_dmap_data_file_id_pk
         FOREIGN KEY (data_file_id)
             REFERENCES data_file (data_file_id),
