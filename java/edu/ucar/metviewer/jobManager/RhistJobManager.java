@@ -133,7 +133,7 @@ public class RhistJobManager extends JobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/line/rhist.py";
+    return "/plots/histogram/rhist.py";
   }
 
 }
