@@ -1876,6 +1876,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
           selectStat += ",\n  '" + strStat + "' stat_name";
 
+          // need to add BETA_VALUE  for DMP stats
+          if (MVUtil.statsDmap.containsKey(strStat)){
+            selectStat += ",\n   beta_value";
+          }
+
+
           //  add the appropriate stat table members, depending
           // on the use of aggregation and stat calculation
           if (job.getAggCtc() || job.getAggNbrCtc()) {

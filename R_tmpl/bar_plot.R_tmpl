@@ -153,6 +153,12 @@ for( listAllStatsName in names(listAllStats) ){
   listSeries1 = append(listSeries1, listPlotData1$series);
   if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
   else                              { listNStats = listPlotData1$nstats; }
+   if ( strDep1Stat == 'DMAP_GBETA'){
+            unique_beta_value = unique(listAllStats[[listAllStatsName]][c('beta_value')])
+            if (nrow(unique_beta_value) > 1){
+              cat("\n  WARNING: note that beta_value differs for one or more GBETA values for ",listAllStatsName,", so that comparisons across cases may not be comparable.\n");
+            }
+         }
   listLegendNotOrdered[depIndex] = listAllStatsName;
   depIndex = depIndex + 1;
 }

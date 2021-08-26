@@ -474,6 +474,8 @@ public class MVUtil {
     statsDmap.put("DMAP_ZHU_MIN", new String[]{""});
     statsDmap.put("DMAP_ZHU_MAX", new String[]{""});
     statsDmap.put("DMAP_ZHU_MEAN", new String[]{""});
+    statsDmap.put("DMAP_G", new String[]{""});
+    statsDmap.put("DMAP_GBETA", new String[]{""});
   }
 
   static {

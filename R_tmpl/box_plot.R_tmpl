@@ -340,6 +340,12 @@ for( listAllStatsName in names(ll) ){
       cat('\n', listAllStatsName, '\n');
       revision_stats[[length(revision_stats)+1]] <- stats;
   }
+  if ( strDep1Stat == 'DMAP_GBETA'){
+        unique_beta_value = unique(ll[[listAllStatsName]][c('beta_value')])
+        if (nrow(unique_beta_value) > 1){
+          cat("\n  WARNING: note that beta_value differs for one or more GBETA values for ",listAllStatsName,", so that comparisons across cases may not be comparable.\n");
+        }
+     }
   listAllStats1[[listAllStatsName]] = listBox;
 }
 
@@ -426,6 +432,12 @@ for( listAllStatsName in names(ll) ){
       cat('\n', listAllStatsName, '\n');
       revision_stats[[length(revision_stats)+1]] <- stats;
   }
+  if ( strDep2Stat == 'DMAP_GBETA'){
+          unique_beta_value = unique(ll[[listAllStatsName]][c('beta_value')])
+          if (nrow(unique_beta_value) > 1){
+            cat("\n  WARNING: note that beta_value differs for one or more GBETA values for ",listAllStatsName,", so that comparisons across cases may not be comparable.\n");
+          }
+       }
   listAllStats2[[listAllStatsName]] = listBox;
 }
 #add Y2 DIFF series - if exist
