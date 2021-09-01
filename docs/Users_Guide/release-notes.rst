@@ -7,10 +7,10 @@ https://github.com/dtcenter/METviewer/issues
 
 
 Version 4.1.0 release notes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 beta2 release (20210901)
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 * New Features:
    * **Plot new CNT columns for the Scatter Index** (`#317 <https://github.com/dtcenter/METviewer/issues/317>`_)
    * **Python implementation of Ensemble Spread-Skill plot (ens_ss)** (`#308 <https://github.com/dtcenter/METviewer/issues/308>`_)
@@ -30,7 +30,7 @@ beta2 release (20210901)
 
 
 beta1 release (20210706)
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 * New Features:
    * **Python implementation of the Box plot** (`#292 <https://github.com/dtcenter/METviewer/issues/292>`_)
 
