@@ -290,18 +290,15 @@ public abstract class JobManager {
     info.put("colors",
             job.getColors().isEmpty() ? "rainbow(" + intNumDepSeries + ")" : job.getColors()
     );
-    info
-            .put("pch",
+    info.put("pch",
                     job.getPch().isEmpty() ? MVUtil.printRCol(
                             MVUtil.rep(20, intNumDepSeries)) : job.getPch());
     info.put("type", job.getType().isEmpty() ? MVUtil.printRCol(
             MVUtil.rep("b", intNumDepSeries)) : job.getType());
-    info
-            .put("lty",
+    info.put("lty",
                     job.getLty().isEmpty() ? MVUtil.printRCol(
                             MVUtil.rep(1, intNumDepSeries)) : job.getLty());
-    info
-            .put("lwd",
+    info.put("lwd",
                     job.getLwd().isEmpty() ? MVUtil.printRCol(
                             MVUtil.rep(1, intNumDepSeries)) : job.getLwd());
     info.put("con_series", job.getConSeries().isEmpty() ? MVUtil.printRCol(
@@ -409,7 +406,6 @@ public abstract class JobManager {
       }
     }
     yamlInfo.put("indy_vals", listIndyValFmt);
-
     String[] listIndyLabel = job.getIndyLabel();
     if (!"0".equals(job.getXtlabFreq())) {
       int intDecim = 0;

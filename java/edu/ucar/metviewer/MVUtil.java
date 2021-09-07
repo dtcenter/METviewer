@@ -2401,10 +2401,10 @@ public class MVUtil {
     tableRTags.put("plot_units", job.getPlotUnits());
 
     String[] valArr = job.getMar().replace("c(", "").replace(")", "").split(",");
-    List<Integer> vals = new ArrayList<>();
+    List<Double> vals = new ArrayList<>();
     try {
       for (String s : valArr) {
-        vals.add(Integer.parseInt(s));
+        vals.add(Double.parseDouble(s));
       }
     } catch (Exception e) {
     }
@@ -2414,7 +2414,7 @@ public class MVUtil {
     vals = new ArrayList<>();
     try {
       for (String s : valArr) {
-        vals.add(Integer.parseInt(s));
+        vals.add(Double.parseDouble(s));
       }
     } catch (Exception e) {
     }
