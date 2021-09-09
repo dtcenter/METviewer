@@ -101,11 +101,6 @@ public class AggPythonManager extends PythonManager {
         List<String> statList = new ArrayList<>();
         statList.add(stat);
         yamlInfo.put("list_stat_1", statList);
-
-
-        Map<String, String> list_static_val = new HashMap<>();
-        list_static_val.put("fcst_var", fcstVar);
-        yamlInfo.put("list_static_val", list_static_val);
         yamlInfo.put("series_val_1", seriesList);
 
         yamlInfo.put("derived_series_1", seriesDiffList);

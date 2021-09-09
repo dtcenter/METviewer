@@ -116,13 +116,7 @@ public class AggRscriptManager extends RscriptManager {
 
         tableAggStatInfo.put("agg_stat1", "c(\"" + stat + "\")");
         tableAggStatInfo.put("contour_diff", "FALSE");
-
-
         tableAggStatInfo.put("series1_list", seriesList.toString());
-
-
-        tableAggStatInfo.put("agg_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
-
         tableAggStatInfo.put("series1_diff_list", seriesDiffList.toString());
         tableAggStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
         tableAggStatInfo.put("fix_val_list_eq", listFixedValEx.toString());

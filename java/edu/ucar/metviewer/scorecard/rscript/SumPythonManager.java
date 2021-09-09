@@ -149,7 +149,6 @@ public class SumPythonManager extends PythonManager {
         tableCalcStatInfo.put("series1_list", seriesList.toString());
 
         tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
-        tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
         String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
         tableCalcStatInfo
                 .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
