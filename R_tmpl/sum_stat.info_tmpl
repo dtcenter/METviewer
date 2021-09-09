@@ -20,10 +20,7 @@ listSeries1Val = #<series1_list>#;
 listSeries2Val = #<series2_list>#;
 
 listFixedValEx = #<fix_val_list_eq>#;
-		
 
-
-listStaticVal = #<sum_stat_static>#;
 
 # I/O files
 strInputDataFile = "#<sum_stat_input>#";
