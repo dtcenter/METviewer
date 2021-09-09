@@ -91,7 +91,6 @@ public class RelyJobManager extends JobManager {
         listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
       }
       mapAggStatStatic.put("fcst_var", listFcstVar[0]);
-      info.put("agg_stat_static", mapAggStatStatic.getRDecl());
 
       MVOrderedMap mapDep1Plot = new MVOrderedMap();
       mapDep1Plot.put(listFcstVar[0], new String[]{"PSTD_CALIBRATION", "PSTD_BASER", "PSTD_NI"});
@@ -129,8 +128,6 @@ public class RelyJobManager extends JobManager {
           fcst_var_val.put(fcst_var, new ArrayList<>(list_stat));
         }
         yamlInfo.put("fcst_var_val_1",fcst_var_val);
-        mapAggStatStatic.put("fcst_var", listFcstVar[0]);
-        yamlInfo.put("list_static_val", mapAggStatStatic);
 
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, new ArrayList<>(0));
         rscriptStatManager.runPythonScript(job, yamlInfo);

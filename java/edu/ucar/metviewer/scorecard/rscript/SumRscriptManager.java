@@ -149,7 +149,6 @@ public class SumRscriptManager extends RscriptManager {
         tableCalcStatInfo.put("series1_list", seriesList.toString());
         tableCalcStatInfo.put("series2_list", "list()");
         tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
-        tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
 
         String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
         tableCalcStatInfo
