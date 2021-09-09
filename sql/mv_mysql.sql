@@ -46,7 +46,7 @@ CREATE TABLE stat_header
 (
     stat_header_id INT UNSIGNED NOT NULL,
     version        VARCHAR(8),
-    model          VARCHAR(40),
+    model          VARCHAR(80),
     descr          VARCHAR(40)  DEFAULT 'NA',
     fcst_var       VARCHAR(50),
     fcst_units     VARCHAR(100) DEFAULT 'NA',
