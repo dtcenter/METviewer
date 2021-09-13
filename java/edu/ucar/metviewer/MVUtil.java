@@ -103,6 +103,7 @@ public class MVUtil {
   public static final Map<String, String[]> statsSal1l2 = new HashMap<>();
   public static final Map<String, String[]> statsGrad = new HashMap<>();
   public static final Map<String, String[]> statsMctc = new HashMap<>();
+  public static final Map<String, String[]> statsSsidx = new HashMap<>();
 
 
   public static final int MAX_STR_LEN = 500;
@@ -651,6 +652,9 @@ public class MVUtil {
 
   static {
     statsMctc.put("MCTS_HSS_EC", new String[]{"bc", MCTC});
+  }
+  static {
+    statsSsidx.put("SS_INDEX", new String[]{});
   }
 
   static {
@@ -1698,6 +1702,8 @@ public class MVUtil {
       return "line_data_sal1l2";
     } else if (statsGrad.containsKey(strStat)) {
       return "line_data_grad";
+    } else if (statsSsidx.containsKey(strStat)) {
+      return "line_data_ssidx";
     } else {
       return "";
     }
