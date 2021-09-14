@@ -231,6 +231,7 @@ value_to_desc_map['ORANK_ENS_MEAN_OERR'] = 'The PERTURBED ensemble mean';
 value_to_desc_map['ORANK_SPREAD_OERR'] = 'The spread of the PERTURBED ensemble member values';
 value_to_desc_map['ORANK_SPREAD_PLUS_OERR'] = 'The square root of the sum of the unperturbed ensemble variance and the observation error variance';
 value_to_desc_map['RPS_COMP'] = 'Complement of the Ranked Probability Score';
+value_to_desc_map['SS_INDEX'] = 'Skill score index value';
 
 var listStatModeRatio = ["RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA",
     "RATIO_FSU_FSA", "RATIO_OSM_OSA", "RATIO_OSU_OSA", "RATIO_FSM_ASM", "RATIO_OSM_ASM",
