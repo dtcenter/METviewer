@@ -53,7 +53,7 @@ for( strDep1Name in names(listDep1Plot) ){
     for(strSeriesVal in names(listSeries1Val)){
       vectValPerms = c();
       for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-        vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+        vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
       }
       fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms ,  ];
 
@@ -74,7 +74,7 @@ if(length(listSeries2Val) > 0){
       for(strSeriesVal in names(listSeries2Val)){
         vectValPerms = c();
         for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-          vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+          vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]]);
         }
         fPlot = fPlot[dfPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms ,  ];
 

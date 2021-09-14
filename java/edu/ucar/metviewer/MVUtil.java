@@ -145,7 +145,7 @@ public class MVUtil {
   public static final String DEFAULT_DATABASE_GROUP = "NO GROUP";
 
   public static final String SEPARATOR = ",";
-
+  public static final String GROUP_SEPARATOR = ":";
 
   public static final String[] lineTypes = new String[]{
           "fho",
@@ -998,8 +998,8 @@ public class MVUtil {
     if (values != null && values.length > 0) {
       List<String> newValues = new ArrayList<>();
       for (String value : values) {
-        if (value.contains(",")) {
-          String[] valuesArr = value.split(",");
+        if (value.contains(GROUP_SEPARATOR)) {
+          String[] valuesArr = value.split(GROUP_SEPARATOR);
           for (String v : valuesArr) {
             newValues.add(v);
           }

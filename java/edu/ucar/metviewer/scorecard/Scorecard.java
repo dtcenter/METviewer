@@ -28,6 +28,7 @@ import org.apache.logging.log4j.MarkerManager;
 import java.io.File;
 import java.util.*;
 
+import static edu.ucar.metviewer.MVUtil.GROUP_SEPARATOR;
 import static edu.ucar.metviewer.MVUtil.RSCRIPT;
 
 /**
@@ -602,7 +603,7 @@ public class Scorecard {
     int numberOfAggColumns = 0;
     for (Map.Entry<String, List<Entry>> columnEntry : columns.entrySet()) {
       for (Entry entry : columnEntry.getValue()) {
-        if (entry.getName().contains(":") || entry.getName().contains(",")) {
+        if (entry.getName().contains(GROUP_SEPARATOR) || entry.getName().contains(",")) {
           numberOfAggColumns++;
           break;
         }

@@ -24,7 +24,7 @@ if(boolEventEqual){
     for(strSeriesVal in names(listSeries1Val)){
       vectValPerms = c();
       for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-        vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+        vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
       }
       fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep1Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
       eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
@@ -41,7 +41,7 @@ if(boolEventEqual){
       for(strSeriesVal in names(listSeries2Val)){
         vectValPerms = c();
         for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-          vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+          vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]]);
         }
         fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
         eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
@@ -81,7 +81,7 @@ buildPermData = function(dfStats, listPerm, fcst_var){
   for(intSeriesVal in 1:length(listSeriesVar)){
     strSeriesVar = listSeriesVar[intSeriesVal];
     strSeriesVal = listPerm[intSeriesVal];
-    vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+    vectValPerms= strsplit(strSeriesVal, ":")[[1]];
     vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
     dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
   }

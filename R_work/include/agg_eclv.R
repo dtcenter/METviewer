@@ -56,7 +56,7 @@ if ( nrow(sampleData) > 0){
       strSeriesVar=names(listSeries1Val)[[index]];
       valSeries = listSeries1Val[[strSeriesVar]];
       for(strVar in valSeries){
-        if( grepl(',', strVar)) {
+        if( grepl(':', strVar)) {
           newName = paste('Group_y1_',index,sep = "");
           listGroupToValue[[newName]]= strVar;
         }
@@ -186,7 +186,7 @@ if ( nrow(sampleData) > 0){
           strSeriesVal = as.integer(strSeriesVal);
           vectValPerms = strSeriesVal;
         }else{
-          vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+          vectValPerms= strsplit(strSeriesVal, ":")[[1]];
         }
         vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
         dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];

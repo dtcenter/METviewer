@@ -151,11 +151,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
       valSeries = listSeriesVal[[strSeriesVar]];
       valSeriesNew = c();
       for(strVar in valSeries){
-        if( grepl(':', strVar) ){
-          vectValPerms= strsplit(strVar, ":")[[1]];
-        }else{
-          vectValPerms= strsplit(strVar, ",")[[1]];
-        }
+        vectValPerms= strsplit(strVar, ":")[[1]];
         valSeriesNew = append(valSeriesNew, vectValPerms);
       }
       listVarsForEE[[strSeriesVar]] = valSeriesNew;
@@ -536,7 +532,7 @@ buildAllStats = function(dfStats, listSeriesVal, strDepStat,strDepName){
         #group is in
         vectValPerms = valPerm;
       }else{
-        vectValPerms= strsplit(valPerm, ",")[[1]];
+        vectValPerms= strsplit(valPerm, ":")[[1]];
         vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
       }
 
@@ -1471,9 +1467,9 @@ aggregateFieldValues = function(listSeries1Val, dfStatsPerm, strPerm, lineTypes,
   listBoot = list();
   for (strSeriesVal in names(listSeries1Val)) {
     for (index in 1 : length(listSeries1Val[[strSeriesVal]])) {
-      if (grepl(';', listSeries1Val[[strSeriesVal]][index])) {
+      if (grepl(':', listSeries1Val[[strSeriesVal]][index])) {
         #found the aggregated field
-        vectVal = strsplit(listSeries1Val[[strSeriesVal]][index], ";")[[1]];
+        vectVal = strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]];
         uniqueValid = unique(dfStatsPerm$fcst_valid_beg)
         uniqueLead = unique(dfStatsPerm$fcst_lead)
 

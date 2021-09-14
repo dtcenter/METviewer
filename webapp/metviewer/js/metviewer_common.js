@@ -4415,7 +4415,7 @@ function createSeriesElementForAxis(y_axis, series_var_indexes) {
                     for (var j = 0; j < valArr.length; j++) {
                         vals = vals + text(valArr[j]);
                         if (j !== valArr.length - 1) {
-                            vals = vals + ',';
+                            vals = vals + ':';
                         }
                     }
                     field.append($('<val />').text(vals));
@@ -4433,7 +4433,7 @@ function createSeriesElementForAxis(y_axis, series_var_indexes) {
                     for (var j = 0; j < valArr.length; j++) {
                         vals = vals + $(valArr[j]).val();
                         if (j !== valArr.length - 1) {
-                            vals = vals + ',';
+                            vals = vals + ':';
                         }
                     }
                     field.append($('<val />').text(vals));
@@ -6109,7 +6109,7 @@ function loadXMLHist() {
             } catch (err) {
             }
             $(series_arr[i]).find("val").each(function () {
-                var vals = $(this).text().split(",");
+                var vals = $(this).text().split(":");
 
                 for (var k = 0; k < vals.length; k++) {
                     series_var_val.push(vals[k]);
@@ -6443,7 +6443,7 @@ function loadXMLSeries() {
                     }
                 }
                 $(series_arr[i]).find("val").each(function () {
-                    var vals = $(this).text().split(",");
+                    var vals = $(this).text().split(":");
                     if (vals.length > 1) {
                         isGroup = true;
                     }
@@ -6590,7 +6590,7 @@ function loadXMLContour() {
         } catch (err) {
         }
         $(series_arr[0]).find("val").each(function () {
-            var vals = $(this).text().split(",");
+            var vals = $(this).text().split(":");
             for (var k = 0; k < vals.length; k++) {
                 series_var_val.push(vals[k]);
             }

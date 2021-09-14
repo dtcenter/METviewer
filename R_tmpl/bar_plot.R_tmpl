@@ -111,7 +111,7 @@ if( FALSE != boolEventEqual  ){
         for(strSeriesVal in names(listSeries1Val)){
           vectValPerms = c();
           for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-            vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+            vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
           }
           fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
         }

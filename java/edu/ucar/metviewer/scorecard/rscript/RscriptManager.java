@@ -14,6 +14,8 @@ import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static edu.ucar.metviewer.MVUtil.GROUP_SEPARATOR;
+
 /**
  * Constructs and runs Rscript
  *
@@ -110,7 +112,7 @@ public abstract class RscriptManager {
       strForList.append("`").append(entry.getKey()).append("` = c(");
       boolean isAggregatedField = false;
       for (Entry val : entry.getValue()) {
-        if(val.getName().contains(":")){
+        if(val.getName().contains(GROUP_SEPARATOR)){
           isAggregatedField = true;
         }
         if (strForList.indexOf(val.getName()) == -1) {

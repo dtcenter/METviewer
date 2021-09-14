@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import static edu.ucar.metviewer.MVUtil.GROUP_SEPARATOR;
 import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.BINARY;
 import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.DATE_FORMATTER;
 
@@ -137,7 +138,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           selectFields.append(entry.getKey()).append(",");
         }
         whereFields.append(BINARY).append(entry.getKey()).append(" IN ('")
-                .append(entry.getValue().getName().replaceAll(",", "','")).append("') AND ");
+                .append(entry.getValue().getName().replaceAll(GROUP_SEPARATOR, "','"))
+                .append("') AND ");
       }
     }
     for (Field fixedField : fixedVars) {
@@ -189,13 +191,13 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         whereFields.append("HOUR(fcst_valid_beg) IN (").append(values.toString()).append(") AND ");
       } else {
         for (Entry val : fixedField.getValues()) {
-          values.append(val.getName()).append(",");
+          values.append(val.getName()).append(GROUP_SEPARATOR);
         }
         if (values.length() > 0) {
           values.deleteCharAt(values.length() - 1);
         }
         whereFields.append(BINARY).append(fixedField.getName()).append(" IN ('")
-                .append(values.toString().replaceAll(",", "','").replaceAll(";", "','")).append("') AND ");
+                .append(values.toString().replaceAll(GROUP_SEPARATOR, "','")).append("') AND ");
       }
       if (selectFields.indexOf(fixedField.getName()) == -1 && !fixedField.getName().equals(
               "init_hour") && !fixedField.getName().equals("valid_hour")) {
@@ -210,14 +212,14 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       StringBuilder values = new StringBuilder();
       for (Entry val : columnEntry.getValue()) {
         if (values.indexOf(val.getName()) == -1) {
-          values.append(val.getName()).append(",");
+          values.append(val.getName()).append(GROUP_SEPARATOR);
         }
       }
       if (values.length() > 0) {
         values.deleteCharAt(values.length() - 1);
       }
       whereFields.append(BINARY).append(columnEntry.getKey()).append(" IN ('")
-              .append(values.toString().replaceAll(",", "','").replaceAll(";", "','")).append("') AND ");
+              .append(values.toString().replaceAll(GROUP_SEPARATOR, "','")).append("') AND ");
     }
 
 

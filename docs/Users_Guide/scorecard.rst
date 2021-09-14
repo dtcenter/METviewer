@@ -246,7 +246,7 @@ system folders.
                         
                         **name:** Database field name
                                 
-                        **<val>:** describes a value of the field. Fields
+                        **<val>:** describes a value of the field. It can be a single value or a group of values separated by ':'.  Fields
 			can have more than one value element. Attributes:
                         
                                 **name:** Database field name
