@@ -38,9 +38,6 @@ if ( nrow(sampleData) > 0){
   if(boolEventEqual){
     library(reticulate)
 
-    use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
-    source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize_against_values.py')
-    sys = import('sys')
     eeStats = read.delim(strInputEeDataFile);
     dfPlot1 = data.frame();
 
@@ -48,7 +45,7 @@ if ( nrow(sampleData) > 0){
       for(strSeriesVal in names(listSeries1Val)){
         vectValPerms = c();
         for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-          vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+          vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
         }
         fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep1Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
         eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
@@ -67,13 +64,12 @@ if ( nrow(sampleData) > 0){
         for(strSeriesVal in names(listSeries2Val)){
           vectValPerms = c();
           for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-            vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+            vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]]);
           }
           fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
           eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
           eeStatsEqualizeUnique = unique(eeStatsEqualize$equalize);
-          #fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,   eeStatsEqualizeUnique);
-          fPlot = event_equalize_against_values(fPlot, strIndyVar,   eeStatsEqualizeUnique);
+          fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,   eeStatsEqualizeUnique);
           sys$stdout$flush()
           dfPlot2 = rbind(dfPlot2, fPlot);
         }
