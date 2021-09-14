@@ -103,7 +103,7 @@ if ( nrow(sampleData) > 0){
       strSeriesVar=names(listSeries1Val)[[index]];
       valSeries = listSeries1Val[[strSeriesVar]];
       for(strVar in valSeries){
-        if( grepl(',', strVar)) {
+        if( grepl(':', strVar)) {
           newName = paste('Group_y1_',index,sep = "");
           listGroupToValue[[newName]]= strVar;
         }
@@ -116,7 +116,7 @@ if ( nrow(sampleData) > 0){
       strSeriesVar=names(listSeries2Val)[[index]];
       valSeries = listSeries2Val[[strSeriesVar]];
       for(strVar in valSeries){
-        if( grepl(',', strVar)) {
+        if( grepl(':', strVar)) {
           newName = paste('Group_y2_',index,sep = "");
           listGroupToValue[[newName]]= strVar;
         }
@@ -159,7 +159,7 @@ if ( nrow(sampleData) > 0){
             if( grepl(';', listSeries1Val[[strSeriesVal]][index]) ){
               vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ";")[[1]]);
             }else{
-              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
             }
           }
           fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
@@ -184,7 +184,7 @@ if ( nrow(sampleData) > 0){
               if( grepl(';', listSeries2Val[[strSeriesVal]][index]) ){
                 vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ";")[[1]]);
               }else{
-                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]]);
               }
             }
             fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep2Stat,  ];
@@ -285,7 +285,7 @@ if ( nrow(sampleData) > 0){
               if( grepl(';', strSeriesVal) ){
                 vectValPerms = strsplit(strSeriesVal, ";")[[1]];
               }else{
-                vectValPerms = strsplit(strSeriesVal, ",")[[1]];
+                vectValPerms = strsplit(strSeriesVal, ":")[[1]];
               }
             }
             vectValPerms = lapply(vectValPerms, function(x) {if (grepl("^[0-9]+$", x)) { x = as.integer(x);}else {x = x}})

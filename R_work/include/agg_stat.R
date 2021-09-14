@@ -72,7 +72,7 @@ if ( nrow(sampleData) > 0){
       strSeriesVar=names(listSeries1Val)[[index]];
       valSeries = listSeries1Val[[strSeriesVar]];
       for(strVar in valSeries){
-        if( grepl(',', strVar)) {
+        if( grepl(':', strVar)) {
           newName = paste('Group_y1_',index,sep = "");
           listGroupToValue[[newName]]= strVar;
         }
@@ -84,7 +84,7 @@ if ( nrow(sampleData) > 0){
       strSeriesVar=names(listSeries2Val)[[index]];
       valSeries = listSeries2Val[[strSeriesVar]];
       for(strVar in valSeries){
-        if( grepl(',', strVar)) {
+        if( grepl(':', strVar)) {
           newName = paste('Group_y2_',index,sep = "");
           listGroupToValue[[newName]]= strVar;
         }
@@ -128,11 +128,7 @@ if ( nrow(sampleData) > 0){
         for(strSeriesVal in names(listSeries1Val)){
           vectValPerms = c();
           for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-            if( grepl(';', listSeries1Val[[strSeriesVal]][index]) ){
-              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ";")[[1]]);
-            }else{
-              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
-            }
+              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
           }
           for (i in 1:length(vectValPerms)){
             if (vectValPerms[i] == 'NA'){
@@ -164,11 +160,7 @@ if ( nrow(sampleData) > 0){
           for(strSeriesVal in names(listSeries2Val)){
             vectValPerms = c();
             for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-              if( grepl(';', listSeries2Val[[strSeriesVal]][index]) ){
-                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ";")[[1]]);
-              }else{
-                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
-              }
+                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]]);
             }
             for (i in 1:length(vectValPerms)){
               if (vectValPerms[i] == 'NA'){
@@ -301,6 +293,7 @@ if ( nrow(sampleData) > 0){
         }else{
           listDiffVal$stat_name = paste(strStat1,strStat2,collapse="", sep=",");
         }
+        listDiffVal$fcst_var = fcst_var;
         matOut = rbind(matOut, permute(listDiffVal));
       }
 
@@ -343,7 +336,7 @@ if ( nrow(sampleData) > 0){
       if ( intOutCol ==   ncol(matOut)-1   ){
         listOutPerm$stat_name = matOut[,intOutCol];
       }else if ( intOutCol ==   ncol(matOut)   ){
-          listOutPerm$fcst_var = matOut[,intOutCol];
+        listOutPerm$fcst_var = matOut[,intOutCol];
       }else{
         listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
       }
@@ -609,7 +602,7 @@ if ( nrow(sampleData) > 0){
       # look if there is a field that need to be aggregated first - the field with ';'
       for(i in 1:dim(matPerm)[1]) {
         for(j in 1:dim(matPerm)[2]) {
-          if( grepl(';', matPerm[i,j]) ){
+          if( grepl(':', matPerm[i,j]) ){
             hasAggFieldSeries = TRUE
             break
           }
@@ -639,11 +632,7 @@ if ( nrow(sampleData) > 0){
               strSeriesVal = as.integer(strSeriesVal);
               vectValPerms = strSeriesVal;
             }else {
-              if( grepl(';', strSeriesVal) ){
-                vectValPerms = strsplit(strSeriesVal, ";")[[1]];
-              }else{
-                vectValPerms = strsplit(strSeriesVal, ",")[[1]];
-              }
+                vectValPerms = strsplit(strSeriesVal, ":")[[1]];
             }
             vectValPerms = lapply(vectValPerms, function(x) {if (grepl("^[0-9]+$", x)) { x = as.integer(x);}else {x = x}})
             if (vectValPerms[1] == 'NA'){
@@ -707,7 +696,7 @@ if ( nrow(sampleData) > 0){
 
         #aggregate series vals if needed by fcst_valid_beg and fcst_lead
         strPerm = escapeStr(paste(intPerm, sep="_", collapse="_"));
-        if( hasAggFieldSeries && any(grepl(';', listPerm)) ){
+        if( hasAggFieldSeries && any(grepl(':', listPerm)) ){
           dfStatsPerm = aggregateFieldValues(listSeries1Val, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
         }else if(grepl(';', strIndyVal)){
           listSetiesIndyVal = listSeries1Val
@@ -828,7 +817,7 @@ if ( nrow(sampleData) > 0){
             dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
             dfOut[listOutInd,]$fcst_var = fcst_var;
             if( !is.null(strSeriesVar) ){
-              a=strsplit(strSeriesVal, ",")[[1]];
+              a=strsplit(strSeriesVal, ":")[[1]];
               dfOut[listOutInd,]$nstats = nrow(dfStatsIndy[dfStatsIndy[[strSeriesVar]] %in% a  & dfStatsIndy$stat_name == strStat,  ]);
             }else{
               dfOut[listOutInd,]$nstats = nrow(dfStatsIndy[ dfStatsIndy$stat_name == strStat,  ]);
