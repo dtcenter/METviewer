@@ -12,19 +12,19 @@ Version 4.1.0 release notes
 beta2 release (20210901)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 * New Features:
-   * **Plot new CNT columns for the Scatter Index** (`#317 <https://github.com/dtcenter/METviewer/issues/317>`_)
    * **Python implementation of Ensemble Spread-Skill plot (ens_ss)** (`#308 <https://github.com/dtcenter/METviewer/issues/308>`_)
    * **Python implementation of the Bar plot** (`#296 <https://github.com/dtcenter/METviewer/issues/296>`_)
    * **Aggregate and plot the HSS_EC statistic from the MCTS line type** (`#285 <https://github.com/dtcenter/METviewer/issues/285>`_)
    * **Support for plotting new G and GBETA statistics** (`#324 <https://github.com/dtcenter/METviewer/issues/324>`_)
+   * **Plot new CNT columns for the Scatter Index** (`#317 <https://github.com/dtcenter/METviewer/issues/317>`_)
 
 * Enhancements:
-   * **Edit Python dependencies list in Dockerfile** (`#311 <https://github.com/dtcenter/METviewer/issues/311>`_)
-   * **Add 'services' as a root element in docker-compose.yml** (`#306 <https://github.com/dtcenter/METviewer/issues/306>`_)
+   * Edit Python dependencies list in Dockerfile (`#311 <https://github.com/dtcenter/METviewer/issues/311>`_)
+   * Add 'services' as a root element in docker-compose.yml (`#306 <https://github.com/dtcenter/METviewer/issues/306>`_)
    * **Enhance METviewer database schema to comply with MET-10.1.0** (`#286 <https://github.com/dtcenter/METviewer/issues/286>`_)
 
 * Bugfixes:
-   * **The loading module produses an error when parsing <date_list> element with <date_offset>** (`#319 <https://github.com/dtcenter/METviewer/issues/319>`_)
+   * The loading module produses an error when parsing <date_list> element with <date_offset> (`#319 <https://github.com/dtcenter/METviewer/issues/319>`_)
 
 * Internal:
 
@@ -35,13 +35,13 @@ beta1 release (20210706)
    * **Python implementation of the Box plot** (`#292 <https://github.com/dtcenter/METviewer/issues/292>`_)
 
 * Enhancements:
-   * **Deprecate 'doc' directory and use the link to readthedocs** (`#287 <https://github.com/dtcenter/METviewer/issues/287>`_)
+   * Deprecate 'doc' directory and use the link to readthedocs (`#287 <https://github.com/dtcenter/METviewer/issues/287>`_)
 
 * Internal:
 
 * Bugfixes:
-   * **Error when using Agg stats in performance diagram** (`#284 <https://github.com/dtcenter/METviewer/issues/284>`_)
-   * **Scorecard is not created correctly if input models have 'label' attribute** (`#300 <https://github.com/dtcenter/METviewer/issues/300>`_)
+   * Error when using Agg stats in performance diagram (`#284 <https://github.com/dtcenter/METviewer/issues/284>`_)
+   * Scorecard is not created correctly if input models have 'label' attribute (`#300 <https://github.com/dtcenter/METviewer/issues/300>`_)
 
 
 
