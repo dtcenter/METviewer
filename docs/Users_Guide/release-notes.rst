@@ -19,12 +19,13 @@ beta2 release (20210901)
    * **Plot new CNT columns for the Scatter Index** (`#317 <https://github.com/dtcenter/METviewer/issues/317>`_)
 
 * Enhancements:
+   * **Enhance METviewer database schema to comply with MET-10.1.0** (`#286 <https://github.com/dtcenter/METviewer/issues/286>`_)
    * Edit Python dependencies list in Dockerfile (`#311 <https://github.com/dtcenter/METviewer/issues/311>`_)
    * Add 'services' as a root element in docker-compose.yml (`#306 <https://github.com/dtcenter/METviewer/issues/306>`_)
-   * **Enhance METviewer database schema to comply with MET-10.1.0** (`#286 <https://github.com/dtcenter/METviewer/issues/286>`_)
+
 
 * Bugfixes:
-   * The loading module produses an error when parsing <date_list> element with <date_offset> (`#319 <https://github.com/dtcenter/METviewer/issues/319>`_)
+   * The loading module produces an error when parsing <date_list> element with <date_offset> (`#319 <https://github.com/dtcenter/METviewer/issues/319>`_)
 
 * Internal:
 
@@ -47,7 +48,7 @@ beta1 release (20210706)
 
 
 Version `v4.0.0 <https://github.com/dtcenter/METviewer/milestone/11>`_ release notes (20200512)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 * Bugfixes:
