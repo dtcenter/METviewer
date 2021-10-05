@@ -50,14 +50,15 @@ public class MVUtil {
 
   public static final Pattern patModeSingleObjectId = Pattern.compile("^(C?[FO]\\d{3})$");
   public static final Pattern patModePairObjectId = Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
+  public static final Pattern patDateTime = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2}) (\\d{2}):(\\d{2}):(\\d{2})");
 
   public static final DateTimeFormatter APP_DATE_FORMATTER
           = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   public final static String LINE_SEPARATOR = System.getProperty("line.separator");
   /**
-   * Parse the input mode statistic, which is assume to have the form SSSS_FFF, where SSSS is the
-   * name of a mode statistic with arbitrary lenght and FFF is a three character flag indicator
+   * Parse the input mode statistic, which is assumed to have the form SSSS_FFF, where SSSS is the
+   * name of a mode statistic with arbitrary length and FFF is a three character flag indicator
    * string.
    */
   public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
@@ -995,9 +996,15 @@ public class MVUtil {
       List<String> newValues = new ArrayList<>();
       for (String value : values) {
         if (value.contains(GROUP_SEPARATOR)) {
-          String[] valuesArr = value.split(GROUP_SEPARATOR);
-          for (String v : valuesArr) {
-            newValues.add(v);
+          boolean matchFound = patDateTime.matcher(value).find();
+          if(matchFound) {
+            // this is a date - no need to separate to the individual values
+            newValues.add(value);
+          }else {
+            String[] valuesArr = value.split(GROUP_SEPARATOR);
+            for (String v : valuesArr) {
+              newValues.add(v);
+            }
           }
         } else {
           newValues.add(value);
