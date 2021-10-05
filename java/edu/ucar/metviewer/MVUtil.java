@@ -2785,6 +2785,10 @@ public class MVUtil {
         return '_';
       case ' ':
         return ' ';
+      case '(':
+        return '(';
+      case ')':
+        return ')';
     }
     return '%';
   }
