@@ -427,6 +427,25 @@ public abstract class JobManager {
     } else {
       mapDep = new MVOrderedMap();
     }
+
+
+
+    List keys = mapDep.getListKeys();
+    for (int i = 0; i < keys.size(); i++) {
+      MVOrderedMap map = (MVOrderedMap)mapDep.get(keys.get(i));
+      List mapKeys = map.getListKeys();
+      String[] mapListKeys = (String[]) mapKeys.toArray(new String[mapKeys.size()]);
+      for (int j = 0; j < mapListKeys.length; j++) {
+        String newValue = mapListKeys[j].replace("&#38;", "&").replace("&gt;", ">")
+                .replace("&lt;", "<");
+        mapKeys.set(j, newValue);
+        map.put(newValue,map.get(mapListKeys[j]));
+        map.remove(mapListKeys[j]);
+      }
+
+    }
+
+
     String strFcstVar = "";
     for (int intY = 1; intY <= 2; intY++) {
       MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
