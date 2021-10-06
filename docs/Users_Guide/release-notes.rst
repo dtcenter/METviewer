@@ -9,6 +9,20 @@ https://github.com/dtcenter/METviewer/issues
 Version 4.1.0 release notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+beta3 release (20211007)
+^^^^^^^^^^^^^^^^^^^^^^^^
+* New Features:
+   * **new SSIDX STAT line type and statistic SS_INDEX** (`#327 <https://github.com/dtcenter/METviewer/issues/327>`_)
+
+* Enhancements:
+   * **line plot with different forecast variables plotted on y1 and y2 axis** (`#328 <https://github.com/dtcenter/METviewer/issues/328>`_)
+   * **Change ',' as a separator for the series group to ':'** (`#334 <https://github.com/dtcenter/METviewer/issues/334>`_)
+
+* Bugfixes:
+   * python plot is not created if plot margin values are doubles (`#331 <https://github.com/dtcenter/METviewer/issues/331>`_)
+
+* Internal:
+
 beta2 release (20210901)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 * New Features:
