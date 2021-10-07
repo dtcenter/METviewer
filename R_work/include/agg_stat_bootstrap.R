@@ -1123,7 +1123,7 @@ for(strIndyVal in listIndyVal){
       listPerm = matPerm[intPerm,];
 
       # build the data set pertinent to this series permutation
-      dfStatsPerm = buildPermData(dfStatsIndy, listPerm);
+      dfStatsPerm = buildPermData(dfStatsIndy, listPerm, fcst_var);
       if( 1 > nrow(dfStatsPerm) ){ next; }
 
       # build a list of cases to sample
@@ -1141,13 +1141,12 @@ for(strIndyVal in listIndyVal){
 
       for(intPerm in 1:nrow(matPerm)){
         listPerm = matPerm[intPerm,];
-        dfStatsPerm = buildPermData(dfStatsIndy, listPerm);
+        dfStatsPerm = buildPermData(dfStatsIndy, listPerm, fcst_var);
         if( 1 > nrow(dfStatsPerm) ){ next; }
 
         # build an output entry for the current case
         listOutPerm = data.frame(listPerm);
         names(listOutPerm) = names(listSeriesVal);
-        listOutPerm$fcst_var = rep(NA, intNumOut);
 
         listOutPerm[[strIndyVar]]	= strIndyVal;
         listOutPerm$stat_name		= strStat;
