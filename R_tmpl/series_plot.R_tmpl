@@ -624,6 +624,28 @@ if(length(listDiffSeries2) > 0){
   }
 }
 
+# change the order of series points depending on listIndyPlotVal
+if( length(listIndyPlotVal) == length(listIndy) ){
+  for (i in 1:length(listSeries1)){
+    updatedList = c();
+    for(index in 1:length(listIndyPlotVal)){
+      newIndex = listIndyPlotVal[index]
+      updatedList[newIndex] = listSeries1[[i]][index];
+    }
+    listSeries1[[i]] = updatedList;
+  }
+  if ( exists('listSeries2')){
+    for (i in 1:length(listSeries2)){
+      updatedList = c();
+      for(index in 1:length(listIndyPlotVal)){
+        newIndex = listIndyPlotVal[index]
+        updatedList[newIndex] = listSeries2[[i]][index];
+      }
+      listSeries2[[i]] = updatedList;
+    }
+  }
+}
+
 
 # sort and dump the y1 axis series data points into a file suffixed .points1
 if( TRUE == boolDumpPoints1 ){
@@ -729,16 +751,6 @@ par(
   cex=#<cex>#,			# magnification for plot text
   las=2          # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 );
-
-# change the order of series points depending on listIndyPlotVal
-if( length(listIndyPlotVal) == length(listIndy) ){
-  updatedList = c();
-  for(index in 1:length(listIndyPlotVal)){
-    newIndex = listIndyPlotVal[index]
-    updatedList[newIndex] = listSeries1[[1]][index];
-  }
-  listSeries1[[1]] = updatedList;
-}
 
 
 # configuration variables for a horizontal series plot
