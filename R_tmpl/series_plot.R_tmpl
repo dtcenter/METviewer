@@ -105,8 +105,11 @@ dfPlot = read.delim(strDataFile,colClasses = classes);
 
 # build the list of independent values
 listX = 1:length(listIndy);
-if( length(listIndyPlotVal) == length(listIndy) ){ listX = listIndyPlotVal; }
-
+if( length(listIndyPlotVal) == length(listIndy) ){
+  listXForAxis = listIndyPlotVal;
+}else{
+  listXForAxis = listX;
+}
 if( length(listX1limUsr) > 0 ) {
   listXlim = listX1limUsr
 }else{
@@ -727,6 +730,16 @@ par(
   las=2          # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 );
 
+# change the order of series points depending on listIndyPlotVal
+if( length(listIndyPlotVal) == length(listIndy) ){
+  updatedList = c();
+  for(index in 1:length(listIndyPlotVal)){
+    newIndex = listIndyPlotVal[index]
+    updatedList[newIndex] = listSeries1[[1]][index];
+  }
+  listSeries1[[1]] = updatedList;
+}
+
 
 # configuration variables for a horizontal series plot
 if( FALSE == boolVertPlot ){
@@ -804,7 +817,7 @@ mtext(
 # specify the x-axis
 axis(
   intXAxis,                  # axis of interest, 1: below, 2: left, 3: above and 4: right
-  at=listX,                  # locations of tick marks
+  at=listXForAxis,           # locations of tick marks
   labels=#<indy_label>#,	  # axis labels
   tick=TRUE,                # tick marks on/off
   tck=.01,                  # length of tick marks as a fraction of plot window
