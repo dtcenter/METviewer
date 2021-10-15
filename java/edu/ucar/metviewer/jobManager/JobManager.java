@@ -500,6 +500,24 @@ public abstract class JobManager {
     yamlInfo.put("ensss_pts", Integer.parseInt(job.getEnsSsPts()));
     yamlInfo.put("ensss_pts_disp", job.getEnsSsPtsDisp() ? "True" : "False");
 
+    // check if all IndyPlotVals are empty strings
+    String[] indyPlotValsSet = job.getIndyPlotVal();
+    boolean allEmpty = indyPlotValsSet.length == 0 || (indyPlotValsSet.length == 1 && job.getIndyPlotVal()[0].isEmpty());
+    // convert to int
+    int index = 0;
+    int[] numbers = new int[indyPlotValsSet.length];
+    for (String s : indyPlotValsSet) {
+      try {
+        numbers[index] = Integer.parseInt(s);
+        index++;
+      } catch (NumberFormatException nfe) {
+        //Do nothing or you could print error if you want
+      }
+    }
+
+    numbers = Arrays.copyOf(numbers, index);
+    yamlInfo.put("indy_plot_val", !allEmpty ? numbers : new Integer[]{});
+
     return yamlInfo;
   }
 
