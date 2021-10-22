@@ -159,7 +159,13 @@ if ( nrow(sampleData) > 0){
             if( grepl(';', listSeries1Val[[strSeriesVal]][index]) ){
               vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ";")[[1]]);
             }else{
-              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
+               regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", listSeries1Val[[strSeriesVal]][index]);
+               matches=regmatches(listSeries1Val[[strSeriesVal]][index], regexPr)
+               vectValPerms1=matches[[1]]
+               if (length(vectValPerms1) == 0){
+                  vectValPerms1= strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]];
+               }
+               vectValPerms= append(vectValPerms, vectValPerms1);
             }
           }
           fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
@@ -184,7 +190,14 @@ if ( nrow(sampleData) > 0){
               if( grepl(';', listSeries2Val[[strSeriesVal]][index]) ){
                 vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ";")[[1]]);
               }else{
-                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]]);
+
+               regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", listSeries2Val[[strSeriesVal]][index]);
+               matches=regmatches(listSeries2Val[[strSeriesVal]][index], regexPr)
+               vectValPerms1=matches[[1]]
+               if (length(vectValPerms1) == 0){
+                  vectValPerms1= strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]];
+               }
+                vectValPerms= append(vectValPerms, vectValPerms1);
               }
             }
             fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep2Stat,  ];
@@ -285,7 +298,13 @@ if ( nrow(sampleData) > 0){
               if( grepl(';', strSeriesVal) ){
                 vectValPerms = strsplit(strSeriesVal, ";")[[1]];
               }else{
-                vectValPerms = strsplit(strSeriesVal, ":")[[1]];
+
+                regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", strSeriesVal);
+                matches=regmatches(strSeriesVal, regexPr)
+                vectValPerms1=matches[[1]]
+                if (length(vectValPerms1) == 0){
+                  vectValPerms= strsplit(strSeriesVal, ":")[[1]];
+                }
               }
             }
             vectValPerms = lapply(vectValPerms, function(x) {if (grepl("^[0-9]+$", x)) { x = as.integer(x);}else {x = x}})
