@@ -1002,8 +1002,11 @@ public class MVUtil {
         if (value.contains(GROUP_SEPARATOR)) {
           boolean matchFound = patDateTime.matcher(value).find();
           if(matchFound) {
-            // this is a date - no need to separate to the individual values
-            newValues.add(value);
+            //this is a date - need to use patterns
+            Matcher m = patDateTime.matcher(value);
+            while (m.find()) {
+              newValues.add(m.group());
+            }
           }else {
             String[] valuesArr = value.split(GROUP_SEPARATOR);
             for (String v : valuesArr) {
