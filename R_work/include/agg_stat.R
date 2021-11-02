@@ -128,7 +128,13 @@ if ( nrow(sampleData) > 0){
         for(strSeriesVal in names(listSeries1Val)){
           vectValPerms = c();
           for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
+              regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", listSeries1Val[[strSeriesVal]][index]);
+              matches=regmatches(listSeries1Val[[strSeriesVal]][index], regexPr)
+              vectValPerms1=matches[[1]]
+              if (length(vectValPerms1) == 0){
+                vectValPerms1= strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]];
+              }
+              vectValPerms= append(vectValPerms, vectValPerms1);
           }
           for (i in 1:length(vectValPerms)){
             if (vectValPerms[i] == 'NA'){
@@ -160,7 +166,12 @@ if ( nrow(sampleData) > 0){
           for(strSeriesVal in names(listSeries2Val)){
             vectValPerms = c();
             for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]]);
+              regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", listSeries2Val[[strSeriesVal]][index]);
+              matches=regmatches(listSeries2Val[[strSeriesVal]][index], regexPr)
+              vectValPerms1=matches[[1]]
+              if (length(vectValPerms1) == 0){
+                vectValPerms1= strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]];
+              }
             }
             for (i in 1:length(vectValPerms)){
               if (vectValPerms[i] == 'NA'){
@@ -632,7 +643,13 @@ if ( nrow(sampleData) > 0){
               strSeriesVal = as.integer(strSeriesVal);
               vectValPerms = strSeriesVal;
             }else {
-                vectValPerms = strsplit(strSeriesVal, ":")[[1]];
+                # check if the value contains date(s) and groups and parse it accordingly
+                regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", strSeriesVal);
+                matches=regmatches(strSeriesVal, regexPr)
+                vectValPerms=matches[[1]]
+                if (length(vectValPerms) == 0){
+                  vectValPerms= strsplit(strSeriesVal, ":")[[1]];
+                }
             }
             vectValPerms = lapply(vectValPerms, function(x) {if (grepl("^[0-9]+$", x)) { x = as.integer(x);}else {x = x}})
             if (vectValPerms[1] == 'NA'){

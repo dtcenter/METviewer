@@ -6109,8 +6109,10 @@ function loadXMLHist() {
             } catch (err) {
             }
             $(series_arr[i]).find("val").each(function () {
-                var vals = $(this).text().split(":");
-
+                var vals = $(this).text().match(/\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/g);
+                if (!vals  || vals.length === 0){
+                    vals = $(this).text().split(":");
+                }
                 for (var k = 0; k < vals.length; k++) {
                     series_var_val.push(vals[k]);
                 }
@@ -6443,8 +6445,11 @@ function loadXMLSeries() {
                     }
                 }
                 $(series_arr[i]).find("val").each(function () {
-                    var vals = $(this).text().split(":");
-                    if (vals.length > 1) {
+                    var vals = $(this).text().match(/\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/g);
+                    if (!vals  || vals.length === 0){
+                        vals = $(this).text().split(":");
+                    }
+                    if (vals.length > 2) {
                         isGroup = true;
                     }
                     for (var k = 0; k < vals.length; k++) {
@@ -6459,8 +6464,10 @@ function loadXMLSeries() {
                     $("#series_var_val_" + y_axis + "_date_range_button_" + (i + 1)).css("display", "none");
                 }
                 updateSeriesVarVal(y_axis, (i + 1), series_var_val);
-                if (isGroup) {
+                if (isGroup === true) {
                     $('#group_series_var_' + y_axis + "_" + (i + 1)).prop('checked', true);
+                }else {
+                    $('#group_series_var_' + y_axis + "_" + (i + 1)).prop('checked', false);
                 }
             }
         } else {
@@ -6590,7 +6597,10 @@ function loadXMLContour() {
         } catch (err) {
         }
         $(series_arr[0]).find("val").each(function () {
-            var vals = $(this).text().split(":");
+            var vals = $(this).text().match(/\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/g);
+            if (!vals  || vals.length === 0){
+                vals = $(this).text().split(":");
+            }
             for (var k = 0; k < vals.length; k++) {
                 series_var_val.push(vals[k]);
             }
