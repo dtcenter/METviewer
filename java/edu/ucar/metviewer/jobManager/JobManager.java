@@ -166,7 +166,6 @@ public abstract class JobManager {
       listIndyLabel = decimate(listIndyLabel, intDecim);
     }
 
-    MVOrderedMap mapAggStatStatic = new MVOrderedMap();
     String strFcstVar = "";
     List<String> listAggStats1 = new ArrayList<>();
     List<String> listAggStats2 = new ArrayList<>();
@@ -199,7 +198,6 @@ public abstract class JobManager {
       }
     }
 
-    mapAggStatStatic.put("fcst_var", strFcstVar);
     MVOrderedMap mapTmplValsPlot = MVUtil.addTmplValDep(job);
 
     String strTitle = MVUtil.buildTemplateInfoString(job.getTitleTmpl(), mapTmplValsPlot,
@@ -290,18 +288,15 @@ public abstract class JobManager {
     info.put("colors",
             job.getColors().isEmpty() ? "rainbow(" + intNumDepSeries + ")" : job.getColors()
     );
-    info
-            .put("pch",
+    info.put("pch",
                     job.getPch().isEmpty() ? MVUtil.printRCol(
                             MVUtil.rep(20, intNumDepSeries)) : job.getPch());
     info.put("type", job.getType().isEmpty() ? MVUtil.printRCol(
             MVUtil.rep("b", intNumDepSeries)) : job.getType());
-    info
-            .put("lty",
+    info.put("lty",
                     job.getLty().isEmpty() ? MVUtil.printRCol(
                             MVUtil.rep(1, intNumDepSeries)) : job.getLty());
-    info
-            .put("lwd",
+    info.put("lwd",
                     job.getLwd().isEmpty() ? MVUtil.printRCol(
                             MVUtil.rep(1, intNumDepSeries)) : job.getLwd());
     info.put("con_series", job.getConSeries().isEmpty() ? MVUtil.printRCol(
@@ -339,7 +334,6 @@ public abstract class JobManager {
             0 < listIndyValFmt.length ? MVUtil.printRCol(listIndyValFmt, true) : "c()");
     info.put("series1_list", job.getSeries1Val().getRDeclSeries());
     info.put("series2_list", job.getSeries2Val().getRDeclSeries());
-    info.put("sum_stat_static", mapAggStatStatic.getRDecl());
     info.put("append_to_file", FALSE);
 
     info.put("working_dir", mvBatch.getRworkFolder() + "/include");
@@ -373,7 +367,6 @@ public abstract class JobManager {
     info.put("agg_stat2", MVUtil.printRCol(
             listAggStats2.toArray(new String[listAggStats2.size()]),
             true));
-    info.put("agg_stat_static", mapAggStatStatic.getRDecl());
     info.put("cl_step", "0.05");
     info.put("normalized_histogram", job.getNormalizedHistogram() ? "TRUE" : FALSE);
     info.put("color_palette", job.getColorPalette());
@@ -409,7 +402,6 @@ public abstract class JobManager {
       }
     }
     yamlInfo.put("indy_vals", listIndyValFmt);
-
     String[] listIndyLabel = job.getIndyLabel();
     if (!"0".equals(job.getXtlabFreq())) {
       int intDecim = 0;
@@ -435,6 +427,25 @@ public abstract class JobManager {
     } else {
       mapDep = new MVOrderedMap();
     }
+
+
+
+    List keys = mapDep.getListKeys();
+    for (int i = 0; i < keys.size(); i++) {
+      MVOrderedMap map = (MVOrderedMap)mapDep.get(keys.get(i));
+      List mapKeys = map.getListKeys();
+      String[] mapListKeys = (String[]) mapKeys.toArray(new String[mapKeys.size()]);
+      for (int j = 0; j < mapListKeys.length; j++) {
+        String newValue = mapListKeys[j].replace("&#38;", "&").replace("&gt;", ">")
+                .replace("&lt;", "<");
+        mapKeys.set(j, newValue);
+        map.put(newValue,map.get(mapListKeys[j]));
+        map.remove(mapListKeys[j]);
+      }
+
+    }
+
+
     String strFcstVar = "";
     for (int intY = 1; intY <= 2; intY++) {
       MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
@@ -468,9 +479,6 @@ public abstract class JobManager {
     yamlInfo.put("list_stat_2", MVUtil.printYamlCol(listAggStats2.toArray(new String[0])));
     yamlInfo.put("fcst_var_val_1", mapDep.get("dep1"));
     yamlInfo.put("fcst_var_val_2", mapDep.get("dep2"));
-    MVOrderedMap mapAggStatStatic = new MVOrderedMap();
-    mapAggStatStatic.put("fcst_var", strFcstVar);
-    yamlInfo.put("list_static_val", mapAggStatStatic);
     yamlInfo.put("fixed_vars_vals_input", job.getPlotFixValEq());
     String diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries1(), MVUtil.addTmplValDep(job),
             job.getTmplMaps(), mvBatch.getPrintStream());
@@ -510,6 +518,24 @@ public abstract class JobManager {
     yamlInfo.put("xlim", rListToListNumeric(job.getX1Lim()));
     yamlInfo.put("ensss_pts", Integer.parseInt(job.getEnsSsPts()));
     yamlInfo.put("ensss_pts_disp", job.getEnsSsPtsDisp() ? "True" : "False");
+
+    // check if all IndyPlotVals are empty strings
+    String[] indyPlotValsSet = job.getIndyPlotVal();
+    boolean allEmpty = indyPlotValsSet.length == 0 || (indyPlotValsSet.length == 1 && job.getIndyPlotVal()[0].isEmpty());
+    // convert to int
+    int index = 0;
+    int[] numbers = new int[indyPlotValsSet.length];
+    for (String s : indyPlotValsSet) {
+      try {
+        numbers[index] = Integer.parseInt(s);
+        index++;
+      } catch (NumberFormatException nfe) {
+        //Do nothing or you could print error if you want
+      }
+    }
+
+    numbers = Arrays.copyOf(numbers, index);
+    yamlInfo.put("indy_plot_val", !allEmpty ? numbers : new Integer[]{});
 
     return yamlInfo;
   }

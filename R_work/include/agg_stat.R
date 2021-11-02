@@ -34,9 +34,9 @@ listStat = NA;
 if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
   numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss','afss', 'ufss', 'f_rate', 'o_rate',
-'fbar',	'obar',	'fobar',	'ffbar',	'oobar',	'var_mean','total', 'me', 'rmse', 'crps',
-  'crpss', 'ign', 'spread', 'me_oerr','rmse_oerr','spread_oerr', 'spread_plus_oerr', 'mae', 'crpscl', 'crps_emp', 'crpscl_emp', 'crpss_emp'
-);
+                       'fbar',	'obar',	'fobar',	'ffbar',	'oobar',	'var_mean','total', 'me', 'rmse', 'crps',
+                       'crpss', 'ign', 'spread', 'me_oerr','rmse_oerr','spread_oerr', 'spread_plus_oerr', 'mae', 'crpscl', 'crps_emp', 'crpscl_emp', 'crpss_emp'
+  );
   integer_columns <- c('fcst_lead','nstats');
   character_columns <- c('fcst_var', 'model', 'stat_name')
   for(col in 1:ncol(sampleData)){
@@ -57,8 +57,8 @@ if ( nrow(sampleData) > 0){
   }
 
   lineTypes = list(boolCtc=boolAggCtc, boolNbrCtc=boolAggNbrCtc, boolSl1l2=boolAggSl1l2, boolGrad=boolAggGrad, boolVl1l2=boolAggVl1l2,
-  boolVal1l2=boolAggVal1l2, boolSal1l2=boolAggSal1l2, boolSsvar=boolAggSsvar,boolEcnt=boolAggEcnt,
-  boolNbrCnt=boolAggNbrCnt, boolPct=boolAggPct, boolRps=boolAggRps)
+                   boolVal1l2=boolAggVal1l2, boolSal1l2=boolAggSal1l2, boolSsvar=boolAggSsvar,boolEcnt=boolAggEcnt,
+                   boolNbrCnt=boolAggNbrCnt, boolPct=boolAggPct, boolRps=boolAggRps)
 
   intYMax = 1;
   if( 0 < length(listSeries2Val) ){ intYMax = 2; }
@@ -72,7 +72,7 @@ if ( nrow(sampleData) > 0){
       strSeriesVar=names(listSeries1Val)[[index]];
       valSeries = listSeries1Val[[strSeriesVar]];
       for(strVar in valSeries){
-        if( grepl(',', strVar)) {
+        if( grepl(':', strVar)) {
           newName = paste('Group_y1_',index,sep = "");
           listGroupToValue[[newName]]= strVar;
         }
@@ -84,7 +84,7 @@ if ( nrow(sampleData) > 0){
       strSeriesVar=names(listSeries2Val)[[index]];
       valSeries = listSeries2Val[[strSeriesVar]];
       for(strVar in valSeries){
-        if( grepl(',', strVar)) {
+        if( grepl(':', strVar)) {
           newName = paste('Group_y2_',index,sep = "");
           listGroupToValue[[newName]]= strVar;
         }
@@ -128,11 +128,13 @@ if ( nrow(sampleData) > 0){
         for(strSeriesVal in names(listSeries1Val)){
           vectValPerms = c();
           for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-			if( grepl(';', listSeries1Val[[strSeriesVal]][index]) ){
-                vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ";")[[1]]);
-            }else{
-                vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
-            }  
+              regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", listSeries1Val[[strSeriesVal]][index]);
+              matches=regmatches(listSeries1Val[[strSeriesVal]][index], regexPr)
+              vectValPerms1=matches[[1]]
+              if (length(vectValPerms1) == 0){
+                vectValPerms1= strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]];
+              }
+              vectValPerms= append(vectValPerms, vectValPerms1);
           }
           for (i in 1:length(vectValPerms)){
             if (vectValPerms[i] == 'NA'){
@@ -164,11 +166,12 @@ if ( nrow(sampleData) > 0){
           for(strSeriesVal in names(listSeries2Val)){
             vectValPerms = c();
             for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-			  if( grepl(';', listSeries2Val[[strSeriesVal]][index]) ){
-                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ";")[[1]]);
-              }else{
-                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
-              }            
+              regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", listSeries2Val[[strSeriesVal]][index]);
+              matches=regmatches(listSeries2Val[[strSeriesVal]][index], regexPr)
+              vectValPerms1=matches[[1]]
+              if (length(vectValPerms1) == 0){
+                vectValPerms1= strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]];
+              }
             }
             for (i in 1:length(vectValPerms)){
               if (vectValPerms[i] == 'NA'){
@@ -203,11 +206,21 @@ if ( nrow(sampleData) > 0){
       listSeriesVal = listSeries1Val;
       listStat = listStat1;
       listDiffSeries = listDiffSeries1;
+      if(length(listDep1Plot) > 0 ){
+        fcst_var=names(listDep1Plot)[1]
+      }else{
+        fcst_var=NA
+      }
     }
     if( 2 == intY ){
       listSeriesVal = listSeries2Val;
       listStat = listStat2;
       listDiffSeries = listDiffSeries2;
+      if(length(listDep2Plot) > 0 ){
+        fcst_var=names(listDep2Plot)[1]
+      }else{
+        fcst_var=NA
+      }
     }
 
     # add the series variables and values, including a difference series if appropriate
@@ -256,6 +269,7 @@ if ( nrow(sampleData) > 0){
     # add the independent variable and statistics to create the list for the output data frame
     listOut[[strIndyVar]] = listIndyVal;
     listOut$stat_name = listStat;
+    listOut$fcst_var = fcst_var;
     matOutSeries = permute(listOut);
     if( !exists("matOut") ){ matOut = matrix(nrow=0, ncol=length(names(listOut))); }
     matOut = rbind(matOut, matOutSeries);
@@ -290,6 +304,7 @@ if ( nrow(sampleData) > 0){
         }else{
           listDiffVal$stat_name = paste(strStat1,strStat2,collapse="", sep=",");
         }
+        listDiffVal$fcst_var = fcst_var;
         matOut = rbind(matOut, permute(listDiffVal));
       }
 
@@ -311,27 +326,28 @@ if ( nrow(sampleData) > 0){
   # build a dataframe (dfOut) to store the bootstrapped statistics
   listOutPerm = list();
   intNumOut = nrow(matOut);
-  for(strStaticVar in names(listStaticVal)){
-    listOutPerm[[strStaticVar]] = rep(listStaticVal[[strStaticVar]], intNumOut);
-  }
   if(strIndyVar != ""){
     for(intOutCol in 1:ncol(matOut)){
-      if ( intOutCol <  ncol(matOut) - 1 ){
+      if ( intOutCol <  ncol(matOut) - 2 ){
         if(isContourDiff){
           listOutPerm[[ names(listOut)[intOutCol] ]] = matOut[,intOutCol];
         }else{
           listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
         }
-      } else if ( intOutCol == ncol(matOut) - 1 ){
+      } else if ( intOutCol == ncol(matOut) - 2 ){
         listOutPerm[[ strIndyVar ]] = matOut[,intOutCol];
-      } else {
+      } else if ( intOutCol == ncol(matOut) - 1 ){
         listOutPerm$stat_name = matOut[,intOutCol];
+      }else{
+        listOutPerm$fcst_var = matOut[,intOutCol];
       }
     }
   }else{
     for(intOutCol in 1:ncol(matOut)){
-      if ( intOutCol ==   ncol(matOut)   ){
+      if ( intOutCol ==   ncol(matOut)-1   ){
         listOutPerm$stat_name = matOut[,intOutCol];
+      }else if ( intOutCol ==   ncol(matOut)   ){
+        listOutPerm$fcst_var = matOut[,intOutCol];
       }else{
         listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
       }
@@ -429,25 +445,25 @@ if ( nrow(sampleData) > 0){
   }
 
   SUPER_STAT <- c('CTC_FY_OY',
-'CTC_FY_ON',
-'CTC_FN_OY',
-'CTC_FN_ON',
-'CTC_OY',
-'CTC_ON',
-'CTC_FY',
-'CTC_FN',
-'SL1L2_TOTAL',
-'GRAD_TOTAL',
-'SAL1L2_TOTAL',
-'SSVAR_TOTAL',
-'CTC_TOTAL',
-'VL1L2_TOTAL',
-'VAL1L2_TOTAL',
-'ECNT_TOTAL',
-'NBR_CTC_TOTAL',
-'NBR_CNT_TOTAL',
-'PCT_TOTAL',
-'RPS_TOTAL')
+                  'CTC_FY_ON',
+                  'CTC_FN_OY',
+                  'CTC_FN_ON',
+                  'CTC_OY',
+                  'CTC_ON',
+                  'CTC_FY',
+                  'CTC_FN',
+                  'SL1L2_TOTAL',
+                  'GRAD_TOTAL',
+                  'SAL1L2_TOTAL',
+                  'SSVAR_TOTAL',
+                  'CTC_TOTAL',
+                  'VL1L2_TOTAL',
+                  'VAL1L2_TOTAL',
+                  'ECNT_TOTAL',
+                  'NBR_CTC_TOTAL',
+                  'NBR_CNT_TOTAL',
+                  'PCT_TOTAL',
+                  'RPS_TOTAL')
 
   # booter function
   booter.iid = function(d, i){
@@ -470,7 +486,7 @@ if ( nrow(sampleData) > 0){
       # create the permutation column name string
 
       # perform the aggregation of the sampled CTC lines
-       dfSeriescustom_sums = calcSeriesSums (d[i,], strPerm, lineTypes, intPerm, T,oy_total, o_bar);
+      dfSeriescustom_sums = calcSeriesSums (d[i,], strPerm, lineTypes, intPerm, T,oy_total, o_bar);
 
       # return a value for each statistic
       for(strStat in listStat){
@@ -567,12 +583,22 @@ if ( nrow(sampleData) > 0){
         listStat = listStat1;
         matCIPerm = matCIPerm1;
         listDiffSeries = listDiffSeries1;
+        if(length(listDep1Plot) >0 ){
+          fcst_var=names(listDep1Plot)[1]
+        }else{
+          fcst_var=NA
+        }
       }
       if( 2 == intY ){
         matPerm = permute(listSeries2Val);
         listStat = listStat2;
         matCIPerm = matCIPerm2;
         listDiffSeries = listDiffSeries2;
+        if(length(listDep2Plot) >0 ){
+          fcst_var=names(listDep2Plot)[1]
+        }else{
+          fcst_var=NA
+        }
       }
       listBoot = list();
 
@@ -587,7 +613,7 @@ if ( nrow(sampleData) > 0){
       # look if there is a field that need to be aggregated first - the field with ';'
       for(i in 1:dim(matPerm)[1]) {
         for(j in 1:dim(matPerm)[2]) {
-          if( grepl(';', matPerm[i,j]) ){
+          if( grepl(':', matPerm[i,j]) ){
             hasAggFieldSeries = TRUE
             break
           }
@@ -617,17 +643,23 @@ if ( nrow(sampleData) > 0){
               strSeriesVal = as.integer(strSeriesVal);
               vectValPerms = strSeriesVal;
             }else {
-              if( grepl(';', strSeriesVal) ){
-                vectValPerms = strsplit(strSeriesVal, ";")[[1]];
-              }else{
-                vectValPerms = strsplit(strSeriesVal, ",")[[1]];
-              }
+                # check if the value contains date(s) and groups and parse it accordingly
+                regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", strSeriesVal);
+                matches=regmatches(strSeriesVal, regexPr)
+                vectValPerms=matches[[1]]
+                if (length(vectValPerms) == 0){
+                  vectValPerms= strsplit(strSeriesVal, ":")[[1]];
+                }
             }
             vectValPerms = lapply(vectValPerms, function(x) {if (grepl("^[0-9]+$", x)) { x = as.integer(x);}else {x = x}})
             if (vectValPerms[1] == 'NA'){
               dfStatsPerm = dfStatsPerm[is.na(dfStatsPerm[[strSeriesVar]]),];
             } else{
               dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
+            }
+            # add fcst var
+            if (!is.na(fcst_var)){
+              dfStatsPerm = dfStatsPerm[dfStatsPerm[['fcst_var']] == fcst_var,];
             }
             if (boolAggPct) {
               if (vectValPerms[1] == 'NA'){
@@ -638,7 +670,7 @@ if ( nrow(sampleData) > 0){
             }
           }
         }
-       
+
         if (1 > nrow(dfStatsPerm)) { next;}
 
         # add the contingency table constituents for this series permutation to the boot list
@@ -678,10 +710,10 @@ if ( nrow(sampleData) > 0){
           oy_total[intPerm] = sum(dfPctPerm$oy_i);
           o_bar[intPerm] = oy_total[intPerm] / T[intPerm];
         }
-        
-         #aggregate series vals if needed by fcst_valid_beg and fcst_lead
+
+        #aggregate series vals if needed by fcst_valid_beg and fcst_lead
         strPerm = escapeStr(paste(intPerm, sep="_", collapse="_"));
-        if( hasAggFieldSeries && any(grepl(';', listPerm)) ){
+        if( hasAggFieldSeries && any(grepl(':', listPerm)) ){
           dfStatsPerm = aggregateFieldValues(listSeries1Val, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
         }else if(grepl(';', strIndyVal)){
           listSetiesIndyVal = listSeries1Val
@@ -718,9 +750,9 @@ if ( nrow(sampleData) > 0){
             dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_init, dfStatsPerm$fcst_lead, dfStatsPerm$stat_name),];
           }
         }
-        
+
         strPerm = escapeStr(paste(listPerm, sep="_"));
-        
+
         for(strCount in listFields){
           listCounts = dfStatsPerm[[strCount]];
           strCountName = paste(paste(strPerm, sep = "_", collapse = "_"), strCount, sep = "_", collapse = "_");
@@ -736,21 +768,21 @@ if ( nrow(sampleData) > 0){
         if( intCountLength < length(listBoot[[strCountName]]) ){ intCountLength = length(listBoot[[strCountName]]); }
       }
       for(strCountName in names(listBoot)){
-         if( intCountLength > length(listBoot[[strCountName]]) ){
-           if(is.factor(listBoot[[strCountName]])){
-             listBoot[[strCountName]]= droplevels(listBoot[[strCountName]]);
-             #if(length(levels(listBoot[[strCountName]])) == 1){
-                listBoot[[strCountName]] =  rep(levels(listBoot[[strCountName]])[1], intCountLength ) ;
-             #}else{
-             #  stop("Can't fill factor column");
-             #}
-           }else if(grepl('thresh_i$',strCountName) &&  strIndyVar == 'thresh_i'){
-             listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(listBoot[[strCountName]][1], intCountLength - length(listBoot[[strCountName]])) );
-           }else{
+        if( intCountLength > length(listBoot[[strCountName]]) ){
+          if(is.factor(listBoot[[strCountName]])){
+            listBoot[[strCountName]]= droplevels(listBoot[[strCountName]]);
+            #if(length(levels(listBoot[[strCountName]])) == 1){
+            listBoot[[strCountName]] =  rep(levels(listBoot[[strCountName]])[1], intCountLength ) ;
+            #}else{
+            #  stop("Can't fill factor column");
+            #}
+          }else if(grepl('thresh_i$',strCountName) &&  strIndyVar == 'thresh_i'){
+            listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(listBoot[[strCountName]][1], intCountLength - length(listBoot[[strCountName]])) );
+          }else{
             listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(NA, intCountLength - length(listBoot[[strCountName]])) );
-           }
-         }
-       }
+          }
+        }
+      }
 
       # bootstrap the series data
       dfBoot = data.frame(listBoot, check.names=FALSE);
@@ -785,9 +817,9 @@ if ( nrow(sampleData) > 0){
             }
           }
           if(strIndyVar == ""){
-            listOutInd = listOutInd & (dfOut$stat_name == strStat);
+            listOutInd = listOutInd & (dfOut$stat_name == strStat) & (dfOut$fcst_var == fcst_var);
           }else{
-            listOutInd = listOutInd & (dfOut$stat_name == strStat) & (dfOut[[strIndyVar]] == strIndyVal);
+            listOutInd = listOutInd & (dfOut$stat_name == strStat) & (dfOut[[strIndyVar]] == strIndyVal) & (dfOut$fcst_var == fcst_var);
           }
           if( !isContourDiff ){
             if( 1 < intNumReplicates ){
@@ -800,8 +832,9 @@ if ( nrow(sampleData) > 0){
 
             # store the bootstrapped stat value and CI values in the output dataframe
             dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
+            dfOut[listOutInd,]$fcst_var = fcst_var;
             if( !is.null(strSeriesVar) ){
-              a=strsplit(strSeriesVal, ",")[[1]];
+              a=strsplit(strSeriesVal, ":")[[1]];
               dfOut[listOutInd,]$nstats = nrow(dfStatsIndy[dfStatsIndy[[strSeriesVar]] %in% a  & dfStatsIndy$stat_name == strStat,  ]);
             }else{
               dfOut[listOutInd,]$nstats = nrow(dfStatsIndy[ dfStatsIndy$stat_name == strStat,  ]);

@@ -5,30 +5,64 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
-Version |version| release notes (|release_date|)
-------------------------------------------------
-Version 4.1.0 release notes (20210706)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-beta1 release
-^^^^^^^^^^^^^
+Version 4.1.0 release notes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+beta3 release (20211007)
+^^^^^^^^^^^^^^^^^^^^^^^^
+* New Features:
+   * **new SSIDX STAT line type and statistic SS_INDEX** (`#327 <https://github.com/dtcenter/METviewer/issues/327>`_)
+
+* Enhancements:
+   * **line plot with different forecast variables plotted on y1 and y2 axis** (`#328 <https://github.com/dtcenter/METviewer/issues/328>`_)
+   * **Change ',' as a separator for the series group to ':'** (`#334 <https://github.com/dtcenter/METviewer/issues/334>`_)
+
+* Bugfixes:
+   * python plot is not created if plot margin values are doubles (`#331 <https://github.com/dtcenter/METviewer/issues/331>`_)
+
+* Internal:
+
+beta2 release (20210901)
+^^^^^^^^^^^^^^^^^^^^^^^^
+* New Features:
+   * **Python implementation of Ensemble Spread-Skill plot (ens_ss)** (`#308 <https://github.com/dtcenter/METviewer/issues/308>`_)
+   * **Python implementation of the Bar plot** (`#296 <https://github.com/dtcenter/METviewer/issues/296>`_)
+   * **Aggregate and plot the HSS_EC statistic from the MCTS line type** (`#285 <https://github.com/dtcenter/METviewer/issues/285>`_)
+   * **Support for plotting new G and GBETA statistics** (`#324 <https://github.com/dtcenter/METviewer/issues/324>`_)
+   * **Plot new CNT columns for the Scatter Index** (`#317 <https://github.com/dtcenter/METviewer/issues/317>`_)
+
+* Enhancements:
+   * **Enhance METviewer database schema to comply with MET-10.1.0** (`#286 <https://github.com/dtcenter/METviewer/issues/286>`_)
+   * Edit Python dependencies list in Dockerfile (`#311 <https://github.com/dtcenter/METviewer/issues/311>`_)
+   * Add 'services' as a root element in docker-compose.yml (`#306 <https://github.com/dtcenter/METviewer/issues/306>`_)
+
+
+* Bugfixes:
+   * The loading module produces an error when parsing <date_list> element with <date_offset> (`#319 <https://github.com/dtcenter/METviewer/issues/319>`_)
+
+* Internal:
+
+
+beta1 release (20210706)
+^^^^^^^^^^^^^^^^^^^^^^^^
 * New Features:
    * **Python implementation of the Box plot** (`#292 <https://github.com/dtcenter/METviewer/issues/292>`_)
 
 * Enhancements:
-   * **Deprecate 'doc' directory and use the link to readthedocs** (`#287 <https://github.com/dtcenter/METviewer/issues/287>`_)
+   * Deprecate 'doc' directory and use the link to readthedocs (`#287 <https://github.com/dtcenter/METviewer/issues/287>`_)
 
 * Internal:
 
 * Bugfixes:
-   * **Error when using Agg stats in performance diagram** (`#284 <https://github.com/dtcenter/METviewer/issues/284>`_)
-   * **Scorecard is not created correctly if input models have 'label' attribute** (`#300 <https://github.com/dtcenter/METviewer/issues/300>`_)
+   * Error when using Agg stats in performance diagram (`#284 <https://github.com/dtcenter/METviewer/issues/284>`_)
+   * Scorecard is not created correctly if input models have 'label' attribute (`#300 <https://github.com/dtcenter/METviewer/issues/300>`_)
 
 
 
 
 Version `v4.0.0 <https://github.com/dtcenter/METviewer/milestone/11>`_ release notes (20200512)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 * Bugfixes:

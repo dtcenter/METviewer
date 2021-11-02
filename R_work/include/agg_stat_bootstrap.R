@@ -24,7 +24,7 @@ if(boolEventEqual){
     for(strSeriesVal in names(listSeries1Val)){
       vectValPerms = c();
       for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-        vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+        vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
       }
       fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep1Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
       eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
@@ -41,7 +41,7 @@ if(boolEventEqual){
       for(strSeriesVal in names(listSeries2Val)){
         vectValPerms = c();
         for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-          vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+          vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]]);
         }
         fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
         eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
@@ -76,14 +76,18 @@ dfStatsRec$case = paste(dfStatsRec$fcst_valid, dfStatsRec[[strIndyVar]], sep="#"
 # INPUTS:
 #         dfStats: data frame containing the permutation records to extract
 #        listPerm: list containing the perm variable/value pairs to extract
-buildPermData = function(dfStats, listPerm){
+buildPermData = function(dfStats, listPerm, fcst_var){
   dfStatsPerm = dfStats;
   for(intSeriesVal in 1:length(listSeriesVar)){
     strSeriesVar = listSeriesVar[intSeriesVal];
     strSeriesVal = listPerm[intSeriesVal];
-    vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+    vectValPerms= strsplit(strSeriesVal, ":")[[1]];
     vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
     dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
+  }
+  # add fcst var
+  if (!is.na(fcst_var)){
+    dfStatsPerm = dfStatsPerm[dfStatsPerm[['fcst_var']] == fcst_var,];
   }
   return (dfStatsPerm);
 }
@@ -1021,7 +1025,7 @@ booter.iid = function(d, i){
     strPerm = escapeStr(paste(matPerm[intPerm,], sep="_", collapse="_"));
 
     # build the data set pertinent to this series permutation
-    dfStatsPerm = buildPermData(dfBoot, listPerm);
+    dfStatsPerm = buildPermData(dfBoot, listPerm, fcst_var);
     if( 1 > nrow(dfStatsPerm) ){ listStatVal = append(listStatVal, NA); next; }
 
     # calculate the stat and add it to the list
@@ -1094,11 +1098,21 @@ for(strIndyVal in listIndyVal){
       listSeriesVal = listSeries1Val;
       listStat = listStat1;
       listDiffSeries = listDiffSeries1;
+      if(length(listDep1Plot) > 0 ){
+        fcst_var=names(listDep1Plot)[1]
+      }else{
+        fcst_var=NA
+      }
     }
     if( 2 == intY ){
       listSeriesVal = listSeries2Val;
       listStat = listStat2;
       listDiffSeries = listDiffSeries2;
+      if(length(listDep2Plot) > 0 ){
+        fcst_var=names(listDep2Plot)[1]
+      }else{
+        fcst_var=NA
+      }
     }
     listSeriesVar = names(listSeriesVal);
     matPerm = permute(listSeriesVal);
@@ -1109,7 +1123,7 @@ for(strIndyVal in listIndyVal){
       listPerm = matPerm[intPerm,];
 
       # build the data set pertinent to this series permutation
-      dfStatsPerm = buildPermData(dfStatsIndy, listPerm);
+      dfStatsPerm = buildPermData(dfStatsIndy, listPerm, fcst_var);
       if( 1 > nrow(dfStatsPerm) ){ next; }
 
       # build a list of cases to sample
@@ -1127,17 +1141,16 @@ for(strIndyVal in listIndyVal){
 
       for(intPerm in 1:nrow(matPerm)){
         listPerm = matPerm[intPerm,];
-        dfStatsPerm = buildPermData(dfStatsIndy, listPerm);
+        dfStatsPerm = buildPermData(dfStatsIndy, listPerm, fcst_var);
         if( 1 > nrow(dfStatsPerm) ){ next; }
 
         # build an output entry for the current case
         listOutPerm = data.frame(listPerm);
         names(listOutPerm) = names(listSeriesVal);
-        for(strStaticVar in names(listStaticVal)){
-          listOutPerm[[strStaticVar]] = listStaticVal[[strStaticVar]];
-        }
+
         listOutPerm[[strIndyVar]]	= strIndyVal;
         listOutPerm$stat_name		= strStat;
+        listOutPerm$fcst_var		= fcst_var;
         listOutPerm$stat_value		=  try(bootStat$t0[intBootIndex],silent=TRUE);
         if(is.null(listOutPerm$stat_value)){
           listOutPerm$stat_value=NA;
@@ -1186,6 +1199,7 @@ for(strIndyVal in listIndyVal){
         }
         listOutPerm[[strIndyVar]]  = strIndyVal;
         listOutPerm$stat_name		= paste(strStat1,strStat2,sep=',',collapse="");
+        listOutPerm$fcst_var		= fcst_var;
         listOutPerm$stat_value		= bootStat$t0[intBootIndex];
 
         # calculate the bootstrap CIs, if appropriate

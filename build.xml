@@ -383,7 +383,7 @@
         </copy>
         <delete file="${build}/MANIFEST.MF"/>
         <manifest file="${build}/MANIFEST.MF">
-            <attribute name="Specification-Version" value="4.1.0-beta1"/>
+            <attribute name="Specification-Version" value="4.1.0-beta3"/>
         </manifest>
 
         <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
@@ -462,9 +462,9 @@
               file="${dist}/lib/metviewer.jar"/>
 
         <!-- Copy the documentation files -->
-        <mkdir dir="${dist}/metviewer/doc"/>
-        <copy todir="${dist}/metviewer/doc">
-            <fileset dir="doc">
+        <mkdir dir="${dist}/metviewer/docs"/>
+        <copy todir="${dist}/metviewer/docs">
+            <fileset dir="docs">
                 <include name="**"/>
             </fileset>
         </copy>

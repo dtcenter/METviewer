@@ -193,7 +193,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pct'  FROM "
             + "line_data_pct  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) pct)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mctc'  FROM "
-            + "line_data_mctc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mctc)\n";
+            + "line_data_mctc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mctc)\n"
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssidx'  FROM "
+            + "line_data_ssidx  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssidx)\n"
+            ;
 
 
     for (String database : currentDBName) {
@@ -201,7 +204,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       try (Connection con = getConnection(database);
            PreparedStatement stmt = con.prepareStatement(strSql, ResultSet.TYPE_FORWARD_ONLY,
                    ResultSet.CONCUR_READ_ONLY)) {
-        for (int i = 1; i <= 25; i++) {
+        for (int i = 1; i <= 26; i++) {
           stmt.setString(i, strFcstVar);
         }
         res = stmt.executeQuery();
@@ -308,6 +311,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 24:
                 listStatName.addAll(MVUtil.statsMctc.keySet());
+                break;
+              case 25:
+                listStatName.addAll(MVUtil.statsSsidx.keySet());
                 break;
               default:
 
@@ -1847,6 +1853,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsPerc.containsKey(strStat)) {
             tableStats = MVUtil.statsPerc;
             statTable = "line_data_perc ld\n";
+          } else if (MVUtil.statsSsidx.containsKey(strStat)) {
+            tableStats = MVUtil.statsSsidx;
+            statTable = "line_data_ssidx ld\n";
           } else {
             throw new ValidationException("unrecognized stat: " + strStat);
           }

@@ -105,8 +105,11 @@ dfPlot = read.delim(strDataFile,colClasses = classes);
 
 # build the list of independent values
 listX = 1:length(listIndy);
-if( length(listIndyPlotVal) == length(listIndy) ){ listX = listIndyPlotVal; }
-
+if( length(listIndyPlotVal) == length(listIndy) ){
+  listXForAxis = listIndyPlotVal;
+}else{
+  listXForAxis = listX;
+}
 if( length(listX1limUsr) > 0 ) {
   listXlim = listX1limUsr
 }else{
@@ -143,7 +146,13 @@ if( FALSE != boolEventEqual  ){
       for(strSeriesVal in names(listSeries1Val)){
         vectValPerms = c();
         for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-          vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+           regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", listSeries1Val[[strSeriesVal]][index]);
+           matches=regmatches(listSeries1Val[[strSeriesVal]][index], regexPr)
+           vectValPerms1=matches[[1]]
+           if (length(vectValPerms1) == 0){
+            vectValPerms1= strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]];
+           }
+           vectValPerms= append(vectValPerms, vectValPerms1);
         }
         fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
       }
@@ -163,7 +172,13 @@ if( FALSE != boolEventEqual  ){
         for(strSeriesVal in names(listSeries2Val)){
           vectValPerms = c();
           for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-            vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+           regexPr=gregexpr("(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})", listSeries1Val[[strSeriesVal]][index]);
+           matches=regmatches(listSeries1Val[[strSeriesVal]][index], regexPr)
+           vectValPerms1=matches[[1]]
+           if (length(vectValPerms1) == 0){
+              vectValPerms1= strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]];
+           }
+            vectValPerms= append(vectValPerms, vectValPerms1);
           }
           fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep2Stat,  ];
         }
@@ -621,6 +636,28 @@ if(length(listDiffSeries2) > 0){
   }
 }
 
+# change the order of series points depending on listIndyPlotVal
+if( length(listIndyPlotVal) == length(listIndy) ){
+  for (i in 1:length(listSeries1)){
+    updatedList = c();
+    for(index in 1:length(listIndyPlotVal)){
+      newIndex = listIndyPlotVal[index]
+      updatedList[newIndex] = listSeries1[[i]][index];
+    }
+    listSeries1[[i]] = updatedList;
+  }
+  if ( exists('listSeries2')){
+    for (i in 1:length(listSeries2)){
+      updatedList = c();
+      for(index in 1:length(listIndyPlotVal)){
+        newIndex = listIndyPlotVal[index]
+        updatedList[newIndex] = listSeries2[[i]][index];
+      }
+      listSeries2[[i]] = updatedList;
+    }
+  }
+}
+
 
 # sort and dump the y1 axis series data points into a file suffixed .points1
 if( TRUE == boolDumpPoints1 ){
@@ -804,7 +841,7 @@ mtext(
 # specify the x-axis
 axis(
   intXAxis,                  # axis of interest, 1: below, 2: left, 3: above and 4: right
-  at=listX,                  # locations of tick marks
+  at=listXForAxis,           # locations of tick marks
   labels=#<indy_label>#,	  # axis labels
   tick=TRUE,                # tick marks on/off
   tck=.01,                  # length of tick marks as a fraction of plot window

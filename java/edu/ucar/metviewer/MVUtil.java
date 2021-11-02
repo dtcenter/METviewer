@@ -50,14 +50,15 @@ public class MVUtil {
 
   public static final Pattern patModeSingleObjectId = Pattern.compile("^(C?[FO]\\d{3})$");
   public static final Pattern patModePairObjectId = Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
+  public static final Pattern patDateTime = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2}) (\\d{2}):(\\d{2}):(\\d{2})");
 
   public static final DateTimeFormatter APP_DATE_FORMATTER
           = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   public final static String LINE_SEPARATOR = System.getProperty("line.separator");
   /**
-   * Parse the input mode statistic, which is assume to have the form SSSS_FFF, where SSSS is the
-   * name of a mode statistic with arbitrary lenght and FFF is a three character flag indicator
+   * Parse the input mode statistic, which is assumed to have the form SSSS_FFF, where SSSS is the
+   * name of a mode statistic with arbitrary length and FFF is a three character flag indicator
    * string.
    */
   public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
@@ -103,6 +104,7 @@ public class MVUtil {
   public static final Map<String, String[]> statsSal1l2 = new HashMap<>();
   public static final Map<String, String[]> statsGrad = new HashMap<>();
   public static final Map<String, String[]> statsMctc = new HashMap<>();
+  public static final Map<String, String[]> statsSsidx = new HashMap<>();
 
 
   public static final int MAX_STR_LEN = 500;
@@ -144,7 +146,7 @@ public class MVUtil {
   public static final String DEFAULT_DATABASE_GROUP = "NO GROUP";
 
   public static final String SEPARATOR = ",";
-
+  public static final String GROUP_SEPARATOR = ":";
 
   public static final String[] lineTypes = new String[]{
           "fho",
@@ -652,6 +654,9 @@ public class MVUtil {
   static {
     statsMctc.put("MCTS_HSS_EC", new String[]{"bc", MCTC});
   }
+  static {
+    statsSsidx.put("SS_INDEX", new String[]{});
+  }
 
   static {
     statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc", NBRCTC});
@@ -994,10 +999,19 @@ public class MVUtil {
     if (values != null && values.length > 0) {
       List<String> newValues = new ArrayList<>();
       for (String value : values) {
-        if (value.contains(",")) {
-          String[] valuesArr = value.split(",");
-          for (String v : valuesArr) {
-            newValues.add(v);
+        if (value.contains(GROUP_SEPARATOR)) {
+          boolean matchFound = patDateTime.matcher(value).find();
+          if(matchFound) {
+            //this is a date - need to use patterns
+            Matcher m = patDateTime.matcher(value);
+            while (m.find()) {
+              newValues.add(m.group());
+            }
+          }else {
+            String[] valuesArr = value.split(GROUP_SEPARATOR);
+            for (String v : valuesArr) {
+              newValues.add(v);
+            }
           }
         } else {
           newValues.add(value);
@@ -1698,6 +1712,8 @@ public class MVUtil {
       return "line_data_sal1l2";
     } else if (statsGrad.containsKey(strStat)) {
       return "line_data_grad";
+    } else if (statsSsidx.containsKey(strStat)) {
+      return "line_data_ssidx";
     } else {
       return "";
     }
@@ -2401,10 +2417,10 @@ public class MVUtil {
     tableRTags.put("plot_units", job.getPlotUnits());
 
     String[] valArr = job.getMar().replace("c(", "").replace(")", "").split(",");
-    List<Integer> vals = new ArrayList<>();
+    List<Double> vals = new ArrayList<>();
     try {
       for (String s : valArr) {
-        vals.add(Integer.parseInt(s));
+        vals.add(Double.parseDouble(s));
       }
     } catch (Exception e) {
     }
@@ -2414,7 +2430,7 @@ public class MVUtil {
     vals = new ArrayList<>();
     try {
       for (String s : valArr) {
-        vals.add(Integer.parseInt(s));
+        vals.add(Double.parseDouble(s));
       }
     } catch (Exception e) {
     }
@@ -2772,6 +2788,10 @@ public class MVUtil {
         return '_';
       case ' ':
         return ' ';
+      case '(':
+        return '(';
+      case ')':
+        return ')';
     }
     return '%';
   }
