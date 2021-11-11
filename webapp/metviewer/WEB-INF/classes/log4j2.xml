@@ -5,7 +5,8 @@
             <PatternLayout>
                 <MarkerPatternSelector defaultPattern="%msg%n">
                     <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
-                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd} %l %L %M - %msg%n"/>
+                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd HH:mm} %l %L %M - %msg%n"/>
+                    <PatternMatch key="INFO" pattern="%d{yyyy-MM-dd HH:mm} %l %L %M - %msg%n"/>
                 </MarkerPatternSelector>
             </PatternLayout>
         </Console>
@@ -14,7 +15,8 @@
             <PatternLayout>
                 <MarkerPatternSelector defaultPattern="%msg%n">
                     <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
-                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd} %l %L %M - %msg%n"/>
+                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd HH:mm} %l %L %M - %msg%n"/>
+                    <PatternMatch key="INFO" pattern="%d{yyyy-MM-dd HH:mm} %l %L %M - %msg%n"/>
                 </MarkerPatternSelector>
             </PatternLayout>
         </File>

@@ -4,8 +4,8 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout>
                 <MarkerPatternSelector defaultPattern="%msg%n">
-                    <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
-                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd} %l %L %M - %msg%n"/>
+                    <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm:ss} - %msg%n"/>
+                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd HH:mm:ss} %l %L %M - %msg%n"/>
                 </MarkerPatternSelector>
             </PatternLayout>
         </Console>

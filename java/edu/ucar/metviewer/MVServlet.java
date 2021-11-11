@@ -61,6 +61,7 @@ public class MVServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private static final Logger logger = LogManager.getLogger("MVServlet");
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final Marker INFO_MARKER = MarkerManager.getMarker("INFO");
 
   private static final FilenameFilter PNG_FILTER = new FilenameFilter() {
     @Override
@@ -1352,7 +1353,7 @@ public class MVServlet extends HttpServlet {
     } catch (ParserConfigurationException | FileUploadException | IOException | SAXException | ValidationException
             | DatabaseException | ServletException e) {
       errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage());
-      logger.info("doPost() - caught " + e.getClass() + ": " + e.getMessage());
+      logger.info(INFO_MARKER,"doPost() - caught " + e.getClass() + ": " + e.getMessage());
       System.out.println("doPost() - caught " + e.getClass() + ": " + e.getMessage());
     }
   }
@@ -1360,12 +1361,12 @@ public class MVServlet extends HttpServlet {
   @Override
   public void destroy() {
     super.destroy();
-    logger.info("METviewer app has being taken out of service servlet container.");
+    logger.info(INFO_MARKER, "METviewer app has being taken out of service servlet container.");
   }
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    logger.info("METviewer app being placed into service by the servlet container.");
+    logger.info(INFO_MARKER, "METviewer app being placed into service by the servlet container.");
   }
 }
