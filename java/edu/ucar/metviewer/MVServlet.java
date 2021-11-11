@@ -685,7 +685,7 @@ public class MVServlet extends HttpServlet {
         jobManager = new RhistJobManager(bat);
         break;
       case "phist.R_tmpl":
-        jobManager = new RhistJobManager(bat);
+        jobManager = new PhistJobManager(bat);
         break;
       case "relp.R_tmpl":
         jobManager = new RelpJobManager(bat);

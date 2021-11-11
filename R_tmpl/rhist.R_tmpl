@@ -27,6 +27,8 @@ listPlotOrderSeries	= #<order_series>#;
 boolEqualizeByIndep = #<equalize_by_indep>#;
 boolEventEqual  = #<event_equal>#;
 listFixedValEx = #<fix_val_list_eq>#;
+boolDumpPoints1  = #<dump_points1>#;
+
 
 #old warning status
 oldWarn <- getOption("warn");
@@ -218,6 +220,11 @@ par(
 	las=2, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 	fg="black"
 );
+
+if( TRUE == boolDumpPoints1 ){
+  strPointsFile = sub("\\.data$", ".points1", strDataFile, perl=TRUE);
+  write.table(listHistData, file=strPointsFile, quote=FALSE, row.names=FALSE, col.names=FALSE);
+}
 
 # build the bar plot
 barplot(

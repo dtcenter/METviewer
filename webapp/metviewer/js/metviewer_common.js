@@ -2730,7 +2730,7 @@ function updateSeriesVarValHist(index, selectedVals) {
                 var opt, selected;
                 var options = [];
                 if (values.length > 0) {
-                    if(selectedVals.length > 0) {
+                    if(selectedVals && selectedVals.length > 0) {
                         $("#series_var_table_y" + index).css("display", '');
                     }
                     for (var i = 0; i < values.length; i++) {

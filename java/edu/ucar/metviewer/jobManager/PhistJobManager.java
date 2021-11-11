@@ -13,12 +13,16 @@ import edu.ucar.metviewer.MVBatch;
  * @version : 1.0 : 21/12/17 15:14 $
  */
 public class PhistJobManager extends RhistJobManager {
+  /**
+   * Class for Probability Histogram or Histograms of probability integral transform
+   * @param mvBatch
+   */
 
   public PhistJobManager(MVBatch mvBatch) {
     super(mvBatch);
   }
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/histogram/prob_hist.py";
   }
 }

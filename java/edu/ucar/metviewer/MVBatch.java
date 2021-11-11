@@ -381,7 +381,7 @@ public class MVBatch {
             jobManager = new RhistJobManager(mvBatch);
             break;
           case "phist.R_tmpl":
-            jobManager = new RhistJobManager(mvBatch);
+            jobManager = new PhistJobManager(mvBatch);
             break;
           case "relp.R_tmpl":
             jobManager = new RelpJobManager(mvBatch);
