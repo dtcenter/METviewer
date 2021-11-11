@@ -13,12 +13,16 @@ import edu.ucar.metviewer.MVBatch;
  * @version : 1.0 : 21/12/17 15:15 $
  */
 public class RelpJobManager extends RhistJobManager {
+  /**
+   * Class for Relative Histogram or Histograms of relative position
+   * @param mvBatch
+   */
 
   public RelpJobManager(MVBatch mvBatch) {
     super(mvBatch);
   }
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/histogram/rel_hist.py";
   }
 }

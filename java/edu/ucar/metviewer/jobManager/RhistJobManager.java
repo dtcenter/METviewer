@@ -26,6 +26,10 @@ import edu.ucar.metviewer.rscriptManager.RscriptStatManager;
  * @version : 1.0 : 21/12/17 09:56 $
  */
 public class RhistJobManager extends JobManager {
+  /**
+   * Class for Rank Histogram or Histograms of ensemble rank
+   * @param mvBatch
+   */
 
   public RhistJobManager(MVBatch mvBatch) {
     super(mvBatch);
@@ -133,7 +137,7 @@ public class RhistJobManager extends JobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/histogram/rhist.py";
+    return "/plots/histogram/rank_hist.py";
   }
 
 }
