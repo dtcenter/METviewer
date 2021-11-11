@@ -1,5 +1,6 @@
 package edu.ucar.metviewer;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -1356,4 +1357,15 @@ public class MVServlet extends HttpServlet {
     }
   }
 
+  @Override
+  public void destroy() {
+    super.destroy();
+    logger.info("METviewer app has being taken out of service servlet container.");
+  }
+
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    super.init(config);
+    logger.info("METviewer app being placed into service by the servlet container.");
+  }
 }
