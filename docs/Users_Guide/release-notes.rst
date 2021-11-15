@@ -9,6 +9,22 @@ https://github.com/dtcenter/METviewer/issues
 Version 4.1.0 release notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+beta4 release (20211115)
+^^^^^^^^^^^^^^^^^^^^^^^^
+* New Features:
+   * **Python implementation of the histograms - Probability, Relative, Rank** (`#322 <https://github.com/dtcenter/METviewer/issues/322>`_)
+   * **Python implementation of the Revision series for MODE-TD** (`#338 <https://github.com/dtcenter/METviewer/issues/338>`_)
+
+* Enhancements:
+   * Implement init() and destroy() mehods to comply with STIG (`#344 <https://github.com/dtcenter/METviewer/issues/344>`_)
+   * Record time stamps for logs that meet a granularity of one second (`#349 <https://github.com/dtcenter/METviewer/issues/349>`_)
+
+* Bugfixes:
+   * Create plots with date/time values in groups (`#345 <https://github.com/dtcenter/METviewer/issues/345>`_)
+   * Fixed rendering of plot_val indy values (`#342 <https://github.com/dtcenter/METviewer/issues/342>`_)
+
+* Internal:
+
 beta3 release (20211007)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 * New Features:
