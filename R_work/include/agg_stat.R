@@ -536,7 +536,7 @@ if ( nrow(sampleData) > 0){
       if( is.numeric(strIndyVal) ){
         vectValIndy = strIndyVal
       }else{
-        vectValIndy = strsplit(strIndyVal, ";")[[1]];
+        vectValIndy = strsplit(strIndyVal, ":")[[1]];
       }
       if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
         dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) %in% vectValIndy,];
@@ -715,7 +715,7 @@ if ( nrow(sampleData) > 0){
         strPerm = escapeStr(paste(intPerm, sep="_", collapse="_"));
         if( hasAggFieldSeries && any(grepl(':', listPerm)) ){
           dfStatsPerm = aggregateFieldValues(listSeries1Val, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
-        }else if(grepl(';', strIndyVal)){
+        }else if(grepl(':', strIndyVal)){
           listSetiesIndyVal = listSeries1Val
           listSetiesIndyVal[[strIndyVar]] = strIndyVal
           dfStatsPerm = aggregateFieldValues(listSetiesIndyVal, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
