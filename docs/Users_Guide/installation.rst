@@ -155,7 +155,7 @@ _____________________________
    .. code-block:: none
 
         cd MRTviewer
-        ant -Dbuild.properties.file=METViewer/build.properties \
+        ant -Dbuild.properties.file=METviewer/build.properties \
         -Ddb.management.system=mariadb -Dmetcalcpy.path=METcalcpy/ -Dmetplotpy.path=METplotpy/\
        -Dpython.env.path=METviewer_py3.6.3/  clean all
 
