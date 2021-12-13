@@ -25,9 +25,9 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/juli-6.0.53.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-api-1.7.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-log4j12-1.7.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/guava-14.0.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.14.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.14.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.14.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.15.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.15.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.15.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
