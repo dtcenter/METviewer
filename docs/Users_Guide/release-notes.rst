@@ -5,6 +5,20 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v4.0.2 <https://github.com/dtcenter/METviewer/releases/tag/v4.0.2>`_ release notes (20211215)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Enhancements:
+  * Migrate to log4j 2.15.0 to address security vulnerability `#358 <https://github.com/dtcenter/METviewer/issues/358>`_
+
+
+Version `v4.0.1 <https://github.com/dtcenter/METviewer/releases/tag/v4.0.1>`_ release notes (20210816)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Bugfixes:
+  * Fixed the loading XML error when parsing <date_list> element with <date_offset> `#319 <https://github.com/dtcenter/METviewer/issues/319>`_
+
+
 Version `v4.0.0 <https://github.com/dtcenter/METviewer/milestone/11>`_ release notes (20200512)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
