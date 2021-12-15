@@ -536,7 +536,7 @@ public abstract class JobManager {
 
     numbers = Arrays.copyOf(numbers, index);
     yamlInfo.put("indy_plot_val", !allEmpty ? numbers : new Integer[]{});
-
+    yamlInfo.put("cl_step", 0.05);
     return yamlInfo;
   }
 

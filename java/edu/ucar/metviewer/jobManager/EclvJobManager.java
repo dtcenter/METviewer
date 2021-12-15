@@ -78,6 +78,7 @@ public class EclvJobManager extends JobManager {
         }
       }
       Map<String, Object> info;
+      Map<String, Object> yamlInfo = null;
       RscriptStatManager rscriptStatManager;
       if (job.getAggCtc() || job.getAggPct()) {
         intNumDepSeries = 1;
@@ -91,15 +92,37 @@ public class EclvJobManager extends JobManager {
         //  build the SQL statements for the current plot
         listQuery = mvBatch.getDatabaseManager().buildPlotSql(job, plotFixPerm,
                 mvBatch.getPrintStreamSql());
-        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
+
         List<String> listAggStats1 = new ArrayList<>();
         listAggStats1.add("ECLV");
-        info.put("agg_stat1", MVUtil.printRCol(
-                listAggStats1.toArray(new String[listAggStats1.size()]), true));
-        rscriptStatManager.runRscript(job, info);
+
+        if (job.getExecutionType().equals("Rscript")) {
+          rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
+
+          info.put("agg_stat1", MVUtil.printRCol(
+                  listAggStats1.toArray(new String[listAggStats1.size()]), true));
+          rscriptStatManager.runRscript(job, info);
+          info.put("event_equal", "FALSE");
+        }else {
+          yamlInfo = createYamlInfoMap(job);
+          yamlInfo.put("agg_stat1", listAggStats1);
+          String lineType = "ctc";
+          if (job.getAggPct()){
+            lineType = "pct";
+          }
+          yamlInfo.put("line_type", lineType);
+          rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
+          rscriptStatManager.runPythonScript(job, yamlInfo);
+          yamlInfo.put("event_equal", "False");
+          yamlInfo.remove("agg_stat_output");
+          yamlInfo.remove("agg_stat_input");
+          yamlInfo.remove("agg_ctc");
+          yamlInfo.remove("agg_pct");
+        }
+
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
-        info.put("event_equal", "FALSE");
+
         listQuery.clear();
 
       } else {
@@ -113,11 +136,21 @@ public class EclvJobManager extends JobManager {
       }
 
       rscriptStatManager = new RscriptNoneStatManager(mvBatch);
-      rscriptStatManager
-              .prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
-      info.put("data_file", dataFile);
-
-      rscriptStatManager.runRscript(job, info);
+      if (job.getExecutionType().equals("Rscript")) {
+        rscriptStatManager
+                .prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
+        info.put("data_file", dataFile);
+        rscriptStatManager.runRscript(job, info);
+      }else {
+        if (yamlInfo == null) {
+          yamlInfo = createYamlInfoMap(job);
+        }
+        yamlInfo.put("stat_input", dataFile);
+        rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
+        job.setPlotTmpl(this.getPythonScript());
+        yamlInfo = this.addPlotConfigs(yamlInfo, job, intNumDepSeries);
+        rscriptStatManager.runPythonScript(job, yamlInfo);
+      }
 
 
     }
@@ -125,6 +158,6 @@ public class EclvJobManager extends JobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/eclv/eclv.py";
   }
 }

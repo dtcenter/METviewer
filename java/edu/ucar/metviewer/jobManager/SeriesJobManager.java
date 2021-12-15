@@ -219,7 +219,6 @@ public class SeriesJobManager extends JobManager {
           yamlInfo = createYamlInfoMap(job);
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
           rscriptStatManager.runPythonScript(job, yamlInfo);
-          yamlInfo.put("event_equal", "False");
           yamlInfo.remove("agg_stat_output");
           yamlInfo.remove("agg_stat_input");
         }
