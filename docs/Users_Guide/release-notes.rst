@@ -9,13 +9,15 @@ Version `v4.0.2 <https://github.com/dtcenter/METviewer/releases/tag/v4.0.2>`_ re
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Enhancements:
-  * Migrate to log4j 2.15.0 to address security vulnerability `#358 <https://github.com/dtcenter/METviewer/issues/358>`_
+
+  * Migrate to log4j 2.16.0 to address security vulnerability `#358 <https://github.com/dtcenter/METviewer/issues/358>`_
 
 
 Version `v4.0.1 <https://github.com/dtcenter/METviewer/releases/tag/v4.0.1>`_ release notes (20210816)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Bugfixes:
+
   * Fixed the loading XML error when parsing <date_list> element with <date_offset> `#319 <https://github.com/dtcenter/METviewer/issues/319>`_
 
 
