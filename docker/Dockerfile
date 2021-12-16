@@ -183,23 +183,21 @@ RUN yum install -y python3 python3-devel python3-pip
 # Install Python packages
 #
 RUN pip-3 install kiwisolver==1.0.1 \
- && pip-3 install bootstrapped \
+ && pip-3 install pillow==7.2.0 \
+ && pip-3 install bootstrapped==0.0.2 \
  && pip-3 install plotly==4.9.0 \
  && pip-3 install kaleido==0.2.1 \
  && pip-3 install pandas==1.0.1 \
  && pip-3 install numpy==1.17.0 \
  && pip-3 install scipy==1.5.1 \
+ && pip-3 install pingouin==0.3.8 \
  && pip-3 install PyYAML==5.3.1 \
  && pip-3 install psutil==5.7.2 \
- && pip-3 install requests \
- && pip-3 install pillow==7.2.0 \
+ && pip-3 install requests==2.24.0 \
  && pip-3 install matplotlib==3.3.0 \
- && pip-3 install lxml \
- && pip-3 install pymysql \
- && pip-3 install retrying \
- && pip-3 install cython \
- && pip-3 install pingouin \
- && pip-3 install statsmodels==0.11.1
+ && pip-3 install lxml==4.5.2 \
+ && pip-3 install pymysql==0.9.3
+
 
 #
 # Create a link for python3
