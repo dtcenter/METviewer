@@ -110,10 +110,10 @@
     </target>
 
     <path id="cb">
-        <pathelement location="${lib}/log4j-api-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-core-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-web-2.16.0.jar"/>
+        <pathelement location="${lib}/log4j-api-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.17.0.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
         <pathelement location="${lib}/javax.servlet-api-4.0.1.jar"/>
@@ -133,10 +133,10 @@
     </path>
 
     <path id="cb-all">
-        <pathelement location="${lib}/log4j-api-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-core-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-web-2.16.0.jar"/>
+        <pathelement location="${lib}/log4j-api-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.17.0.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
         <pathelement location="${lib}/javax.servlet-api-4.0.1.jar"/>
@@ -158,10 +158,10 @@
     </path>
 
     <path id="mysql">
-        <pathelement location="${lib}/log4j-api-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-core-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-web-2.16.0.jar"/>
+        <pathelement location="${lib}/log4j-api-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.17.0.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -179,10 +179,10 @@
     </path>
 
     <path id="mysql-all">
-        <pathelement location="${lib}/log4j-api-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-core-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-web-2.16.0.jar"/>
+        <pathelement location="${lib}/log4j-api-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.17.0.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -202,10 +202,10 @@
     </path>
 
     <path id="mariadb">
-        <pathelement location="${lib}/log4j-api-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-core-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-web-2.16.0.jar"/>
+        <pathelement location="${lib}/log4j-api-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.17.0.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -223,10 +223,10 @@
     </path>
 
     <path id="mariadb-all">
-        <pathelement location="${lib}/log4j-api-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-core-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-web-2.16.0.jar"/>
+        <pathelement location="${lib}/log4j-api-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.17.0.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -246,10 +246,10 @@
     </path>
 
     <path id="aurora">
-        <pathelement location="${lib}/log4j-api-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-core-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-web-2.16.0.jar"/>
+        <pathelement location="${lib}/log4j-api-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.17.0.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -267,10 +267,10 @@
     </path>
 
     <path id="aurora-all">
-        <pathelement location="${lib}/log4j-api-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-core-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.16.0.jar"/>
-        <pathelement location="${lib}/log4j-web-2.16.0.jar"/>
+        <pathelement location="${lib}/log4j-api-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.17.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.17.0.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>

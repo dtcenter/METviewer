@@ -163,9 +163,9 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.11.jar
 
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.14.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.14.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.14.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.0.jar
 
 
 
