@@ -168,9 +168,17 @@ public class RscriptAggStatManager extends RscriptStatManager {
       dataFile = dataFile + ".agg_stat";
       //perform event equalisation , statistic calculation and bootstrapping
       if (job.getPlotTmpl().contains("eclv")) {
-        scriptFileName = "include/agg_eclv.R";
+        if(info.getClass() == TreeMap.class){
+          scriptFileName =  "/metcalcpy/agg_eclv.py";
+        }else {
+          scriptFileName = "include/agg_eclv.R";
+        }
       } else {
-        scriptFileName = "include/agg_stat.R";
+        if(info.getClass() == TreeMap.class){
+          scriptFileName =  "/metcalcpy/agg_stat.py";
+        }else {
+          scriptFileName = "include/agg_stat.R";
+        }
       }
     }
 
@@ -312,12 +320,12 @@ public class RscriptAggStatManager extends RscriptStatManager {
           mvBatch.getPrintStream().println("\nRunning:\n"
                   + mvBatch.getPython()
                   + "\n"
-                  + mvBatch.getMetCalcpyHome() + AGG_PYTHON_SCRIPT
+                  + mvBatch.getMetCalcpyHome() + rScriptFile
                   + "\n"
                   + aggInfo);
 
           mvResponse = MVUtil.runRscript(mvBatch.getPython(),
-                  mvBatch.getMetCalcpyHome() + AGG_PYTHON_SCRIPT,
+                  mvBatch.getMetCalcpyHome() + rScriptFile,
                   new String[]{aggInfo},
                   new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
         }
