@@ -32,7 +32,7 @@
 usage() { echo "Usage: $0  -U <git user> -t<path to METviewer test directory> -s<db management system> -b<git branch>
 -B<compare git branch> -l<path to met data> -d<mv_database> -m<path to METviewer home>
 [-c(capture new images)] [-a address list] [-g<git tag>] [-G<compare git tag>] [-u<mv_user>]
-[-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>] [-E <path_to_python_env_directory>] [-A <path_to_metcalcpy_directory>] [-R <path_to_metplotpy_directory>]
+[-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>] [-E <path_to_python_env_directory>] [-A <path_to_metcalcpy_directory>] [-R <path_to_metplotpy_directory>] [-D <path_to_metdatadb_directory>] [-L (load data to database)]
 [-j<path to java executible>]" 1>&2; exit 1; }
 export mv_test_db="mv_test"
 export mv_user=""
@@ -43,13 +43,15 @@ export git_user=""
 export METviewerTag="HEAD"
 export METviewerCompareTag="HEAD"
 export capture=""
+export load=""
 export PYTHON_ENV=""
 export METCALCPY_HOME=""
 export METPLOTPY_HOME=""
+export METDATADB_HOME=""
 
-while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R?" o; do
+while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R:D:L:?" o; do
     case "${o}" in
-    	c)
+    	  c)
             capture="-c"
             ;;
         U)
@@ -102,6 +104,27 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R?" o; do
         P)
             mv_port=${OPTARG}
             ;;
+
+        E)
+            PYTHON_ENV=${OPTARG}
+            ;;
+        A)
+            METCALCPY_HOME=${OPTARG}
+            ;;
+
+        R)
+            if [ ! -d "${OPTARG}" ]; then
+        				echo "METPLOTPY_HOME directory ${OPTARG} does not exist"
+        				OPTARG="/d3/projects/METViewer/METplotpy/metplotpy/"
+        		fi
+            METPLOTPY_HOME=${OPTARG}
+            ;;
+        D)
+            METCALCPY_HOME=${OPTARG}
+            ;;
+        L)
+            load="-l"
+            ;;
         j)
 			if [ ! -x "${OPTARG}" ]; then
 				echo "file ${OPTARG} does not exist or is not executable"
@@ -114,20 +137,7 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R?" o; do
 			   usage;
 			fi
             ;;
-        E)
-            PYTHON_ENV=${OPTARG}
-            ;;
-        A)
-            METCALCPY_HOME=${OPTARG}
-            ;;
-        R)
 
-            if [ ! -d "${OPTARG}" ]; then
-				      echo "METPLOTPY_HOME directory ${OPTARG} does not exist"
-				      OPTARG="/d3/projects/METViewer/METplotpy/metplotpy/"
-			      fi
-            METPLOTPY_HOME=${OPTARG}
-            ;;
 		?)
 		usage
 		;;
@@ -293,15 +303,15 @@ fi
 # run the mv_test
 #send a note
 if [ "X$addressList" != "X" ]; then
-	echo "running /bin/sh ./bin/mv_test.sh -t ${METviewerBranchTestDir} -m ${METviewerDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port} -l ${capture} -e ${PYTHON_ENV} -a ${METCALCPY_HOME} -r ${METPLOTPY_HOME} -n> ${logfile}"
-	/bin/sh ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -k${managementSystem}  -l ${capture} -e ${PYTHON_ENV} -a${METCALCPY_HOME} -r ${METPLOTPY_HOME} -n > ${logfile}
+	echo "running /bin/sh ./bin/mv_test.sh -t ${METviewerBranchTestDir} -m ${METviewerDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port} -l ${capture} -e ${PYTHON_ENV} -a ${METCALCPY_HOME} -r ${METPLOTPY_HOME} -r ${METCALCPY_HOME} -n> ${logfile}"
+	/bin/sh ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -k${managementSystem}  -l ${capture} -e ${PYTHON_ENV} -a${METCALCPY_HOME} -r ${METPLOTPY_HOME} -r ${METCALCPY_HOME} -n > ${logfile}
 
 	ret=$?
 	echo mv_test ret is $ret
 	cat $logfile | mail -s "nightly_${METviewerBranch} mv_test failed with $ret failures - here is the log file" $addressList
 else
-	echo "running /bin/sh ./bin/mv_test.sh -t${METviewerBranchTestDir} -m${METviewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l ${capture} -e ${PYTHON_ENV} -a ${METCALCPY_HOME} -r ${METPLOTPY_HOME} -n"
-    /bin/sh  ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -k${managementSystem} -l ${capture} -e ${PYTHON_ENV} -a ${METCALCPY_HOME} -r ${METPLOTPY_HOME} -n
+	echo "running /bin/sh ./bin/mv_test.sh -t${METviewerBranchTestDir} -m${METviewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} ${load} ${capture} -e ${PYTHON_ENV} -a ${METCALCPY_HOME} -r ${METPLOTPY_HOME} -r ${METCALCPY_HOME} -n"
+    /bin/sh  ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -k${managementSystem} ${load} ${capture} -e ${PYTHON_ENV} -a ${METCALCPY_HOME} -r ${METPLOTPY_HOME} -r ${METCALCPY_HOME} -n
 	ret=$?
 	echo mv_test ret is $ret
 fi
