@@ -188,9 +188,9 @@ JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE 
 echo "---------"
 cd ${MV_HOME}
 
-
-if [[ $LOADDATA == "yes" ]]; then
+if [[$LOADDATA == "yes" ]]; then
   export PYTHONPATH=${PYTHONPATH}:$METDATADB_HOME
+  echo "$PYTHON_ENV/bin/python  $METDATADB_HOME/METdbLoad/ush/met_db_load.py $MV_TEST_HOME/load_data/load/mv_mysql.sql"
   $PYTHON_ENV/bin/python  $METDATADB_HOME/METdbLoad/ush/met_db_load.py $MV_TEST_HOME/load_data/load/mv_mysql.sql
 else
     echo "Skip data loading"
