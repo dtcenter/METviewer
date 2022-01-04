@@ -84,6 +84,10 @@ while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r:g:?" o; do
             METPLOTPY_HOME="-Dmetplotpy.env=${OPTARG}"
             ;;
         g)
+            if [ ! -d "${OPTARG}" ]; then
+              echo "METDATADB_HOME directory ${OPTARG} does not exist"
+            	OPTARG="/d3/projects/METViewer/METdatadb/"
+            fi
             METDATADB_HOME="-Dmetdatadb.env=${OPTARG}"
             ;;
 		?)
