@@ -12,7 +12,7 @@ export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
 export LOADDATA=""
 export TESTSERVLET=""
-while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r?" o; do
+while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r:g:?" o; do
     case "${o}" in
         t)
 			if [ ! -d "${OPTARG}" ]; then
@@ -82,6 +82,9 @@ while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r?" o; do
 				      OPTARG="/d3/projects/METViewer/METplotpy/metplotpy/"
 			      fi
             METPLOTPY_HOME="-Dmetplotpy.env=${OPTARG}"
+            ;;
+        g)
+            METDATADB_HOME="-Dmetdatadb.env=${OPTARG}"
             ;;
 		?)
 		usage
