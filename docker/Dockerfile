@@ -8,6 +8,7 @@ MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 ARG METVIEWER_GIT_NAME 
 ARG METCALCPY_GIT_NAME
 ARG METPLOTPY_GIT_NAME
+ARG METDATADB_GIT_NAME
 
 #
 # Constants
@@ -153,7 +154,7 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/metplotpy/%g' \
     > build.properties \
  && ant -Dbuild.properties.file=./build.properties \
-        -Ddb.management.system=mariadb \
+        -Ddb.management.system=mysql \
         -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
         -Dmetplotpy.path=/METviewer-python/METplotpy/ \
         -Dpython.env.path=/usr/local/ war \
@@ -222,6 +223,14 @@ RUN ln -s /usr/bin/python3 /usr/local/bin/python
 #
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/metplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/metplotpy/"
+
+# remove unneeded scripts
+RUN rm /METviewer/bin/auto_test.sh \
+    && rm /METviewer/bin/mv_test.sh \
+    && rm /METviewer/bin/nightly_test.sh \
+    && rm /METviewer/bin/prep_dist.sh \
+    && rm /METviewer/bin/mv_compare.sh \
+    && rm -r  /METviewer/test
 
 # change permissions of the scripts
 RUN chmod 755 /METviewer/bin/mv_batch.sh \
