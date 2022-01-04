@@ -152,7 +152,7 @@ if [ -z ${METDATADB_HOME+x} ]; then
 	echo "setting it to /d3/projects/METViewer/METdatadb/"
 	METDATADB_HOME=/d3/projects/METViewer/METdatadb/
 else
-	echo "METDATABD_HOME is set to ${METDATABD_HOME}"
+	echo "METDATABD_HOME is set to ${METDATADB_HOME}"
 fi
 
 # construct the classpath
