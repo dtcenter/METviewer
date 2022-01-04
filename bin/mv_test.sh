@@ -65,7 +65,7 @@ while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r?" o; do
             NOCLEAN="-DnoClean=yes"
             ;;
         l)
-            LOADDATA="-DloadData=yes"
+            LOADDATA="yes"
             ;;
         s)
             TESTSERVLET="-DtestServlet=yes"
@@ -140,9 +140,15 @@ else
 	echo "METPLOTPY_HOME is set to ${METPLOTPY_HOME}"
 fi
 
+if [ -z ${METDATADB_HOME+x} ]; then
+	echo "METDATABD_HOME is unset"
+	echo "setting it to /d3/projects/METViewer/METdatadb/"
+	METDATADB_HOME=/d3/projects/METViewer/METdatadb/
+else
+	echo "METDATABD_HOME is set to ${METDATABD_HOME}"
+fi
 
-
-# construct the classpath for MVLoad
+# construct the classpath
 CLASSPATH=${MV_HOME}/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/xml-apis.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/juli-6.0.53.jar
@@ -163,21 +169,24 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.11.jar
 
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.0.jar
-
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.1.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.1.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.1.jar
 
 
 echo "Running allRestRunner"
 
-JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dmv_type=$MV_TYPE -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN $LOADDATA $TESTSERVLET $PYTHON_ENV $METCALCPY_HOME $METPLOTPY_HOME"
+JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dmv_type=$MV_TYPE -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN  $TESTSERVLET $PYTHON_ENV $METCALCPY_HOME $METPLOTPY_HOME $METDATADB_HOME"
 echo "---------"
 cd ${MV_HOME}
-#echo "*******"
-#echo $JAVA_OPTS
-#echo "*******"
 
+
+if ["$LOADDATA" == "yes"]; then
+  export PYTHONPATH=${PYTHONPATH}:$METDATADB_HOME
+  $PYTHON_ENV/bin/python  $METDATADB_HOME/METdbLoad/ush/met_db_load.py ${$MV_TEST_HOME}/load_data/load/mv_mysql.sql
+else
+    echo "Skip data loading"
+fi
 echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
 $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
 echo "---------"
