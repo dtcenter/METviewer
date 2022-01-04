@@ -310,14 +310,7 @@ public class TestUtil {
       nodeList = doc.getElementsByTagName("connection");
       nodeList.item(0).appendChild(managementSystem);
 
-      //assign a group name
-      if (fpath.contains("load")) {
-        tag = "group";
-        Element group = doc.createElement(tag);
-        group.setTextContent("Testing");
-        nodeList = doc.getElementsByTagName("load_spec");
-        nodeList.item(0).appendChild(group);
-      }
+
       TransformerFactory factory = TransformerFactory.newInstance();
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       Transformer transformer = factory.newTransformer();
