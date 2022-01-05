@@ -189,13 +189,20 @@ JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE 
 echo "---------"
 cd ${MV_HOME}
 
-if [[ $LOADDATA == "yes" ]]; then
+if [ "$LOADDATA" == "yes" ]; then
   echo "mysql -u$MV_USER -p$MV_PASSWD -h$MV_HOST -P$MV_PORT $MV_DATABASE < $MV_TEST_HOME/load_data/load/mv_mysql.sql"
   mysql -u$MV_USER -p$MV_PASSWD -h$MV_HOST -P$MV_PORT $MV_DATABASE < $MV_TEST_HOME/load_data/load/mv_mysql.sql
 
+    cat $MV_TEST_HOME/load_data/load/load_test.xml | \
+    sed -r 's%test_host%$MV_HOST%g' | \
+    sed -r 's%<database>mv_test</database>%<database>$MV_DATABASE</database>%g' | \
+    sed -r 's%<user>user</user>%<user>$MV_USER</user>%g' | \
+    sed -r 's%<password>user_pwd</password>%<password>$MV_PASSWD</password>%g' \
+    > $MV_TEST_HOME/load_data/load/load_test.xml
+
   export PYTHONPATH=${PYTHONPATH}:$METDATADB_HOME
   echo "$PYTHON_ENV/bin/python  $METDATADB_HOME/METdbLoad/ush/met_db_load.py $MV_TEST_HOME/load_data/load/load_test.xml"
-  $PYTHON_ENV/bin/python  $METDATADB_HOME/METdbLoad/ush/met_db_load.py $MV_TEST_HOME/load_data/load/load_test.xmm
+  $PYTHON_ENV/bin/python  $METDATADB_HOME/METdbLoad/ush/met_db_load.py $MV_TEST_HOME/load_data/load/load_test.xml
 else
     echo "Skip data loading"
 fi
