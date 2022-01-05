@@ -189,7 +189,8 @@ JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE 
 echo "---------"
 cd ${MV_HOME}
 
-if [ $LOADDATA == "yes" ]; then
+if [ ! -z "$LOADDATA" ]
+then
   echo "mysql -u$MV_USER -p$MV_PASSWD -h$MV_HOST -P$MV_PORT $MV_DATABASE < $MV_TEST_HOME/load_data/load/mv_mysql.sql"
   mysql -u$MV_USER -p$MV_PASSWD -h$MV_HOST -P$MV_PORT $MV_DATABASE < $MV_TEST_HOME/load_data/load/mv_mysql.sql
 
