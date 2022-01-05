@@ -189,14 +189,15 @@ JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE 
 echo "---------"
 cd ${MV_HOME}
 
-if [ "$LOADDATA" == "yes" ]; then
+if [ $LOADDATA == "yes" ]; then
   echo "mysql -u$MV_USER -p$MV_PASSWD -h$MV_HOST -P$MV_PORT $MV_DATABASE < $MV_TEST_HOME/load_data/load/mv_mysql.sql"
   mysql -u$MV_USER -p$MV_PASSWD -h$MV_HOST -P$MV_PORT $MV_DATABASE < $MV_TEST_HOME/load_data/load/mv_mysql.sql
 
-  sed -i -e "s/<host>test_host:3306</host>/<host>$MV_HOST:3306</host>\//g" $MV_TEST_HOME/load_data/load/load_test.xml
-  sed -i -e "s/<database>mv_test</database>/<database>$MV_DATABASE</database>/g" $MV_TEST_HOME/load_data/load/load_test.xml
-  sed -i -e "s/<user>user</user>/<user>$MV_USER</user>/g" $MV_TEST_HOME/load_data/load/load_test.xml
-  sed -i -e "s/<password>user_pwd</password>/<password>$MV_PASSWD</password>/g" $MV_TEST_HOME/load_data/load/load_test.xml
+  sed -i -e "s/<host>test_host:3306<\/host>/<host>$MV_HOST:3306<\/host>/" $MV_TEST_HOME/load_data/load/load_test.xml
+  sed -i -e "s/<database>mv_test<\/database>/<database>$MV_DATABASE<\/database>/" $MV_TEST_HOME/load_data/load/load_test.xml
+  sed -i -e "s/<user>user<\/user>/<user>$MV_USER<\/user>/" $MV_TEST_HOME/load_data/load/load_test.xml
+  sed -i -e "s/<password>user_pwd<\/password>/<password>$MV_PASSWD<\/password>/" $MV_TEST_HOME/load_data/load/load_test.xml
+  sed -i -e "s/path_to_data_dir/<password>$MV_PASSWD<\/password>/" $MV_TEST_HOME/load_data/load/load_test.xml
 
 
   export PYTHONPATH=${PYTHONPATH}:$METDATADB_HOME
