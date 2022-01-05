@@ -89,7 +89,8 @@ while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r:g:?" o; do
               echo "METDATADB_HOME directory ${OPTARG} does not exist"
             	OPTARG="/d3/projects/METViewer/METdatadb/"
             fi
-            METDATADB_HOME="-Dmetdatadb.env=${OPTARG}"
+            PYTHON_ENV_PAR=="-Dmetdatadb.env=${OPTARG}"
+            METDATADB_HOME="${OPTARG}"
             ;;
 		?)
 		usage
@@ -184,7 +185,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.1.jar
 
 echo "Running allRestRunner"
 
-JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dmv_type=$MV_TYPE -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN  $TESTSERVLET $PYTHON_ENV_PAR $METCALCPY_HOME $METPLOTPY_HOME $METDATADB_HOME"
+JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dmv_type=$MV_TYPE -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN  $TESTSERVLET $PYTHON_ENV_PAR $METCALCPY_HOME $METPLOTPY_HOME $PYTHON_ENV_PAR"
 echo "---------"
 cd ${MV_HOME}
 
