@@ -263,11 +263,15 @@ mkdir -p ${METviewerBranchTestDir}/load_data/load/
 cp ${METviewerDir}/sql/mv_mysql.sql  ${METviewerBranchTestDir}/load_data/load
 cp ${METviewerBranchTestDir}/test_data/test_cases/loading/load_test.xml ${METviewerBranchTestDir}/load_data/load
 # replace host database user and password in load_test.xml
-sed -i .bak "s/<host>.*<\/host>/<host>${mv_host}:${mv_port}<\/host>/" ${METviewerBranchTestDir}/load_data/load/load_test.xml
-sed -i .bak "s/<database>.*<\/database>/<database>${mv_test_db}<\/database>/" ${METviewerBranchTestDir}/load_data/load/load_test.xml
-sed -i .bak "s/<user>.*<\/user>/<user>${mv_user}<\/user>/" ${METviewerBranchTestDir}/load_data/load/load_test.xml
-sed -i .bak "s/<password>.*<\/password>/<password>${mv_pass}<\/password>/" ${METviewerBranchTestDir}/load_data/load/load_test.xml
-sed -i .bak "s#path_to_data_dir#${METviewerBranchTestDir}/met_data/#" ${METviewerBranchTestDir}/load_data/load/load_test.xml
+
+
+sed -i "s/<host>.*<\/host>/<host>${mv_host}:${mv_port}<\/host>/" ${METviewerBranchTestDir}/load_data/load/load_test.xml
+sed -i "s/<database>.*<\/database>/<database>${mv_test_db}<\/database>/" ${METviewerBranchTestDir}/load_data/load/load_test.xml
+sed -i "s/<user>.*<\/user>/<user>${mv_user}<\/user>/" ${METviewerBranchTestDir}/load_data/load/load_test.xml
+sed -i "s/<password>.*<\/password>/<password>${mv_pass}<\/password>/" ${METviewerBranchTestDir}/load_data/load/load_test.xml
+sed -i "s#path_to_data_dir#${METviewerBranchTestDir}/met_data/#" ${METviewerBranchTestDir}/load_data/load/load_test.xml
+
+
 rm -rf ${METviewerBranchTestDir}/test_data/test_cases/loading  # have to do this because it interferes with the test runner
 ln -sf ${METviewerDir}/R_tmpl ${METviewerBranchTestDir}/R_tmpl
 mkdir ${METviewerBranchTestDir}/R_work
