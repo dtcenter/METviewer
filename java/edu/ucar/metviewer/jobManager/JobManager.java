@@ -440,7 +440,9 @@ public abstract class JobManager {
                 .replace("&lt;", "<");
         mapKeys.set(j, newValue);
         map.put(newValue,map.get(mapListKeys[j]));
-        map.remove(mapListKeys[j]);
+        if(!mapListKeys[j].equals(newValue)) {
+          map.remove(mapListKeys[j]);
+        }
       }
 
     }
