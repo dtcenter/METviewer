@@ -51,7 +51,7 @@ export METDATADB_HOME=""
 
 while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T:E:A:R:D:L:?" o; do
     case "${o}" in
-    	  c)
+        c)
             capture="-c"
             ;;
         U)
