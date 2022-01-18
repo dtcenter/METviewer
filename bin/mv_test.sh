@@ -12,7 +12,7 @@ export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
 export LOADDATA=""
 export TESTSERVLET=""
-while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r?" o; do
+while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r:g:?" o; do
     case "${o}" in
         t)
 			if [ ! -d "${OPTARG}" ]; then
@@ -65,13 +65,14 @@ while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r?" o; do
             NOCLEAN="-DnoClean=yes"
             ;;
         l)
-            LOADDATA="-DloadData=yes"
+            LOADDATA="yes"
             ;;
         s)
             TESTSERVLET="-DtestServlet=yes"
             ;;
         e)
-            PYTHON_ENV="-Dpython.env=${OPTARG}"
+            PYTHON_ENV_PAR="-Dpython.env=${OPTARG}"
+            PYTHON_ENV="${OPTARG}"
             ;;
         a)
             METCALCPY_HOME="-Dmetcalcpy.env=${OPTARG}"
@@ -82,6 +83,13 @@ while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r?" o; do
 				      OPTARG="/d3/projects/METViewer/METplotpy/metplotpy/"
 			      fi
             METPLOTPY_HOME="-Dmetplotpy.env=${OPTARG}"
+            ;;
+        g)
+            if [ ! -d "${OPTARG}" ]; then
+              echo "METDATADB_HOME directory ${OPTARG} does not exist"
+            	OPTARG="/d3/projects/METViewer/METdatadb/"
+            fi
+            METDATADB_HOME="${OPTARG}"
             ;;
 		?)
 		usage
@@ -140,9 +148,15 @@ else
 	echo "METPLOTPY_HOME is set to ${METPLOTPY_HOME}"
 fi
 
+if [ -z ${METDATADB_HOME+x} ]; then
+	echo "METDATABD_HOME is unset"
+	echo "setting it to /d3/projects/METViewer/METdatadb/"
+	METDATADB_HOME=/d3/projects/METViewer/METdatadb/
+else
+	echo "METDATABD_HOME is set to ${METDATADB_HOME}"
+fi
 
-
-# construct the classpath for MVLoad
+# construct the classpath
 CLASSPATH=${MV_HOME}/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/xml-apis.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/juli-6.0.53.jar
@@ -163,21 +177,28 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.11.jar
 
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.0.jar
-
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.1.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.1.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.1.jar
 
 
 echo "Running allRestRunner"
 
-JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dmv_type=$MV_TYPE -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN $LOADDATA $TESTSERVLET $PYTHON_ENV $METCALCPY_HOME $METPLOTPY_HOME"
+JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dmv_type=$MV_TYPE -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN  $TESTSERVLET $PYTHON_ENV_PAR $METCALCPY_HOME $METPLOTPY_HOME"
 echo "---------"
 cd ${MV_HOME}
-#echo "*******"
-#echo $JAVA_OPTS
-#echo "*******"
 
+if [ ! -z "$LOADDATA" ]
+then
+  echo "mysql -u$MV_USER -p$MV_PASSWD -h$MV_HOST -P$MV_PORT $MV_DATABASE < $MV_TEST_HOME/load_data/load/mv_mysql.sql"
+  mysql -u$MV_USER -p$MV_PASSWD -h$MV_HOST -P$MV_PORT $MV_DATABASE < $MV_TEST_HOME/load_data/load/mv_mysql.sql
+
+  export PYTHONPATH=${PYTHONPATH}:$METDATADB_HOME
+  echo "$PYTHON_ENV/bin/python  $METDATADB_HOME/METdbLoad/ush/met_db_load.py $MV_TEST_HOME/load_data/load/load_test.xml"
+  $PYTHON_ENV/bin/python  $METDATADB_HOME/METdbLoad/ush/met_db_load.py $MV_TEST_HOME/load_data/load/load_test.xml
+else
+    echo "Skip data loading"
+fi
 echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
 $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
 echo "---------"

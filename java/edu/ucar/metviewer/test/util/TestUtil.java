@@ -310,6 +310,7 @@ public class TestUtil {
       nodeList = doc.getElementsByTagName("connection");
       nodeList.item(0).appendChild(managementSystem);
 
+
       TransformerFactory factory = TransformerFactory.newInstance();
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       Transformer transformer = factory.newTransformer();
