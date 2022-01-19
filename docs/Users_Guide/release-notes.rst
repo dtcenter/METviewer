@@ -8,6 +8,16 @@ https://github.com/dtcenter/METviewer/issues
 
 Version 4.1.0 release notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+beta5 release (20220119)
+^^^^^^^^^^^^^^^^^^^^^^^^
+* New Features:
+   * **Python implementation of the ECLV plot** (`#353 <https://github.com/dtcenter/METviewer/issues/353>`_)
+
+* Enhancements:
+   * update version of log4j to 2.17.1  (`#356 <https://github.com/dtcenter/METviewer/issues/356>`_)
+
+* Bugfixes:
+   * Fix Docker image build (`#354 <https://github.com/dtcenter/METviewer/issues/354>`_)
 
 beta4 release (20211115)
 ^^^^^^^^^^^^^^^^^^^^^^^^
