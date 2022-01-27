@@ -8,6 +8,7 @@ MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 ARG METVIEWER_GIT_NAME 
 ARG METCALCPY_GIT_NAME
 ARG METPLOTPY_GIT_NAME
+ARG METDATADB_GIT_NAME
 
 #
 # Constants
@@ -19,6 +20,7 @@ ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
 ENV METVIEWER_GIT_URL  https://github.com/dtcenter/METviewer
 ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
 ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
+ENV METDATADB_GIT_URL  https://github.com/dtcenter/METdatadb
 
 #
 # METVIEWER_GIT_NAME is required.
@@ -48,6 +50,16 @@ RUN if [ "x${METPLOTPY_GIT_NAME}" = "x" ]; then \
       exit 1; \
     else \
       echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}"; \
+    fi
+
+#
+# METDATADB_GIT_NAME is required.
+#
+RUN if [ "x${METDATADB_GIT_NAME}" = "x" ]; then \
+      echo "ERROR: METDATADB_GIT_NAME undefined! Rebuild with \"--build-arg METDATADB_GIT_NAME={branch, tag, or hash}\""; \
+      exit 1; \
+    else \
+      echo "Build Argument METDATADB_GIT_NAME=${METDATADB_GIT_NAME}"; \
     fi
 
 #
@@ -114,7 +126,11 @@ RUN mkdir /METviewer-python \
  && echo "Checking out METplotpy ${METPLOTPY_GIT_NAME} from ${METPLOTPY_GIT_URL}" \
  && git clone ${METPLOTPY_GIT_URL} /METviewer-python/METplotpy \
  && cd /METviewer-python/METplotpy \
- && git checkout ${METPLOTPY_NAME_TAG}
+ && git checkout ${METPLOTPY_NAME_TAG} \
+ && echo "Checking out METdatadb ${METDATADB_GIT_NAME} from ${METDATADB_GIT_URL}" \
+ && git clone ${METDATADB_GIT_URL} /METviewer-python/METdatadb \
+ && cd /METviewer-python/METdatadb \
+ && git checkout ${METDATADB_NAME_TAG}
 
 #
 # Install METviewer
@@ -124,7 +140,7 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
  && cd /METviewer \
  && git checkout ${METVIEWER_GIT_NAME} \
  && echo "Configuring and building METviewer" \
- && cd /METviewer \ 
+ && cd /METviewer \
  && cat webapp/metviewer/WEB-INF/classes/build.properties | \
     sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
     sed -r 's%db.user=.*%db.user=root%g' | \
@@ -138,7 +154,7 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/metplotpy/%g' \
     > build.properties \
  && ant -Dbuild.properties.file=./build.properties \
-        -Ddb.management.system=mariadb \
+        -Ddb.management.system=mysql \
         -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
         -Dmetplotpy.path=/METviewer-python/METplotpy/ \
         -Dpython.env.path=/usr/local/ war \
@@ -153,10 +169,8 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
     >  mv_batch.sh-DOCKER \
  && mv mv_batch.sh-DOCKER mv_batch.sh \
  && cat mv_load.sh | \
-    sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
-    sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
-    sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local/%g'  | \
+    sed -r 's%METDATADB_HOME=.*%METDATADB_HOME=/METviewer-python/METdatadb/%g' \
     >  mv_load.sh-DOCKER \
  && mv mv_load.sh-DOCKER mv_load.sh \
  && cat mv_scorecard.sh | \
@@ -209,6 +223,14 @@ RUN ln -s /usr/bin/python3 /usr/local/bin/python
 #
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/metplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/metplotpy/"
+
+# remove unneeded scripts
+RUN rm /METviewer/bin/auto_test.sh \
+    && rm /METviewer/bin/mv_test.sh \
+    && rm /METviewer/bin/nightly_test.sh \
+    && rm /METviewer/bin/prep_dist.sh \
+    && rm /METviewer/bin/mv_compare.sh \
+    && rm -r  /METviewer/test
 
 # change permissions of the scripts
 RUN chmod 755 /METviewer/bin/mv_batch.sh \

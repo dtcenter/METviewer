@@ -3,5 +3,6 @@
 docker build -t $IMAGE_NAME \
 --build-arg METVIEWER_GIT_NAME=$SOURCE_BRANCH \
 --build-arg METCALCPY_GIT_NAME=v1.0.0 \
+--build-arg METDATADB_GIT_NAME=v1.0.0 \
 --build-arg METPLOTPY_GIT_NAME=v1.0.0 .
 
