@@ -215,19 +215,19 @@ public class SeriesJobManager extends JobManager {
         if (job.getExecutionType().equals("Rscript")) {
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
           rscriptStatManager.runRscript(job, info);
+          info.put("event_equal", FALSE);
         } else {
           yamlInfo = createYamlInfoMap(job);
           rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);
           rscriptStatManager.runPythonScript(job, yamlInfo);
           yamlInfo.remove("agg_stat_output");
           yamlInfo.remove("agg_stat_input");
+          yamlInfo.put("event_equal", FALSE);
         }
 
 
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
-        info.put("event_equal", FALSE);
-
         listQuery.clear();
       }
 
