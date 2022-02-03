@@ -1194,12 +1194,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           String strField = (String) listPlotFixVal[i].getKey();
           String fieldFormatted = formatField(strField, job.isModeJob() || job.isMtdJob(), true);
           if (listPlotFixVal[i].getValue() != null) {
-            if (!selectList.contains(fieldFormatted.trim())) {
+           /* if (!selectList.contains(fieldFormatted.trim())) {
               selectList += ",\n  "
                       + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
-            }
+            }*/
             if (!selectPlotList.contains(fieldFormatted.trim())) {
               selectPlotList += ",\n  "
+                      + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
+              selectList += ",\n  "
                       + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
             }
 

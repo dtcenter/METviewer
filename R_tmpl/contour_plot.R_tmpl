@@ -94,8 +94,6 @@ stopifnot(nrow(dfPlot) > 0)
 
 # run event equalizer, if requested
 if( FALSE != boolEventEqual ){
-  library(reticulate)
-
 
   dfPlot1 = data.frame();
   #list all fixed variables

@@ -7564,7 +7564,9 @@ function initPage() {
         title: "Add Derived Curve",
         buttonicon: "ui-icon-plus",
         onClickButton: function () {
-            if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Ens_ss' || currentTab === 'Perf' || currentTab === "Hist" || currentTab === "Eclv") {
+            if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Ens_ss'
+                || currentTab === 'Perf' || currentTab === "Hist" || currentTab === "Eclv"
+                || currentTab === "Contour") {
                 $("#unavailableDiffCurveDialogForm").dialog("open");
             } else {
                 var allSeries = $("#listdt").jqGrid('getRowData');

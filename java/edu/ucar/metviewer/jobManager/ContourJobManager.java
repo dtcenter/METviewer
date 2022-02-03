@@ -43,8 +43,21 @@ public class ContourJobManager extends SeriesJobManager {
     }
     return info;
   }
+
   @Override
+  protected Map<String, Object> createYamlInfoMap(MVPlotJob job) throws ValidationException {
+    Map<String, Object> yamlInfo = super.createYamlInfoMap( job);
+
+    yamlInfo.put("color_palette", job.getColorPalette().replace(".", "_"));
+    yamlInfo.put("contour_intervals", job.getContourIntervals());
+    yamlInfo.put("add_color_bar", job.getAddColorBar() ? "True" : "False");
+    yamlInfo.put("reverse_y", job.getReverseY() ? "True" : "False");
+    yamlInfo.put("reverse_x", job.getReverseX() ? "True" : "False");
+    yamlInfo.put("add_contour_overlay", job.getAddContourOverlay() ? "True" : "False");
+    return yamlInfo;
+  }
+    @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/contour/contour.py";
   }
 }
