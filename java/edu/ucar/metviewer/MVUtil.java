@@ -505,7 +505,7 @@ public class MVUtil {
 
   static {
     statsOrank.put("ORANK_PIT", new String[]{""});
-    statsOrank.put("ORANK_RANK", new String[]{""});
+    statsOrank.put("ORANK_OBS_RANK", new String[]{""});
     statsOrank.put("ORANK_ENS_MEAN", new String[]{""});
     statsOrank.put("ORANK_SPREAD", new String[]{""});
     statsOrank.put("ORANK_CLIMO_MEAN", new String[]{""});
