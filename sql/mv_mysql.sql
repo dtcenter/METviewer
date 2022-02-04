@@ -1509,7 +1509,7 @@ CREATE TABLE line_data_orank
     obs_elv          VARCHAR(64),
     obs              DOUBLE,
     pit              DOUBLE,
-    rank             INT,
+    obs_rank         INT,
     n_ens_vld        INT UNSIGNED,
     n_ens            INT UNSIGNED,
     obs_qc           VARCHAR(32),

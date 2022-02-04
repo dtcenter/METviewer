@@ -223,7 +223,7 @@ value_to_desc_map['CURVATURERATIO'] = 'Ratio of the curvature of two objects def
 
 value_to_desc_map['ORANK_OBS'] = 'Value of the observation';
 value_to_desc_map['ORANK_PIT'] = 'Probability Integral Transform';
-value_to_desc_map['ORANK_RANK'] = 'Rank of the observation';
+value_to_desc_map['ORANK_OBS_RANK'] = 'Rank of the observation';
 value_to_desc_map['ORANK_ENS_MEAN'] = 'The unperturbed ensemble mean value';
 value_to_desc_map['ORANK_SPREAD'] = 'The spread of the unperturbed ensemble member values';
 value_to_desc_map['ORANK_CLIMO'] = 'The value of the inluded climatology';
