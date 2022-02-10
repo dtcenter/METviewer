@@ -228,6 +228,8 @@ public class MVPlotJob {
   protected double eqboundHigh = -0.001;
   protected Boolean isCircularBlockBootstrap = Boolean.TRUE;
 
+  protected List<LineAttributes> lines = new ArrayList<>();
+
 
   /**
    * Deep copy of the MVPlotJob, useful for inheritance.
@@ -434,6 +436,7 @@ public class MVPlotJob {
 
     job.eqboundLow = eqboundLow;
     job.eqboundHigh = eqboundHigh;
+    job.lines = new ArrayList<>(lines);
     return job;
   }
 
@@ -2243,6 +2246,14 @@ public class MVPlotJob {
 
   public void setCircularBlockBootstrap(Boolean addCircularBlockBootstrap) {
     isCircularBlockBootstrap = addCircularBlockBootstrap;
+  }
+
+  public List<LineAttributes> getLines() {
+    return lines;
+  }
+
+  public void setLines(List<LineAttributes> lines) {
+    this.lines = lines;
   }
 
   public Boolean getReverseX() {

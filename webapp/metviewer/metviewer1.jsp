@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v4.1.0-beta5</TITLE>
+  <TITLE>METviewer v4.1.0-beta6_dev</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -182,7 +182,7 @@
   <script type="application/javascript" src="js/moment-timezone-with-data.js"></script>
   <script type="application/javascript" src="js/multilevel-dropdown.js"></script>
   <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
-  <script type="application/javascript" src="js/metviewer_common.min.js"></script>
+  <script type="application/javascript" src="js/metviewer_common.js"></script>
   <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
   <script type="application/javascript" src="js/plotly-latest.min.js"></script>
 
@@ -252,7 +252,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer v4.1.0-beta5<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer v4.1.0-beta6-dev<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
@@ -1026,6 +1026,13 @@
       Series Difference Curves are not supported for this plot type.</p>
   </div>
 </div>
+<div id="unavailableLineDialogForm" title="Add Line">
+  <div style="margin-top: 20px; padding: 0 .7em;" class="ui-state-highlight ui-corner-all">
+    <p><span style="float: left; margin-right: .3em;" class="ui-icon ui-icon-info"></span>
+      Adding line is not supported for this plot type.</p>
+  </div>
+</div>
+
 
 <div id="incorrectDiffCurveDialogForm" title="Add Derived Curve">
   <div style="margin-top: 20px; padding: 0 .7em;" class="ui-state-highlight ui-corner-all">
@@ -1096,6 +1103,22 @@
     DIFF series is selected.
   </div>
 </div>
+
+
+<div id="addLineDialogForm" title="Add Line">
+  <form>
+    <div style="text-align:center; padding-right: 10px; padding-left: 10px;">
+      <input type="radio" name="line_type" value="horiz_line" id="horiz_line_label">
+      <label for="horiz_line_label">Horizontal line</label>
+      <input type="radio" name="line_type" checked="" value="vert_line" id="vert_line_label">
+      <label for="vert_line_label"> Vertical line</label>
+      <br>
+      <label for="line_pos"> Line position:</label><input type="text" name="line_pos" id="line_pos" style="width: 30px;">
+      </div>
+  </form>
+
+</div>
+
 
 <div id="error_message" title="Error during creating the plot">
   <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
