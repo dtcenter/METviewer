@@ -46,7 +46,16 @@ public class TaylorJobManager extends SeriesJobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "";
+    return "/plots/taylor_diagram/taylor_diagram.py";
+  }
+
+  @Override
+  protected Map<String, Object> createYamlInfoMap(MVPlotJob job) throws ValidationException {
+    Map<String, Object> yamlInfo = super.createYamlInfoMap( job);
+
+    yamlInfo.put("taylor_voc", job.getTaylorVoc() ? "True" : "False");
+    yamlInfo.put("taylor_show_gamma", job.getTaylorShowGamma() ? "True" : "False");
+    return yamlInfo;
   }
 
 }
