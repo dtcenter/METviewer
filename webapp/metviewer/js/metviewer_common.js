@@ -691,6 +691,7 @@ function cleanUp() {
     group_name_to_value_map = null;
     fcst_vars = [];
     fcst_vars_stats = [];
+    lines = [];
 }
 
 /**
@@ -2576,11 +2577,11 @@ function updateSeriesHist() {
 
     series_perm = permuteSeries(createSeriesMapForPermutationEns(series_var_y1_indexes, "y1"), 0);
     var seriesName;
-    if (series_perm.length == 0) {
+    if (series_perm.length === 0) {
         series_perm[0] = "";
     }
 
-    if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Eclv') {
+    if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Eclv') {
         var selected_stats;
         try {
             selected_stats = $("#summary_curve").multiselect("getChecked");
@@ -2661,7 +2662,24 @@ function updateSeriesHist() {
         number_series++;
         newSeriesData.push(series_formatting);
     }
-
+    for (var i=0; i< lines.length; i++){
+        series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+        series_formatting.title = lines[i].type + '(' + lines[i].line_pos + ')';
+        series_formatting.y_axis = "Y1";
+        series_formatting.order = '';
+        series_formatting.id = number_series + 1;
+        if(lines[i].hasOwnProperty("color")){
+            series_formatting.color = lines[i].color;
+        }
+        if(lines[i].hasOwnProperty("lty")){
+            series_formatting.lty = lines[i].lty;
+        }
+        if(lines[i].hasOwnProperty("lwd")){
+            series_formatting.lwd = lines[i].lwd;
+        }
+        number_series++;
+        newSeriesData.push(series_formatting);
+    }
 
     //set default color for each series if it is not a upload
     if (initXML == null) {
@@ -2960,6 +2978,24 @@ function updateSeriesEns() {
                     series_formatting.order = number_series + 1;
                 }
             }
+        }
+        number_series++;
+        newSeriesData.push(series_formatting);
+    }
+    for (var i=0; i< lines.length; i++){
+        series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+        series_formatting.title = lines[i].type + '(' + lines[i].line_pos + ')';
+        series_formatting.y_axis = "Y1";
+        series_formatting.order = '';
+        series_formatting.id = number_series + 1;
+        if(lines[i].hasOwnProperty("color")){
+            series_formatting.color = lines[i].color;
+        }
+        if(lines[i].hasOwnProperty("lty")){
+            series_formatting.lty = lines[i].lty;
+        }
+        if(lines[i].hasOwnProperty("lwd")){
+            series_formatting.lwd = lines[i].lwd;
         }
         number_series++;
         newSeriesData.push(series_formatting);
@@ -3461,6 +3497,15 @@ function updateSeries(isCheckAll) {
         series_formatting.y_axis = "Y1";
         series_formatting.order = '';
         series_formatting.id = number_series + 1;
+        if(lines[i].hasOwnProperty("color")){
+            series_formatting.color = lines[i].color;
+        }
+        if(lines[i].hasOwnProperty("lty")){
+            series_formatting.lty = lines[i].lty;
+        }
+        if(lines[i].hasOwnProperty("lwd")){
+            series_formatting.lwd = lines[i].lwd;
+        }
         number_series++;
         newSeriesData.push(series_formatting);
     }
@@ -5976,6 +6021,22 @@ function loadXMLStatistics(fcst_stat) {
 
 
 function loadXMLEclv() {
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
+
     var series_var_val;
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
@@ -6014,6 +6075,21 @@ function loadXMLEclv() {
 function loadXMLRoc() {
     var series_var_val;
     $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true").trigger("change");
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
 
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
@@ -6120,6 +6196,22 @@ function loadXMLRoc() {
 }
 
 function loadXMLHist() {
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
+
     var series_var_val;
     var type = $(initXML.find("plot").find("template")).text();
     if (type === 'rhist.R_tmpl') {
@@ -6171,6 +6263,22 @@ function loadXMLHist() {
 }
 
 function loadXMLRely() {
+
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
     var series_var_val;
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
@@ -6256,6 +6364,21 @@ function loadXMLRely() {
 }
 
 function loadXMLEns() {
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
     var series_var_val;
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
@@ -6572,6 +6695,22 @@ function loadXMLSeries() {
         for (var i = 1; i < t2.length; i++) {
             t2[i] = t2[i].replace(")", "").replace(")", "").replace("\"", "");
             seriesDiffY2.push(t2[i]);
+        }
+    }
+
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
         }
     }
     if (currentTab === 'Perf') {
@@ -7616,7 +7755,13 @@ function initPage() {
 
                 addLineDialogForm.dialog("close");
                 if (valid) {
-                    updateSeries();
+                    if (currentTab === 'Hist' || currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Eclv') {
+                        updateSeriesHist();
+                    }else if (currentTab === 'Ens_ss'){
+                        updateSeriesEns();
+                    }else {
+                        updateSeries();
+                    }
                 }
 
             },
@@ -7838,7 +7983,7 @@ function initPage() {
         .jqGrid('navButtonAdd', '#pagerdt', {
             caption: "Remove Line",
             title: "Remove Line",
-            buttonicon: "ui-icon-plus",
+            buttonicon: "ui-icon-trash",
             onClickButton: function () {
                 var sr = $(this).jqGrid('getGridParam', 'selrow');
                 if (sr) {
@@ -7851,7 +7996,7 @@ function initPage() {
                             var title = rowData.title;
                             var type = title.split('(')[0];
                             var linePos =title.split('(')[1].split(')')[0];
-                            if(lines[i].type === type && lines[i].line_pos == linePos ){
+                            if(lines[i].type === type && lines[i].line_pos === linePos ){
                                 index_to_remove =i;
                                 break;
                             }
