@@ -1948,8 +1948,6 @@ public final class MVPlotJobParser {
         }
         job.setLines(lines);
 
-        job.setNormalizedHistogram(node.value.equalsIgnoreCase("true"));
-
       }
 
 
