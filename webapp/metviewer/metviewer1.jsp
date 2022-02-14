@@ -151,7 +151,7 @@
     }
 
     .ui-pg-table .navtable {
-      width: 550px;
+      width: 700px;
     }
 
     .ui-jqgrid td input, .ui-jqgrid td select, .ui-jqgrid td textarea {
@@ -182,7 +182,7 @@
   <script type="application/javascript" src="js/moment-timezone-with-data.js"></script>
   <script type="application/javascript" src="js/multilevel-dropdown.js"></script>
   <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
-  <script type="application/javascript" src="js/metviewer_common.js"></script>
+  <script type="application/javascript" src="js/metviewer_common.min.js"></script>
   <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
   <script type="application/javascript" src="js/plotly-latest.min.js"></script>
 
