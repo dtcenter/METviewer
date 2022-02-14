@@ -7876,13 +7876,13 @@ function initPage() {
             if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Ens_ss'
                 || currentTab === 'Perf' || currentTab === "Hist" || currentTab === "Eclv"
                 || currentTab === "Contour") {
-                $("#unavailableDiffCurveDialogForm").dialog("open");
+                unavailableDiffCurveDialogForm.dialog("open");
             } else {
                 var allSeries = $("#listdt").jqGrid('getRowData');
                 if (allSeries.length > 1) {
                     addDiffCurveDialogForm.dialog("open");
                 } else {
-                    $("#incorrectDiffCurveDialogForm").dialog("open");
+                    incorrectDiffCurveDialogForm.dialog("open");
                 }
             }
         }
@@ -7974,7 +7974,7 @@ function initPage() {
         buttonicon: "ui-icon-plus",
         onClickButton: function () {
             if (currentTab === 'Perf' || currentTab === "Taylor"  || currentTab === "Contour") {
-                $("#unavailableLineDialogForm").dialog("open");
+                unavailableLineDialogForm.dialog("open");
             } else {
                 addLineDialogForm.dialog("open");
             }
@@ -8026,26 +8026,38 @@ function initPage() {
     });
     $("#listdt").setGridWidth($(window).width() - 20);
 
-    $("#unavailableDiffCurveDialogForm").dialog({
+     var unavailableDiffCurveDialogForm = $("#unavailableDiffCurveDialogForm").dialog({
         autoOpen: false,
         height: "auto",
         width: "auto",
         modal: true,
         buttons: {
             Ok: function () {
-                $(this).dialog("close");
+                unavailableDiffCurveDialogForm.dialog("close");
             }
         }
     });
 
-    $("#incorrectDiffCurveDialogForm").dialog({
+    var unavailableLineDialogForm = $("#unavailableLineDialogForm").dialog({
         autoOpen: false,
         height: "auto",
         width: "auto",
         modal: true,
         buttons: {
             Ok: function () {
-                $(this).dialog("close");
+                unavailableLineDialogForm.dialog("close");
+            }
+        }
+    });
+
+    var incorrectDiffCurveDialogForm = $("#incorrectDiffCurveDialogForm").dialog({
+        autoOpen: false,
+        height: "auto",
+        width: "auto",
+        modal: true,
+        buttons: {
+            Ok: function () {
+                incorrectDiffCurveDialogForm.dialog("close");
             }
         }
     });
