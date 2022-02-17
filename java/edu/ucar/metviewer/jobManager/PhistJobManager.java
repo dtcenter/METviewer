@@ -23,6 +23,6 @@ public class PhistJobManager extends RhistJobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/histogram/prob_hist.py";
+    return "/metplotpy/plots/histogram/prob_hist.py";
   }
 }

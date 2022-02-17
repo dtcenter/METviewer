@@ -34,6 +34,6 @@ public class EnsSsJobManager extends SeriesJobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/ens_ss/ens_ss.py";
+    return "/metplotpy/plots/ens_ss/ens_ss.py";
   }
 }

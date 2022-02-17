@@ -158,6 +158,6 @@ public class EclvJobManager extends JobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/eclv/eclv.py";
+    return "/metplotpy/plots/eclv/eclv.py";
   }
 }

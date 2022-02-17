@@ -23,6 +23,6 @@ public class RelpJobManager extends RhistJobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/histogram/rel_hist.py";
+    return "/metplotpy/plots/histogram/rel_hist.py";
   }
 }

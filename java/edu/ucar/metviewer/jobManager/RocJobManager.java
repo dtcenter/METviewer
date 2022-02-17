@@ -100,7 +100,7 @@ public class RocJobManager extends JobManager {
 
   @Override
   protected String getPythonScript() {
-    return "/plots/roc_diagram/roc_diagram.py";
+    return "/metplotpy/plots/roc_diagram/roc_diagram.py";
   }
 
 }

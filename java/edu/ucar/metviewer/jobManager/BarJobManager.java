@@ -8,6 +8,6 @@ public class BarJobManager extends SeriesJobManager{
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/bar/bar.py";
+    return "/metplotpy/plots/bar/bar.py";
   }
 }
