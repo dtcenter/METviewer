@@ -814,7 +814,7 @@ public final class MVPlotJobParser {
     xmlStr.append("</plot_fix>");
 
     //  agg_stat
-    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2() || job.getAggPct()|| job.getAggMctc()
+    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2() || job.getAggPct() || job.getAggMctc()
             || job.getAggNbrCnt() || job.getAggSsvar()
             || job.getAggVl1l2() || job.getAggGrad() || job.getAggEcnt())
             || job.isModeRatioJob()) {
@@ -908,7 +908,7 @@ public final class MVPlotJobParser {
     if (job.getPlotTmpl().equals("ens_ss.R_tmpl")) {
       xmlStr.append(
               "<ensss_pts>" + job.getEnsSsPts() + "</ensss_pts>" +
-                      "<ensss_pts_disp>" + (job.getEnsSsPtsDisp() ? "TRUE" : "FALSE")+ "</ensss_pts_disp>");
+                      "<ensss_pts_disp>" + (job.getEnsSsPtsDisp() ? "TRUE" : "FALSE") + "</ensss_pts_disp>");
     }
 
     //taylor
@@ -1058,6 +1058,19 @@ public final class MVPlotJobParser {
     if (job.getContourIntervals() != null) {
       xmlStr.append("<contour_intervals>" + job.getContourIntervals() + "</contour_intervals>");
     }
+
+    if (!job.getLines().isEmpty()) {
+      StringBuilder linesStr = new StringBuilder("<lines>");
+      for (LineAttributes lineAttributes : job.getLines()) {
+        linesStr.append("<line color=\"").append(lineAttributes.getColor()).append("\" line_pos=\"")
+                .append(lineAttributes.getPosition()).append("\"  lty=\"").append(lineAttributes.getLty())
+                .append("\" lwd=\"").append(lineAttributes.getLwd()).append("\" type=\"")
+                .append(lineAttributes.getType()).append("\"/>");
+      }
+      linesStr.append("</lines>");
+      xmlStr.append(linesStr);
+    }
+
 
     //  close the plot job
     xmlStr.append("</plot></plot_spec>");
@@ -1263,6 +1276,7 @@ public final class MVPlotJobParser {
         String strCompleteness = "";
         boolean boolPlotRun = !node.run.equalsIgnoreCase("false");
 
+
         if (job.getPlotTmpl().equals("roc.R_tmpl")) {
 
           //  ROC jobs must have an aggregation method selected
@@ -1376,7 +1390,7 @@ public final class MVPlotJobParser {
         } else {
           String[][] listIndy = parseIndyNode(node, "");
           int size = listIndy[0].length;
-          if(listIndy[2].length < size) {
+          if (listIndy[2].length < size) {
             String[] newListIndy = new String[size];
             for (int j = 0; j < size; j++) {
               if (j < listIndy[2].length) {
@@ -1769,8 +1783,8 @@ public final class MVPlotJobParser {
           if (nodeAggStat.tag.equals("agg_ctc")) {
             job.setAggCtc(val);
           } else if (nodeAggStat.tag.equals("agg_mctc")) {
-            job.setAggMctc(val);}
-          else if (nodeAggStat.tag.equals("agg_nbrctc")) {
+            job.setAggMctc(val);
+          } else if (nodeAggStat.tag.equals("agg_nbrctc")) {
             job.setAggNbrCtc(val);
           } else if (nodeAggStat.tag.equals("agg_sl1l2")) {
             job.setAggSl1l2(val);
@@ -1911,6 +1925,28 @@ public final class MVPlotJobParser {
       //  <normalized_histogram>
       else if (node.tag.equals("normalized_histogram")) {
         job.setNormalizedHistogram(node.value.equalsIgnoreCase("true"));
+
+      }
+      //  <lines>
+      else if (node.tag.equals("lines") && node.children.length > 0) {
+        List<LineAttributes> lines = new ArrayList<>();
+        for (int j = 0; j < node.children.length; j++) {
+          MVNode lineNode = node.children[j];
+          if (lineNode.tag.equals("line")) {
+            LineAttributes lineAttributes = new LineAttributes();
+            try {
+              lineAttributes.setColor(lineNode.getAttribute("color"));
+              lineAttributes.setLty(lineNode.getAttribute("lty"));
+              lineAttributes.setLwd(lineNode.getAttribute("lwd"));
+              lineAttributes.setPosition(lineNode.getAttribute("line_pos"));
+              lineAttributes.setType(lineNode.getAttribute("type"));
+            } catch (Exception e) {
+              logger.error("One of the lin's attribute is invalid or missing");
+            }
+            lines.add(lineAttributes);
+          }
+        }
+        job.setLines(lines);
 
       }
 

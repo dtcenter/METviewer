@@ -166,7 +166,7 @@ public class RelyJobManager extends JobManager {
 
   @Override
   protected String getPythonScript() {
-    return "/plots/reliability_diagram/reliability.py";
+    return "/metplotpy/plots/reliability_diagram/reliability.py";
   }
 
 }

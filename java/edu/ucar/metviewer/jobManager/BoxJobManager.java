@@ -8,6 +8,6 @@ public class BoxJobManager extends SeriesJobManager{
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/box/box.py";
+    return "/metplotpy/plots/box/box.py";
   }
 }

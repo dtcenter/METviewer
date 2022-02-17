@@ -46,7 +46,7 @@ public class TaylorJobManager extends SeriesJobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/taylor_diagram/taylor_diagram.py";
+    return "/metplotpy/plots/taylor_diagram/taylor_diagram.py";
   }
 
   @Override

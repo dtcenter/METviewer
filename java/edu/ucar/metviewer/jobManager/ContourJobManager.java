@@ -58,6 +58,6 @@ public class ContourJobManager extends SeriesJobManager {
   }
     @Override
   protected String getPythonScript() {
-    return "/plots/contour/contour.py";
+    return "/metplotpy/plots/contour/contour.py";
   }
 }

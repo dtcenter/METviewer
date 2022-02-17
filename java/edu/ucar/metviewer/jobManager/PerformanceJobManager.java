@@ -29,7 +29,7 @@ public class PerformanceJobManager extends SeriesJobManager {
 
   @Override
   protected String getPythonScript() {
-    return "/plots/performance_diagram/performance_diagram.py";
+    return "/metplotpy/plots/performance_diagram/performance_diagram.py";
   }
   @Override
   protected  Map<String, Object> addPlotConfigs(Map<String, Object> yamlInfo, MVPlotJob job, int intNumDepSeries) throws ValidationException {

@@ -283,7 +283,7 @@ public class SeriesJobManager extends JobManager {
 
   @Override
   protected String getPythonScript() {
-    return "/plots/line/line.py";
+    return "/metplotpy/plots/line/line.py";
   }
 
 

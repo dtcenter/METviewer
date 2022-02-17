@@ -672,6 +672,7 @@ var group_name_to_value_map;
 var indy_var_vals_to_attr;
 var fcst_vars = [];
 var fcst_vars_stats = [];
+var lines = [];
 
 function cleanUp() {
 
@@ -690,6 +691,7 @@ function cleanUp() {
     group_name_to_value_map = null;
     fcst_vars = [];
     fcst_vars_stats = [];
+    lines = [];
 }
 
 /**
@@ -2575,11 +2577,11 @@ function updateSeriesHist() {
 
     series_perm = permuteSeries(createSeriesMapForPermutationEns(series_var_y1_indexes, "y1"), 0);
     var seriesName;
-    if (series_perm.length == 0) {
+    if (series_perm.length === 0) {
         series_perm[0] = "";
     }
 
-    if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Eclv') {
+    if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Eclv') {
         var selected_stats;
         try {
             selected_stats = $("#summary_curve").multiselect("getChecked");
@@ -2660,7 +2662,24 @@ function updateSeriesHist() {
         number_series++;
         newSeriesData.push(series_formatting);
     }
-
+    for (var i=0; i< lines.length; i++){
+        series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+        series_formatting.title = lines[i].type + '(' + lines[i].line_pos + ')';
+        series_formatting.y_axis = "Y1";
+        series_formatting.order = '';
+        series_formatting.id = number_series + 1;
+        if(lines[i].hasOwnProperty("color")){
+            series_formatting.color = lines[i].color;
+        }
+        if(lines[i].hasOwnProperty("lty")){
+            series_formatting.lty = lines[i].lty;
+        }
+        if(lines[i].hasOwnProperty("lwd")){
+            series_formatting.lwd = lines[i].lwd;
+        }
+        number_series++;
+        newSeriesData.push(series_formatting);
+    }
 
     //set default color for each series if it is not a upload
     if (initXML == null) {
@@ -2959,6 +2978,24 @@ function updateSeriesEns() {
                     series_formatting.order = number_series + 1;
                 }
             }
+        }
+        number_series++;
+        newSeriesData.push(series_formatting);
+    }
+    for (var i=0; i< lines.length; i++){
+        series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+        series_formatting.title = lines[i].type + '(' + lines[i].line_pos + ')';
+        series_formatting.y_axis = "Y1";
+        series_formatting.order = '';
+        series_formatting.id = number_series + 1;
+        if(lines[i].hasOwnProperty("color")){
+            series_formatting.color = lines[i].color;
+        }
+        if(lines[i].hasOwnProperty("lty")){
+            series_formatting.lty = lines[i].lty;
+        }
+        if(lines[i].hasOwnProperty("lwd")){
+            series_formatting.lwd = lines[i].lwd;
         }
         number_series++;
         newSeriesData.push(series_formatting);
@@ -3454,6 +3491,25 @@ function updateSeries(isCheckAll) {
     }
     seriesDiffY2 = seriesDiff;
 
+    for (var i=0; i< lines.length; i++){
+        series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+        series_formatting.title = lines[i].type + '(' + lines[i].line_pos + ')';
+        series_formatting.y_axis = "Y1";
+        series_formatting.order = '';
+        series_formatting.id = number_series + 1;
+        if(lines[i].hasOwnProperty("color")){
+            series_formatting.color = lines[i].color;
+        }
+        if(lines[i].hasOwnProperty("lty")){
+            series_formatting.lty = lines[i].lty;
+        }
+        if(lines[i].hasOwnProperty("lwd")){
+            series_formatting.lwd = lines[i].lwd;
+        }
+        number_series++;
+        newSeriesData.push(series_formatting);
+    }
+
 
     //set default color for each series if it is not a upload
     if (initXML == null) {
@@ -3491,6 +3547,8 @@ function updateSeries(isCheckAll) {
             }
         }
     }
+
+
 
 
     if (currentTab === 'Contour') {
@@ -4169,6 +4227,8 @@ function createXMLCommon(plot) {
 
     var seriesDiffY1List = [];
     var arr;
+
+
     if (seriesDiffY1.length > 0) {
         for (var i = 0; i < seriesDiffY1.length; i++) {
             arr = seriesDiffY1[i].split(",");
@@ -4314,27 +4374,47 @@ function createXMLCommon(plot) {
 
     var allSeries = sortSeries();
     var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [],
-        orderArr = [], legendArr = [], showSignArr = [];
+        orderArr = [], legendArr = [], showSignArr = [], linesArr=[];
     for (var i = 0; i < allSeries.length; i++) {
-        ciArr.push('"' + allSeries[i].plot_ci + '"');
-        if (allSeries[i].hide === "No") {
-            dispArr.push("TRUE");
-        } else {
-            dispArr.push("FALSE");
+        if(allSeries[i].order !==''){
+            // only for the real series and not lines
+            ciArr.push('"' + allSeries[i].plot_ci + '"');
+            if (allSeries[i].hide === "No") {
+                dispArr.push("TRUE");
+            } else {
+                dispArr.push("FALSE");
+            }
+            if (allSeries[i].show_signif === "No") {
+                showSignArr.push("FALSE");
+            } else {
+                showSignArr.push("TRUE");
+            }
+            colorsArr.push('"' + allSeries[i].color + 'FF"');
+            pchArr.push(allSeries[i].pch);
+            typeArr.push('"' + allSeries[i].type + '"');
+            ltyArr.push(allSeries[i].lty);
+            lwdArr.push(allSeries[i].lwd);
+            conArr.push(allSeries[i].con_series);
+            orderArr.push(allSeries[i].order);
+            legendArr.push('"' + allSeries[i].legend + '"');
+        }else{
+            var title = allSeries[i].title;
+            var type = title.split('(')[0];
+            var linePos =title.split('(')[1].split(')')[0];
+            linesArr.push($('<line />').attr("type", type).attr("line_pos", linePos)
+                .attr('color', allSeries[i].color)
+                    .attr('lty', allSeries[i].lty)
+                    .attr('lwd', allSeries[i].lwd));
+
         }
-        if (allSeries[i].show_signif === "No") {
-            showSignArr.push("FALSE");
-        } else {
-            showSignArr.push("TRUE");
+    }
+    
+    if(linesArr.length > 0){
+        var lines_xml = $('<lines />');
+        for(var h = 0; h<linesArr.length; h++){
+            lines_xml.append(linesArr[h]);
         }
-        colorsArr.push('"' + allSeries[i].color + 'FF"');
-        pchArr.push(allSeries[i].pch);
-        typeArr.push('"' + allSeries[i].type + '"');
-        ltyArr.push(allSeries[i].lty);
-        lwdArr.push(allSeries[i].lwd);
-        conArr.push(allSeries[i].con_series);
-        orderArr.push(allSeries[i].order);
-        legendArr.push('"' + allSeries[i].legend + '"');
+        plot.append(lines_xml);
     }
     plot.append($('<plot_ci />').text("c(" + ciArr.join() + ")"));
     plot.append($('<show_signif />').text("c(" + showSignArr.join() + ")"));
@@ -5941,6 +6021,22 @@ function loadXMLStatistics(fcst_stat) {
 
 
 function loadXMLEclv() {
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
+
     var series_var_val;
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
@@ -5979,6 +6075,21 @@ function loadXMLEclv() {
 function loadXMLRoc() {
     var series_var_val;
     $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true").trigger("change");
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
 
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
@@ -6085,6 +6196,22 @@ function loadXMLRoc() {
 }
 
 function loadXMLHist() {
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
+
     var series_var_val;
     var type = $(initXML.find("plot").find("template")).text();
     if (type === 'rhist.R_tmpl') {
@@ -6136,6 +6263,22 @@ function loadXMLHist() {
 }
 
 function loadXMLRely() {
+
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
     var series_var_val;
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
@@ -6221,6 +6364,21 @@ function loadXMLRely() {
 }
 
 function loadXMLEns() {
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
+        }
+    }
     var series_var_val;
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
@@ -6537,6 +6695,22 @@ function loadXMLSeries() {
         for (var i = 1; i < t2.length; i++) {
             t2[i] = t2[i].replace(")", "").replace(")", "").replace("\"", "");
             seriesDiffY2.push(t2[i]);
+        }
+    }
+
+    var linesEl = $(initXML.find("plot").find("lines"));
+    if (linesEl){
+        var linesArr = $(linesEl.find("line"));
+        for (var j=0; j<linesArr.length; j++){
+            var line = {
+                'type': linesArr[j].attributes.type.nodeValue ,
+                'line_pos': linesArr[j].attributes.line_pos.nodeValue,
+                'color': linesArr[j].attributes.color.nodeValue,
+                'lty': linesArr[j].attributes.lty.nodeValue,
+                'lwd': linesArr[j].attributes.lwd.nodeValue
+            };
+            lines.push(line);
+
         }
     }
     if (currentTab === 'Perf') {
@@ -7559,6 +7733,141 @@ function initPage() {
         close: function () {
         }
     });
+
+
+
+    var addLineDialogForm = $("#addLineDialogForm").dialog({
+        autoOpen: false,
+        height: "auto",
+        width: "auto",
+        modal: true,
+        buttons: {
+            "Add line": function () {
+                var valid = false;
+                valid = true;
+                var lineType =  $("input[name='line_type']:checked").val();
+                var linePos  =  $("#line_pos").val();
+                var line = {
+                    'type': lineType,
+                    'line_pos': linePos
+                };
+                lines.push(line);
+
+                addLineDialogForm.dialog("close");
+                if (valid) {
+                    if (currentTab === 'Hist' || currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Eclv') {
+                        updateSeriesHist();
+                    }else if (currentTab === 'Ens_ss'){
+                        updateSeriesEns();
+                    }else {
+                        updateSeries();
+                    }
+                }
+
+            },
+            'Cancel': function () {
+                addLineDialogForm.dialog("close");
+            }
+        },
+        open: function () {
+
+            $("input[name=derive_oper][value=DIFF]").prop('checked', true);
+            var allSeries = $("#listdt").jqGrid('getRowData');
+            for (var i = 0; i < allSeries.length; i++) {
+                $("#listdt").jqGrid('setCell', allSeries[i].id, 'order', i + 1);
+                $("#listdt").jqGrid('getLocalRow', allSeries[i].id).order = i + 1;
+            }
+            var selected_mode = $("#plot_data").multiselect("getChecked").val();
+            $('#series1Y2').empty();
+            $('#series1Y1').empty();
+            $('#series2Y2').empty();
+            $('#series2Y1').empty();
+
+            $("#y1AxisDiff").prop("checked", true);
+            $("#y2AxisDiff").removeAttr("checked");
+
+            $('#series1Y2').prop("disabled", true);
+            $('#series2Y2').prop("disabled", true);
+            $('#series1Y1').removeProp('disabled');
+            $('#series2Y1').removeProp('disabled');
+            $('#y2AxisDiff').removeProp("disabled");
+            $('#y1AxisDiff').removeProp("disabled");
+            series1Names = [];
+            series2Names = [];
+
+
+            for (var i = 0; i < allSeries.length; i++) {
+                var isInclude = false;
+                if (allSeries[i].title.indexOf('DIFF') != 0
+                    && allSeries[i].title.indexOf('RATIO') != 0
+                    && allSeries[i].title.indexOf('SS') != 0
+                    && allSeries[i].title.indexOf('ETB') != 0) {
+                    // curve can be included ONLY if it is MODE Ratio stat or any of Stat stats
+                    if (selected_mode == "mode") {
+                        var desc = allSeries[i].title.split(" ");
+                        if (listStatModeRatio.indexOf(desc[desc.length - 1]) > -1) {
+                            isInclude = true;
+                        }
+                    } else {
+                        isInclude = true;
+                    }
+                }
+
+
+                if (isInclude) {
+                    var yAxisText = allSeries[i].y_axis;
+
+                    if (yAxisText.indexOf("2") !== -1) {
+                        $('#series1Y2')
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
+                        $('#series2Y2')
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
+                        series2Names.push(allSeries[i].title);
+                    } else {
+                        $('#series1Y1')
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
+                        $('#series2Y1')
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
+
+                        series1Names.push(allSeries[i].title);
+                    }
+                }
+            }
+
+
+            if ($("#series1Y2 option").length > 0 && $("#series1Y1 option").length > 0) {
+                createNewDerivedSeriesName(1);
+            } else {
+                if ($("#series1Y2 option").length == 0) {
+                    $('#y2AxisDiff').attr("disabled", true);
+                    createNewDerivedSeriesName(1);
+                }
+                if ($("#series1Y1 option").length == 0) {
+                    $('#y1AxisDiff').attr("disabled", true);
+                    $("#y1AxisDiff").removeAttr("checked");
+                    $("#y2AxisDiff").prop("checked", true);
+                    $('#series1Y2').removeAttr('disabled');
+                    $('#series2Y2').removeAttr('disabled');
+                    $('#series1Y1').attr("disabled", true);
+                    $('#series2Y1').attr("disabled", true);
+                    createNewDerivedSeriesName(2);
+                }
+            }
+
+
+        },
+        close: function () {
+        }
+    });
+
     $("#listdt").jqGrid('navButtonAdd', '#pagerdt', {
         caption: "Add Derived Curve",
         title: "Add Derived Curve",
@@ -7567,13 +7876,13 @@ function initPage() {
             if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Ens_ss'
                 || currentTab === 'Perf' || currentTab === "Hist" || currentTab === "Eclv"
                 || currentTab === "Contour") {
-                $("#unavailableDiffCurveDialogForm").dialog("open");
+                unavailableDiffCurveDialogForm.dialog("open");
             } else {
                 var allSeries = $("#listdt").jqGrid('getRowData');
                 if (allSeries.length > 1) {
                     addDiffCurveDialogForm.dialog("open");
                 } else {
-                    $("#incorrectDiffCurveDialogForm").dialog("open");
+                    incorrectDiffCurveDialogForm.dialog("open");
                 }
             }
         }
@@ -7657,7 +7966,57 @@ function initPage() {
                 $(idSelector).find(".ui-jqdialog-titlebar-close").focus();
             }
         }
-    }).jqGrid('navButtonAdd', '#pagerdt', {
+    }) 
+
+        .jqGrid('navButtonAdd', '#pagerdt', {
+        caption: "Add Line",
+        title: "Add Line",
+        buttonicon: "ui-icon-plus",
+        onClickButton: function () {
+            if (currentTab === 'Perf' || currentTab === "Taylor"  || currentTab === "Contour") {
+                unavailableLineDialogForm.dialog("open");
+            } else {
+                addLineDialogForm.dialog("open");
+            }
+        }
+    })
+        .jqGrid('navButtonAdd', '#pagerdt', {
+            caption: "Remove Line",
+            title: "Remove Line",
+            buttonicon: "ui-icon-trash",
+            onClickButton: function () {
+                var sr = $(this).jqGrid('getGridParam', 'selrow');
+                if (sr) {
+                    var rowData = $(this).getRowData(sr);
+                    if (rowData.title.startsWith("vert_line")
+                        || rowData.title.startsWith("horiz_line")) {
+                        $(this).jqGrid('delRowData', sr);
+                        var index_to_remove = null
+                        for (var i=0; i< lines.length; i++){
+                            var title = rowData.title;
+                            var type = title.split('(')[0];
+                            var linePos =title.split('(')[1].split(')')[0];
+                            if(lines[i].type === type && lines[i].line_pos === linePos ){
+                                index_to_remove =i;
+                                break;
+                            }
+                        }
+                        if(index_to_remove !== null){
+                            lines.splice(index_to_remove, 1);
+                        }
+                    }
+                } else {
+                    var idSelector = "#alertmod_" + this.p.id;
+                    $.jgrid.viewModal(idSelector, {
+                        gbox: "#gbox_" + $.jgrid.jqID(this.p.id),
+                        jqm: true
+                    });
+                    $(idSelector).find(".ui-jqdialog-titlebar-close").focus();
+                }
+            }
+        })
+
+        .jqGrid('navButtonAdd', '#pagerdt', {
         caption: "Apply defaults",
         title: "Apply defaults",
         buttonicon: "ui-icon-transferthick-e-w",
@@ -7667,26 +8026,38 @@ function initPage() {
     });
     $("#listdt").setGridWidth($(window).width() - 20);
 
-    $("#unavailableDiffCurveDialogForm").dialog({
+     var unavailableDiffCurveDialogForm = $("#unavailableDiffCurveDialogForm").dialog({
         autoOpen: false,
         height: "auto",
         width: "auto",
         modal: true,
         buttons: {
             Ok: function () {
-                $(this).dialog("close");
+                unavailableDiffCurveDialogForm.dialog("close");
             }
         }
     });
 
-    $("#incorrectDiffCurveDialogForm").dialog({
+    var unavailableLineDialogForm = $("#unavailableLineDialogForm").dialog({
         autoOpen: false,
         height: "auto",
         width: "auto",
         modal: true,
         buttons: {
             Ok: function () {
-                $(this).dialog("close");
+                unavailableLineDialogForm.dialog("close");
+            }
+        }
+    });
+
+    var incorrectDiffCurveDialogForm = $("#incorrectDiffCurveDialogForm").dialog({
+        autoOpen: false,
+        height: "auto",
+        width: "auto",
+        modal: true,
+        buttons: {
+            Ok: function () {
+                incorrectDiffCurveDialogForm.dialog("close");
             }
         }
     });

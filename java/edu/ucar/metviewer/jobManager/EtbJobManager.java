@@ -12,7 +12,7 @@ public class EtbJobManager extends SeriesJobManager{
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/equivalence_testing_bounds/equivalence_testing_bounds.py";
+    return "/metplotpy/plots/equivalence_testing_bounds/equivalence_testing_bounds.py";
   }
 
   @Override

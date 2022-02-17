@@ -137,7 +137,7 @@ public class RhistJobManager extends JobManager {
   }
   @Override
   protected String getPythonScript() {
-    return "/plots/histogram/rank_hist.py";
+    return "/metplotpy/plots/histogram/rank_hist.py";
   }
 
 }

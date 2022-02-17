@@ -12,14 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 
-import edu.ucar.metviewer.DatabaseException;
-import edu.ucar.metviewer.MVBatch;
-import edu.ucar.metviewer.MVDataTable;
-import edu.ucar.metviewer.MVOrderedMap;
-import edu.ucar.metviewer.MVPlotJob;
-import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.StopWatchException;
-import edu.ucar.metviewer.ValidationException;
+import edu.ucar.metviewer.*;
 
 /**
  * @author : tatiana $
@@ -540,6 +533,20 @@ public abstract class JobManager {
     yamlInfo.put("indy_plot_val", !allEmpty ? numbers : new Integer[]{});
     yamlInfo.put("cl_step", 0.05);
     yamlInfo.put("equalize_by_indep", job.getEqualizeByIndep() ? "True" : "False");
+
+    if(!job.getLines().isEmpty()){
+      List <Map<String, Object>> linesList = new ArrayList<>();
+      for (LineAttributes lineAttributes : job.getLines()){
+        Map<String, Object> line = new HashMap<>();
+        line.put("type", lineAttributes.getType());
+        line.put("line_style", linesRtoPython.get(lineAttributes.getLty()));
+        line.put("line_width", lineAttributes.getLwd());
+        line.put("color", lineAttributes.getColor());
+        line.put("position", lineAttributes.getPosition());
+        linesList.add(line);
+      }
+      yamlInfo.put("lines", linesList);
+    }
 
     return yamlInfo;
   }
