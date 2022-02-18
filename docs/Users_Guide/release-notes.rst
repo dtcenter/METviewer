@@ -8,6 +8,19 @@ https://github.com/dtcenter/METviewer/issues
 
 Version 4.1.0 release notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+beta6 release (20220218)
+^^^^^^^^^^^^^^^^^^^^^^^^
+* New Features:
+   * **Python implementation of the Taylor diagram** (`#370 <https://github.com/dtcenter/METviewer/issues/370>`_)
+   * **Python implementation of the Contour plot** (`#363 <https://github.com/dtcenter/METviewer/issues/363>`_)
+   * **Add custom lines (horizontal and/or vertical) to plots** (`#353 <https://github.com/dtcenter/METviewer/issues/323>`_)
+
+* Enhancements:
+   * Change field name "rank" to "obs_rank" in the database table "line_data_orank" (`#366 <https://github.com/dtcenter/METviewer/issues/366>`_)
+
+* Bugfixes:
+
+
 beta5 release (20220119)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 * New Features:
