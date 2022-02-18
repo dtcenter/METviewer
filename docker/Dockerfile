@@ -165,7 +165,7 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
     sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
-    sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
+    sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/%g' \
     >  mv_batch.sh-DOCKER \
  && mv mv_batch.sh-DOCKER mv_batch.sh \
  && cat mv_load.sh | \
@@ -177,14 +177,14 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
     sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
-    sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
+    sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/%g' \
     >  mv_scorecard.sh-DOCKER \
  && mv mv_scorecard.sh-DOCKER mv_scorecard.sh \
  && cat mv_prune.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
     sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
-    sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/metplotpy/%g' \
+    sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/%g' \
     >  mv_prune.sh-DOCKER \
  && mv mv_prune.sh-DOCKER mv_prune.sh
 
