@@ -486,7 +486,7 @@
               <input type="text" size="6" id="eqbound_low" value="-0.001">(dz)</td>
           </tr>
           <tr>
-            <td><input type="checkbox" id="is_python"/>
+            <td><input type="checkbox" id="is_python" checked/>
               <label for="is_python">Use Python</label></td>
             <td><label for="eqbound_high">Upper equivalence bound</label>
               <input type="text" size="6" id="eqbound_high" value="0.001">(dz)</td>

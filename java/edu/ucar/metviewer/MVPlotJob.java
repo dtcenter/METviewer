@@ -221,7 +221,7 @@ public class MVPlotJob {
   protected Boolean isAddContourOverlay = Boolean.TRUE;
   protected Integer contourIntervals = 10;
   protected String colorPalette = "cm.colors";
-  protected String executionType = RSCRIPT;
+  protected String executionType = PYTHON;
   protected String annotationTemplate = "";
   protected boolean createHtml = Boolean.FALSE;
   protected double eqboundLow = -0.001;

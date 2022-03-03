@@ -28,8 +28,7 @@ import org.apache.logging.log4j.MarkerManager;
 import java.io.File;
 import java.util.*;
 
-import static edu.ucar.metviewer.MVUtil.GROUP_SEPARATOR;
-import static edu.ucar.metviewer.MVUtil.RSCRIPT;
+import static edu.ucar.metviewer.MVUtil.*;
 
 /**
  * Creates scorecard image using configuration XML
@@ -71,7 +70,7 @@ public class Scorecard {
   private String weightFile = null;
   private List<String> leftColumnsNames = new ArrayList<>();
   private String symbolSize = "100%";
-  private String executionType = RSCRIPT;
+  private String executionType = PYTHON;
 
 
   public static String getUsage() {
