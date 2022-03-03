@@ -36,7 +36,13 @@ Create an output directory under *<Tomcat>/webapps* for METviewer output
 files. Under this directory create 4 subdirectories: *xml, plots, data,
 scripts*
 
-**R and R packages** - `download R <https://www.r-project.org/>`_ and
+
+
+**R and R packages**
+
+**IMPORTANT: Starting from METviewer v4.1.0 R and R packages will be deprecated. Python packages will be used instead**
+
+`download R <https://www.r-project.org/>`_ and
 install the latest version. Install required R packages:
 
  * boot
@@ -49,20 +55,57 @@ install the latest version. Install required R packages:
 **Python**: install Python 3.6 or higher. Create an environment
 (METviewer_py3.6.3) and install required packages:
 
- * kiwisolver==1.0.1
- * bootstrapped
- * plotly==4.9.0
- * kaleido
- * pandas
- * numpy
- * scipy
- * PyYAML
- * psutil
- * requests
- * matplotlib
- * lxml
- * pymysql
- * retrying
+* Python 3.6.3
+
+* cartopy 0.18.0
+
+* cmocean
+
+* eofs
+
+* imutils 0.5.3
+
+* imageio
+
+* lxml
+
+* matplotlib 3.3.0
+
+* metcalcpy
+
+* metplotpy
+
+* metdatadb
+
+* netcdf4 1.5.1.2
+
+* numpy 1.17.0
+
+* pandas 1.0.1
+
+* plotly 4.9.0
+
+* python-kaleido 0.2.1
+
+* psutil 5.7.2
+
+* pymysql
+
+* pytest 5.2.1
+
+* pyyaml 5.3.1
+
+* scikit-image 0.16.2
+
+* scikit-learn 0.23.2
+
+* scipy 1.5.1
+
+* statsmodels 0.11.1
+
+* xarray 0.16.2
+
+* yaml
 
 
 **METviewer** -
