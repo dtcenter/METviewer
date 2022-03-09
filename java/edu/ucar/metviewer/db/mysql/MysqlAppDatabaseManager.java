@@ -135,15 +135,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     mtdHeaderSqlType.add("fcst_t_end");
     mtdHeaderSqlType.add("obs_t_beg");
     mtdHeaderSqlType.add("obs_t_end");
-
   }
-
 
   @Override
   public List<String> getListStat(String strFcstVar, String[] currentDBName) {
-    List<String> listStatName = new ArrayList<>();
-    //strFcstVar
-
+    List<String> statNames = new ArrayList<>();
     String strSql = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    "
             + "ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM "
@@ -195,8 +191,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mctc'  FROM "
             + "line_data_mctc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mctc)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssidx'  FROM "
-            + "line_data_ssidx  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssidx)\n"
-            ;
+            + "line_data_ssidx  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssidx)\n";
 
 
     for (String database : currentDBName) {
@@ -209,111 +204,111 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
         res = stmt.executeQuery();
         int intStatIndex = 0;
-        boolean boolCnt = false;
-        boolean boolCts = false;
-        boolean boolVcnt = false;
-        boolean boolSl1l2 = false;
-        boolean boolSal1l2 = false;
-        boolean boolGrad = false;
         while (res.next()) {
           int intStatCount = res.getInt(1);
           if (-9999 != intStatCount) {
             switch (intStatIndex) {
-              case 0:
-              case 1:
-              case 15:
-              case 17:
-                if (!boolCnt) {
-                  listStatName.addAll(MVUtil.statsCnt.keySet());
-                  boolCnt = true;
-                }
-                if (!boolSl1l2) {
-                  listStatName.addAll(MVUtil.statsSl1l2.keySet());
-                  boolSl1l2 = true;
-                }
-                if (!boolSal1l2) {
-                  listStatName.addAll(MVUtil.statsSal1l2.keySet());
-                  boolSal1l2 = true;
-                }
-                if (!boolGrad) {
-                  listStatName.addAll(MVUtil.statsGrad.keySet());
-                  boolGrad = true;
-                }
+              case 0://cnt
+                statNames.addAll(MVUtil.statsCnt.keySet());
+                statNames.addAll(MVUtil.statsSl1l2.keySet());
+                statNames.addAll(MVUtil.statsSal1l2.keySet());
+                statNames.addAll(MVUtil.statsGrad.keySet());
                 break;
-              case 2:
-              case 3:
-                if (!boolCts) {
-                  listStatName.addAll(MVUtil.statsCts.keySet());
-                  listStatName.addAll(MVUtil.statsCtc.keySet());
-                  boolCts = true;
-                }
 
+              case 1: //sl1l2
+                statNames.addAll(MVUtil.statsCnt.keySet());
+                statNames.addAll(MVUtil.statsSl1l2.keySet());
+                statNames.addAll(MVUtil.statsSal1l2.keySet());
+                statNames.addAll(MVUtil.statsGrad.keySet());
                 break;
-              case 4:
-                listStatName.addAll(MVUtil.statsNbrcnt.keySet());
+
+              case 15: //sal1l2
+                statNames.addAll(MVUtil.statsCnt.keySet());
+                statNames.addAll(MVUtil.statsSl1l2.keySet());
+                statNames.addAll(MVUtil.statsSal1l2.keySet());
+                statNames.addAll(MVUtil.statsGrad.keySet());
                 break;
-              case 5:
-                listStatName.addAll(MVUtil.statsNbrcts.keySet());
-                listStatName.addAll(MVUtil.statsNbrctc.keySet());
+
+              case 17: //grad
+                statNames.addAll(MVUtil.statsCnt.keySet());
+                statNames.addAll(MVUtil.statsSl1l2.keySet());
+                statNames.addAll(MVUtil.statsSal1l2.keySet());
+                statNames.addAll(MVUtil.statsGrad.keySet());
                 break;
-              case 6:
-                listStatName.addAll(MVUtil.statsPstd.keySet());
+
+              case 2://cts
+                statNames.addAll(MVUtil.statsCts.keySet());
+                statNames.addAll(MVUtil.statsCtc.keySet());
                 break;
-              case 7:
-                listStatName.addAll(MVUtil.statsMcts.keySet());
+
+              case 3://ctc
+                statNames.addAll(MVUtil.statsCts.keySet());
+                statNames.addAll(MVUtil.statsCtc.keySet());
                 break;
-              case 8:
-                listStatName.addAll(MVUtil.statsRhist.keySet());
+              case 4://nbrcnt
+                statNames.addAll(MVUtil.statsNbrcnt.keySet());
                 break;
-              case 9:
-                //case 16:
-                listStatName.addAll(MVUtil.statsVl1l2.keySet());
-                listStatName.addAll(MVUtil.statsVcnt.keySet());
-                boolVcnt = true;
+              case 5://nbrcts
+                statNames.addAll(MVUtil.statsNbrcts.keySet());
+                statNames.addAll(MVUtil.statsNbrctc.keySet());
                 break;
-              case 10:
-                listStatName.addAll(MVUtil.statsPhist.keySet());
+              case 6://pstd
+                statNames.addAll(MVUtil.statsPstd.keySet());
                 break;
-              case 11:
-                listStatName.addAll(MVUtil.statsEnscnt.keySet());
+              case 7://mcts
+                statNames.addAll(MVUtil.statsMcts.keySet());
                 break;
-              case 12:
-                listStatName.addAll(MVUtil.statsMpr.keySet());
+              case 8://rhist
+                statNames.addAll(MVUtil.statsRhist.keySet());
                 break;
-              case 13:
-                listStatName.addAll(MVUtil.statsOrank.keySet());
+              case 9://vl1l2
+                statNames.addAll(MVUtil.statsVl1l2.keySet());
+                statNames.addAll(MVUtil.statsVcnt.keySet());
                 break;
-              case 14:
-                listStatName.addAll(MVUtil.statsSsvar.keySet());
+              case 10://phist
+                statNames.addAll(MVUtil.statsPhist.keySet());
                 break;
-              case 16:
-                listStatName.addAll(MVUtil.statsVal1l2.keySet());
+              case 11://enscnt
+                statNames.addAll(MVUtil.statsEnscnt.keySet());
                 break;
-              case 18:
-                if (!boolVcnt) {
-                  listStatName.addAll(MVUtil.statsVcnt.keySet());
-                }
+              case 12://mpr
+                statNames.addAll(MVUtil.statsMpr.keySet());
                 break;
-              case 19:
-                listStatName.addAll(MVUtil.statsEcnt.keySet());
+              case 13://orank
+                statNames.addAll(MVUtil.statsOrank.keySet());
                 break;
-              case 20:
-                listStatName.addAll(MVUtil.statsPerc.keySet());
+              case 14://ssvar
+                statNames.addAll(MVUtil.statsSsvar.keySet());
                 break;
-              case 21:
-                listStatName.addAll(MVUtil.statsDmap.keySet());
+              case 16://val1l2
+                statNames.addAll(MVUtil.statsVal1l2.keySet());
+                statNames.addAll(MVUtil.statsVcnt.keySet());
                 break;
-              case 22:
-                listStatName.addAll(MVUtil.statsRps.keySet());
+              case 18://vcnt
+                statNames.addAll(MVUtil.statsVcnt.keySet());
                 break;
-              case 23:
-                listStatName.addAll(MVUtil.statsPct.keySet());
+              case 19://ecnt
+                statNames.addAll(MVUtil.statsEcnt.keySet());
                 break;
-              case 24:
-                listStatName.addAll(MVUtil.statsMctc.keySet());
+              case 20://perc
+                statNames.addAll(MVUtil.statsPerc.keySet());
                 break;
-              case 25:
-                listStatName.addAll(MVUtil.statsSsidx.keySet());
+              case 21://dmap
+                statNames.addAll(MVUtil.statsDmap.keySet());
+                break;
+              case 22://rps
+                statNames.addAll(MVUtil.statsRps.keySet());
+                break;
+              case 23://pct
+                statNames.addAll(MVUtil.statsPct.keySet());
+                statNames.addAll(MVUtil.statsPstd.keySet());
+                break;
+              case 24://mctc
+                statNames.addAll(MVUtil.statsMctc.keySet());
+                statNames.addAll(MVUtil.statsMcts.keySet());
+                break;
+              case 25://ssidx
+                statNames.addAll(MVUtil.statsSsidx.keySet());
                 break;
               default:
 
@@ -333,9 +328,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
       }
     }
-    Collections.sort(listStatName);
-    return listStatName;
+    // remove duplicates
+    List<String> statNamesWithoutDuplicates = new ArrayList<>(new HashSet<>(statNames));
+    Collections.sort(statNamesWithoutDuplicates);
+    return statNamesWithoutDuplicates;
   }
+
 
   @Override
   public List<String> getListValues(MVNode nodeCall, String field, String[] currentDBName) {
@@ -403,6 +401,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               tableLineDataTables.put("line_data_ctc", "true");
             } else if (strLineDataTable.equals("line_data_vcnt")) {
               tableLineDataTables.put("line_data_vl1l2", "true");
+              tableLineDataTables.put("line_data_val1l2", "true");
+            } else if (strLineDataTable.equals("line_data_pstd")) {
+              tableLineDataTables.put("line_data_pct", "true");
             }
           }
 
@@ -1467,7 +1468,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                         + "stat_header h,\n  line_data_mctc ld\n";
                 String selMctcEcValue = "SELECT DISTINCT ld.ec_value\nFROM\n  "
                         + "stat_header h,\n  line_data_mctc ld\n";
-                String commonSelect= "WHERE";
+                String commonSelect = "WHERE";
                 if (indyVarFormatted.length() > 0 && job.getIndyVal().length > 0) {
                   commonSelect = commonSelect + BINARY + indyVarFormatted
                           + " IN (" + MVUtil.buildValueList(
@@ -1517,7 +1518,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     errors.add(error);
                   } else if (1 > mctcNCatInfo.get("numNcat") || 1 > mctcEcValueInfo.get("numEcValue")) {
                     String error = "invalid number of MCTC N_CAT ("
-                            + mctcNCatInfo.get("numNcat") + ") or EC_VALUE (" + mctcEcValueInfo.get("numEcValue")+ ") found for ";
+                            + mctcNCatInfo.get("numNcat") + ") or EC_VALUE (" + mctcEcValueInfo.get("numEcValue") + ") found for ";
                     if (!serName[serNameInd].equals("NA")) {
                       error = error + serName[serNameInd] + " = '"
                               + ser.getStr(serName[serNameInd]) + "' AND ";
@@ -1888,7 +1889,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           selectStat += ",\n  '" + strStat + "' stat_name";
 
           // need to add BETA_VALUE  for DMP stats
-          if (MVUtil.statsDmap.containsKey(strStat)){
+          if (MVUtil.statsDmap.containsKey(strStat)) {
             selectStat += ",\n   beta_value";
           }
 
