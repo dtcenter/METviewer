@@ -5,98 +5,49 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v4.1.0 <https://github.com/dtcenter/METviewer>`_release notes (20220311)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Version 4.1.0 release notes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-beta6 release (20220218)
-^^^^^^^^^^^^^^^^^^^^^^^^
 * New Features:
    * **Python implementation of the Taylor diagram** (`#370 <https://github.com/dtcenter/METviewer/issues/370>`_)
    * **Python implementation of the Contour plot** (`#363 <https://github.com/dtcenter/METviewer/issues/363>`_)
    * **Add custom lines (horizontal and/or vertical) to plots** (`#323 <https://github.com/dtcenter/METviewer/issues/323>`_)
-
-* Enhancements:
-   * Change field name "rank" to "obs_rank" in the database table "line_data_orank" (`#366 <https://github.com/dtcenter/METviewer/issues/366>`_)
-
-* Bugfixes:
-
-
-beta5 release (20220119)
-^^^^^^^^^^^^^^^^^^^^^^^^
-* New Features:
    * **Python implementation of the ECLV plot** (`#353 <https://github.com/dtcenter/METviewer/issues/353>`_)
-
-* Enhancements:
-   * update version of log4j to 2.17.1  (`#356 <https://github.com/dtcenter/METviewer/issues/356>`_)
-
-* Bugfixes:
-   * Fix Docker image build (`#354 <https://github.com/dtcenter/METviewer/issues/354>`_)
-
-beta4 release (20211115)
-^^^^^^^^^^^^^^^^^^^^^^^^
-* New Features:
    * **Python implementation of the histograms - Probability, Relative, Rank** (`#322 <https://github.com/dtcenter/METviewer/issues/322>`_)
    * **Python implementation of the Revision series for MODE-TD** (`#338 <https://github.com/dtcenter/METviewer/issues/338>`_)
-
-* Enhancements:
-   * Implement init() and destroy() mehods to comply with STIG (`#344 <https://github.com/dtcenter/METviewer/issues/344>`_)
-   * Record time stamps for logs that meet a granularity of one second (`#349 <https://github.com/dtcenter/METviewer/issues/349>`_)
-
-* Bugfixes:
-   * Create plots with date/time values in groups (`#345 <https://github.com/dtcenter/METviewer/issues/345>`_)
-   * Fixed rendering of plot_val indy values (`#342 <https://github.com/dtcenter/METviewer/issues/342>`_)
-
-* Internal:
-
-beta3 release (20211007)
-^^^^^^^^^^^^^^^^^^^^^^^^
-* New Features:
    * **new SSIDX STAT line type and statistic SS_INDEX** (`#327 <https://github.com/dtcenter/METviewer/issues/327>`_)
-
-* Enhancements:
-   * **line plot with different forecast variables plotted on y1 and y2 axis** (`#328 <https://github.com/dtcenter/METviewer/issues/328>`_)
-   * **Change ',' as a separator for the series group to ':'** (`#334 <https://github.com/dtcenter/METviewer/issues/334>`_)
-
-* Bugfixes:
-   * python plot is not created if plot margin values are doubles (`#331 <https://github.com/dtcenter/METviewer/issues/331>`_)
-
-* Internal:
-
-beta2 release (20210901)
-^^^^^^^^^^^^^^^^^^^^^^^^
-* New Features:
    * **Python implementation of Ensemble Spread-Skill plot (ens_ss)** (`#308 <https://github.com/dtcenter/METviewer/issues/308>`_)
    * **Python implementation of the Bar plot** (`#296 <https://github.com/dtcenter/METviewer/issues/296>`_)
    * **Aggregate and plot the HSS_EC statistic from the MCTS line type** (`#285 <https://github.com/dtcenter/METviewer/issues/285>`_)
    * **Support for plotting new G and GBETA statistics** (`#324 <https://github.com/dtcenter/METviewer/issues/324>`_)
    * **Plot new CNT columns for the Scatter Index** (`#317 <https://github.com/dtcenter/METviewer/issues/317>`_)
-
-* Enhancements:
-   * **Enhance METviewer database schema to comply with MET-10.1.0** (`#286 <https://github.com/dtcenter/METviewer/issues/286>`_)
-   * Edit Python dependencies list in Dockerfile (`#311 <https://github.com/dtcenter/METviewer/issues/311>`_)
-   * Add 'services' as a root element in docker-compose.yml (`#306 <https://github.com/dtcenter/METviewer/issues/306>`_)
-
-
-* Bugfixes:
-   * The loading module produces an error when parsing <date_list> element with <date_offset> (`#319 <https://github.com/dtcenter/METviewer/issues/319>`_)
-
-* Internal:
-
-
-beta1 release (20210706)
-^^^^^^^^^^^^^^^^^^^^^^^^
-* New Features:
    * **Python implementation of the Box plot** (`#292 <https://github.com/dtcenter/METviewer/issues/292>`_)
 
 * Enhancements:
+   * **Make Python the default calculation/plotting library (`#374<https://github.com/dtcenter/METviewer/issues/374>`_)
+   * **Improve generations of the statistics list in UI (`#379<https://github.com/dtcenter/METviewer/issues/379>`_)
+   * Change field name "rank" to "obs_rank" in the database table "line_data_orank" (`#366 <https://github.com/dtcenter/METviewer/issues/366>`_)
+   * update version of log4j to 2.17.1  (`#356 <https://github.com/dtcenter/METviewer/issues/356>`_)
+   * Implement init() and destroy() mehods to comply with STIG (`#344 <https://github.com/dtcenter/METviewer/issues/344>`_)
+   * Record time stamps for logs that meet a granularity of one second (`#349 <https://github.com/dtcenter/METviewer/issues/349>`_)
+   * **line plot with different forecast variables plotted on y1 and y2 axis** (`#328 <https://github.com/dtcenter/METviewer/issues/328>`_)
+   * **Change ',' as a separator for the series group to ':'** (`#334 <https://github.com/dtcenter/METviewer/issues/334>`_)
+   * **Enhance METviewer database schema to comply with MET-10.1.0** (`#286 <https://github.com/dtcenter/METviewer/issues/286>`_)
+   * Edit Python dependencies list in Dockerfile (`#311 <https://github.com/dtcenter/METviewer/issues/311>`_)
+   * Add 'services' as a root element in docker-compose.yml (`#306 <https://github.com/dtcenter/METviewer/issues/306>`_)
    * Deprecate 'doc' directory and use the link to readthedocs (`#287 <https://github.com/dtcenter/METviewer/issues/287>`_)
 
-* Internal:
-
 * Bugfixes:
+   * Fix Docker image build (`#354 <https://github.com/dtcenter/METviewer/issues/354>`_)
+   * Create plots with date/time values in groups (`#345 <https://github.com/dtcenter/METviewer/issues/345>`_)
+   * Fixed rendering of plot_val indy values (`#342 <https://github.com/dtcenter/METviewer/issues/342>`_)
+   * python plot is not created if plot margin values are doubles (`#331 <https://github.com/dtcenter/METviewer/issues/331>`_)
+   * The loading module produces an error when parsing <date_list> element with <date_offset> (`#319 <https://github.com/dtcenter/METviewer/issues/319>`_)
    * Error when using Agg stats in performance diagram (`#284 <https://github.com/dtcenter/METviewer/issues/284>`_)
    * Scorecard is not created correctly if input models have 'label' attribute (`#300 <https://github.com/dtcenter/METviewer/issues/300>`_)
 
+
+* Internal:
 
 
 
