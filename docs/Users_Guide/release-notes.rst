@@ -24,8 +24,8 @@ Version `v4.1.0 <https://github.com/dtcenter/METviewer>`_release notes (20220311
    * **Python implementation of the Box plot** (`#292 <https://github.com/dtcenter/METviewer/issues/292>`_)
 
 * Enhancements:
-   * **Make Python the default calculation/plotting library (`#374<https://github.com/dtcenter/METviewer/issues/374>`_)
-   * **Improve generations of the statistics list in UI (`#379<https://github.com/dtcenter/METviewer/issues/379>`_)
+   * **Make Python the default calculation/plotting library** (`#374<https://github.com/dtcenter/METviewer/issues/374>`_)
+   * **Improve generations of the statistics list in UI** (`#379<https://github.com/dtcenter/METviewer/issues/379>`_)
    * Change field name "rank" to "obs_rank" in the database table "line_data_orank" (`#366 <https://github.com/dtcenter/METviewer/issues/366>`_)
    * update version of log4j to 2.17.1  (`#356 <https://github.com/dtcenter/METviewer/issues/356>`_)
    * Implement init() and destroy() mehods to comply with STIG (`#344 <https://github.com/dtcenter/METviewer/issues/344>`_)
