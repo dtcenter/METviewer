@@ -180,6 +180,8 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.1.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-1.27.jar
+
 
 
 echo "Running allRestRunner"
