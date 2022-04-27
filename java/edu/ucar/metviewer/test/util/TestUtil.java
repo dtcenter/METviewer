@@ -580,6 +580,68 @@ public class TestUtil {
     }
 
   }
+  public static void compareDataTestFiles(
+          String testDataDir, String compareDataDir,
+          String plotType) {
+    compareDataTestFiles(testDataDir, compareDataDir, plotType, true, true, YAML_FILES_FILTER);
+  }
+
+  private static void compareDataTestFiles(
+          String testDataDir, String compareDataDir,
+          String plotType, boolean isCompareNames,
+          boolean isCompareContent,
+          CustomFilenameFilter filter) {
+
+    //get all test results datafiles
+    File testDir = new File(testDataDir);
+    File compDir = new File(compareDataDir);
+    File[] expectedFiles = compDir.listFiles(new DataNameFilter(plotType));
+    for (File expectedFile : expectedFiles) {
+      File actualFile = new File(testDir, expectedFile.getName());
+
+      if (isCompareNames) {
+        assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
+      }
+      if (isCompareContent) {
+        boolean areTheSame = isDataTheSame(expectedFile, actualFile);
+        assertTrue(
+                "Files for " + plotType + " " + filter.getFileExtension() + " with name "
+                        + actualFile.getName() + " in dir " + testDir.getAbsolutePath()
+                        + " must be identical to a file in " + compDir.getAbsolutePath()
+                        + " but is not", areTheSame);
+      }
+    }
+
+  }
+  private static boolean isDataTheSame(File expectedFile, File actualFile) {
+    List<String> expectedLines = readDataDile(expectedFile);
+    List<String> actualLines = readDataDile(actualFile);
+    Collections.sort(expectedLines);
+    Collections.sort(actualLines);
+    return expectedLines.equals(actualLines);
+  }
+  private static List<String> readDataDile(File file){
+    List<String> lines = new ArrayList<>();
+    try (FileReader fileReader = new FileReader(file)){
+      StringBuilder stringBuilder = new StringBuilder();
+      while (fileReader.ready()) {
+        char c = (char) fileReader.read();
+        if (c == '\n') {
+          lines.add(stringBuilder.toString());
+          stringBuilder = new StringBuilder();
+        } else {
+          stringBuilder.append(c);
+        }
+      }
+      if (stringBuilder.length() > 0) {
+        lines.add(stringBuilder.toString());
+      }
+    } catch (IOException e) {
+      lines = new ArrayList<>();
+    }
+    return lines;
+  }
+
 
   public static boolean isYamlTheSame(File expectedFile, File actualFile) {
     TreeMap<String, Object> expectedYaml = new TreeMap<>();
@@ -591,8 +653,6 @@ public class TestUtil {
       expectedYaml.putAll(yaml.load(expectedStream));
       actualYaml.putAll(yaml.load(actualStream));
       areTheSame =compareMaps(expectedYaml, actualYaml);
-
-
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -745,6 +805,21 @@ public class TestUtil {
     @Override
     public boolean accept(File dir, String name) {
       return name.equals(plotType + ".yaml");
+    }
+
+  }
+
+  public static class DataNameFilter implements FilenameFilter {
+
+    private String plotType;
+
+    public DataNameFilter(String plotType) {
+      this.plotType = plotType;
+    }
+
+    @Override
+    public boolean accept(File dir, String name) {
+      return name.equals(plotType + ".data");
     }
 
   }
