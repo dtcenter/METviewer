@@ -15,16 +15,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.yaml.snakeyaml.Yaml;
 
 import static java.lang.System.out;
 import static org.junit.Assert.assertTrue;
@@ -77,6 +72,18 @@ public class TestUtil {
     @Override
     public String getActualDir() {
       return PLOTS_DIR;
+    }
+  };
+
+  private static final CustomFilenameFilter YAML_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".yaml";
+    }
+
+    @Override
+    public String getActualDir() {
+      return DATA_DIR;
     }
   };
 
@@ -534,14 +541,104 @@ public class TestUtil {
     compareBinaryTestFiles(testDataDir, compareDataDir, plotType, true, true, PLOT_FILES_FILTER);
   }
 
+  public static void compareYamlTestFiles(
+          String testDataDir, String compareDataDir,
+          String plotType) {
+    compareYamlTestFiles(testDataDir, compareDataDir, plotType, true, true, YAML_FILES_FILTER);
+  }
+
+  public static void main(String[] args){
+    File expectedFile = new File("/Users/tatiana/grouping.yaml");
+    File actualFile = new File("/Users/tatiana/grouping1.yaml");
+    System.out.println(TestUtil.isYamlTheSame(expectedFile, actualFile));
+  }
+
+  private static void compareYamlTestFiles(
+          String testDataDir, String compareDataDir,
+          String plotType, boolean isCompareNames,
+          boolean isCompareContent,
+          CustomFilenameFilter filter) {
+
+    //get all test results datafiles
+    File testDir = new File(testDataDir);
+    File compDir = new File(compareDataDir);
+    File[] expectedFiles = compDir.listFiles(new YamlNameFilter(plotType));
+    for (File expectedFile : expectedFiles) {
+      File actualFile = new File(testDir, expectedFile.getName());
+
+      if (isCompareNames) {
+        assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
+      }
+      if (isCompareContent) {
+        boolean areTheSame = isYamlTheSame(expectedFile, actualFile);
+        assertTrue(
+                "Files for " + plotType + " " + filter.getFileExtension() + " with name "
+                        + actualFile.getName() + " in dir " + testDir.getAbsolutePath()
+                        + " must be identical to a file in " + compDir.getAbsolutePath()
+                        + " but is not", areTheSame);
+      }
+    }
+
+  }
+
+  public static boolean isYamlTheSame(File expectedFile, File actualFile) {
+    TreeMap<String, Object> expectedYaml = new TreeMap<>();
+    TreeMap<String, Object> actualYaml = new TreeMap<>();
+    Yaml yaml = new Yaml();
+    boolean areTheSame;
+    try (InputStream expectedStream = Files.newInputStream(expectedFile.toPath());
+         InputStream actualStream = Files.newInputStream(actualFile.toPath())) {
+      expectedYaml.putAll(yaml.load(expectedStream));
+      actualYaml.putAll(yaml.load(actualStream));
+      areTheSame =compareMaps(expectedYaml, actualYaml);
+
+
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return areTheSame;
+  }
+
+  private static boolean compareMaps(Map<String, Object> expectedYaml, Map<String, Object> actualYaml) {
+    boolean areTheSame = true;
+    areTheSame = expectedYaml.keySet().equals(actualYaml.keySet());
+    if (areTheSame) {
+      for (Map.Entry<String, Object> expectedEntry : expectedYaml.entrySet()) {
+        Object actualValue = actualYaml.get(expectedEntry.getKey());
+        if (actualValue == null || expectedEntry.getValue() == null) {
+          areTheSame = actualValue == null && expectedEntry.getValue() == null;
+        } else if (actualValue.getClass() == ArrayList.class && expectedEntry.getValue().getClass() == ArrayList.class) {
+          if (((ArrayList<Object>) actualValue).size() != ((ArrayList<Object>) expectedEntry.getValue()).size()) {
+            areTheSame = false;
+          } else {
+            for (int i = 0; i < ((ArrayList<Object>) actualValue).size(); i++) {
+              areTheSame = ((ArrayList<Object>) actualValue).get(i).equals(((ArrayList<Object>) expectedEntry.getValue()).get(i));
+              if (!areTheSame) {
+                break;
+              }
+            }
+          }
+        } else if (actualValue.getClass().toString().contains("Map") && expectedEntry.getValue().getClass().toString().contains("Map")) {
+          areTheSame = compareMaps((Map<String, Object>) expectedEntry.getValue(), (Map<String, Object>) actualValue);
+        } else {
+          areTheSame = actualValue.equals(expectedEntry.getValue());
+        }
+        if(!areTheSame){
+          break;
+        }
+      }
+    }
+    return areTheSame;
+  }
+
   private static void compareBinaryTestFiles(
           String testDataDir, String compareDataDir,
           String plotType, boolean isCompareNames,
           boolean isCompareContent,
           CustomFilenameFilter filter) {
     //get all test results datafiles
-    File testDir = new File(testDataDir );
-    File compDir = new File(compareDataDir );
+    File testDir = new File(testDataDir);
+    File compDir = new File(compareDataDir);
     //File[] expectedFiles = compDir.listFiles(filter);
     File[] expectedFiles = compDir.listFiles(new PlotNameFilter(plotType));
     for (File expectedFile : expectedFiles) {
@@ -637,6 +734,20 @@ public class TestUtil {
 
   }
 
+  public static class YamlNameFilter implements FilenameFilter {
+
+    private String plotType;
+
+    public YamlNameFilter(String plotType) {
+      this.plotType = plotType;
+    }
+
+    @Override
+    public boolean accept(File dir, String name) {
+      return name.equals(plotType + ".yaml");
+    }
+
+  }
 
 
 }
