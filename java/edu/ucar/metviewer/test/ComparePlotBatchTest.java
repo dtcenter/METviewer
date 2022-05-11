@@ -25,7 +25,9 @@ public class ComparePlotBatchTest {
   private static String testDataDir;
   private static String testCompareDataDir;
   private static String testOutputDir;
+  private static String testOutputDataDir;
   private static String testCompareOutputDir;
+  private static String testCompareOutputDataDir;
   private String plotType = null;
 
   public ComparePlotBatchTest(String plotType) {
@@ -45,7 +47,10 @@ public class ComparePlotBatchTest {
     testCompareDataDir = ROOT_COMPARE_DIR + FILE_SEPARATOR + "test_data" + FILE_SEPARATOR + "test_cases";
 
     testOutputDir = ROOT_DIR + FILE_SEPARATOR +"output" + FILE_SEPARATOR + "plots" + FILE_SEPARATOR;
+    testOutputDataDir = ROOT_DIR + FILE_SEPARATOR +"output" + FILE_SEPARATOR + "data" + FILE_SEPARATOR;
+
     testCompareOutputDir = ROOT_COMPARE_DIR + FILE_SEPARATOR +"output" + FILE_SEPARATOR + "plots" + FILE_SEPARATOR;
+    testCompareOutputDataDir = ROOT_COMPARE_DIR + FILE_SEPARATOR +"output" + FILE_SEPARATOR + "data" + FILE_SEPARATOR;
     File file = new File(testDataDir);
     if (!file.exists()) {
       throw new Exception(testDataDir + " doesn't exist.");
@@ -80,9 +85,9 @@ public class ComparePlotBatchTest {
   @Test
   public void compareOutputFiles() {
     System.out.println("Comparing YAML configs for " + plotType);
-    compareYamlTestFiles(testOutputDir, testCompareOutputDir, plotType);
+    compareYamlTestFiles(testOutputDataDir, testCompareOutputDataDir, plotType);
     System.out.println("Comparing data for " + plotType);
-    compareDataTestFiles(testOutputDir, testCompareOutputDir, plotType);
+    compareDataTestFiles(testOutputDataDir, testCompareOutputDataDir, plotType);
     if(plotType.startsWith("scorecard")){
       System.out.println("Comparing plots for " + plotType);
       compareBinaryTestFiles(testOutputDir, testCompareOutputDir, plotType);
