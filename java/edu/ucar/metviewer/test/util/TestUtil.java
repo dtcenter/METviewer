@@ -563,7 +563,6 @@ public class TestUtil {
     File testDir = new File(testDataDir);
     File compDir = new File(compareDataDir);
     File[] expectedFiles = compDir.listFiles(new YamlNameFilter(plotType));
-    out.println("expectedFiles in dir " + compDir.getAbsolutePath() + " with name " + plotType + ".yaml" + expectedFiles.length);
 
     for (File expectedFile : expectedFiles) {
       File actualFile = new File(testDir, expectedFile.getName());
@@ -574,7 +573,10 @@ public class TestUtil {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
       }
       if (isCompareContent) {
+        out.println("Comparing content");
         boolean areTheSame = isYamlTheSame(expectedFile, actualFile);
+        out.println(areTheSame);
+
         assertTrue(
                 "Files for " + plotType + " " + filter.getFileExtension() + " with name "
                         + actualFile.getName() + " in dir " + testDir.getAbsolutePath()
@@ -666,8 +668,7 @@ public class TestUtil {
   }
 
   private static boolean compareMaps(Map<String, Object> expectedYaml, Map<String, Object> actualYaml) {
-    boolean areTheSame = true;
-    areTheSame = expectedYaml.keySet().equals(actualYaml.keySet());
+    boolean areTheSame = expectedYaml.keySet().equals(actualYaml.keySet());
     if (areTheSame) {
       for (Map.Entry<String, Object> expectedEntry : expectedYaml.entrySet()) {
         Object actualValue = actualYaml.get(expectedEntry.getKey());
@@ -690,6 +691,7 @@ public class TestUtil {
           areTheSame = actualValue.equals(expectedEntry.getValue());
         }
         if(!areTheSame){
+          out.println("not the same for " + expectedEntry.getKey());
           break;
         }
       }
