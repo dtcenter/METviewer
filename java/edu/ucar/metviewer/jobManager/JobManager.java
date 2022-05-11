@@ -635,6 +635,8 @@ public abstract class JobManager {
         rListArray[i] = "True";
       } else if (rListArray[i].trim().equalsIgnoreCase("false")) {
         rListArray[i] = "False";
+      }else {
+        rListArray[i] = rListArray[i].trim();
       }
     }
     return Arrays.asList(rListArray);
