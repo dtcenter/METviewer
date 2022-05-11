@@ -631,9 +631,9 @@ public abstract class JobManager {
     }
     // Replace boolean strings
     for (int i = 0; i < rListArray.length; i++) {
-      if (rListArray[i].equalsIgnoreCase("true")) {
+      if (rListArray[i].trim().equalsIgnoreCase("true")) {
         rListArray[i] = "True";
-      } else if (rListArray[i].equalsIgnoreCase("false")) {
+      } else if (rListArray[i].trim().equalsIgnoreCase("false")) {
         rListArray[i] = "False";
       }
     }
@@ -641,7 +641,6 @@ public abstract class JobManager {
   }
 
   protected List<Object> rListToListNumeric(String rList) {
-    System.out.println(rList);
     Object[] rListArray = rList.replace("c(", "").replace(")", "")
             .replace("\"", "")
             .split(",");
