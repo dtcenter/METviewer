@@ -563,8 +563,11 @@ public class TestUtil {
     File testDir = new File(testDataDir);
     File compDir = new File(compareDataDir);
     File[] expectedFiles = compDir.listFiles(new YamlNameFilter(plotType));
+
     for (File expectedFile : expectedFiles) {
       File actualFile = new File(testDir, expectedFile.getName());
+      out.println("comparing YAML files " + expectedFile.getAbsolutePath()
+              + " to " + actualFile.getAbsolutePath());
 
       if (isCompareNames) {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
@@ -598,6 +601,8 @@ public class TestUtil {
     File[] expectedFiles = compDir.listFiles(new DataNameFilter(plotType));
     for (File expectedFile : expectedFiles) {
       File actualFile = new File(testDir, expectedFile.getName());
+      out.println("comparing YAML files " + expectedFile.getAbsolutePath()
+              + " to " + actualFile.getAbsolutePath());
 
       if (isCompareNames) {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
@@ -712,7 +717,7 @@ public class TestUtil {
         BufferedImage actualImg = null;
         boolean areTheSame = false;
         try {
-          out.println("comparing files " + expectedFile.getAbsolutePath()
+          out.println("comparing image files " + expectedFile.getAbsolutePath()
                   + " to " + actualFile.getAbsolutePath());
           expectedImg = ImageIO.read(expectedFile);
           actualImg = ImageIO.read(actualFile);
