@@ -563,6 +563,7 @@ public class TestUtil {
     File testDir = new File(testDataDir);
     File compDir = new File(compareDataDir);
     File[] expectedFiles = compDir.listFiles(new YamlNameFilter(plotType));
+    out.println("expectedFiles in dir " + compDir.getAbsolutePath() + " with name " + plotType + ".yaml" + expectedFiles.length);
 
     for (File expectedFile : expectedFiles) {
       File actualFile = new File(testDir, expectedFile.getName());
