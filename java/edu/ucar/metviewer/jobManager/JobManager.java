@@ -641,6 +641,7 @@ public abstract class JobManager {
   }
 
   protected List<Object> rListToListNumeric(String rList) {
+    System.out.println(rList);
     Object[] rListArray = rList.replace("c(", "").replace(")", "")
             .replace("\"", "")
             .split(",");
@@ -650,12 +651,12 @@ public abstract class JobManager {
     List<Object> result = new ArrayList<>();
     // Replace boolean strings
     for (int i = 0; i < rListArray.length; i++) {
-      if (MVUtil.isInteger(String.valueOf(rListArray[i]), 10)) {
-        result.add(Integer.valueOf(String.valueOf(rListArray[i])));
-      } else if (MVUtil.isNumeric(String.valueOf(rListArray[i]))) {
-        result.add(Double.valueOf(String.valueOf(rListArray[i])));
+      if (MVUtil.isInteger(String.valueOf(rListArray[i]).trim(), 10)) {
+        result.add(Integer.valueOf(String.valueOf(rListArray[i]).trim()));
+      } else if (MVUtil.isNumeric(String.valueOf(rListArray[i]).trim())) {
+        result.add(Double.valueOf(String.valueOf(rListArray[i]).trim()));
       }else{
-        result.add(String.valueOf(rListArray[i]));
+        result.add(String.valueOf(rListArray[i]).trim());
       }
     }
     return result;
