@@ -659,9 +659,12 @@ public class TestUtil {
     try (InputStream expectedStream = Files.newInputStream(expectedFile.toPath());
          InputStream actualStream = Files.newInputStream(actualFile.toPath())) {
       expectedYaml.putAll(yaml.load(expectedStream));
+      out.println("1");
       actualYaml.putAll(yaml.load(actualStream));
+      out.println("2");
       areTheSame =compareMaps(expectedYaml, actualYaml);
     } catch (IOException e) {
+      out.println(e.getMessage());
       throw new RuntimeException(e);
     }
     return areTheSame;
@@ -669,6 +672,7 @@ public class TestUtil {
 
   private static boolean compareMaps(Map<String, Object> expectedYaml, Map<String, Object> actualYaml) {
     boolean areTheSame = expectedYaml.keySet().equals(actualYaml.keySet());
+    out.println("compareMaps " + areTheSame);
     if (areTheSame) {
       for (Map.Entry<String, Object> expectedEntry : expectedYaml.entrySet()) {
         Object actualValue = actualYaml.get(expectedEntry.getKey());
