@@ -658,12 +658,14 @@ public class TestUtil {
     boolean areTheSame;
     try (InputStream expectedStream = Files.newInputStream(expectedFile.toPath());
          InputStream actualStream = Files.newInputStream(actualFile.toPath())) {
+      out.println("0");
       expectedYaml.putAll(yaml.load(expectedStream));
       out.println("1");
       actualYaml.putAll(yaml.load(actualStream));
       out.println("2");
       areTheSame =compareMaps(expectedYaml, actualYaml);
-    } catch (IOException e) {
+    } catch (Exception e) {
+      out.println("Error during reading YAML files");
       out.println(e.getMessage());
       throw new RuntimeException(e);
     }
