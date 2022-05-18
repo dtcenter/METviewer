@@ -50,8 +50,7 @@ public class AllTestRunner {
     cleanWorkingDirs();
 
 
-    if (System.getProperty(
-            "compareOnly") == null) {
+    if (System.getProperty("compareOnly") == null) {
       // really test
       batchResult = JUnitCore.runClasses(CreatePlotBatchTest.class);
     } else {
@@ -66,6 +65,10 @@ public class AllTestRunner {
     if (failureListPlotBatchTest != null) {
       for (Failure failure : failureListPlotBatchTest) {
         System.out.println(failure.toString());
+        System.out.println(failure.getMessage());
+        System.out.println(failure.getTrace());
+        System.out.println(failure.getTestHeader());
+        System.out.println(failure.getDescription().toString());
       }
       if (failureListPlotBatchTest.isEmpty()) {
         System.out.println("***** Plot making tests finished successfully... *****");
