@@ -412,7 +412,7 @@ public class TestUtil {
    * @param isCompareNames - should the name comparison be executed
    * @param filter         - custom file filter to use
    */
-  private static void compareTextFiles(
+  private static synchronized void compareTextFiles(
           String testDataDir, String plotType,
           boolean isCompareNames, boolean isCompareContent,
           CustomFilenameFilter filter) {
@@ -472,11 +472,11 @@ public class TestUtil {
 
   }
 
-  public static void compareBinaryFilesBySize(String testDataDir, String plotType) {
+  public static synchronized void compareBinaryFilesBySize(String testDataDir, String plotType) {
     compareBinaryFilesBySize(testDataDir, plotType, PLOT_FILES_FILTER);
   }
 
-  private static void compareBinaryFilesBySize(
+  private static synchronized void compareBinaryFilesBySize(
           String testDataDir, String plotType,
           CustomFilenameFilter filter) {
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
@@ -504,7 +504,7 @@ public class TestUtil {
     }
   }
 
-  private static void compareBinaryFiles(
+  private static synchronized void compareBinaryFiles(
           String testDataDir, String plotType,
           boolean isCompareNames, boolean isCompareContent,
           CustomFilenameFilter filter) {
@@ -535,13 +535,13 @@ public class TestUtil {
     }
   }
 
-  public static void compareBinaryTestFiles(
+  public static synchronized void compareBinaryTestFiles(
           String testDataDir, String compareDataDir,
           String plotType) {
     compareBinaryTestFiles(testDataDir, compareDataDir, plotType, true, true, PLOT_FILES_FILTER);
   }
 
-  public static void compareYamlTestFiles(
+  public static synchronized void compareYamlTestFiles(
           String testDataDir, String compareDataDir,
           String plotType) {
     compareYamlTestFiles(testDataDir, compareDataDir, plotType, true, true, YAML_FILES_FILTER);
@@ -549,11 +549,11 @@ public class TestUtil {
 
   public static void main(String[] args){
     File expectedFile = new File("/Users/tatiana/grouping.yaml");
-    File actualFile = new File("/Users/tatiana/grouping1.yaml");
+    File actualFile = new File("/Users/tatiana/grouping.yaml");
     System.out.println(TestUtil.isYamlTheSame(expectedFile, actualFile));
   }
 
-  private static void compareYamlTestFiles(
+  private static synchronized void compareYamlTestFiles(
           String testDataDir, String compareDataDir,
           String plotType, boolean isCompareNames,
           boolean isCompareContent,
@@ -586,13 +586,13 @@ public class TestUtil {
     }
 
   }
-  public static void compareDataTestFiles(
+  public static synchronized void compareDataTestFiles(
           String testDataDir, String compareDataDir,
           String plotType) {
     compareDataTestFiles(testDataDir, compareDataDir, plotType, true, true, YAML_FILES_FILTER);
   }
 
-  private static void compareDataTestFiles(
+  private static synchronized void compareDataTestFiles(
           String testDataDir, String compareDataDir,
           String plotType, boolean isCompareNames,
           boolean isCompareContent,
@@ -621,7 +621,7 @@ public class TestUtil {
     }
 
   }
-  private static boolean isDataTheSame(File expectedFile, File actualFile) {
+  private static synchronized boolean isDataTheSame(File expectedFile, File actualFile) {
     List<String> expectedLines = readDataDile(expectedFile);
     List<String> actualLines = readDataDile(actualFile);
     Collections.sort(expectedLines);
@@ -651,7 +651,7 @@ public class TestUtil {
   }
 
 
-  public static boolean isYamlTheSame(File expectedFile, File actualFile) {
+  public static synchronized boolean isYamlTheSame(File expectedFile, File actualFile) {
     TreeMap<String, Object> expectedYaml = new TreeMap<>();
     TreeMap<String, Object> actualYaml = new TreeMap<>();
     Yaml yaml = new Yaml();
@@ -672,7 +672,7 @@ public class TestUtil {
     return areTheSame;
   }
 
-  private static boolean compareMaps(Map<String, Object> expectedYaml, Map<String, Object> actualYaml) {
+  private static synchronized boolean compareMaps(Map<String, Object> expectedYaml, Map<String, Object> actualYaml) {
     boolean areTheSame = expectedYaml.keySet().equals(actualYaml.keySet());
     out.println("compareMaps " + areTheSame);
     if (areTheSame) {
@@ -705,7 +705,7 @@ public class TestUtil {
     return areTheSame;
   }
 
-  private static void compareBinaryTestFiles(
+  private static synchronized void compareBinaryTestFiles(
           String testDataDir, String compareDataDir,
           String plotType, boolean isCompareNames,
           boolean isCompareContent,
@@ -766,7 +766,7 @@ public class TestUtil {
     return stringBuilder.toString();
   }
 
-  static boolean bufferedImagesEqual(BufferedImage img1, BufferedImage img2) {
+  static synchronized boolean bufferedImagesEqual(BufferedImage img1, BufferedImage img2) {
     if (img1.getWidth() == img2.getWidth() && img1.getHeight() == img2.getHeight()) {
       for (int x = 0; x < img1.getWidth(); x++) {
         for (int y = 0; y < img1.getHeight(); y++) {
