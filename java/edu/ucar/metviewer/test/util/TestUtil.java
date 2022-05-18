@@ -157,6 +157,7 @@ public class TestUtil {
     }
   };
   public static String MV_BRANCH_TAG;
+  public static final List<String> DO_NOT_COMPARE;
 
   static {
     FILE_SEPARATOR = System.getProperty("file.separator");
@@ -215,6 +216,14 @@ public class TestUtil {
     sql = false;
     job_name = null;
     driver = "com.mysql.jdbc.Driver";
+
+    DO_NOT_COMPARE = new ArrayList<>();
+    DO_NOT_COMPARE.add("plot_filename");
+    DO_NOT_COMPARE.add("stat_input");
+    DO_NOT_COMPARE.add("agg_stat_input");
+    DO_NOT_COMPARE.add("agg_stat_output");
+    DO_NOT_COMPARE.add("sum_stat_input");
+    DO_NOT_COMPARE.add("sum_stat_output");
   }
 
   private TestUtil() {
@@ -484,8 +493,8 @@ public class TestUtil {
     for (File expectedFile : expectedFiles) {
       File actualFile = new File(filter.getActualDir(), expectedFile.getName());
       boolean areTheSameSize = actualFile.length() == expectedFile.length();
-      if ((!actualFile.exists() || !areTheSameSize) && (System.getProperty(
-              "captureCreatedImages") != null)) {
+      if ((!actualFile.exists() || !areTheSameSize)
+              && (System.getProperty("captureCreatedImages") != null)) {
         out.println("copying image " + actualFile.getAbsolutePath()
                 + " to " + expectedFile.getAbsolutePath());
         areTheSameSize = actualFile.length() == expectedFile.length();
@@ -547,7 +556,7 @@ public class TestUtil {
     compareYamlTestFiles(testDataDir, compareDataDir, plotType, true, true, YAML_FILES_FILTER);
   }
 
-  public static void main(String[] args){
+  public static void main(String[] args) {
     File expectedFile = new File("/Users/tatiana/grouping.yaml");
     File actualFile = new File("/Users/tatiana/grouping.yaml");
     System.out.println(TestUtil.isYamlTheSame(expectedFile, actualFile));
@@ -573,10 +582,7 @@ public class TestUtil {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
       }
       if (isCompareContent) {
-        out.println("Comparing content");
         boolean areTheSame = isYamlTheSame(expectedFile, actualFile);
-        out.println(areTheSame);
-
         assertTrue(
                 "Files for " + plotType + " " + filter.getFileExtension() + " with name "
                         + actualFile.getName() + " in dir " + testDir.getAbsolutePath()
@@ -586,6 +592,7 @@ public class TestUtil {
     }
 
   }
+
   public static synchronized void compareDataTestFiles(
           String testDataDir, String compareDataDir,
           String plotType) {
@@ -621,6 +628,7 @@ public class TestUtil {
     }
 
   }
+
   private static synchronized boolean isDataTheSame(File expectedFile, File actualFile) {
     List<String> expectedLines = readDataDile(expectedFile);
     List<String> actualLines = readDataDile(actualFile);
@@ -628,9 +636,10 @@ public class TestUtil {
     Collections.sort(actualLines);
     return expectedLines.equals(actualLines);
   }
-  private static List<String> readDataDile(File file){
+
+  private static List<String> readDataDile(File file) {
     List<String> lines = new ArrayList<>();
-    try (FileReader fileReader = new FileReader(file)){
+    try (FileReader fileReader = new FileReader(file)) {
       StringBuilder stringBuilder = new StringBuilder();
       while (fileReader.ready()) {
         char c = (char) fileReader.read();
@@ -658,12 +667,9 @@ public class TestUtil {
     boolean areTheSame;
     try (InputStream expectedStream = Files.newInputStream(expectedFile.toPath());
          InputStream actualStream = Files.newInputStream(actualFile.toPath())) {
-      out.println("0");
       expectedYaml.putAll(yaml.load(expectedStream));
-      out.println("1");
       actualYaml.putAll(yaml.load(actualStream));
-      out.println("2");
-      areTheSame =compareMaps(expectedYaml, actualYaml);
+      areTheSame = compareMaps(expectedYaml, actualYaml);
     } catch (Exception e) {
       out.println("Error during reading YAML files");
       out.println(e.getMessage());
@@ -674,31 +680,32 @@ public class TestUtil {
 
   private static synchronized boolean compareMaps(Map<String, Object> expectedYaml, Map<String, Object> actualYaml) {
     boolean areTheSame = expectedYaml.keySet().equals(actualYaml.keySet());
-    out.println("compareMaps " + areTheSame);
     if (areTheSame) {
       for (Map.Entry<String, Object> expectedEntry : expectedYaml.entrySet()) {
-        Object actualValue = actualYaml.get(expectedEntry.getKey());
-        if (actualValue == null || expectedEntry.getValue() == null) {
-          areTheSame = actualValue == null && expectedEntry.getValue() == null;
-        } else if (actualValue.getClass() == ArrayList.class && expectedEntry.getValue().getClass() == ArrayList.class) {
-          if (((ArrayList<Object>) actualValue).size() != ((ArrayList<Object>) expectedEntry.getValue()).size()) {
-            areTheSame = false;
-          } else {
-            for (int i = 0; i < ((ArrayList<Object>) actualValue).size(); i++) {
-              areTheSame = ((ArrayList<Object>) actualValue).get(i).equals(((ArrayList<Object>) expectedEntry.getValue()).get(i));
-              if (!areTheSame) {
-                break;
+        if (!DO_NOT_COMPARE.contains(expectedEntry.getKey())) {
+          Object actualValue = actualYaml.get(expectedEntry.getKey());
+          if (actualValue == null || expectedEntry.getValue() == null) {
+            areTheSame = actualValue == null && expectedEntry.getValue() == null;
+          } else if (actualValue.getClass() == ArrayList.class && expectedEntry.getValue().getClass() == ArrayList.class) {
+            if (((ArrayList<Object>) actualValue).size() != ((ArrayList<Object>) expectedEntry.getValue()).size()) {
+              areTheSame = false;
+            } else {
+              for (int i = 0; i < ((ArrayList<Object>) actualValue).size(); i++) {
+                areTheSame = ((ArrayList<Object>) actualValue).get(i).equals(((ArrayList<Object>) expectedEntry.getValue()).get(i));
+                if (!areTheSame) {
+                  break;
+                }
               }
             }
+          } else if (actualValue.getClass().toString().contains("Map") && expectedEntry.getValue().getClass().toString().contains("Map")) {
+            areTheSame = compareMaps((Map<String, Object>) expectedEntry.getValue(), (Map<String, Object>) actualValue);
+          } else {
+            areTheSame = actualValue.equals(expectedEntry.getValue());
           }
-        } else if (actualValue.getClass().toString().contains("Map") && expectedEntry.getValue().getClass().toString().contains("Map")) {
-          areTheSame = compareMaps((Map<String, Object>) expectedEntry.getValue(), (Map<String, Object>) actualValue);
-        } else {
-          areTheSame = actualValue.equals(expectedEntry.getValue());
-        }
-        if(!areTheSame){
-          out.println("not the same for " + expectedEntry.getKey());
-          break;
+          if (!areTheSame) {
+            out.println("not the same for " + expectedEntry.getKey());
+            break;
+          }
         }
       }
     }
