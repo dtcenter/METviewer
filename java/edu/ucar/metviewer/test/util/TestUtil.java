@@ -87,6 +87,18 @@ public class TestUtil {
     }
   };
 
+  private static final CustomFilenameFilter DATA_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".data";
+    }
+
+    @Override
+    public String getActualDir() {
+      return DATA_DIR;
+    }
+  };
+
 
   private static final CustomFilenameFilter POINTS1_FILES_FILTER = new CustomFilenameFilter() {
     @Override
@@ -224,6 +236,7 @@ public class TestUtil {
     DO_NOT_COMPARE.add("agg_stat_output");
     DO_NOT_COMPARE.add("sum_stat_input");
     DO_NOT_COMPARE.add("sum_stat_output");
+    DO_NOT_COMPARE.add("agg_stat_input_ee");
   }
 
   private TestUtil() {
@@ -584,7 +597,7 @@ public class TestUtil {
       if (isCompareContent) {
         boolean areTheSame = isYamlTheSame(expectedFile, actualFile);
         assertTrue(
-                "Files for " + plotType + " " + filter.getFileExtension() + " with name "
+                "Files for " + plotType + filter.getFileExtension() + " with name "
                         + actualFile.getName() + " in dir " + testDir.getAbsolutePath()
                         + " must be identical to a file in " + compDir.getAbsolutePath()
                         + " but is not", areTheSame);
@@ -596,7 +609,7 @@ public class TestUtil {
   public static synchronized void compareDataTestFiles(
           String testDataDir, String compareDataDir,
           String plotType) {
-    compareDataTestFiles(testDataDir, compareDataDir, plotType, true, true, YAML_FILES_FILTER);
+    compareDataTestFiles(testDataDir, compareDataDir, plotType, true, true, DATA_FILES_FILTER);
   }
 
   private static synchronized void compareDataTestFiles(
@@ -611,30 +624,29 @@ public class TestUtil {
     File[] expectedFiles = compDir.listFiles(new DataNameFilter(plotType));
     for (File expectedFile : expectedFiles) {
       File actualFile = new File(testDir, expectedFile.getName());
-      out.println("comparing YAML files " + expectedFile.getAbsolutePath()
+      out.println("comparing data files " + expectedFile.getAbsolutePath()
               + " to " + actualFile.getAbsolutePath());
 
       if (isCompareNames) {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
       }
       if (isCompareContent) {
-        boolean areTheSame = isDataTheSame(expectedFile, actualFile);
+        boolean areTheSame = isDataTheSameSize(expectedFile, actualFile);
         assertTrue(
-                "Files for " + plotType + " " + filter.getFileExtension() + " with name "
+                "Files for " + plotType + filter.getFileExtension() + " with name "
                         + actualFile.getName() + " in dir " + testDir.getAbsolutePath()
-                        + " must be identical to a file in " + compDir.getAbsolutePath()
+                        + " must have the same number of rows as a file in " + compDir.getAbsolutePath()
                         + " but is not", areTheSame);
       }
     }
 
   }
 
-  private static synchronized boolean isDataTheSame(File expectedFile, File actualFile) {
+  private static synchronized boolean isDataTheSameSize(File expectedFile, File actualFile) {
     List<String> expectedLines = readDataDile(expectedFile);
     List<String> actualLines = readDataDile(actualFile);
-    Collections.sort(expectedLines);
-    Collections.sort(actualLines);
-    return expectedLines.equals(actualLines);
+
+    return expectedLines.size() == actualLines.size();
   }
 
   private static List<String> readDataDile(File file) {
