@@ -86,10 +86,8 @@ public class ComparePlotBatchTest {
   public void compareOutputFiles() {
     System.out.println("Comparing YAML configs for " + plotType);
     compareYamlTestFiles(testOutputDataDir, testCompareOutputDataDir, plotType);
-    System.out.println("Comparing data for " + plotType);
     compareDataTestFiles(testOutputDataDir, testCompareOutputDataDir, plotType);
     if(plotType.startsWith("scorecard")){
-      System.out.println("Comparing plots for " + plotType);
       compareBinaryTestFiles(testOutputDir, testCompareOutputDir, plotType);
     }
   }
