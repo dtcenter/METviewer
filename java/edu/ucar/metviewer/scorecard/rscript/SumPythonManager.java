@@ -151,6 +151,8 @@ public class SumPythonManager extends PythonManager {
 
         File output = new File(scorecardOutput);
         boolean isAppend = output.exists() && output.length() > 0;
+        System.out.println("File " + scorecardOutput + " exists " + output.exists());
+        System.out.println("Append file is " + isAppend);
         yamlInfo.put("append_to_file", isAppend ? "True" : "False");
         yamlInfo.put("event_equal", "False");
 
