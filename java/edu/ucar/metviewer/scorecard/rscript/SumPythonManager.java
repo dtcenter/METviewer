@@ -62,7 +62,7 @@ public class SumPythonManager extends PythonManager {
 
     yamlInfo.put("stat_flag", scorecard.getStatFlag());
     scorecardInput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
-    scorecardOutput = scorecard.getWorkingFolders().getScriptsDir() + scorecard.getDataFile();
+    scorecardOutput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
     File old_output = new File(scorecardOutput);
     if (old_output.exists()){
       old_output.delete();
