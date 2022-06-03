@@ -32,6 +32,10 @@ public class SumPythonManager extends PythonManager {
   private final Map<String, Object> yamlInfo;
   private final String pythonFileInfo;
   private final String sumInfoFileName;
+  String sumStatInput;
+  String sumStatOutput;
+  String scorecardInput;
+  String scorecardOutput;
 
 
   public SumPythonManager(Scorecard scorecard) {
@@ -43,7 +47,7 @@ public class SumPythonManager extends PythonManager {
             ".sum_stat.info");
 
 
-    String sumStatOutput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
+
 
     yamlInfo = new HashMap<>();
     String isEe = "True";
@@ -51,19 +55,31 @@ public class SumPythonManager extends PythonManager {
       isEe = "False";
     }
     yamlInfo.put("event_equal", isEe);
-    yamlInfo.put("sum_stat_input", scorecard.getWorkingFolders().getDataDir()
-            + scorecard.getDataFile()
-            .replaceAll(".data", ".dataFromDb"));
+    sumStatInput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile()
+            .replaceAll(".data", ".dataFromDb");
 
-    yamlInfo.put("sum_stat_output", sumStatOutput);
+    sumStatOutput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
+
     yamlInfo.put("stat_flag", scorecard.getStatFlag());
-    yamlInfo.put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
-    yamlInfo.put("data_file", sumStatOutput);
-
+    scorecardInput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
+    scorecardOutput = scorecard.getWorkingFolders().getScriptsDir() + scorecard.getDataFile();
+    File old_output = new File(scorecardOutput);
+    if (old_output.exists()){
+      old_output.delete();
+    }
   }
 
   @Override
   public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) throws NotSupportedException {
+    //delete old file
+    File old_output = new File(sumStatOutput);
+    if (old_output.exists()){
+      old_output.delete();
+    }
+
+
+    yamlInfo.put("sum_stat_output", sumStatOutput);
+    yamlInfo.put("sum_stat_input", sumStatInput);
     List<Entry> allModels = null;
     for (Field fixedField : fixedVars) {
       if ("model".equals(fixedField.getName())) {
@@ -133,17 +149,16 @@ public class SumPythonManager extends PythonManager {
 
         //done with summary aggregation - start with scorecard
 
-        boolean isAppend = false;
-        yamlInfo.put("event_equal", Boolean.FALSE);
+        File output = new File(scorecardOutput);
+        boolean isAppend = output.exists() && output.length() > 0;
+        yamlInfo.put("append_to_file", isAppend ? "True" : "False");
+        yamlInfo.put("event_equal", "False");
 
         List<String> statList = new ArrayList<>();
         statList.add(stat);
         yamlInfo.put("list_stat_1", statList);
 
-        //check if output file exists and its length is not 0
-        File output = new File((String) yamlInfo.get("plot_file"));
-        isAppend = output.exists() && output.length() > 0;
-        yamlInfo.put("append_to_file", isAppend);
+
 
 
         yamlInfo.put("indy_plot_val", new ArrayList<>());
@@ -170,7 +185,7 @@ public class SumPythonManager extends PythonManager {
           }
         }
         yamlInfo.put("ndays", ndays);
-        yamlInfo.put("equalize_by_indep", Boolean.TRUE);
+        yamlInfo.put("equalize_by_indep", "True");
         StringBuilder strForList = new StringBuilder();
         for (Map.Entry<String, List<String>> entry : indyList.entrySet()) {
           strForList.append("`").append(entry.getKey()).append("` = c(");
@@ -216,8 +231,8 @@ public class SumPythonManager extends PythonManager {
           strForList.deleteCharAt(strForList.length() - 1);
         }
 
-        yamlInfo.put("sum_stat_input", yamlInfo.get("data_file"));
-        yamlInfo.put("sum_stat_output", yamlInfo.get("plot_file"));
+        yamlInfo.put("sum_stat_input", scorecardInput);
+        yamlInfo.put("sum_stat_output", scorecardOutput);
 
         try (PrintStream printStream = IoBuilder.forLogger(SumPythonManager.class)
                 .setLevel(org.apache.logging.log4j.Level.INFO)
@@ -242,7 +257,7 @@ public class SumPythonManager extends PythonManager {
           if (mvResponse.getErrorMessage() != null) {
             printStream.println(mvResponse.getErrorMessage());
           }
-          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+          printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
         } catch (IOException | StopWatchException e) {
           logger.error(ERROR_MARKER, e.getMessage());
         }
