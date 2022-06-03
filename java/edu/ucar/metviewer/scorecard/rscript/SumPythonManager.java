@@ -28,26 +28,26 @@ public class SumPythonManager extends PythonManager {
   private static final Logger logger = LogManager.getLogger("SumPythonManager");
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
-  private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
   private static final String PYTHON_SCRIPT = "/metcalcpy/sum_stat.py";
   private final Map<String, Object> yamlInfo;
-  private final Map<String, Object> tableCalcStatInfo;
-  private final String calcStatTemplScript;
-  private final String rScriptFileName;
+  private final String pythonFileInfo;
   private final String sumInfoFileName;
+  String sumStatInput;
+  String sumStatOutput;
+  String scorecardInput;
+  String scorecardOutput;
 
 
   public SumPythonManager(Scorecard scorecard) {
     super(scorecard);
-    calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
-    rScriptFileName = scorecard.getWorkingFolders().getScriptsDir()
-            + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
+    pythonFileInfo = scorecard.getWorkingFolders().getScriptsDir()
+            + scorecard.getDataFile().replaceFirst("\\.data$", ".yaml");
     sumInfoFileName = scorecard.getWorkingFolders().getDataDir()
             + scorecard.getSumStatDataFile().replaceFirst("\\.data.sum_stat$",
             ".sum_stat.info");
 
 
-    String sumStatOutput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
+
 
     yamlInfo = new HashMap<>();
     String isEe = "True";
@@ -55,22 +55,31 @@ public class SumPythonManager extends PythonManager {
       isEe = "False";
     }
     yamlInfo.put("event_equal", isEe);
-    yamlInfo.put("sum_stat_input", scorecard.getWorkingFolders().getDataDir()
-            + scorecard.getDataFile()
-            .replaceAll(".data", ".dataFromDb"));
+    sumStatInput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile()
+            .replaceAll(".data", ".dataFromDb");
 
-    yamlInfo.put("sum_stat_output", sumStatOutput);
-    tableCalcStatInfo = new HashMap<>();
-    tableCalcStatInfo.put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
-    tableCalcStatInfo.put("plot_stat", scorecard.getPlotStat());
-    tableCalcStatInfo.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
-    tableCalcStatInfo.put("stat_flag", scorecard.getStatFlag());
-    tableCalcStatInfo.put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
-    tableCalcStatInfo.put("data_file", sumStatOutput);
+    sumStatOutput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
+
+    yamlInfo.put("stat_flag", scorecard.getStatFlag());
+    scorecardInput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile() + "1";
+    scorecardOutput = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
+    File old_output = new File(scorecardOutput);
+    if (old_output.exists()){
+      old_output.delete();
+    }
   }
 
   @Override
   public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) throws NotSupportedException {
+    //delete old file
+    File old_output = new File(sumStatOutput);
+    if (old_output.exists()){
+      old_output.delete();
+    }
+
+
+    yamlInfo.put("sum_stat_output", sumStatOutput);
+    yamlInfo.put("sum_stat_input", sumStatInput);
     List<Entry> allModels = null;
     for (Field fixedField : fixedVars) {
       if ("model".equals(fixedField.getName())) {
@@ -133,48 +142,27 @@ public class SumPythonManager extends PythonManager {
           if (mvResponse.getErrorMessage() != null) {
             printStream.println(mvResponse.getErrorMessage());
           }
-          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+          printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
         } catch (StopWatchException | IOException e) {
           logger.error(ERROR_MARKER, e.getMessage());
         }
 
         //done with summary aggregation - start with scorecard
 
-        tableCalcStatInfo.put("indy_var", indyVar);
-        tableCalcStatInfo.put("indy_list", "c(" + indyList + ")");
-        tableCalcStatInfo.put("dep1_plot", "list(`" + fcstVar + "` = c(\"" + stat + "\"))");
-        tableCalcStatInfo.put("dep2_plot", "list()");
+        File output = new File(scorecardOutput);
+        boolean isAppend = output.exists() && output.length() > 0;
+        yamlInfo.put("append_to_file", isAppend ? "True" : "False");
+        yamlInfo.put("event_equal", "False");
 
-        tableCalcStatInfo.put("series_list", seriesList.toString());
-        tableCalcStatInfo.put("series1_list", seriesList.toString());
-
-        tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
-        String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
-        tableCalcStatInfo
-                .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
-        tableCalcStatInfo.put("sum_sl1l2", String.valueOf(Boolean.valueOf(aggType.equals("sl1l2")))
-                .toUpperCase());
-        tableCalcStatInfo.put("sum_grad", String.valueOf(Boolean.valueOf(aggType.equals("grad")))
-                .toUpperCase());
-        tableCalcStatInfo.put("sum_sal1l2", String.valueOf(Boolean.valueOf(aggType.equals("sal1l2")
-        )).toUpperCase());
-        tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
-                .toUpperCase());
-        tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
-                .toUpperCase());
-        boolean isAppend = false;
-        tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
-        tableCalcStatInfo.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
+        List<String> statList = new ArrayList<>();
+        statList.add(stat);
+        yamlInfo.put("list_stat_1", statList);
 
 
-        //check if output file exists and its length is not 0
-        File output = new File((String) tableCalcStatInfo.get("plot_file"));
-        isAppend = output.exists() && output.length() > 0;
-        tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
 
 
-        tableCalcStatInfo.put("indy_plot_val", "list()");
-        tableCalcStatInfo.put("fix_val_list_eq", "list()");
+        yamlInfo.put("indy_plot_val", new ArrayList<>());
+        yamlInfo.put("fix_val_list_eq", new ArrayList<>());
 
         long ndays = 0;
         for (Field fixedField : fixedVars) {
@@ -196,8 +184,8 @@ public class SumPythonManager extends PythonManager {
             break;
           }
         }
-        tableCalcStatInfo.put("ndays", String.valueOf(ndays));
-        tableCalcStatInfo.put("equalize_by_indep", "TRUE");
+        yamlInfo.put("ndays", ndays);
+        yamlInfo.put("equalize_by_indep", "True");
         StringBuilder strForList = new StringBuilder();
         for (Map.Entry<String, List<String>> entry : indyList.entrySet()) {
           strForList.append("`").append(entry.getKey()).append("` = c(");
@@ -211,7 +199,6 @@ public class SumPythonManager extends PythonManager {
           }
           strForList.append(")");
         }
-        tableCalcStatInfo.put("indy_list", "c(" + strForList + ")");
         strForList = new StringBuilder();
         for (Map.Entry<String, List<String>> entry : seriesList.entrySet()) {
           strForList.append("`").append(entry.getKey()).append("` = c(");
@@ -228,13 +215,12 @@ public class SumPythonManager extends PythonManager {
         if (strForList.length() > 0) {
           strForList.deleteCharAt(strForList.length() - 1);
         }
-        tableCalcStatInfo.put("series_list", "list(" + strForList + ")");
 
         strForList = new StringBuilder();
         for (List<String> diff : seriesDiffList) {
           StringBuilder diffSeries = new StringBuilder("c(");
-          for (String var : diff) {
-            diffSeries.append("\"").append(var).append("\",");
+          for (String diff_component : diff) {
+            diffSeries.append("\"").append(diff_component).append("\",");
           }
           if (diffSeries.length() > 0) {
             diffSeries.deleteCharAt(diffSeries.length() - 1);
@@ -244,20 +230,26 @@ public class SumPythonManager extends PythonManager {
         if (strForList.length() > 0) {
           strForList.deleteCharAt(strForList.length() - 1);
         }
-        tableCalcStatInfo.put("series_diff_list", "list(" + strForList + ")");
-        tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+
+        yamlInfo.put("sum_stat_input", scorecardInput);
+        yamlInfo.put("sum_stat_output", scorecardOutput);
 
         try (PrintStream printStream = IoBuilder.forLogger(SumPythonManager.class)
                 .setLevel(org.apache.logging.log4j.Level.INFO)
                 .buildPrintStream()) {
-          MVUtil.populateTemplateFile(calcStatTemplScript, rScriptFileName, tableCalcStatInfo);
+
+          createYamlFile(pythonFileInfo, yamlInfo);
 
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          printStream.println("Running " + rScriptCommand + " " + rScriptFileName);
+          printStream.println("Running " + python + " " + metCalcpyHome + "/metcalcpy/scorecard.py" + " " + pythonFileInfo);
 
 
-          MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, rScriptFileName);
+          MvResponse mvResponse = MVUtil.runRscript(python,
+                  metCalcpyHome + "/metcalcpy/scorecard.py",
+                  new String[]{pythonFileInfo},
+                  new String[]{"PYTHONPATH=" + metCalcpyHome});
+
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
             printStream.println(mvResponse.getInfoMessage());
@@ -265,7 +257,7 @@ public class SumPythonManager extends PythonManager {
           if (mvResponse.getErrorMessage() != null) {
             printStream.println(mvResponse.getErrorMessage());
           }
-          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+          printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
         } catch (IOException | StopWatchException e) {
           logger.error(ERROR_MARKER, e.getMessage());
         }
