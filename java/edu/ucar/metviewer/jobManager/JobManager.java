@@ -249,6 +249,7 @@ public abstract class JobManager {
     info.put("show_nstats", job.getShowNStats() ? "TRUE" : FALSE);
     info.put("indy1_stagger", job.getIndy1Stagger() ? "TRUE" : FALSE);
     info.put("indy2_stagger", job.getIndy2Stagger() ? "TRUE" : FALSE);
+    info.put("start_from_zero", job.getStartFromZero() ? "TRUE" : FALSE);
     info.put("grid_on", job.getGridOn() ? "TRUE" : FALSE);
     info.put("sync_axes", job.getSyncAxes() ? "TRUE" : FALSE);
     info.put("dump_points1", job.getDumpPoints1() ? "TRUE" : FALSE);
@@ -498,6 +499,7 @@ public abstract class JobManager {
     yamlInfo.put("show_nstats", job.getShowNStats() ? "True" : "False");
     yamlInfo.put("indy_stagger_1", job.getIndy1Stagger() ? "True" : "False");
     yamlInfo.put("indy_stagger_2", job.getIndy2Stagger() ? "True" : "False");
+    yamlInfo.put("start_from_zero", job.getStartFromZero() ? "True" : "False");
     yamlInfo.put("variance_inflation_factor", job.getVarianceInflationFactor() ? "True" : "False");
     yamlInfo.put("dump_points_1", job.getDumpPoints1() ? "True" : "False");
     yamlInfo.put("dump_points_2", job.getDumpPoints2() ? "True" : "False");
