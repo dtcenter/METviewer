@@ -4258,6 +4258,7 @@ function createXMLCommon(plot) {
     plot.append($('<num_stats />').text($('#num_stats').is(':checked')));
     plot.append($('<indy1_stag />').text($('#indy1_stag').is(':checked')));
     plot.append($('<indy2_stag />').text($('#indy2_stag').is(':checked')));
+    plot.append($('<start_from_zero />').text($('#start_from_zero').is(':checked')));
     plot.append($('<grid_on />').text($('#grid_on').is(':checked')));
     plot.append($('<sync_axes />').text($('#sync_axes').is(':checked')));
     plot.append($('<dump_points1 />').text($('#dump_points1').is(':checked')));
@@ -4720,6 +4721,7 @@ function resetFormatting() {
     $("#dump_points2").prop('checked', false);
     $("#indy1_stag").prop('checked', false);
     $("#indy2_stag").prop('checked', false);
+    $("#start_from_zero").prop('checked', false);
     $("#varianceInflationFactor").prop('checked', true);
     $("#ci_alpha").val("0.05");
     $("#eqbound_low").val("-0.001");
@@ -8266,6 +8268,7 @@ function initPage() {
         $("#dump_points2").prop('checked', $(initXML.find("plot").find("dump_points2")).text() == "true");
         $("#indy1_stag").prop('checked', $(initXML.find("plot").find("indy1_stag")).text() == "true");
         $("#indy2_stag").prop('checked', $(initXML.find("plot").find("indy2_stag")).text() == "true");
+        $("#start_from_zero").prop('checked', $(initXML.find("plot").find("start_from_zero")).text() == "true");
         $("#varianceInflationFactor").prop('checked', $(initXML.find("plot").find("varianceinflationfactor")).text() === "true");
         $("#ci_alpha").val($(initXML.find("plot").find("ci_alpha")).text());
         $("#eqbound_low").val($(initXML.find("plot").find("eqbound_low")).text());

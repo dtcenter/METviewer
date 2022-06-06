@@ -40,6 +40,8 @@ public final class MVPlotJobParser {
       formatToBoolValues
               .put("indy2_stag", MVPlotJob.class.getDeclaredMethod("setIndy2Stagger", boolean.class));
       formatToBoolValues
+              .put("start_from_zero", MVPlotJob.class.getDeclaredMethod("setStartFromZero", boolean.class));
+      formatToBoolValues
               .put("grid_on", MVPlotJob.class.getDeclaredMethod("setGridOn", boolean.class));
       formatToBoolValues
               .put("sync_axes", MVPlotJob.class.getDeclaredMethod("setSyncAxes", boolean.class));
@@ -956,6 +958,7 @@ public final class MVPlotJobParser {
                     "<num_stats>" + job.getShowNStats() + "</num_stats>" +
                     "<indy1_stag>" + job.getIndy1Stagger() + "</indy1_stag>" +
                     "<indy2_stag>" + job.getIndy2Stagger() + "</indy2_stag>" +
+                    "<start_from_zero>" + job.getStartFromZero() + "</start_from_zero>" +
                     "<grid_on>" + job.getGridOn() + "</grid_on>" +
                     "<sync_axes>" + job.getSyncAxes() + "</sync_axes>" +
                     "<dump_points1>" + job.getDumpPoints1() + "</dump_points1>" +

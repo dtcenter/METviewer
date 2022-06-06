@@ -68,6 +68,8 @@ public class MVPlotJob {
   protected boolean _boolShowNStats = false;
   protected boolean _boolIndy1Stagger = false;
   protected boolean _boolIndy2Stagger = false;
+
+  protected boolean _boolStartFromZero = false;
   protected boolean _boolGridOn = false;
   protected boolean _boolSyncAxes = false;
   protected boolean _boolDumpPoints1 = false;
@@ -280,6 +282,7 @@ public class MVPlotJob {
     job._boolShowNStats = _boolShowNStats;
     job._boolIndy1Stagger = _boolIndy1Stagger;
     job._boolIndy2Stagger = _boolIndy2Stagger;
+    job._boolStartFromZero = _boolStartFromZero;
     job._boolGridOn = _boolGridOn;
     job._boolSyncAxes = _boolSyncAxes;
     job._boolDumpPoints1 = _boolDumpPoints1;
@@ -906,6 +909,14 @@ public class MVPlotJob {
 
   public void setIndy2Stagger(boolean indy2Stagger) {
     _boolIndy2Stagger = indy2Stagger;
+  }
+
+  public boolean getStartFromZero() {
+    return _boolStartFromZero;
+  }
+
+  public void setStartFromZero(boolean startFromZero) {
+    _boolStartFromZero = startFromZero;
   }
 
   public boolean getGridOn() {

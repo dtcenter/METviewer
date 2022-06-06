@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v4.1.0</TITLE>
+  <TITLE>METviewer v5.0-beta1</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -252,7 +252,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer v4.1.0<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer v5.0-beta1<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
@@ -482,14 +482,14 @@
 
             <td><label for="ci_alpha">Conf Interval Alpha</label>
               <input type="text" size="6" id="ci_alpha" value="0.05"></td>
-            <td><label for="eqbound_low">Lower equivalence bound</label>
-              <input type="text" size="6" id="eqbound_low" value="-0.001">(dz)</td>
+            <td><label >Equivalence bounds</label>
+              <input type="text" size="6" id="eqbound_low" value="-0.001"><input type="text" size="6" id="eqbound_high" value="0.001">(dz)</td>
           </tr>
           <tr>
             <td><input type="checkbox" id="is_python" checked/>
               <label for="is_python">Use Python</label></td>
-            <td><label for="eqbound_high">Upper equivalence bound</label>
-              <input type="text" size="6" id="eqbound_high" value="0.001">(dz)</td>
+            <td><input type="checkbox" id="start_from_zero"/>
+              <label for="start_from_zero">Start from zero</label></td>
           </tr>
 
         </table>
