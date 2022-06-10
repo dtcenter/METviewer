@@ -215,7 +215,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         String[] ungrouped = val.getName().split(GROUP_SEPARATOR);
         for(String ungroupedVal : ungrouped) {
           if (!uniqueValues.contains(ungroupedVal)) {
-            uniqueValues.add(val.getName());
+            uniqueValues.add(ungroupedVal);
           }
         }
       }
