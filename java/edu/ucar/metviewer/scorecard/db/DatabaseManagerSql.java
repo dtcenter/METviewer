@@ -209,17 +209,15 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       if (selectFields.indexOf(columnEntry.getKey()) == -1) {
         selectFields.append(columnEntry.getKey()).append(",");
       }
-      StringBuilder values = new StringBuilder();
+      List<String> uniqueValues = new ArrayList<>();
+
       for (Entry val : columnEntry.getValue()) {
-        if (values.indexOf(val.getName()) == -1) {
-          values.append(val.getName()).append(GROUP_SEPARATOR);
+        if (!uniqueValues.contains(val.getName())){
+          uniqueValues.add(val.getName());
         }
       }
-      if (values.length() > 0) {
-        values.deleteCharAt(values.length() - 1);
-      }
       whereFields.append(BINARY).append(columnEntry.getKey()).append(" IN ('")
-              .append(values.toString().replaceAll(GROUP_SEPARATOR, "','")).append("') AND ");
+              .append(String.join("','", uniqueValues)).append("') AND ");
     }
 
 
