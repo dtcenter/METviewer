@@ -5,23 +5,6 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
-Version `v5.0.0-beta1 <https://github.com/dtcenter/METviewer>`_ release notes (20220622)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* New Features:
-   * Allow line plots start from y=0 line (`#390 <https://github.com/dtcenter/METviewer/issues/390>`_)
-
-* Enhancements:
-    * Python implementation of the scorecard summary method (`#393 <https://github.com/dtcenter/METviewer/issues/393>`_)
-
-* Bugfixes:
-    * Include all field values into the resulting scorecard (`#395 <https://github.com/dtcenter/METviewer/issues/395>`_)
-
-* Internal:
-    * New testing procedure (`#391 <https://github.com/dtcenter/METviewer/issues/391>`_)
-
-
-
 Version `v4.1.0 <https://github.com/dtcenter/METviewer>`_ release notes (20220311)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
