@@ -6,7 +6,7 @@ describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
 Version `v5.0.0-beta1 <https://github.com/dtcenter/METviewer>`_ release notes (20220622)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * New Features:
    * Allow line plots start from y=0 line (`#390 <https://github.com/dtcenter/METviewer/issues/390>`_)
