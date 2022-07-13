@@ -79,7 +79,6 @@ cd ../..
 # This should probably all be straightened out a little but for now we fix it up here.
 ln -sf ${MET_DATA_DIR} ${METViewerTestDir}/met_data
 mkdir -p ${METViewerTestDir}/load_data/load/
-cp ${METViewerDir}/sql/mv_mysql.sql  ${METViewerTestDir}/load_data/load
 ln -sf ${METViewerTestDir}/test_data/test_cases ${METViewerTestDir}/plots_batch
 mv  ${METViewerTestDir}/test_data/test_cases/loading/load_test.xml ${METViewerTestDir}/load_data/load
 ln -sf ${METViewerDir}/R_tmpl ${METViewerTestDir}/R_tmpl

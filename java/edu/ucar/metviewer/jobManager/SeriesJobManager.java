@@ -268,6 +268,8 @@ public class SeriesJobManager extends JobManager {
         }
         yamlInfo.put("eqbound_low", job.getEqboundLow());
         yamlInfo.put("eqbound_high", job.getEqboundHigh());
+        yamlInfo.put("revision_ac", job.getRevisionAc()  ? "True" : "False");
+        yamlInfo.put("revision_run", job.getRevisionRun() ? "True" : "False");
 
         yamlInfo.put("stat_input", dataFileName);
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, listQuery);

@@ -408,12 +408,17 @@
         }
       });
       $('#calculations_statistics').show();
+      $('#revision_statistics').hide();
 
       $(' input[name="statistics"]').click(function () {
         $('#calculations_statistics').hide();
+        $('#revision_statistics').hide();
         $(this).prop("checked", true);
         $('#' + $(this).val()).show();
-
+        if ($(this).val() === "revision_statistics") {
+          $('#indy_var').val("fcst_valid_beg");
+          $("#indy_var").multiselect("refresh");
+        }
       });
         $.each(fix_var_value_to_title_stat_map, function (key, val) {
                              $('#fixed_var_1').append('<option value="' +
@@ -793,8 +798,10 @@
                id="calculations_statistics_label"/>
         <label for="calculations_statistics_label"> Summary</label>
 
-
-
+        <input type="radio" name="statistics"
+               value="revision_statistics"
+               id="revision_statistics_label"/>
+        <label for="revision_statistics_label">Revision statistics</label>
 
       </div>
 
@@ -821,6 +828,32 @@
 
         </table>
       </div>
+
+      <div id="revision_statistics">
+
+        <button class="help-button" style="float: right;bottom: 40px;"
+                alt="revis_stat">Help
+        </button>
+        <table style="width:100%">
+          <tr>
+            <td><select id="revis_stat">
+              <option value="none">None</option>
+              <option value="ctc">Contingency table count (CTC)</option>
+              <option value="sl1l2">Scalar partial sums (SL1L2)</option>
+              <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
+            </select>
+            </td>
+            <td><input id="revision_ac" type="checkbox"><label
+                    for="revision_ac">Add Auto-Correlation</label></td>
+            <td><input id="revision_run" type="checkbox"><label
+                    for="revision_run">Add Wald-Wolfowitz Runs Test</label></td>
+
+          </tr>
+
+        </table>
+
+      </div>
+    </div>
 
     </div>
 

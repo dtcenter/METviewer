@@ -199,7 +199,7 @@
                         }
                         $('#aggregation_statistics ').show();
                         $('#calculations_statistics ').hide();
-                        //$('#revision_statistics ').hide();
+                        $('#revision_statistics ').hide();
                     }
 
                     updateSeries();
@@ -383,6 +383,7 @@
 
             $('#aggregation_statistics ').hide();
             $('#calculations_statistics ').hide();
+            $('#revision_statistics ').hide();
 
             $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
             $("#fix_var_event_equal_1").prop('checked', false).prop('disabled', true);
@@ -456,8 +457,14 @@
             $(' input[name="statistics"]').click(function () {
                 $('#aggregation_statistics').hide();
                 $('#calculations_statistics').hide();
+                $('#revision_statistics').hide();
                 $(this).prop("checked", true);
                 $('#' + $(this).val()).show();
+                if($(this).val() === "revision_statistics"){
+                    $('#indy_var').val("fcst_valid_beg");
+                    $('#date_period_button').css("display", "block");
+                    $("#indy_var").multiselect("refresh");
+                }
             });
             $('#calculations_statistics').show();
 
@@ -946,6 +953,11 @@
                        id="aggregation_statistics_label"/>
                 <label for="aggregation_statistics_label">Aggregation
                     statistics</label>
+                <input type="radio" name="statistics"
+                       value="revision_statistics"
+                       id="revision_statistics_label"/>
+                <label for="revision_statistics_label">Revision
+                    statistics</label>
 
 
 
@@ -1047,7 +1059,7 @@
 
             </div>
 
-            <%--<div id="revision_statistics">
+            <div id="revision_statistics">
 
                 <button class="help-button" style="float: right;bottom: 40px;"
                         alt="revis_stat">Help
@@ -1072,7 +1084,7 @@
 
                 </table>
 
-            </div>--%>
+            </div>
 
             <div id="none"></div>
         </div>

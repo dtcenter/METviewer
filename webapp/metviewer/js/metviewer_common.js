@@ -2662,19 +2662,19 @@ function updateSeriesHist() {
         number_series++;
         newSeriesData.push(series_formatting);
     }
-    for (var i=0; i< lines.length; i++){
+    for (var i = 0; i < lines.length; i++) {
         series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
         series_formatting.title = lines[i].type + '(' + lines[i].line_pos + ')';
         series_formatting.y_axis = "Y1";
         series_formatting.order = '';
         series_formatting.id = number_series + 1;
-        if(lines[i].hasOwnProperty("color")){
+        if (lines[i].hasOwnProperty("color")) {
             series_formatting.color = lines[i].color;
         }
-        if(lines[i].hasOwnProperty("lty")){
+        if (lines[i].hasOwnProperty("lty")) {
             series_formatting.lty = lines[i].lty;
         }
-        if(lines[i].hasOwnProperty("lwd")){
+        if (lines[i].hasOwnProperty("lwd")) {
             series_formatting.lwd = lines[i].lwd;
         }
         number_series++;
@@ -2749,7 +2749,7 @@ function updateSeriesVarValHist(index, selectedVals) {
                 var opt, selected;
                 var options = [];
                 if (values.length > 0) {
-                    if(selectedVals && selectedVals.length > 0) {
+                    if (selectedVals && selectedVals.length > 0) {
                         $("#series_var_table_y" + index).css("display", '');
                     }
                     for (var i = 0; i < values.length; i++) {
@@ -2982,19 +2982,19 @@ function updateSeriesEns() {
         number_series++;
         newSeriesData.push(series_formatting);
     }
-    for (var i=0; i< lines.length; i++){
+    for (var i = 0; i < lines.length; i++) {
         series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
         series_formatting.title = lines[i].type + '(' + lines[i].line_pos + ')';
         series_formatting.y_axis = "Y1";
         series_formatting.order = '';
         series_formatting.id = number_series + 1;
-        if(lines[i].hasOwnProperty("color")){
+        if (lines[i].hasOwnProperty("color")) {
             series_formatting.color = lines[i].color;
         }
-        if(lines[i].hasOwnProperty("lty")){
+        if (lines[i].hasOwnProperty("lty")) {
             series_formatting.lty = lines[i].lty;
         }
-        if(lines[i].hasOwnProperty("lwd")){
+        if (lines[i].hasOwnProperty("lwd")) {
             series_formatting.lwd = lines[i].lwd;
         }
         number_series++;
@@ -3491,19 +3491,19 @@ function updateSeries(isCheckAll) {
     }
     seriesDiffY2 = seriesDiff;
 
-    for (var i=0; i< lines.length; i++){
+    for (var i = 0; i < lines.length; i++) {
         series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
         series_formatting.title = lines[i].type + '(' + lines[i].line_pos + ')';
         series_formatting.y_axis = "Y1";
         series_formatting.order = '';
         series_formatting.id = number_series + 1;
-        if(lines[i].hasOwnProperty("color")){
+        if (lines[i].hasOwnProperty("color")) {
             series_formatting.color = lines[i].color;
         }
-        if(lines[i].hasOwnProperty("lty")){
+        if (lines[i].hasOwnProperty("lty")) {
             series_formatting.lty = lines[i].lty;
         }
-        if(lines[i].hasOwnProperty("lwd")){
+        if (lines[i].hasOwnProperty("lwd")) {
             series_formatting.lwd = lines[i].lwd;
         }
         number_series++;
@@ -3547,8 +3547,6 @@ function updateSeries(isCheckAll) {
             }
         }
     }
-
-
 
 
     if (currentTab === 'Contour') {
@@ -4375,9 +4373,9 @@ function createXMLCommon(plot) {
 
     var allSeries = sortSeries();
     var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [],
-        orderArr = [], legendArr = [], showSignArr = [], linesArr=[];
+        orderArr = [], legendArr = [], showSignArr = [], linesArr = [];
     for (var i = 0; i < allSeries.length; i++) {
-        if(allSeries[i].order !==''){
+        if (allSeries[i].order !== '') {
             // only for the real series and not lines
             ciArr.push('"' + allSeries[i].plot_ci + '"');
             if (allSeries[i].hide === "No") {
@@ -4398,21 +4396,21 @@ function createXMLCommon(plot) {
             conArr.push(allSeries[i].con_series);
             orderArr.push(allSeries[i].order);
             legendArr.push('"' + allSeries[i].legend + '"');
-        }else{
+        } else {
             var title = allSeries[i].title;
             var type = title.split('(')[0];
-            var linePos =title.split('(')[1].split(')')[0];
+            var linePos = title.split('(')[1].split(')')[0];
             linesArr.push($('<line />').attr("type", type).attr("line_pos", linePos)
                 .attr('color', allSeries[i].color)
-                    .attr('lty', allSeries[i].lty)
-                    .attr('lwd', allSeries[i].lwd));
+                .attr('lty', allSeries[i].lty)
+                .attr('lwd', allSeries[i].lwd));
 
         }
     }
-    
-    if(linesArr.length > 0){
+
+    if (linesArr.length > 0) {
         var lines_xml = $('<lines />');
-        for(var h = 0; h<linesArr.length; h++){
+        for (var h = 0; h < linesArr.length; h++) {
             lines_xml.append(linesArr[h]);
         }
         plot.append(lines_xml);
@@ -6024,11 +6022,11 @@ function loadXMLStatistics(fcst_stat) {
 
 function loadXMLEclv() {
     var linesEl = $(initXML.find("plot").find("lines"));
-    if (linesEl){
+    if (linesEl) {
         var linesArr = $(linesEl.find("line"));
-        for (var j=0; j<linesArr.length; j++){
+        for (var j = 0; j < linesArr.length; j++) {
             var line = {
-                'type': linesArr[j].attributes.type.nodeValue ,
+                'type': linesArr[j].attributes.type.nodeValue,
                 'line_pos': linesArr[j].attributes.line_pos.nodeValue,
                 'color': linesArr[j].attributes.color.nodeValue,
                 'lty': linesArr[j].attributes.lty.nodeValue,
@@ -6078,11 +6076,11 @@ function loadXMLRoc() {
     var series_var_val;
     $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true").trigger("change");
     var linesEl = $(initXML.find("plot").find("lines"));
-    if (linesEl){
+    if (linesEl) {
         var linesArr = $(linesEl.find("line"));
-        for (var j=0; j<linesArr.length; j++){
+        for (var j = 0; j < linesArr.length; j++) {
             var line = {
-                'type': linesArr[j].attributes.type.nodeValue ,
+                'type': linesArr[j].attributes.type.nodeValue,
                 'line_pos': linesArr[j].attributes.line_pos.nodeValue,
                 'color': linesArr[j].attributes.color.nodeValue,
                 'lty': linesArr[j].attributes.lty.nodeValue,
@@ -6114,7 +6112,7 @@ function loadXMLRoc() {
             }
             updateSeriesVarValHist((i + 1), series_var_val);
 
-            if (i === 0){
+            if (i === 0) {
                 $("#series_var_val_y1_1").multiselect({
                     selectedList: 100, // 0-based index
                     noneSelectedText: "Select value",
@@ -6157,7 +6155,7 @@ function loadXMLRoc() {
                 });
             }
 
-            if (i<series_arr.length-1) {
+            if (i < series_arr.length - 1) {
                 addSeriesVarHist();
             }
 
@@ -6199,11 +6197,11 @@ function loadXMLRoc() {
 
 function loadXMLHist() {
     var linesEl = $(initXML.find("plot").find("lines"));
-    if (linesEl){
+    if (linesEl) {
         var linesArr = $(linesEl.find("line"));
-        for (var j=0; j<linesArr.length; j++){
+        for (var j = 0; j < linesArr.length; j++) {
             var line = {
-                'type': linesArr[j].attributes.type.nodeValue ,
+                'type': linesArr[j].attributes.type.nodeValue,
                 'line_pos': linesArr[j].attributes.line_pos.nodeValue,
                 'color': linesArr[j].attributes.color.nodeValue,
                 'lty': linesArr[j].attributes.lty.nodeValue,
@@ -6239,7 +6237,7 @@ function loadXMLHist() {
             }
             $(series_arr[i]).find("val").each(function () {
                 var vals = $(this).text().match(/\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/g);
-                if (!vals  || vals.length === 0){
+                if (!vals || vals.length === 0) {
                     vals = $(this).text().split(":");
                 }
                 for (var k = 0; k < vals.length; k++) {
@@ -6267,11 +6265,11 @@ function loadXMLHist() {
 function loadXMLRely() {
 
     var linesEl = $(initXML.find("plot").find("lines"));
-    if (linesEl){
+    if (linesEl) {
         var linesArr = $(linesEl.find("line"));
-        for (var j=0; j<linesArr.length; j++){
+        for (var j = 0; j < linesArr.length; j++) {
             var line = {
-                'type': linesArr[j].attributes.type.nodeValue ,
+                'type': linesArr[j].attributes.type.nodeValue,
                 'line_pos': linesArr[j].attributes.line_pos.nodeValue,
                 'color': linesArr[j].attributes.color.nodeValue,
                 'lty': linesArr[j].attributes.lty.nodeValue,
@@ -6312,7 +6310,6 @@ function loadXMLRely() {
     updatePlotFix();
 
 
-    
     if (initXML.find("plot").find("summary_curve") && initXML.find("plot").find("summary_curve").children().length > 0) {
         var stats = initXML.find("plot").find("summary_curve").children();
         for (var i = 0; i < stats.length; i++) {
@@ -6367,11 +6364,11 @@ function loadXMLRely() {
 
 function loadXMLEns() {
     var linesEl = $(initXML.find("plot").find("lines"));
-    if (linesEl){
+    if (linesEl) {
         var linesArr = $(linesEl.find("line"));
-        for (var j=0; j<linesArr.length; j++){
+        for (var j = 0; j < linesArr.length; j++) {
             var line = {
-                'type': linesArr[j].attributes.type.nodeValue ,
+                'type': linesArr[j].attributes.type.nodeValue,
                 'line_pos': linesArr[j].attributes.line_pos.nodeValue,
                 'color': linesArr[j].attributes.color.nodeValue,
                 'lty': linesArr[j].attributes.lty.nodeValue,
@@ -6606,7 +6603,7 @@ function loadXMLSeries() {
                 }
                 $(series_arr[i]).find("val").each(function () {
                     var vals = $(this).text().match(/\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/g);
-                    if (!vals  || vals.length === 0){
+                    if (!vals || vals.length === 0) {
                         vals = $(this).text().split(":");
                     }
                     if (vals.length > 2) {
@@ -6626,7 +6623,7 @@ function loadXMLSeries() {
                 updateSeriesVarVal(y_axis, (i + 1), series_var_val);
                 if (isGroup === true) {
                     $('#group_series_var_' + y_axis + "_" + (i + 1)).prop('checked', true);
-                }else {
+                } else {
                     $('#group_series_var_' + y_axis + "_" + (i + 1)).prop('checked', false);
                 }
             }
@@ -6701,11 +6698,11 @@ function loadXMLSeries() {
     }
 
     var linesEl = $(initXML.find("plot").find("lines"));
-    if (linesEl){
+    if (linesEl) {
         var linesArr = $(linesEl.find("line"));
-        for (var j=0; j<linesArr.length; j++){
+        for (var j = 0; j < linesArr.length; j++) {
             var line = {
-                'type': linesArr[j].attributes.type.nodeValue ,
+                'type': linesArr[j].attributes.type.nodeValue,
                 'line_pos': linesArr[j].attributes.line_pos.nodeValue,
                 'color': linesArr[j].attributes.color.nodeValue,
                 'lty': linesArr[j].attributes.lty.nodeValue,
@@ -6774,7 +6771,7 @@ function loadXMLContour() {
         }
         $(series_arr[0]).find("val").each(function () {
             var vals = $(this).text().match(/\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/g);
-            if (!vals  || vals.length === 0){
+            if (!vals || vals.length === 0) {
                 vals = $(this).text().split(":");
             }
             for (var k = 0; k < vals.length; k++) {
@@ -7737,7 +7734,6 @@ function initPage() {
     });
 
 
-
     var addLineDialogForm = $("#addLineDialogForm").dialog({
         autoOpen: false,
         height: "auto",
@@ -7747,8 +7743,8 @@ function initPage() {
             "Add line": function () {
                 var valid = false;
                 valid = true;
-                var lineType =  $("input[name='line_type']:checked").val();
-                var linePos  =  $("#line_pos").val();
+                var lineType = $("input[name='line_type']:checked").val();
+                var linePos = $("#line_pos").val();
                 var line = {
                     'type': lineType,
                     'line_pos': linePos
@@ -7759,9 +7755,9 @@ function initPage() {
                 if (valid) {
                     if (currentTab === 'Hist' || currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Eclv') {
                         updateSeriesHist();
-                    }else if (currentTab === 'Ens_ss'){
+                    } else if (currentTab === 'Ens_ss') {
                         updateSeriesEns();
-                    }else {
+                    } else {
                         updateSeries();
                     }
                 }
@@ -7877,8 +7873,10 @@ function initPage() {
         onClickButton: function () {
             if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Ens_ss'
                 || currentTab === 'Perf' || currentTab === "Hist" || currentTab === "Eclv"
-                || currentTab === "Contour") {
+                || currentTab === "Contour"
+                || $("input:radio[name ='statistics']:checked").val() === 'revision_statistics') {
                 unavailableDiffCurveDialogForm.dialog("open");
+                
             } else {
                 var allSeries = $("#listdt").jqGrid('getRowData');
                 if (allSeries.length > 1) {
@@ -7916,13 +7914,13 @@ function initPage() {
                             titleArr[i] = titleArr[i].replace('"', "");
                         }
                         title = titleArr.join() + ",RATIO";
-                    } else if (rowData.title.startsWith("SS")){
+                    } else if (rowData.title.startsWith("SS")) {
                         titleArr = titleMinusOne.replace("SS (", "").split('"and"');
                         for (var i = 0; i < titleArr.length; i++) {
                             titleArr[i] = titleArr[i].replace('"', "");
                         }
                         title = titleArr.join() + ",SS";
-                    }else{
+                    } else {
                         titleArr = titleMinusOne.replace("ETB (", "").split('"and"');
                         for (var i = 0; i < titleArr.length; i++) {
                             titleArr[i] = titleArr[i].replace('"', "");
@@ -7968,20 +7966,20 @@ function initPage() {
                 $(idSelector).find(".ui-jqdialog-titlebar-close").focus();
             }
         }
-    }) 
+    })
 
         .jqGrid('navButtonAdd', '#pagerdt', {
-        caption: "Add Line",
-        title: "Add Line",
-        buttonicon: "ui-icon-plus",
-        onClickButton: function () {
-            if (currentTab === 'Perf' || currentTab === "Taylor"  || currentTab === "Contour") {
-                unavailableLineDialogForm.dialog("open");
-            } else {
-                addLineDialogForm.dialog("open");
+            caption: "Add Line",
+            title: "Add Line",
+            buttonicon: "ui-icon-plus",
+            onClickButton: function () {
+                if (currentTab === 'Perf' || currentTab === "Taylor" || currentTab === "Contour") {
+                    unavailableLineDialogForm.dialog("open");
+                } else {
+                    addLineDialogForm.dialog("open");
+                }
             }
-        }
-    })
+        })
         .jqGrid('navButtonAdd', '#pagerdt', {
             caption: "Remove Line",
             title: "Remove Line",
@@ -7994,16 +7992,16 @@ function initPage() {
                         || rowData.title.startsWith("horiz_line")) {
                         $(this).jqGrid('delRowData', sr);
                         var index_to_remove = null
-                        for (var i=0; i< lines.length; i++){
+                        for (var i = 0; i < lines.length; i++) {
                             var title = rowData.title;
                             var type = title.split('(')[0];
-                            var linePos =title.split('(')[1].split(')')[0];
-                            if(lines[i].type === type && lines[i].line_pos === linePos ){
-                                index_to_remove =i;
+                            var linePos = title.split('(')[1].split(')')[0];
+                            if (lines[i].type === type && lines[i].line_pos === linePos) {
+                                index_to_remove = i;
                                 break;
                             }
                         }
-                        if(index_to_remove !== null){
+                        if (index_to_remove !== null) {
                             lines.splice(index_to_remove, 1);
                         }
                     }
@@ -8019,16 +8017,16 @@ function initPage() {
         })
 
         .jqGrid('navButtonAdd', '#pagerdt', {
-        caption: "Apply defaults",
-        title: "Apply defaults",
-        buttonicon: "ui-icon-transferthick-e-w",
-        onClickButton: function () {
-            alert("defaults..")
-        }
-    });
+            caption: "Apply defaults",
+            title: "Apply defaults",
+            buttonicon: "ui-icon-transferthick-e-w",
+            onClickButton: function () {
+                alert("defaults..")
+            }
+        });
     $("#listdt").setGridWidth($(window).width() - 20);
 
-     var unavailableDiffCurveDialogForm = $("#unavailableDiffCurveDialogForm").dialog({
+    var unavailableDiffCurveDialogForm = $("#unavailableDiffCurveDialogForm").dialog({
         autoOpen: false,
         height: "auto",
         width: "auto",

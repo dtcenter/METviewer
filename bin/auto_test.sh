@@ -260,8 +260,6 @@ cd $cdir
 # This should probably all be straightened out a little but for now we fix it up here.
 ln -sf ${MET_DATA_DIR}/met_data ${METviewerBranchTestDir}
 mkdir -p ${METviewerBranchTestDir}/load_data/load/
-cp ${METviewerDir}/sql/mv_mysql.sql  ${METviewerBranchTestDir}/load_data/load
-cp ${METviewerBranchTestDir}/test_data/test_cases/loading/load_test.xml ${METviewerBranchTestDir}/load_data/load
 # replace host database user and password in load_test.xml
 
 

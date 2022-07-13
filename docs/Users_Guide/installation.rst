@@ -211,12 +211,14 @@ _____________________________
 
 3. Create a METviewer database:
 
+   * Clone METdatadb repositiry: https://github.com/dtcenter/METdatadb.git
+
    * Create a database to store MET data, which has the prefix
      'mv\_', e.g. mv_met_data:
 
    .. code-block:: none
 
-        cd METviewer
+        cd METdatadb/METdbLoad/sql
         mysql -u[db_username] -p[db_password] -e'create database [db_name];'
         mysql -u[db_username] -p[db_password] [db_name] < sql/mv_mysql.sql
 
