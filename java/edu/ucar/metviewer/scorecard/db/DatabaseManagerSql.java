@@ -206,9 +206,22 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
     }
 
     for (Map.Entry<String, List<Entry>> columnEntry : columnsDescription.entrySet()) {
-      if (selectFields.indexOf(columnEntry.getKey()) == -1) {
-        selectFields.append(columnEntry.getKey()).append(",");
+      String fieldName = columnEntry.getKey();
+      String fieldNameAdjusted = columnEntry.getKey();
+      String fieldNameAdjustedWhere = columnEntry.getKey();
+      if (fieldName.equals("fcst_lead")){
+        fieldNameAdjusted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+                + "WHERE model_fcst_lead_offset.model = model) is NULL , "
+                + "fcst_lead , fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset "
+                + "WHERE model_fcst_lead_offset.model = model) ) fcst_lead";
+        fieldNameAdjustedWhere = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+                + "WHERE model_fcst_lead_offset.model = model) is NULL , "
+                + "fcst_lead , fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset "
+                + "WHERE model_fcst_lead_offset.model = model) ) ";
       }
+
+      selectFields.append(fieldNameAdjusted).append(",");
+
       List<String> uniqueValues = new ArrayList<>();
 
       for (Entry val : columnEntry.getValue()) {
@@ -219,7 +232,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           }
         }
       }
-      whereFields.append(BINARY).append(columnEntry.getKey()).append(" IN ('")
+      whereFields.append(BINARY).append(fieldNameAdjustedWhere).append(" IN ('")
               .append(String.join("','", uniqueValues)).append("') AND ");
     }
 
@@ -229,7 +242,11 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       selectFields.append("fcst_valid_beg,");
     }
     if (selectFields.indexOf("fcst_lead") == -1) {
-      selectFields.append("fcst_lead,");
+      //selectFields.append("fcst_lead,");
+      selectFields.append(" if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+              + "WHERE model_fcst_lead_offset.model = model) is NULL , "
+              + "fcst_lead , fcst_lead + (select model_fcst_lead_offset FROM model_fcst_lead_offset "
+              + "WHERE fcst_lead_offset.model = model) ) fcst_lead, ");
     }
 
 
