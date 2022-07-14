@@ -75,7 +75,7 @@ install the latest version. Install required R packages:
 
 * metplotpy
 
-* metdatadb
+* metdataio
 
 * netcdf4 1.5.1.2
 
@@ -211,14 +211,14 @@ _____________________________
 
 3. Create a METviewer database:
 
-   * Clone METdatadb repositiry: https://github.com/dtcenter/METdatadb.git
+   * Clone METdataio repositiry: https://github.com/dtcenter/METdataio.git
 
    * Create a database to store MET data, which has the prefix
      'mv\_', e.g. mv_met_data:
 
    .. code-block:: none
 
-        cd METdatadb/METdbLoad/sql
+        cd METdataio/METdbLoad/sql
         mysql -u[db_username] -p[db_password] -e'create database [db_name];'
         mysql -u[db_username] -p[db_password] [db_name] < sql/mv_mysql.sql
 

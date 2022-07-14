@@ -8,7 +8,7 @@ MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 ARG METVIEWER_GIT_NAME 
 ARG METCALCPY_GIT_NAME
 ARG METPLOTPY_GIT_NAME
-ARG METDATADB_GIT_NAME
+ARG METDATAIO_GIT_NAME
 
 #
 # Constants
@@ -20,7 +20,7 @@ ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
 ENV METVIEWER_GIT_URL  https://github.com/dtcenter/METviewer
 ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
 ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
-ENV METDATADB_GIT_URL  https://github.com/dtcenter/METdatadb
+ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
 
 #
 # METVIEWER_GIT_NAME is required.
@@ -53,13 +53,13 @@ RUN if [ "x${METPLOTPY_GIT_NAME}" = "x" ]; then \
     fi
 
 #
-# METDATADB_GIT_NAME is required.
+# METDATAIO_GIT_NAME is required.
 #
-RUN if [ "x${METDATADB_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METDATADB_GIT_NAME undefined! Rebuild with \"--build-arg METDATADB_GIT_NAME={branch, tag, or hash}\""; \
+RUN if [ "x${METDATAIO_GIT_NAME}" = "x" ]; then \
+      echo "ERROR: METDATAIO_GIT_NAME undefined! Rebuild with \"--build-arg METDATAIO_GIT_NAME={branch, tag, or hash}\""; \
       exit 1; \
     else \
-      echo "Build Argument METDATADB_GIT_NAME=${METDATADB_GIT_NAME}"; \
+      echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"; \
     fi
 
 #
@@ -127,10 +127,10 @@ RUN mkdir /METviewer-python \
  && git clone ${METPLOTPY_GIT_URL} /METviewer-python/METplotpy \
  && cd /METviewer-python/METplotpy \
  && git checkout ${METPLOTPY_NAME_TAG} \
- && echo "Checking out METdatadb ${METDATADB_GIT_NAME} from ${METDATADB_GIT_URL}" \
- && git clone ${METDATADB_GIT_URL} /METviewer-python/METdatadb \
- && cd /METviewer-python/METdatadb \
- && git checkout ${METDATADB_NAME_TAG}
+ && echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}" \
+ && git clone ${METDATAIO_GIT_URL} /METviewer-python/METdataio \
+ && cd /METviewer-python/METdataio \
+ && git checkout ${METDATAIO_NAME_TAG}
 
 #
 # Install METviewer
@@ -170,7 +170,7 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
  && mv mv_batch.sh-DOCKER mv_batch.sh \
  && cat mv_load.sh | \
     sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local/%g'  | \
-    sed -r 's%METDATADB_HOME=.*%METDATADB_HOME=/METviewer-python/METdatadb/%g' \
+    sed -r 's%METDATAIO_HOME=.*%METDATAIO_HOME=/METviewer-python/METdataio/%g' \
     >  mv_load.sh-DOCKER \
  && mv mv_load.sh-DOCKER mv_load.sh \
  && cat mv_scorecard.sh | \
