@@ -1,8 +1,8 @@
 #!/bin/bash
 
 PYTHON_ENV=<path_to_python_env>
-METDATADB_HOME=<path_to_metdatadb_home>
+METDATAIO_HOME=<path_to_metdataio_home>
 
-export PYTHONPATH=${PYTHONPATH}:$METDATADB_HOME
+export PYTHONPATH=${PYTHONPATH}:$METDATAIO_HOME
 
-$PYTHON_ENV/bin/python  $METDATADB_HOME/METdbLoad/ush/met_db_load.py $@
+$PYTHON_ENV/bin/python  $METDATAIO_HOME/METdbLoad/ush/met_db_load.py $@

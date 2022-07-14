@@ -41,8 +41,8 @@
     use -Dmetplotpy.path to define a path to METplotpy directory.
         e.g -Dmetplotpy.path=/d1/python/METplotpy/
 
-    use -Dmetdatadb.path to define a path to METdatadb directory.
-        e.g -Dmetdatadb.path=/d1/python/METplotpy/
+    use -Dmetdataio.path to define a path to METdataio directory.
+        e.g -Dmetdataio.path=/d1/python/METdataio/
 
         use -Dpython.env.path to define a path to METplotpy directory.
         e.g -Dpython.env.path=/d1/python/METviewer_py3.6.3/
@@ -51,7 +51,7 @@
     ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties \
          -Dlog4j2.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml \
          -Ddb.management.system=cb -Dmetcalcpy.path=/d1/python/METcalcpy/ -Dmetplotpy.path=/d1/python/METplotpy/\
-         -Dmetdatadb.path=/d1/python/METdatadb/ -Dpython.env.path=/d1/python/METviewer_py3.6.3/ -Dcontext.path.suffix="-cb" clean all
+         -Dmetdataio.path=/d1/python/METdataio/ -Dpython.env.path=/d1/python/METviewer_py3.6.3/ -Dcontext.path.suffix="-cb" clean all
 
     will produce a war file named metviewer-cb.war with jar files appropriate for couchbase and the properties from the
     $HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties file, and a tar file
@@ -659,7 +659,7 @@
             description="Create load_batch module" >
         <fail unless="metcalcpy.path">You must specify the path to METcalcpy directory</fail>
         <fail unless="metplotpy.path">You must specify the path to METplotpy directory</fail>
-        <fail unless="metdatadb.path">You must specify the path to METdatadb directory</fail>
+        <fail unless="metdataio.path">You must specify the path to METdataio directory</fail>
         <fail unless="python.env.path">You must specify the path to METviewer_py3.6.3</fail>
 
         <tar destfile="${dist}/batch_load.tar" >
@@ -691,7 +691,7 @@
                 <include name="metcalcpy/**"/>
             </tarfileset>
 
-            <tarfileset dir="${metdatadb.path}"  prefix="METcalcpy/">
+            <tarfileset dir="${metdataio.path}"  prefix="METdataio/">
                 <include name="METdbLoad/**"/>
                 <include name="docs/**"/>
                 <include name="README.md"/>

@@ -86,10 +86,10 @@ while getopts "t:m:d:u:p:P:k:h:j:cnls:e:a:r:g:?" o; do
             ;;
         g)
             if [ ! -d "${OPTARG}" ]; then
-              echo "METDATADB_HOME directory ${OPTARG} does not exist"
-            	OPTARG="/d3/projects/METViewer/METdatadb/"
+              echo "METDATAIO_HOME directory ${OPTARG} does not exist"
+            	OPTARG="/d3/projects/METViewer/METdataio/"
             fi
-            METDATADB_HOME="${OPTARG}"
+            METDATAIO_HOME="${OPTARG}"
             ;;
 		?)
 		usage
@@ -148,12 +148,12 @@ else
 	echo "METPLOTPY_HOME is set to ${METPLOTPY_HOME}"
 fi
 
-if [ -z ${METDATADB_HOME+x} ]; then
+if [ -z ${METDATAIO_HOME+x} ]; then
 	echo "METDATABD_HOME is unset"
-	echo "setting it to /d3/projects/METViewer/METdatadb/"
-	METDATADB_HOME=/d3/projects/METViewer/METdatadb/
+	echo "setting it to /d3/projects/METViewer/METdataio/"
+	METDATAIO_HOME=/d3/projects/METViewer/METdataio/
 else
-	echo "METDATABD_HOME is set to ${METDATADB_HOME}"
+	echo "METDATAIO_HOME is set to ${METDATAIO_HOME}"
 fi
 
 # construct the classpath
