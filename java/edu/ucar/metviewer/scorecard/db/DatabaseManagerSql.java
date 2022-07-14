@@ -87,8 +87,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
               + aggStatDataFilePath.substring(lastDot);
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
-      for(int i=0; i< databaseNames.size(); i++) {
-        boolean newFile = ( i == 0);
+      for (int i = 0; i < databaseNames.size(); i++) {
+        boolean newFile = (i == 0);
         try (Connection con = databaseManager.getConnection(databaseNames.get(i));
              PreparedStatement pstmt = con.prepareStatement(mysql);
              ResultSet res = pstmt.executeQuery();
@@ -149,28 +149,27 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         int fixedFieldValsSize = fixedField.getValues().size();
         boolean isSizeEven = fixedFieldValsSize % 2 == 0;
         whereFields.append("(");
-        if(isSizeEven){
-          for(int i=0; i< fixedFieldValsSize; i=i+2){
+        if (isSizeEven) {
+          for (int i = 0; i < fixedFieldValsSize; i = i + 2) {
             whereFields.append(fixedField.getName()).append(" BETWEEN ").append("'")
                     .append(fixedField.getValues().get(i).getName()).append("' AND '")
-                    .append(fixedField.getValues().get(i+1).getName());
-            if(i<fixedFieldValsSize-2){
+                    .append(fixedField.getValues().get(i + 1).getName());
+            if (i < fixedFieldValsSize - 2) {
               whereFields.append("' OR ");
-            }else {
+            } else {
               whereFields.append("') AND ");
             }
           }
-        }else {
-          for(int i=0; i< fixedFieldValsSize-1; i=i+2){
+        } else {
+          for (int i = 0; i < fixedFieldValsSize - 1; i = i + 2) {
             whereFields.append(fixedField.getName()).append(" BETWEEN ").append("'")
                     .append(fixedField.getValues().get(i).getName()).append("' AND '")
-                    .append(fixedField.getValues().get(i+1).getName()).append("' OR ");
+                    .append(fixedField.getValues().get(i + 1).getName()).append("' OR ");
           }
           whereFields.append(fixedField.getName()).append(" = '")
-                  .append(fixedField.getValues().get(fixedFieldValsSize-1).getName())
+                  .append(fixedField.getValues().get(fixedFieldValsSize - 1).getName())
                   .append("') AND ");
         }
-
 
 
       } else if ("init_hour".equals(fixedField.getName())) {
@@ -209,16 +208,24 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       String fieldName = columnEntry.getKey();
       String fieldNameAdjusted = columnEntry.getKey();
       String fieldNameAdjustedWhere = columnEntry.getKey();
-      if (fieldName.equals("fcst_lead")){
+      if (fieldName.equals("fcst_lead")) {
         fieldNameAdjusted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                + "WHERE model_fcst_lead_offset.model = model) is NULL , "
+                + "WHERE model_fcst_lead_offset.model = stat_header.model) is NULL , "
                 + "fcst_lead , fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset "
-                + "WHERE model_fcst_lead_offset.model = model) ) fcst_lead";
+                + "WHERE model_fcst_lead_offset.model = stat_header.model) ) fcst_lead";
         fieldNameAdjustedWhere = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                + "WHERE model_fcst_lead_offset.model = model) is NULL , "
+                + "WHERE model_fcst_lead_offset.model = stat_header.model) is NULL , "
                 + "fcst_lead , fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset "
-                + "WHERE model_fcst_lead_offset.model = model) ) ";
+                + "WHERE model_fcst_lead_offset.model = stat_header.model) ) ";
       }
+     /* if (fieldName.equals("fcst_valid_beg")) {
+        fieldNameAdjusted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+                + "WHERE model_fcst_lead_offset.model = stat_header.model) is NULL , "
+                + "fcst_valid_beg , ADDTIME(fcst_valid_beg , (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model_fcst_lead_offset.model = model) ) ) fcst_valid_beg";
+        fieldNameAdjustedWhere = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+                + "WHERE model_fcst_lead_offset.model = stat_header.model) is NULL , "
+                + "fcst_valid_beg , ADDTIME(fcst_valid_beg , (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model_fcst_lead_offset.model = model) ) )";
+      }*/
 
       selectFields.append(fieldNameAdjusted).append(",");
 
@@ -226,7 +233,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
       for (Entry val : columnEntry.getValue()) {
         String[] ungrouped = val.getName().split(GROUP_SEPARATOR);
-        for(String ungroupedVal : ungrouped) {
+        for (String ungroupedVal : ungrouped) {
           if (!uniqueValues.contains(ungroupedVal)) {
             uniqueValues.add(ungroupedVal);
           }
@@ -240,13 +247,16 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
     //add necessary fields
     if (selectFields.indexOf("fcst_valid_beg") == -1) {
       selectFields.append("fcst_valid_beg,");
+      //   selectFields.append(" if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+      //          + "WHERE model_fcst_lead_offset.model = stat_header.model) is NULL , "
+      //           + "fcst_valid_beg , ADDTIME(fcst_valid_beg , (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model_fcst_lead_offset.model = stat_header.model) ) ) fcst_valid_beg, " );
     }
     if (selectFields.indexOf("fcst_lead") == -1) {
       //selectFields.append("fcst_lead,");
       selectFields.append(" if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-              + "WHERE model_fcst_lead_offset.model = model) is NULL , "
+              + "WHERE model_fcst_lead_offset.model = stat_header.model) is NULL , "
               + "fcst_lead , fcst_lead + (select model_fcst_lead_offset FROM model_fcst_lead_offset "
-              + "WHERE fcst_lead_offset.model = model) ) fcst_lead, ");
+              + "WHERE fcst_lead_offset.model = stat_header.model) ) fcst_lead, ");
     }
 
 
@@ -272,7 +282,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           pctThreshList.add(pctThreshInfo.get("pctThresh"));
         }
       }
-    }else {
+    } else {
       pctThreshList.add(0);
     }
 
@@ -286,7 +296,6 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
     if (errors.isEmpty() && allEqual) {
       selectFields.append(getSelectFields(table, pctThreshList.get(0)));
-
 
 
       //make sure that selectFields doesn't have "," as the last element
@@ -313,9 +322,9 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       }
       return "SELECT " + selectFields + " FROM stat_header," + table + " WHERE " + whereFields;
     } else {
-      if(!errors.isEmpty()){
+      if (!errors.isEmpty()) {
         logger.info(errors.get(0));
-      }else {
+      } else {
         logger.info("number of  pnts  not distinct for " + whereFields);
       }
       return null;
@@ -389,6 +398,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
               "  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
   }
+
   private Map<String, Integer> getPctThreshInfo(String query, String currentDBName) {
     int numPctThresh = 0;
     int pctThresh = -1;
