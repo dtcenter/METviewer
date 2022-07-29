@@ -501,7 +501,7 @@ public class MVUtil {
     statsCtc.put("CTC_FY", new String[]{CTC});
     statsCtc.put("CTC_FN", new String[]{CTC});
     statsCtc.put("CTC_TOTAL", new String[]{CTC});
-    statsCtc.put("CTC_EC_VALUE", new String[]{CTC});
+    //statsCtc.put("CTC_EC_VALUE", new String[]{CTC});
   }
 
   static {
@@ -587,8 +587,8 @@ public class MVUtil {
     statsVcnt.put("VCNT_SPEED_ABSERR", new String[]{"bc", VL1L2});
     statsVcnt.put("VCNT_DIR_ERR", new String[]{"bc", VL1L2});
     statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_ANOM_CORR", new String[]{"nc","bc", VL1L2});
-    statsVcnt.put("VCNT_ANOM_CORR_UNCNTR", new String[]{"nc","bc"});
+    statsVcnt.put("VCNT_ANOM_CORR", new String[]{"nc","bc"});
+    statsVcnt.put("VCNT_ANOM_CORR_UNCNTR", new String[]{"bc"});
   }
 
   //TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR CRPSCL  CRPS_EMP CRPSCL_EMP CRPSS_EMP
@@ -653,7 +653,7 @@ public class MVUtil {
     statsCts.put("SEDI", new String[]{"nc", "bc", CTC});
     statsCts.put("BAGSS", new String[]{"bc", CTC});
     statsCts.put("HSS_EC", new String[]{"bc", CTC});
-    statsCts.put("EC_VALUE", new String[]{"bc", CTC});
+    //statsCts.put("EC_VALUE", new String[]{"bc", CTC});
   }
 
   static {
@@ -728,8 +728,8 @@ public class MVUtil {
   static {
     statsVal1l2.put("VAL1L2_ANOM_CORR", new String[]{VAL1L2});
     statsVal1l2.put("VAL1L2_TOTAL", new String[]{VAL1L2});
-    statsVal1l2.put("VAL1L2_FA_SPEED_BAR", new String[]{VAL1L2});
-    statsVal1l2.put("VAL1L2_OA_SPEED_BAR", new String[]{VAL1L2});
+    //statsVal1l2.put("VAL1L2_FA_SPEED_BAR", new String[]{VAL1L2});
+    //statsVal1l2.put("VAL1L2_OA_SPEED_BAR", new String[]{VAL1L2});
   }
 
   static {
