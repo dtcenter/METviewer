@@ -5,6 +5,22 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v5.0.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (202200803)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* New Features:
+   * Revision series for line and box plots (`#394 <https://github.com/dtcenter/METviewer/issues/394>`_)
+
+* Enhancements:
+    * **Move mv_mysql.sql from METviewer to METdatadb** (`#371 <https://github.com/dtcenter/METviewer/issues/371>`_)
+    * add fcst_lead offset calculation to scorecard (`#404 <https://github.com/dtcenter/METviewer/issues/404>`_)
+
+* Bugfixes:
+
+* Internal:
+    * Rename METdatadb to METdataio (`#406 <https://github.com/dtcenter/METviewer/issues/406>`_)
+
+
 Version `v5.0.0-beta1 <https://github.com/dtcenter/METviewer>`_ release notes (20220622)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
