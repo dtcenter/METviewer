@@ -1898,7 +1898,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           // on the use of aggregation and stat calculation
           if (job.getAggCtc() || job.getAggNbrCtc()) {
             selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  "
-                    + "ld.fn_oy,\n  ld.fn_on";
+                    + "ld.fn_oy,\n  ld.fn_on,\n  ld.ec_value ";
           } else if (job.getAggSl1l2()) {
             selectStat += ",\n  'NA' stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  "
                     + "ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
