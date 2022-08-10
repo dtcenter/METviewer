@@ -1974,7 +1974,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (job.getAggVal1l2()) {
             selectStat += ",\n  'NA' stat_value,\n  ld.total,\n ld.ufabar,\n ld.vfabar,\n "
                     + "ld.uoabar,\n ld.voabar,\n ld.uvfoabar,\n ld.uvffabar,\n"
-                    + " ld.uvooabar";
+                    + " ld.uvooabar,\n ld.fa_speed_bar,\n ld.oa_speed_bar ";
           } else if (job.getCalcCtc()) {
             selectStat += ",\n  ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on, "
                     + "'NA' stat_value,\n"
@@ -2010,7 +2010,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
           } else if (job.getCalcVal1l2()) {
             selectStat += ",\n  ld.total, ld.ufabar, ld.vfabar, ld.uoabar, ld.voabar, "
-                    + "ld.uvfoabar, ld.uvffabar, ld.uvooabar,"
+                    + "ld.uvfoabar, ld.uvffabar, ld.uvooabar, ld.fa_speed_bar, ld.oa_speed_bar,"
                     + " 'NA' stat_value,\n"
                     + "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
                     + "'NA' stat_bcu";
