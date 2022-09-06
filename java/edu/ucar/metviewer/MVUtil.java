@@ -501,7 +501,6 @@ public class MVUtil {
     statsCtc.put("CTC_FY", new String[]{CTC});
     statsCtc.put("CTC_FN", new String[]{CTC});
     statsCtc.put("CTC_TOTAL", new String[]{CTC});
-    //statsCtc.put("CTC_EC_VALUE", new String[]{CTC});
   }
 
   static {
@@ -591,7 +590,6 @@ public class MVUtil {
     statsVcnt.put("VCNT_ANOM_CORR_UNCNTR", new String[]{"bc", VAL1L2});
   }
 
-  //TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR CRPSCL  CRPS_EMP CRPSCL_EMP CRPSS_EMP
   static {
     statsEcnt.put("ECNT_CRPS", new String[]{ ECNT});
     statsEcnt.put("ECNT_CRPSS", new String[]{ECNT});
@@ -727,8 +725,6 @@ public class MVUtil {
   static {
     statsVal1l2.put("VAL1L2_ANOM_CORR", new String[]{VAL1L2});
     statsVal1l2.put("VAL1L2_TOTAL", new String[]{VAL1L2});
-    //statsVal1l2.put("VAL1L2_FA_SPEED_BAR", new String[]{VAL1L2});
-    //statsVal1l2.put("VAL1L2_OA_SPEED_BAR", new String[]{VAL1L2});
   }
 
   static {
@@ -2824,7 +2820,7 @@ public class MVUtil {
     for (String serie : diffSeriesArr) {
       if (!serie.isEmpty()) {
         serie = serie.replaceAll("\"", "").replaceAll("\\(", "").replaceAll("\\)", "");
-        String[] args = serie.split(",");
+        String[] args = serie.split("\\s*,\\s*");
         result.add(args);
       }
     }
