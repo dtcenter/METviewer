@@ -473,8 +473,10 @@ public abstract class JobManager {
 
     yamlInfo.put("list_stat_1", MVUtil.printYamlCol(listAggStats1.toArray(new String[0])));
     yamlInfo.put("list_stat_2", MVUtil.printYamlCol(listAggStats2.toArray(new String[0])));
-    yamlInfo.put("fcst_var_val_1", mapDep.get("dep1"));
-    yamlInfo.put("fcst_var_val_2", mapDep.get("dep2"));
+
+
+    yamlInfo.put("fcst_var_val_1", ((MVOrderedMap) mapDep.get("dep1")).getYamlDecl());
+    yamlInfo.put("fcst_var_val_2", ((MVOrderedMap) mapDep.get("dep2")).getYamlDecl());
     yamlInfo.put("fixed_vars_vals_input", job.getPlotFixValEq());
     String diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries1(), MVUtil.addTmplValDep(job),
             job.getTmplMaps(), mvBatch.getPrintStream());
