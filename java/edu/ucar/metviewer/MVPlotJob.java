@@ -2186,9 +2186,9 @@ public class MVPlotJob {
   }
 
   private void validateSQL(String str) throws DatabaseException {
-    if (str.toLowerCase().contains(" and ") && !str.toLowerCase().contains(" between ")) {
-      throw new DatabaseException("String " + str + " includes SQL unsafe word AND or BETWEEN");
-    }
+    //if (str.toLowerCase().contains(" and ") && !str.toLowerCase().contains(" between ")) {
+    //  throw new DatabaseException("String " + str + " includes SQL unsafe word AND or BETWEEN");
+    //}
     for (String noSQL : DatabaseManager.SQL_INJECTION_WORDS) {
       if (str.contains(noSQL.toLowerCase()) || str.contains(noSQL.toUpperCase())) {
         throw new DatabaseException("String " + str + " includes SQL unsafe word " + noSQL);
