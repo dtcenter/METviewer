@@ -72,8 +72,8 @@ valid dates between 2013-07-05 06:00 and 2013-07-05 18:00:00
           <connection>
             <host>db_host:3306</host>
             <database>mv_database</database>
-            <user>user_name<user>
-            <password>user_password<password>
+            <user>user_name</user>
+            <password>user_password</password>
           </connection>
           
           <info_only>false</info_only>
