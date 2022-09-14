@@ -5,6 +5,21 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v5.0.0-beta3 <https://github.com/dtcenter/METviewer>`_ release notes (20220914)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* New Features:
+   * Plot new statistics that are added in MET-11.0.0-beta1: VCNT_ANOM_CORR and VCNT_ANOM_CORR_UNCNTR (`#403 <https://github.com/dtcenter/METviewer/issues/403>`_)
+
+* Enhancements:
+
+* Bugfixes:
+   * fix incorrect order of fcst_var_vals in yaml config file to plot multiple fields/statistics (`#413 <https://github.com/dtcenter/METviewer/issues/413>`_)
+
+* Internal:
+    * Create checksum for released code (`#417 <https://github.com/dtcenter/METviewer/issues/415>`_)
+
+
 Version `v5.0.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (202200803)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
