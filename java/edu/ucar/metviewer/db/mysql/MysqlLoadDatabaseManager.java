@@ -3154,7 +3154,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         int expectedSize = Integer.parseInt(dataForObjId.get(dataForObjId.size() - 1)[indTimeInd])
                 - Integer.parseInt(dataForObjId.get(0)[indTimeInd]) + 1;
         if (expectedSize == dataForObjId.size()) {
-          for (int i = 1; i < dataForObjId.size() - 1; i++) {
+          for (int i = 1; i <= dataForObjId.size() - 1; i++) {
             String[] dataFirst = dataForObjId.get(i);
             String[] dataSecond = dataForObjId.get(i - 1);
             String[] revisionLine = new String[dataFirst.length];
