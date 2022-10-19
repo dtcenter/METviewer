@@ -75,6 +75,7 @@ public class MVServlet extends HttpServlet {
       return name.toLowerCase(Locale.ENGLISH).endsWith(".xml");
     }
   };
+  public static final int MAX_XML_SIZE = 300000;
   private String plotXml = "";
   private String rTmpl = "";
   private String rWork = "";
@@ -561,7 +562,7 @@ public class MVServlet extends HttpServlet {
 
       //  parse out R error messages, if present, throwing an exception if the error was fatal
       Matcher matOutput = Pattern.compile(
-              "(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)")
+                      "(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)")
               .matcher(plotterOutput);
       if (matOutput.find()) {
         strRErrorMsg = matOutput.group(1);
@@ -773,6 +774,15 @@ public class MVServlet extends HttpServlet {
   private StringBuilder handleXmlUpload(
           MVNode nodeCall) throws ValidationException, DatabaseException {
 
+    //check for error message
+    if (nodeCall.children[0].tag.equals("error")) {
+      StringBuilder stringBuilder = new StringBuilder("<error>");
+      stringBuilder.append(nodeCall.children[0].value);
+      stringBuilder.append("</error>");
+      return stringBuilder;
+    }
+
+
     //  run the parser to generate plot jobs
     MVPlotJobParser par = new MVPlotJobParser(nodeCall.children[0]);
     MVPlotJob[] listJobs = par.getJobsList();
@@ -804,6 +814,7 @@ public class MVServlet extends HttpServlet {
 
     //  return the serialized plot XML
     return MVPlotJobParser.serializeJob(job, databaseManager.getDatabaseInfo());
+
   }
 
   private String getAvailableResults(String showAll) throws ParserConfigurationException {
@@ -931,7 +942,8 @@ public class MVServlet extends HttpServlet {
         urlOutput = "";
       }
 
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException |
+             InstantiationException e) {
       errorStream.print(
               "init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
     }
@@ -1058,10 +1070,11 @@ public class MVServlet extends HttpServlet {
         List<FileItem> items = uploadHandler.parseRequest(request);
         //  find the upload file in the request and read its contents
         StringBuilder uploadXml = new StringBuilder();
+        String error = null;
         for (FileItem item : items) {
           if (!item.isFormField()) {
             if (item.getName().endsWith(".xml")
-                    && item.getContentType().equals("text/xml") && item.getSize() < 30000) {
+                    && item.getContentType().equals("text/xml") && item.getSize() < MAX_XML_SIZE) {
               try (InputStream inputStream = item.getInputStream();
                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                    BoundedBufferedReader boundedBufferedReader = new BoundedBufferedReader(
@@ -1073,14 +1086,25 @@ public class MVServlet extends HttpServlet {
                 }
               }
             } else {
-              errorStream.println("Uploaded file is invalid");
+
+              if (!item.getName().endsWith(".xml") || !item.getContentType().equals("text/xml")) {
+                error = "Only XML file can be loaded";
+              } else {
+                error = "This file is too large to upload.";
+              }
+              errorStream.println(error);
             }
           }
         }
 
         //  scrub non-xml from the file contents
-        requestBody = new StringBuilder(
-                "<request><xml_upload>" + uploadXml + "</xml_upload></request>");
+        if (error != null) {
+          requestBody = new StringBuilder(
+                  "<request><xml_upload><error>" + error + "</error></xml_upload></request>");
+        } else {
+          requestBody = new StringBuilder(
+                  "<request><xml_upload>" + uploadXml + "</xml_upload></request>");
+        }
         response.setContentType("application/xml");
         String[] refererArr = request.getHeader("referer").split(DELIMITER);
         referer = refererArr[refererArr.length - 1];
@@ -1334,6 +1358,7 @@ public class MVServlet extends HttpServlet {
 
           }
 
+
           //  not handled
           else {
             Element errorXml = docResp.createElement("error");
@@ -1357,9 +1382,9 @@ public class MVServlet extends HttpServlet {
 
 
     } catch (ParserConfigurationException | FileUploadException | IOException | SAXException | ValidationException
-            | DatabaseException | ServletException e) {
+             | DatabaseException | ServletException e) {
       errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage());
-      logger.info(INFO_MARKER,"doPost() - caught " + e.getClass() + ": " + e.getMessage());
+      logger.info(INFO_MARKER, "doPost() - caught " + e.getClass() + ": " + e.getMessage());
       System.out.println("doPost() - caught " + e.getClass() + ": " + e.getMessage());
     }
   }
