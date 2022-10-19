@@ -8190,30 +8190,36 @@ function initPage() {
 
     });
     var tabIndex = 0;
+    var plot_el;
     if (initXML != null) {
-        var template = initXML.find("plot").find("template")[0].innerHTML;
-        if (template === "series_plot.R_tmpl" || template === 'revision_series_plot.R_tmpl') {
+        plot_el = initXML.find("plot");
+        if (plot_el && plot_el.length > 0) {
+            var template = initXML.find("plot").find("template")[0].innerHTML;
+            if (template === "series_plot.R_tmpl" || template === 'revision_series_plot.R_tmpl') {
+                currentTab = "Series";
+            } else if (template === "box_plot.R_tmpl" || template === 'revision_box_plot.R_tmpl') {
+                currentTab = "Box";
+            } else if (template === "bar_plot.R_tmpl") {
+                currentTab = "Bar";
+            } else if (template === "rhist.R_tmpl" || template === "phist.R_tmpl" || template === "relp.R_tmpl") {
+                currentTab = "Hist";
+            } else if (template === "roc.R_tmpl") {
+                currentTab = "Roc";
+            } else if (template === "eclv.R_tmpl") {
+                currentTab = "Eclv";
+            } else if (template === "rely.R_tmpl") {
+                currentTab = "Rely";
+            } else if (template === "ens_ss.R_tmpl") {
+                currentTab = "Ens_ss";
+            } else if (template === "performance.R_tmpl") {
+                currentTab = "Perf";
+            } else if (template === "taylor_plot.R_tmpl") {
+                currentTab = "Taylor";
+            } else if (template === "contour_plot.R_tmpl") {
+                currentTab = "Contour";
+            }
+        }else {
             currentTab = "Series";
-        } else if (template === "box_plot.R_tmpl" || template === 'revision_box_plot.R_tmpl') {
-            currentTab = "Box";
-        } else if (template === "bar_plot.R_tmpl") {
-            currentTab = "Bar";
-        } else if (template === "rhist.R_tmpl" || template === "phist.R_tmpl" || template === "relp.R_tmpl") {
-            currentTab = "Hist";
-        } else if (template === "roc.R_tmpl") {
-            currentTab = "Roc";
-        } else if (template === "eclv.R_tmpl") {
-            currentTab = "Eclv";
-        } else if (template === "rely.R_tmpl") {
-            currentTab = "Rely";
-        } else if (template === "ens_ss.R_tmpl") {
-            currentTab = "Ens_ss";
-        } else if (template === "performance.R_tmpl") {
-            currentTab = "Perf";
-        } else if (template === "taylor_plot.R_tmpl") {
-            currentTab = "Taylor";
-        } else if (template === "contour_plot.R_tmpl") {
-            currentTab = "Contour";
         }
 
         var tabs = $("#plot_config").find("a");
@@ -8243,7 +8249,7 @@ function initPage() {
         }
     });
 
-    if (initXML != null) {
+    if (initXML != null && plot_el && plot_el.length > 0) {
         $('#plot_title').val($(initXML.find("plot").find("tmpl").find("title")).text());
         $('#x_label_title').val($(initXML.find("plot").find("tmpl").find("x_label")).text());
         $('#y1_label_title').val($(initXML.find("plot").find("tmpl").find("y1_label")).text());

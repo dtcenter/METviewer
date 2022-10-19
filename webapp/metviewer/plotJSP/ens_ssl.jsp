@@ -239,17 +239,21 @@
 
         getForecastVariablesHist();
         if (initXML != null) {
-            var sd = initXML.find("database").text();
-            var selectedDatabase = sd.split(",");
-            for (var i = 0; i < selectedDatabase.length; i++) {
-                $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
+            if(initXML.find("error").length > 0 ){
+                alert(initXML.find("error").text())
+            }else {
+                var sd = initXML.find("database").text();
+                var selectedDatabase = sd.split(",");
+                for (var i = 0; i < selectedDatabase.length; i++) {
+                    $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
                         .prop("checked", true).change();
+                }
+                var csv = selectedDatabase.join(",");
+                var textnode = document.createTextNode(csv);
+                var item = document.getElementById("categories1").childNodes[0];
+                item.replaceChild(textnode, item.childNodes[0]);
+                loadXMLEns();
             }
-            var csv = selectedDatabase.join(",");
-            var textnode = document.createTextNode(csv);
-            var item = document.getElementById("categories1").childNodes[0];
-            item.replaceChild(textnode, item.childNodes[0]);
-            loadXMLEns();
             initXML = null;
         } else {
             updateSeriesVarValEns( 1, []);

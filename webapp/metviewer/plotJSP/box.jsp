@@ -426,22 +426,26 @@
                            });
 
       if (initXML != null) {
-        var sd = initXML.find("database").text();
-        var selectedDatabase = sd.split(",");
-        for (var i = 0; i < selectedDatabase.length; i++) {
-          $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
-                  .prop("checked", true).change();
+        if(initXML.find("error").length > 0 ){
+          alert(initXML.find("error").text())
+        }else {
+          var sd = initXML.find("database").text();
+          var selectedDatabase = sd.split(",");
+          for (var i = 0; i < selectedDatabase.length; i++) {
+            $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
+                    .prop("checked", true).change();
+          }
+          var csv = selectedDatabase.join(",");
+          var textnode = document.createTextNode(csv);
+          var item = document.getElementById("categories1").childNodes[0];
+          item.replaceChild(textnode, item.childNodes[0]);
+          loadXMLSeries();
+          $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() == "TRUE");
+          $("#box_outline").prop('checked', $(initXML.find("plot").find("box_outline")).text() == "TRUE");
+          $("#box_notch").prop('checked', $(initXML.find("plot").find("box_notch")).text() == "TRUE");
+          $("#box_avg").prop('checked', $(initXML.find("plot").find("box_avg")).text() == "TRUE");
+          $('#box_boxwex').val($(initXML.find("plot").find("box_boxwex")).text());
         }
-        var csv = selectedDatabase.join(",");
-        var textnode = document.createTextNode(csv);
-        var item = document.getElementById("categories1").childNodes[0];
-        item.replaceChild(textnode, item.childNodes[0]);
-        loadXMLSeries();
-        $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() == "TRUE");
-        $("#box_outline").prop('checked', $(initXML.find("plot").find("box_outline")).text() == "TRUE");
-        $("#box_notch").prop('checked', $(initXML.find("plot").find("box_notch")).text() == "TRUE");
-        $("#box_avg").prop('checked', $(initXML.find("plot").find("box_avg")).text() == "TRUE");
-        $('#box_boxwex').val($(initXML.find("plot").find("box_boxwex")).text());
         initXML = null;
       } else {
         updateForecastVariables();
