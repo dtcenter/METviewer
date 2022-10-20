@@ -7,7 +7,39 @@ Description
 A scorecard is a graphical representation of significance and performance
 of a comparison, normally a comparison between two models. The scorecard
 can only be produced using xml code. The xml code specifications are
-listed in the detail below. There is no GUI interface. 
+listed in the detail below. There is no GUI interface.
+
+EMC vs. NCAR method of determining p-values for Aggregation statistics
+----------------------------------------------------------------------
+
+In statistics, the p-value represents the probability of a statistic having a value at least as
+extreme as observed, in this case a difference between two
+models, given the null hypothesis that the two models come from the same distribution. When the
+p-values are large, there is evidence to reject this null hypothesis.
+
+The EMC and NCAR methods of determining p-values are largely the same, though the output is quite
+different. Both are based on estimates of the mean and standard deviation of the statistic.
+Along with the sample size, the standard Student's t value is calculated.When this value
+is compared with the known Student's t distribution, the significance level (i.e. p-value)
+is determined. The first difference between the two methods is the identification of the appropriate
+alpha/2 value. In the NCAR version, this value is determined exactly using the statistic and
+the appropriate sample size.
+In the EMC version, an approximate lookup table for the Student's t distribution is hard coded.
+Sample sizes are in four groups: &#60; 20 cases, 20-40 cases,
+40-80 cases, and &#62; 80 cases. NCAR output contains the actual probability, while EMC output is
+grouped. Any non-significant differences are denoted by NA,
+significant differences fall into categories of 0.95, 0.99, and 1. Both systems use negative signs
+to denote a better statistic from the second model.
+
+P-values can also be determined by bootstrapping using the percentile method. Cases (e.g. days)
+are randomly selected with replacement, then the difference
+between the statistics for two models is determined based on that sample. This process is repeated
+a large number of times, resulting in an empirical
+distribution of the differences. To find the p-value, the total percent of the bootstrap
+differences that are more extreme than the observed difference are
+calculated. This is the estimated p-value. The only difference here is that the difference is
+compared to a resampled distribution rather than a known,
+theoretical distribution.
 
 Line Type
 ---------
