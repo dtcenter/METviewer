@@ -197,7 +197,7 @@ Version `v4.0.0 <https://github.com/dtcenter/METviewer/milestone/11>`_ release n
   * Python implementation of Reliability diagram
   * Add nbrctc data to the Performance diagram
   * Uses `METplotpy v1.0-beta1 <https://github.com/dtcenter/METplotpy>`_
-      and  `METcalcpy v1.0-beta1 <https://github.com/dtcenter/METcalcpy>`_
+    and  `METcalcpy v1.0-beta1 <https://github.com/dtcenter/METcalcpy>`_
   * Plotly/Python implementation of the Series plot
     (`#201 <https://github.com/dtcenter/METviewer/issues/201>`_)
   * Interactive plots in GUI (currently is implemented for Series
@@ -219,3 +219,9 @@ Version `v4.0.0 <https://github.com/dtcenter/METviewer/milestone/11>`_ release n
   * Revise computation of No-Skill reference line on Reliability diagram
   * Check-box to add/remove No-Skill line
     (`#209 <https://github.com/dtcenter/METviewer/issues/209>`_)
+
+METviewer Upgrade Instructions
+==============================
+
+Upgrade instructions will be listed here if they are
+applicable for this release.
