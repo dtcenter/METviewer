@@ -30,7 +30,7 @@ Version `v5.0.0-beta3 <https://github.com/dtcenter/METviewer>`_ release notes (2
 
 
 Version `v5.0.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (202200803)
-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
 * New Features:
    * Revision series for line and box plots
