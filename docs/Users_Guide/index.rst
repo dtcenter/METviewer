@@ -61,6 +61,7 @@ National Center for Atmospheric Research (NCAR) is sponsored by NSF.
 		
 
    overview
+   release-notes
    installation
    common
    database_loading
