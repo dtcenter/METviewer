@@ -29,7 +29,7 @@ Version `v5.0.0-beta3 <https://github.com/dtcenter/METviewer>`_ release notes (2
       (`#417 <https://github.com/dtcenter/METviewer/issues/415>`_)
 
 
-Version `v5.0.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (202200803)
+Version `v5.0.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (20220803)
 -----------------------------------------------------------------------------------------
 
 * New Features:
