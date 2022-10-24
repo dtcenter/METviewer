@@ -214,10 +214,6 @@ recent plotting attempts using the METviewer GUI. Users can select items
 from this menu to recover plots they may have neglected to save. Clicking
 on the button showing loads the plot.
 
-.. _release-notes:
-
-.. include:: release-notes.rst
-	     
 
 Future development plans
 ------------------------
