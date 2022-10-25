@@ -191,7 +191,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mctc'  FROM "
             + "line_data_mctc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mctc)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssidx'  FROM "
-            + "line_data_ssidx  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssidx)\n";
+            + "line_data_ssidx  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssidx)\n"
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'seeps'  FROM "
+            + "line_data_seeps  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) seeps)\n";
 
 
     for (String database : currentDBName) {
@@ -199,7 +201,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       try (Connection con = getConnection(database);
            PreparedStatement stmt = con.prepareStatement(strSql, ResultSet.TYPE_FORWARD_ONLY,
                    ResultSet.CONCUR_READ_ONLY)) {
-        for (int i = 1; i <= 26; i++) {
+        for (int i = 1; i <= 27; i++) {
           stmt.setString(i, strFcstVar);
         }
         res = stmt.executeQuery();
@@ -309,6 +311,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 25://ssidx
                 statNames.addAll(MVUtil.statsSsidx.keySet());
+                break;
+              case 26://seeps
+                statNames.addAll(MVUtil.statsSeeps.keySet());
                 break;
               default:
 
@@ -1856,9 +1861,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsPerc.containsKey(strStat)) {
             tableStats = MVUtil.statsPerc;
             statTable = "line_data_perc ld\n";
-          } else if (MVUtil.statsSsidx.containsKey(strStat)) {
-            tableStats = MVUtil.statsSsidx;
-            statTable = "line_data_ssidx ld\n";
+
+          } else if (MVUtil.statsSeeps.containsKey(strStat)) {
+            tableStats = MVUtil.statsSeeps;
+            statTable = "line_data_seeps ld\n";
+            statField = strStat.replace("SEEPS_", "").toLowerCase();
           } else {
             throw new ValidationException("unrecognized stat: " + strStat);
           }
