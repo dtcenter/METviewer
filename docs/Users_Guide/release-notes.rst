@@ -9,6 +9,28 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v5.0.0-beta4 <https://github.com/dtcenter/METviewer>`_ release notes (20221026)
+----------------------------------------------------------------------------------------
+
+* New Features:
+
+* Enhancements:
+   * Increase the maximum limit of the uploaded XML
+     (`#425 <https://github.com/dtcenter/METviewer/issues/425>`_)
+
+* Bugfixes:
+   * Fix MTD loader bug that did not include the last fcst_lead into the revision series data
+     (`#423 <https://github.com/dtcenter/METviewer/issues/423>`_)
+
+* Internal:
+    * Move release notes into its own chapter
+      (`#427 <https://github.com/dtcenter/METviewer/issues/427>`_)
+    * Fix warnings in Github Actions
+      (`#426 <https://github.com/dtcenter/METviewer/issues/426>`_)
+    * Create checksum for release code
+      (`#412 <https://github.com/dtcenter/METviewer/issues/412>`_)
+
+
 Version `v5.0.0-beta3 <https://github.com/dtcenter/METviewer>`_ release notes (20220914)
 ----------------------------------------------------------------------------------------
 
