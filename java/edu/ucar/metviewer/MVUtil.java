@@ -666,6 +666,18 @@ public class MVUtil {
     statsSeeps.put("SEEPS_MEAN_FCST", new String[]{});
     statsSeeps.put("SEEPS_MEAN_OBS", new String[]{});
     statsSeeps.put("SEEPS", new String[]{});
+    statsSeeps.put("SEEPS_S12", new String[]{});
+    statsSeeps.put("SEEPS_S13", new String[]{});
+    statsSeeps.put("SEEPS_S21", new String[]{});
+    statsSeeps.put("SEEPS_S23", new String[]{});
+    statsSeeps.put("SEEPS_S31", new String[]{});
+    statsSeeps.put("SEEPS_S32", new String[]{});
+    statsSeeps.put("SEEPS_PF1", new String[]{});
+    statsSeeps.put("SEEPS_PF2", new String[]{});
+    statsSeeps.put("SEEPS_PF3", new String[]{});
+    statsSeeps.put("SEEPS_PV1", new String[]{});
+    statsSeeps.put("SEEPS_PV2", new String[]{});
+    statsSeeps.put("SEEPS_PV3", new String[]{});
   }
 
 
