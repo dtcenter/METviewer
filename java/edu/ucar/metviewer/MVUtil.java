@@ -448,7 +448,6 @@ public class MVUtil {
     statsEnscnt.put("ENS_CRPSF", new String[]{});
     statsEnscnt.put("ENS_CRPSCL", new String[]{});
     statsEnscnt.put("ENS_CRPSS", new String[]{});
-
   }
 
   static {
@@ -605,6 +604,7 @@ public class MVUtil {
     statsEcnt.put("ECNT_CRPS_EMP", new String[]{ECNT});
     statsEcnt.put("ECNT_CRPSCL_EMP", new String[]{ECNT});
     statsEcnt.put("ECNT_CRPSS_EMP", new String[]{ECNT});
+    statsEcnt.put("ECNT_CRPS_EMP_FAIR", new String[]{ECNT});
     statsEcnt.put("ECNT_TOTAL", new String[]{ECNT});
   }
 
