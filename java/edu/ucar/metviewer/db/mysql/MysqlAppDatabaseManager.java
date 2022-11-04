@@ -1926,7 +1926,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + "\n ld.crpscl_emp,"
                     + "\n ld.crpss_emp,"
                     + "\n ld.crps_emp_fair,"
-                    + "\n ld.spread_md";
+                    + "\n ld.spread_md,"
+                    + "\n ld.mae,"
+                    + "\n ld.mae_oerr";
           } else if (job.getAggPct()) {
 
             if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
