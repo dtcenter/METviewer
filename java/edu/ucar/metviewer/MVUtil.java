@@ -180,8 +180,7 @@ public class MVUtil {
           "ecnt",
           "dmap",
           "rps",
-          "seeps",
-          "seeps_mpr"
+          "seeps"
   };
 
   static {
