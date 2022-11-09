@@ -105,6 +105,7 @@ public class MVUtil {
   public static final Map<String, String[]> statsGrad = new HashMap<>();
   public static final Map<String, String[]> statsMctc = new HashMap<>();
   public static final Map<String, String[]> statsSsidx = new HashMap<>();
+  public static final Map<String, String[]> statsSeeps = new HashMap<>();
 
 
   public static final int MAX_STR_LEN = 500;
@@ -178,7 +179,8 @@ public class MVUtil {
           "relp",
           "ecnt",
           "dmap",
-          "rps"
+          "rps",
+          "seeps"
   };
 
   static {
@@ -659,6 +661,25 @@ public class MVUtil {
   static {
     statsSsidx.put("SS_INDEX", new String[]{});
   }
+  static {
+    statsSeeps.put("SEEPS_MEAN_FCST", new String[]{});
+    statsSeeps.put("SEEPS_MEAN_OBS", new String[]{});
+    statsSeeps.put("SEEPS", new String[]{});
+    statsSeeps.put("SEEPS_S12", new String[]{});
+    statsSeeps.put("SEEPS_S13", new String[]{});
+    statsSeeps.put("SEEPS_S21", new String[]{});
+    statsSeeps.put("SEEPS_S23", new String[]{});
+    statsSeeps.put("SEEPS_S31", new String[]{});
+    statsSeeps.put("SEEPS_S32", new String[]{});
+    statsSeeps.put("SEEPS_PF1", new String[]{});
+    statsSeeps.put("SEEPS_PF2", new String[]{});
+    statsSeeps.put("SEEPS_PF3", new String[]{});
+    statsSeeps.put("SEEPS_PV1", new String[]{});
+    statsSeeps.put("SEEPS_PV2", new String[]{});
+    statsSeeps.put("SEEPS_PV3", new String[]{});
+  }
+
+
 
   static {
     statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc", NBRCTC});
@@ -1716,6 +1737,8 @@ public class MVUtil {
       return "line_data_grad";
     } else if (statsSsidx.containsKey(strStat)) {
       return "line_data_ssidx";
+    } else if (statsSeeps.containsKey(strStat)) {
+      return "line_data_seeps";
     } else {
       return "";
     }
