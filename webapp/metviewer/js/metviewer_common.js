@@ -6061,6 +6061,7 @@ function loadXMLEclv() {
 
         }
     } else {
+        series_var_y1_indexes = [];
         series_var_val = $("#series_var_y1_1").first().val();
         updateSeriesVarValHist(1, series_var_val);
     }
@@ -6162,6 +6163,7 @@ function loadXMLRoc() {
 
         }
     } else {
+        series_var_y1_indexes = [];
         series_var_val = $("#series_var_y1_1").first().val();
         updateSeriesVarValHist(1, []);
     }
@@ -6253,6 +6255,7 @@ function loadXMLHist() {
 
         }
     } else {
+        series_var_y1_indexes = [];
         series_var_val = $("#series_var_1" + "_1").first().val();
         updateSeriesVarValHist(1, series_var_val);
     }
@@ -6304,6 +6307,7 @@ function loadXMLRely() {
         }
     } else {
         //series_var_val = $("#series_var_y1_1").first().val();
+        series_var_y1_indexes = [];
         updateSeriesVarValHist(1, []);
     }
 

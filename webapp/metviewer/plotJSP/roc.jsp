@@ -38,7 +38,6 @@
                     $('#fade').css("display", "none");
                 }
             });
-          series_var_y1_indexes = [];
           $('.help-button').button({
 
             icons: {
@@ -248,6 +247,7 @@
             }
           initXML = null;
         } else {
+            series_var_y1_indexes = [];
             updateSeriesVarValHist(1, []);
             updateSeriesHist();
             $("input[name=roc_type][value=pct]").prop('checked', true);
