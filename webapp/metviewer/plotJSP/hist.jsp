@@ -38,7 +38,6 @@
                     $('#fade').css("display", "none");
                 }
             });
-            series_var_y1_indexes = [];
 
             $("#plot_data").multiselect({
                 multiple: false,
@@ -240,7 +239,7 @@
                 }
                 initXML = null;
             } else {
-
+                series_var_y1_indexes = [];
                 updateSeriesVarValHist(1, []);
                 changeFixedVarHist('rhist');
                 updateFixedVarValHist(1, []);
