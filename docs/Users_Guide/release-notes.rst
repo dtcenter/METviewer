@@ -9,6 +9,29 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v5.0.0-beta5 <https://github.com/dtcenter/METviewer>`_ release notes (20221116)
+----------------------------------------------------------------------------------------
+
+* New Features:
+
+  * Plot the new ECNT statistics: SPREAD_MD, MAE, MAE_OERR, BIAS_RATIO, ME_GE_OBS, and ME_LT_OBS
+    (`#434 <https://github.com/dtcenter/METviewer/issues/434>`_)
+  * Plot new SEEPS and SEEPS_MPR statistics
+    (`#422 <https://github.com/dtcenter/METviewer/issues/422>`_)
+  * Plot new CRPS_EMP_FAIR stat
+    (`#421 <https://github.com/dtcenter/METviewer/issues/421>`_)
+
+* Enhancements:
+
+  * Return bad status from mv_load.sh if the loading step fails (`#414 <https://github.com/dtcenter/METviewer/issues/414>`_)
+
+* Bugfixes:
+   * Fix loading ROC XML into the UI
+     (`#428 <https://github.com/dtcenter/METviewer/issues/428>`_)
+
+* Internal:
+
+
 Version `v5.0.0-beta4 <https://github.com/dtcenter/METviewer>`_ release notes (20221026)
 ----------------------------------------------------------------------------------------
 
