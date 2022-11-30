@@ -119,26 +119,26 @@ EXPOSE 8080
 # Install METplus python components
 #
 RUN mkdir /METviewer-python \
- && echo "Checking out METcalcpy ${METCALCPY_GIT_NAME} from ${METCALCPY_GIT_URL}" \
- && git clone ${METCALCPY_GIT_URL} /METviewer-python/METcalcpy \
- && cd /METviewer-python/METcalcpy \
- && git checkout ${METCALCPY_GIT_NAME} \
- && echo "Checking out METplotpy ${METPLOTPY_GIT_NAME} from ${METPLOTPY_GIT_URL}" \
- && git clone ${METPLOTPY_GIT_URL} /METviewer-python/METplotpy \
- && cd /METviewer-python/METplotpy \
- && git checkout ${METPLOTPY_NAME_TAG} \
- && echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}" \
- && git clone ${METDATAIO_GIT_URL} /METviewer-python/METdataio \
- && cd /METviewer-python/METdataio \
- && git checkout ${METDATAIO_NAME_TAG}
+ && echo "Checking out METcalcpy ${METCALCPY_GIT_NAME} from ${METCALCPY_GIT_URL}"
+WORKDIR /METviewer-python/
+RUN git clone --branch ${METCALCPY_GIT_NAME} ${METCALCPY_GIT_URL}
+
+
+RUN echo "Checking out METplotpy ${METPLOTPY_GIT_NAME} from ${METPLOTPY_GIT_URL}"
+WORKDIR /METviewer-python/
+RUN git clone --branch ${METPLOTPY_GIT_NAME} ${METPLOTPY_GIT_URL}
+
+
+RUN echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}" \
+WORKDIR /METviewer-python/
+RUN git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
+
 
 #
 # Install METviewer
 #
-RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}" \
- && git clone ${METVIEWER_GIT_URL} /METviewer \
- && cd /METviewer \
- && git checkout ${METVIEWER_GIT_NAME} \
+RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}"
+RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
  && echo "Configuring and building METviewer" \
  && cd /METviewer \
  && cat webapp/metviewer/WEB-INF/classes/build.properties | \
@@ -149,74 +149,110 @@ RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}
     sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
     sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
     sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
-    sed -r 's%python.env=.*%python.env=/usr/local/%g' | \
+    sed -r 's%python.env=.*%python.env=/usr/%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
-    sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/metplotpy/%g' \
+    sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
     > build.properties \
  && ant -Dbuild.properties.file=./build.properties \
         -Ddb.management.system=mysql \
         -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
         -Dmetplotpy.path=/METviewer-python/METplotpy/ \
-        -Dpython.env.path=/usr/local/ war \
+        -Dpython.env.path=/usr/ war \
  && mv /METviewer/dist/*.war ${CATALINA_HOME}/webapps \
  && echo "Configuring METviewer scripts" \
  && cd /METviewer/bin \
  && cat mv_batch.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/%g' \
     >  mv_batch.sh-DOCKER \
  && mv mv_batch.sh-DOCKER mv_batch.sh \
  && cat mv_load.sh | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local/%g'  | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g'  | \
     sed -r 's%METDATAIO_HOME=.*%METDATAIO_HOME=/METviewer-python/METdataio/%g' \
     >  mv_load.sh-DOCKER \
  && mv mv_load.sh-DOCKER mv_load.sh \
  && cat mv_scorecard.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/%g' \
     >  mv_scorecard.sh-DOCKER \
  && mv mv_scorecard.sh-DOCKER mv_scorecard.sh \
  && cat mv_prune.sh | \
     sed -r 's%JAVA=.*%JAVA=java\nMV_HOME=/METviewer%g' | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g' | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g' | \
     sed -r 's%METCALCPY_HOME=.*%METCALCPY_HOME=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%METPLOTPY_HOME=.*%METPLOTPY_HOME=/METviewer-python/METplotpy/%g' \
     >  mv_prune.sh-DOCKER \
  && mv mv_prune.sh-DOCKER mv_prune.sh
 
 #
-# Install Python 3.6
+# Install Python 3.8.6
 #
-RUN yum install -y python3 python3-devel python3-pip
-
-#
-# Install Python packages
-#
-RUN pip-3 install kiwisolver==1.0.1 \
- && pip-3 install plotly==4.9.0 \
- && pip-3 install kaleido==0.2.1 \
- && pip-3 install pandas==1.0.1 \
- && pip-3 install numpy==1.17.0 \
- && pip-3 install scipy==1.5.1 \
- && pip-3 install PyYAML==5.3.1 \
- && pip-3 install psutil==5.7.2 \
- && pip-3 install requests \
- && pip-3 install pillow==7.2.0 \
- && pip-3 install matplotlib==3.3.0 \
- && pip-3 install lxml \
- && pip-3 install pymysql \
- && pip-3 install retrying \
- && pip-3 install cython \
- && pip-3 install statsmodels==0.11.1
+RUN yum install gcc openssl-devel bzip2-devel libffi-devel zlib-devel libproj-dev proj-data proj-bin libgeos-dev bzip2 -y
+RUN curl https://www.python.org/ftp/python/3.8.6/Python-3.8.6.tgz --output /tmp/Python-3.8.6.tgz
+WORKDIR /tmp
+RUN tar xzf Python-3.8.6.tgz
+WORKDIR /tmp/Python-3.8.6
+RUN ./configure --enable-optimizations
+RUN yum install make -y
+RUN make altinstall
+RUN yum install which -y
+WORKDIR /tmp
+RUN rm -r Python-3.8.6.tgz
+RUN yum -y install epel-release
+RUN curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py
+RUN python3.8 get-pip.py
+RUN python3.8 -m pip install --upgrade pip
 
 #
 # Create a link for python3
 #
-RUN ln -s /usr/bin/python3 /usr/local/bin/python
+RUN ln -sf /usr/local/bin/python3.8  /usr/bin/python
+
+#
+# install GEOS - needed for cartopy
+#
+WORKDIR /tmp
+RUN wget http://download.osgeo.org/geos/geos-3.7.2.tar.bz2
+RUN tar xjf geos-3.7.2.tar.bz2
+WORKDIR /tmp/geos-3.7.2
+RUN ./configure --enable-php; make clean ; make
+RUN make install
+RUN ldconfig
+WORKDIR /tmp
+RUN rm -r geos-3.7.2.tar.bz2
+
+#
+# Install Python packages
+#
+RUN pip install cartopy \
+ && pip install eofs \
+ && pip install imutils==0.5.4 \
+ && pip install imageio==2.19.2 \
+ && pip install lxml \
+ && pip install matplotlib==3.5.1 \
+ && pip install netcdf4==1.5.8 \
+ && pip install numpy==1.22.3 \
+ && pip install pandas==1.2.3 \
+ && pip install pytest==7.1.2 \
+ && pip install metpy==1.3.1 \
+ && pip install pyyaml==6.0 \
+ && pip install scikit-image==0.18.1 \
+ && pip install scikit-learn==0.23.2 \
+ && pip install scipy==1.8.0 \
+ && pip install xarray==2022.3.0 \
+ && pip install PyMySQL==1.0.2 \
+ && pip install pint==0.19.2 \
+ && pip install plotly==5.8.0 \
+ && pip install kaleido==0.2.1 \
+ && pip install xarray==2022.3.0 \
+ && pip install PyYAML==5.3.1
+
+
+
 
 #
 # set env vars
@@ -239,6 +275,6 @@ RUN chmod 755 /METviewer/bin/mv_batch.sh \
   && chmod 755 /METviewer/bin/mv_scorecard.sh
 
 
-ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
+ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh  && /bin/bash
 CMD ["true"]
 
