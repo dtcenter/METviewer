@@ -52,60 +52,56 @@ install the latest version. Install required R packages:
  * gsl
 
 
-**Python**: install Python 3.6 or higher. Create an environment
-(METviewer_py3.6.3) and install required packages:
+**Python**: install Python 3.8.6 or higher. Create an environment
+(METviewer_py3.8.6) and install required packages:
 
-* Python 3.6.3
+* Python 3.8.6
 
-* cartopy 0.18.0
-
-* cmocean
+* cartopy
 
 * eofs
 
-* imutils 0.5.3
+* imutils==0.5.4
 
-* imageio
+* imageio==2.19.2
 
 * lxml
 
-* matplotlib 3.3.0
+* matplotlib==3.5.1
 
-* metcalcpy
+* netcdf4==1.5.8
 
-* metplotpy
+* numpy==1.22.3
 
-* metdataio
+* pandas==1.2.3
 
-* netcdf4 1.5.1.2
+* pytest==7.1.2
 
-* numpy 1.17.0
+* metpy==1.3.1
 
-* pandas 1.0.1
+* pyyaml==6.0
 
-* plotly 4.9.0
+* scikit-image==0.18.1
 
-* python-kaleido 0.2.1
+* scikit-learn==0.23.2
 
-* psutil 5.7.2
+* scipy==1.8.0
 
-* pymysql
+* xarray==2022.3.0
 
-* pytest 5.2.1
+* PyMySQL==1.0.2
 
-* pyyaml 5.3.1
+* pint==0.19.2
 
-* scikit-image 0.16.2
+* plotly==5.8.0
 
-* scikit-learn 0.23.2
+* kaleido==0.2.1
 
-* scipy 1.5.1
+* xarray==2022.3.0
 
-* statsmodels 0.11.1
+* PyYAML==5.3.1
 
-* xarray 0.16.2
 
-* yaml
 
 
 **METviewer** -
@@ -129,6 +125,13 @@ clone   `METplotpy repository <https://github.com/dtcenter/METplotpy>`_
 
      git clone https://github.com/dtcenter/METplotpy.git
 
+**METdataio** -
+clone   `METdataio repository <https://github.com/dtcenter/METdataio>`_
+
+   .. code-block:: none
+
+     git clone https://github.com/dtcenter/METdataio.git
+
 Configure and build METviewer
 _____________________________
 
@@ -136,28 +139,20 @@ _____________________________
 
    * Edit *METviewer/bin/mv_batch.sh*:
 
-        * Set the variable **JAVA** to point at the desired jvm instance to run
-        * Set the variable **MV_HOME** to point at *[install]/METviewer*
         * Set the variable **PYTHON_ENV** to point at the Python environment
         * Set the variable **METCALCPY_HOME** to point to *METcalcpy* directory
         * Set the variable **METPLOTPY_HOME** to point to *METplotpy* directory
 
    * Edit *METviewer/bin/mv_load.sh*:
 
-        * Set the variable **JAVA** to point at the desired jvm instance to run
-        * Set the variable **MV_HOME** to point at *METviewer*
+        * Set the variable **PYTHON_ENV** to point at the Python environment
+        * Set the variable **METDATAIO_HOME** to point to *METdataio* directory
 
-   * Edit *METviewer/bin/mv_prune.sh*:
-
-        * Set the variable **JAVA** to point at the desired jvm instance to run
-        * Set the variable **MV_HOME** to point at *METviewer*
 
    * Edit *METviewer/bin/mv_scorecard.sh*:
 
-        * Set the variable **JAVA** to point at the desired jvm instance to run
-        * Set the variable **MV_HOME** to point at METviewer
         * Set the variable **PYTHON_ENV** to point at the Python environment
-        * Set the variable **METPLOTPY_HOME** to point to METplotpy directory
+        * Set the variable **METCALCPY_HOME** to point to METcalc directory
 
    * Create a custom property file by copying
      *METviewer/webapp/metviewer/WEB-INF/classes/build.properties*
@@ -199,8 +194,9 @@ _____________________________
 
         cd MRTviewer
         ant -Dbuild.properties.file=METviewer/build.properties \
-        -Ddb.management.system=mariadb -Dmetcalcpy.path=METcalcpy/ -Dmetplotpy.path=METplotpy/\
-       -Dpython.env.path=METviewer_py3.6.3/  clean all
+        -Ddb.management.system=mariadb -Dmetcalcpy.path=METcalcpy/ -Dmetplotpy.path=METplotpy/ \
+        -Dmetdataio.path=METdataio/ \
+       -Dpython.env.path=METviewer_py3.8.6/  clean all
 
   * Deploy the web app to tomcat
 
