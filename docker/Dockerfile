@@ -248,7 +248,6 @@ RUN pip install cartopy \
  && pip install pint==0.19.2 \
  && pip install plotly==5.8.0 \
  && pip install kaleido==0.2.1 \
- && pip install xarray==2022.3.0 \
  && pip install PyYAML==5.3.1
 
 
