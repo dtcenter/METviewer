@@ -54,7 +54,7 @@ public abstract class JobManager {
       listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
       run(job);
     } catch (ParseException | ValidationException | IOException | StopWatchException |
-            DatabaseException e) {
+             DatabaseException e) {
       mvBatch.print("Failed to create a plot. " + e.getMessage());
     }
   }
@@ -171,7 +171,7 @@ public abstract class JobManager {
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
         for (String[] aListFcstVarStat : listFcstVarStat) {
           String strFcstVarCur = aListFcstVarStat[0];
-         if (strFcstVar.isEmpty() ) {
+          if (strFcstVar.isEmpty()) {
             strFcstVar = strFcstVarCur;
           } else if (!strFcstVar.equals(strFcstVarCur)) {
             //check if this is a mode/mtd/agg/sum stat job
@@ -283,16 +283,16 @@ public abstract class JobManager {
             job.getColors().isEmpty() ? "rainbow(" + intNumDepSeries + ")" : job.getColors()
     );
     info.put("pch",
-                    job.getPch().isEmpty() ? MVUtil.printRCol(
-                            MVUtil.rep(20, intNumDepSeries)) : job.getPch());
+            job.getPch().isEmpty() ? MVUtil.printRCol(
+                    MVUtil.rep(20, intNumDepSeries)) : job.getPch());
     info.put("type", job.getType().isEmpty() ? MVUtil.printRCol(
             MVUtil.rep("b", intNumDepSeries)) : job.getType());
     info.put("lty",
-                    job.getLty().isEmpty() ? MVUtil.printRCol(
-                            MVUtil.rep(1, intNumDepSeries)) : job.getLty());
+            job.getLty().isEmpty() ? MVUtil.printRCol(
+                    MVUtil.rep(1, intNumDepSeries)) : job.getLty());
     info.put("lwd",
-                    job.getLwd().isEmpty() ? MVUtil.printRCol(
-                            MVUtil.rep(1, intNumDepSeries)) : job.getLwd());
+            job.getLwd().isEmpty() ? MVUtil.printRCol(
+                    MVUtil.rep(1, intNumDepSeries)) : job.getLwd());
     info.put("con_series", job.getConSeries().isEmpty() ? MVUtil.printRCol(
             MVUtil.rep(0, intNumDepSeries)) : job.getConSeries());
     info.put("legend", job.getLegend().isEmpty() ? "c()" : job.getLegend());
@@ -423,18 +423,17 @@ public abstract class JobManager {
     }
 
 
-
     List keys = mapDep.getListKeys();
     for (int i = 0; i < keys.size(); i++) {
-      MVOrderedMap map = (MVOrderedMap)mapDep.get(keys.get(i));
+      MVOrderedMap map = (MVOrderedMap) mapDep.get(keys.get(i));
       List mapKeys = map.getListKeys();
       String[] mapListKeys = (String[]) mapKeys.toArray(new String[mapKeys.size()]);
       for (int j = 0; j < mapListKeys.length; j++) {
         String newValue = mapListKeys[j].replace("&#38;", "&").replace("&gt;", ">")
                 .replace("&lt;", "<");
         mapKeys.set(j, newValue);
-        map.put(newValue,map.get(mapListKeys[j]));
-        if(!mapListKeys[j].equals(newValue)) {
+        map.put(newValue, map.get(mapListKeys[j]));
+        if (!mapListKeys[j].equals(newValue)) {
           map.remove(mapListKeys[j]);
         }
       }
@@ -446,7 +445,7 @@ public abstract class JobManager {
     for (int intY = 1; intY <= 2; intY++) {
       MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
       if (mapDepY != null && !mapDepY.isEmpty()) {
-          strFcstVar = "";
+        strFcstVar = "";
 
         MVOrderedMap mapStat = new MVOrderedMap();
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDepY);
@@ -475,13 +474,17 @@ public abstract class JobManager {
     yamlInfo.put("list_stat_2", MVUtil.printYamlCol(listAggStats2.toArray(new String[0])));
 
 
-    if(mapDep.isEmpty()){
-      yamlInfo.put("fcst_var_val_1", new LinkedHashMap<>());
-      yamlInfo.put("fcst_var_val_2", new LinkedHashMap<>());
-    }else {
+    if (mapDep.containsKey("dep1")) {
       yamlInfo.put("fcst_var_val_1", ((MVOrderedMap) mapDep.get("dep1")).getYamlDecl());
-      yamlInfo.put("fcst_var_val_2", ((MVOrderedMap) mapDep.get("dep2")).getYamlDecl());
+    } else {
+      yamlInfo.put("fcst_var_val_1", new LinkedHashMap<>());
     }
+    if (mapDep.containsKey("dep2")) {
+      yamlInfo.put("fcst_var_val_2", ((MVOrderedMap) mapDep.get("dep2")).getYamlDecl());
+    } else {
+      yamlInfo.put("fcst_var_val_2", new LinkedHashMap<>());
+    }
+
 
     yamlInfo.put("fixed_vars_vals_input", job.getPlotFixValEq());
     String diffSeriesTemplate = MVUtil.buildTemplateInfoString(job.getDiffSeries1(), MVUtil.addTmplValDep(job),
@@ -544,9 +547,9 @@ public abstract class JobManager {
     yamlInfo.put("cl_step", 0.05);
     yamlInfo.put("equalize_by_indep", job.getEqualizeByIndep() ? "True" : "False");
 
-    if(!job.getLines().isEmpty()){
-      List <Map<String, Object>> linesList = new ArrayList<>();
-      for (LineAttributes lineAttributes : job.getLines()){
+    if (!job.getLines().isEmpty()) {
+      List<Map<String, Object>> linesList = new ArrayList<>();
+      for (LineAttributes lineAttributes : job.getLines()) {
         Map<String, Object> line = new HashMap<>();
         line.put("type", lineAttributes.getType());
         line.put("line_style", linesRtoPython.get(lineAttributes.getLty()));
@@ -596,7 +599,7 @@ public abstract class JobManager {
     info.put("yaxis_1", y1Label);
     info.put("yaxis_2", y2Label);
     info.put("plot_disp", rListToList(job.getPlotDisp()));
-    info.put("series_order",  rListToListNumeric(job.getOrderSeries()));
+    info.put("series_order", rListToListNumeric(job.getOrderSeries()));
     info.put("user_legend", rListToList(job.getLegend()));
 
     List<String> colorsListStr = rListToList(job.getColors());
@@ -606,7 +609,7 @@ public abstract class JobManager {
     }
     info.put("colors", colorsList);
 
-    info.put("series_line_width",  rListToListNumeric(job.getLwd()));
+    info.put("series_line_width", rListToListNumeric(job.getLwd()));
 
     List<String> symbolsListStr = rListToList(job.getPch());
     List<String> symbolsList = new ArrayList<>();
@@ -623,7 +626,7 @@ public abstract class JobManager {
     info.put("series_line_style", lineStyleList);
     info.put("series_type", rListToList(job.getType()));
 
-    info.put("show_signif",  rListToList(job.getShowSignif()));
+    info.put("show_signif", rListToList(job.getShowSignif()));
 
     info.put("con_series", rListToListNumeric(job.getConSeries()));
     info.put("plot_ci", rListToList(job.getPlotCI()));
@@ -645,7 +648,7 @@ public abstract class JobManager {
         rListArray[i] = "True";
       } else if (rListArray[i].trim().equalsIgnoreCase("false")) {
         rListArray[i] = "False";
-      }else {
+      } else {
         rListArray[i] = rListArray[i].trim();
       }
     }
@@ -666,7 +669,7 @@ public abstract class JobManager {
         result.add(Integer.valueOf(String.valueOf(rListArray[i]).trim()));
       } else if (MVUtil.isNumeric(String.valueOf(rListArray[i]).trim())) {
         result.add(Double.valueOf(String.valueOf(rListArray[i]).trim()));
-      }else{
+      } else {
         result.add(String.valueOf(rListArray[i]).trim());
       }
     }
