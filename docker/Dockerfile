@@ -232,23 +232,35 @@ RUN pip install cartopy \
  && pip install eofs \
  && pip install imutils==0.5.4 \
  && pip install imageio==2.19.2 \
- && pip install lxml \
- && pip install matplotlib==3.5.1 \
- && pip install netcdf4==1.5.8 \
- && pip install numpy==1.22.3 \
- && pip install pandas==1.2.3 \
+ && pip install lxml==4.9.1 \
+ && pip install matplotlib==3.5.2 \
+ && pip install netcdf4==1.6.2 \
+ && pip install numpy==1.22.0 \
  && pip install pytest==7.1.2 \
  && pip install metpy==1.3.1 \
  && pip install pyyaml==6.0 \
- && pip install scikit-image==0.18.1 \
- && pip install scikit-learn==0.23.2 \
- && pip install scipy==1.8.0 \
+ && pip install scikit-image==0.19.3 \
+ && pip install scikit-learn \
+ && pip install scipy==1.8.1 \
  && pip install xarray==2022.3.0 \
  && pip install PyMySQL==1.0.2 \
  && pip install pint==0.19.2 \
- && pip install plotly==5.8.0 \
+ && pip install plotly==5.9.0 \
  && pip install kaleido==0.2.1 \
- && pip install PyYAML==5.3.1
+ && pip install attrs==22.1.0 \
+ && pip install exceptiongroup==1.0.4 \
+ && pip install iniconfig==1.1.1 \
+ && pip install packaging==22.0 \
+ && pip install pluggy==1.0.0 \
+ && pip install pytz==2022.6 \
+ && pip install setuptools==65.5.1 \
+ && pip install six==1.16.0 \
+ && pip install tomli==2.0.1 \
+ && pip install wheel==0.38.1 \
+ && pip install python-dateutil==2.8.2 \
+ && pip install opencv-python \
+ && pip install pandas==1.5.1
+
 
 
 
