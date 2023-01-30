@@ -660,7 +660,7 @@
         <fail unless="metcalcpy.path">You must specify the path to METcalcpy directory</fail>
         <fail unless="metplotpy.path">You must specify the path to METplotpy directory</fail>
         <fail unless="metdataio.path">You must specify the path to METdataio directory</fail>
-        <fail unless="python.env.path">You must specify the path to METviewer_py3.6.3</fail>
+        <fail unless="python.env.path">You must specify the path to METviewer_py3.8.6</fail>
 
         <tar destfile="${dist}/batch_load.tar" >
             <tarfileset dir="."  prefix="METviewer/">

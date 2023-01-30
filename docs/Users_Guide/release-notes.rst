@@ -9,6 +9,15 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v5.0.1 <https://github.com/dtcenter/METviewer>`_ release notes (20220130)
+----------------------------------------------------------------------------------
+* New Features:
+* Enhancements:
+* Bugfixes:
+   * Add nco_requirements.txt file. Update Dockerfile to use NCO-approved Python packages(`#448 <https://github.com/dtcenter/METviewer/issues/448>`_)
+* Internal:
+
+
 Version `v5.0.0 <https://github.com/dtcenter/METviewer>`_ release notes (20221209)
 ----------------------------------------------------------------------------------
 
