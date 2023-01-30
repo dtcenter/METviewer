@@ -55,7 +55,7 @@ install the latest version. Install required R packages:
 **Python**: install Python 3.8.6 or higher. Create an environment
 (METviewer_py3.8.6) and install required packages:
 
-* Python 3.10.4
+* Python 3.8.6
 * matplotlib==3.5.2
 * scipy==1.8.1
 * plotly==5.9.0
@@ -88,7 +88,7 @@ install the latest version. Install required R packages:
 
 
 
-**METviewer v4.0.1** -
+**METviewer v5.0.1** -
 clone   `METviewer repository <https://github.com/dtcenter/METviewer>`_
 
    .. code-block:: none
