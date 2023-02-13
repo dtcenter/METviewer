@@ -210,7 +210,8 @@ RUN python3.8 -m pip install --upgrade pip
 #
 # Create a link for python3
 #
-RUN ln -sf /usr/local/bin/python3.8  /usr/bin/python
+RUN ln -sf /usr/local/bin/python3.8  /usr/bin/python3
+RUN ln -sf /usr/bin/python3  /usr/bin/python
 
 #
 # install GEOS - needed for cartopy
