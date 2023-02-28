@@ -52,7 +52,7 @@ install the latest version. Install required R packages:
  * gsl
 
 
-**Python**: install Python 3.8.6 or higher. Create an environment
+**Python**: install Python 3.10.4. Create an environment
 (METviewer_py3.10.4) and install required packages:
 
 * Python 3.10.4
@@ -181,7 +181,7 @@ _____________________________
         ant -Dbuild.properties.file=METviewer/build.properties \
         -Ddb.management.system=mariadb -Dmetcalcpy.path=METcalcpy/ -Dmetplotpy.path=METplotpy/ \
         -Dmetdataio.path=METdataio/ \
-       -Dpython.env.path=METviewer_py3.8.6/  clean all
+       -Dpython.env.path=METviewer_py3.10.4/  clean all
 
   * Deploy the web app to tomcat
 

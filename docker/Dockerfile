@@ -189,28 +189,28 @@ RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
  && mv mv_prune.sh-DOCKER mv_prune.sh
 
 #
-# Install Python 3.8.6
+# Install Python 3.10.4
 #
 RUN yum install gcc openssl-devel bzip2-devel libffi-devel zlib-devel libproj-dev proj-data proj-bin libgeos-dev bzip2 -y
-RUN curl https://www.python.org/ftp/python/3.8.6/Python-3.8.6.tgz --output /tmp/Python-3.8.6.tgz
+RUN curl https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tgz --output /tmp/Python-3.10.4.tgz
 WORKDIR /tmp
-RUN tar xzf Python-3.8.6.tgz
-WORKDIR /tmp/Python-3.8.6
+RUN tar xzf Python-3.10.4.tgz
+WORKDIR /tmp/Python-3.10.4
 RUN ./configure --enable-optimizations
 RUN yum install make -y
 RUN make altinstall
 RUN yum install which -y
 WORKDIR /tmp
-RUN rm -r Python-3.8.6.tgz
+RUN rm -r Python-3.10.4.tgz
 RUN yum -y install epel-release
 RUN curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py
-RUN python3.8 get-pip.py
-RUN python3.8 -m pip install --upgrade pip
+RUN python3.10 get-pip.py
+RUN python3.10 -m pip install --upgrade pip
 
 #
 # Create a link for python3
 #
-RUN ln -sf /usr/local/bin/python3.8  /usr/bin/python3
+RUN ln -sf /usr/local/bin/python3.10  /usr/bin/python3
 RUN ln -sf /usr/bin/python3  /usr/bin/python
 
 #
