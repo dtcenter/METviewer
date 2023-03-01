@@ -14,12 +14,11 @@ formats: []
 
 build:
   tools:
-    python: "3.10.4"
+    python: "3.10"
 
 python:
    install:
    - requirements: docs/requirements.txt
-
 
 # Configuration for Sphinx documentation (this is the default documentation
 # type)
