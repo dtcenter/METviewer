@@ -12,6 +12,7 @@ on:
       - docs/**
   pull_request:
     types: [opened, reopened, synchronize]
+  workflow_dispatch:
 
 jobs:
   documentation:
