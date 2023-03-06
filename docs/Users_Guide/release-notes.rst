@@ -39,7 +39,7 @@ Version `v5.0.1 <https://github.com/dtcenter/METviewer>`_ release notes (2023013
      
      None
      
-.. dropdown:: Bugfixes
+  .. dropdown:: Bugfixes
 
    * Add nco_requirements.txt file. Update Dockerfile to use NCO-approved Python packages (`#448 <https://github.com/dtcenter/METviewer/issues/448>`_)
 
