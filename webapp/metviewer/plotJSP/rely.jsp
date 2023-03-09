@@ -236,6 +236,7 @@
                 var textnode = document.createTextNode(csv);
                 var item = document.getElementById("categories1").childNodes[0];
                 item.replaceChild(textnode, item.childNodes[0]);
+                series_var_y1_indexes = [];
                 loadXMLRely();
                 updateSeriesHist();
             }
