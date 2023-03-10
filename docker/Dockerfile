@@ -276,8 +276,8 @@ RUN pip install cartopy \
 #
 # set env vars
 #
-ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/metplotpy/"
-ENV METPLOTPY_BASE "/METviewer-python/METplotpy/metplotpy/"
+ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
+ENV METPLOTPY_BASE "/METviewer-python/METplotpy/"
 
 # remove unneeded scripts
 RUN rm /METviewer/bin/auto_test.sh \
