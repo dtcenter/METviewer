@@ -18,7 +18,7 @@ Version `v5.1.0-beta1 <https://github.com/dtcenter/METviewer>`_ release notes (2
      
   .. dropdown::  Enhancements
   
-     * Upgrade to using Python 3.10.4 (`#449 <https://github.com/dtcenter/METviewer/issues/449>`_)
+     * **Upgrade to using Python 3.10.4** (`#449 <https://github.com/dtcenter/METviewer/issues/449>`_)
 
   .. dropdown:: Bugfixes
     
