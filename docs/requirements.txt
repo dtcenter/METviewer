@@ -1,2 +1,3 @@
-sphinx-gallery
-sphinxcontrib-bibtex
+sphinx-gallery==0.11.1
+sphinxcontrib-bibtex==2.5.0
+sphinx-design==0.3.0
