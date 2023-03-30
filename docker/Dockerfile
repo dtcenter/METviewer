@@ -5,10 +5,10 @@ MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 #
 # This Dockerfile checks out METviewer from GitHub and builds the specified branch or tag.
 #
-ARG METVIEWER_GIT_NAME 
-ARG METCALCPY_GIT_NAME
-ARG METPLOTPY_GIT_NAME
-ARG METDATAIO_GIT_NAME
+ENV METVIEWER_GIT_NAME develop
+ENV METCALCPY_GIT_NAME develop
+ENV METPLOTPY_GIT_NAME develop
+ENV METDATAIO_GIT_NAME develop
 
 #
 # Constants
