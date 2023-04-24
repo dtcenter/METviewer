@@ -5,10 +5,10 @@ MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 #
 # This Dockerfile checks out METviewer from GitHub and builds the specified branch or tag.
 #
-ENV METVIEWER_GIT_NAME develop
-ENV METCALCPY_GIT_NAME develop
-ENV METPLOTPY_GIT_NAME develop
-ENV METDATAIO_GIT_NAME develop
+ARG METVIEWER_GIT_NAME
+ARG METCALCPY_GIT_NAME
+ARG METPLOTPY_GIT_NAME
+ARG METDATAIO_GIT_NAME
 
 #
 # Constants
@@ -21,6 +21,9 @@ ENV METVIEWER_GIT_URL  https://github.com/dtcenter/METviewer
 ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
 ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
 ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
+
+# this umask is needed for Tomcat
+ENV UMASK 002
 
 #
 # METVIEWER_GIT_NAME is required.
@@ -71,11 +74,23 @@ RUN yum -y update \
  && yum-config-manager --enable PowerTools
 
 #
+# Install MariaDB server
+#
+RUN yum -y install --setopt=tsflags=nodocs epel-release && \
+    yum -y install --setopt=tsflags=nodocs mariadb-server bind-utils pwgen psmisc hostname && \
+    yum -y erase vim-minimal && \
+    yum -y update && yum clean all
+
+#
 # Install required packages
 #
-RUN yum -y install wget tar git ant java R mysql ksh \
+USER root
+RUN yum -y install wget tar git ant  R mysql ksh \
  && rm -rf /var/cache/yum/* \
  && yum clean all
+
+RUN  yum  install java-1.8.0-openjdk-devel
+
 
 #
 # Install gsl-2.5 on which the R gsl package depends.
@@ -133,7 +148,6 @@ RUN echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}
 WORKDIR /METviewer-python/
 RUN git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
 
-
 #
 # Install METviewer
 #
@@ -142,13 +156,13 @@ RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
  && echo "Configuring and building METviewer" \
  && cd /METviewer \
  && cat webapp/metviewer/WEB-INF/classes/build.properties | \
-    sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
+    sed -r 's%db.host=.*%db.host=localhost%g' | \
     sed -r 's%db.user=.*%db.user=root%g' | \
     sed -r 's%db.password=.*%db.password=mvuser%g' | \
     sed -r 's%db.management.system=.*%db.management.system=mysql%g' | \
     sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
     sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
-    sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
+    sed -r 's%url.output=.*%url.output=/metviewer_output/%g' | \
     sed -r 's%python.env=.*%python.env=/usr/%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
@@ -188,6 +202,7 @@ RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
     >  mv_prune.sh-DOCKER \
  && mv mv_prune.sh-DOCKER mv_prune.sh
 
+
 #
 # Install Python 3.10.4
 #
@@ -220,6 +235,7 @@ RUN ln -sf /usr/bin/python3  /usr/bin/python
 RUN ln -sf /usr/local/bin/pip3.10  /usr/bin/pip3
 RUN ln -sf /usr/bin/pip3  /usr/bin/pip
 
+
 #
 # install GEOS - needed for cartopy
 #
@@ -232,6 +248,7 @@ RUN make install
 RUN ldconfig
 WORKDIR /tmp
 RUN rm -r geos-3.7.2.tar.bz2
+
 
 #
 # Install Python packages
@@ -268,8 +285,6 @@ RUN pip install cartopy \
  && pip install python-dateutil==2.8.2 \
  && pip install opencv-python \
  && pip install pandas==1.5.1
-#
-#
 
 
 
@@ -279,6 +294,7 @@ RUN pip install cartopy \
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/"
 
+
 # remove unneeded scripts
 RUN rm /METviewer/bin/auto_test.sh \
     && rm /METviewer/bin/mv_test.sh \
@@ -287,13 +303,40 @@ RUN rm /METviewer/bin/auto_test.sh \
     && rm /METviewer/bin/mv_compare.sh \
     && rm -r  /METviewer/test
 
-# change permissions of the scripts
+#
+# Change permission on exe's
+#
 RUN chmod 755 /METviewer/bin/mv_batch.sh \
   && chmod 755 /METviewer/bin/mv_load.sh \
   && chmod 755 /METviewer/bin/mv_prune.sh \
   && chmod 755 /METviewer/bin/mv_scorecard.sh
 
 
-ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh  && /bin/bash
-CMD ["true"]
+#
+# database install
+#
 
+#
+# Fix permissions to allow for running on openshift
+#
+COPY fix-permissions.sh ./
+RUN chmod 777 ./fix-permissions.sh
+RUN ./fix-permissions.sh /var/lib/mysql/   && \
+    ./fix-permissions.sh /var/log/mariadb/ && \
+    ./fix-permissions.sh /var/run/
+
+COPY docker-entrypoint.sh /
+RUN chmod 777 /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+#
+# Place VOLUME statement below all changes to /var/lib/mysql
+#
+VOLUME /var/lib/mysql
+
+#
+# Change to mysql user to start the database server
+#
+USER 27
+CMD ["mysqld_safe"]
