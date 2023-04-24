@@ -9,24 +9,44 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
-Version `v5.1.0-beta1 <https://github.com/dtcenter/METviewer>`_ release notes (20230301)
+Version `v5.1.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (20230424)
 ----------------------------------------------------------------------------------------
 
   .. dropdown:: New Features
      
-     None
-     
+    * **New Dockerfile that creates a single image with database and METviewer in it. Can be used to create a Singularity image  (`#448 <https://github.com/dtcenter/METviewer/issues/446>`_)
+
   .. dropdown::  Enhancements
   
-     * **Upgrade to using Python 3.10.4** (`#449 <https://github.com/dtcenter/METviewer/issues/449>`_)
+     None
 
   .. dropdown:: Bugfixes
     
-     None
+    * Fixed an error during uploading a reliability diagram XML to GUI (`#448 <https://github.com/dtcenter/METviewer/issues/464>`_)
+
 
   .. dropdown:: Internal
   
      None  
+
+Version `v5.1.0-beta1 <https://github.com/dtcenter/METviewer>`_ release notes (20230301)
+----------------------------------------------------------------------------------------
+
+  .. dropdown:: New Features
+
+     None
+
+  .. dropdown::  Enhancements
+
+     * **Upgrade to using Python 3.10.4** (`#449 <https://github.com/dtcenter/METviewer/issues/449>`_)
+
+  .. dropdown:: Bugfixes
+
+     None
+
+  .. dropdown:: Internal
+
+     None
 
 Version `v5.0.1 <https://github.com/dtcenter/METviewer>`_ release notes (20230130)
 ----------------------------------------------------------------------------------
