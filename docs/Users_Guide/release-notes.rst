@@ -14,7 +14,7 @@ Version `v5.1.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (2
 
   .. dropdown:: New Features
      
-    * **New Dockerfile that creates a single image with database and METviewer in it. Can be used to create a Singularity image  (`#448 <https://github.com/dtcenter/METviewer/issues/446>`_)
+    * New Dockerfile that creates a single image with database and METviewer in it. Can be used to create a Singularity image  (`#446 <https://github.com/dtcenter/METviewer/issues/446>`_)
 
   .. dropdown::  Enhancements
   
@@ -22,7 +22,7 @@ Version `v5.1.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (2
 
   .. dropdown:: Bugfixes
     
-    * Fixed an error during uploading a reliability diagram XML to GUI (`#448 <https://github.com/dtcenter/METviewer/issues/464>`_)
+    * Fixed an error during uploading a reliability diagram XML to GUI (`#464 <https://github.com/dtcenter/METviewer/issues/464>`_)
 
 
   .. dropdown:: Internal
