@@ -22,8 +22,7 @@ import java.util.*;
 public final class MVPlotJobParser {
 
   protected static final Map<String, Method> formatToBoolValues = new HashMap<>();
-  private static final Logger logger = LogManager.getLogger("MVPlotJobParser");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final Logger logger = LogManager.getLogger(MVPlotJobParser.class);
 
   private static final Map<String, Method> formatToStrValues = new HashMap<>();
 
@@ -81,7 +80,7 @@ public final class MVPlotJobParser {
               MVPlotJob.class.getDeclaredMethod("setEnsSsPtsDisp", boolean.class));
 
     } catch (NoSuchMethodException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
   }
 
@@ -265,7 +264,7 @@ public final class MVPlotJobParser {
               MVPlotJob.class.getDeclaredMethod("setColorPalette", String.class));
 
     } catch (NoSuchMethodException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
   }
 
@@ -435,7 +434,7 @@ public final class MVPlotJobParser {
           try {
             valuesSortedInt[i] = Integer.valueOf(indyVals[i]);
           } catch (NumberFormatException e) {
-            logger.error(ERROR_MARKER, e.getMessage());
+            logger.error( e.getMessage());
           }
         }
         Arrays.sort(valuesSortedInt);
@@ -447,7 +446,7 @@ public final class MVPlotJobParser {
               result = result + "Values for variable " + job.getIndyVar() + " are not sorted";
             }
           } catch (NumberFormatException e) {
-            logger.error(ERROR_MARKER, e.getMessage());
+            logger.error( e.getMessage());
           }
 
         }
@@ -501,7 +500,7 @@ public final class MVPlotJobParser {
                 try {
                   valuesSortedInt[i] = Integer.valueOf(values[i]);
                 } catch (NumberFormatException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
+                  logger.error( e.getMessage());
                 }
               }
               Arrays.sort(valuesSortedInt);
@@ -513,7 +512,7 @@ public final class MVPlotJobParser {
                     return "Values for variable " + entry.getKey().toString() + " are not sorted";
                   }
                 } catch (NumberFormatException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
+                  logger.error( e.getMessage());
                 }
               }
             } else {
@@ -631,7 +630,7 @@ public final class MVPlotJobParser {
           try {
             listLabels.add(formatLabel.format(formatDb.parse(listDate)));
           } catch (ParseException e) {
-            logger.error(ERROR_MARKER, e.getMessage());
+            logger.error( e.getMessage());
           }
 
         }

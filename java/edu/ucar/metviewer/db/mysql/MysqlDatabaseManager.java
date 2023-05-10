@@ -28,8 +28,7 @@ import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.DatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -40,8 +39,7 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
  */
 public class MysqlDatabaseManager extends DatabaseManager {
 
-  private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final Logger logger = LogManager.getLogger(MysqlDatabaseManager.class);
 
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
@@ -84,15 +82,10 @@ public class MysqlDatabaseManager extends DatabaseManager {
     configurationToUse.setJdbcInterceptors(
             "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
                     + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
-    try {
+
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
-      dataSource.setLogWriter(new PrintWriter(getPrintStream()));
-    } catch (SQLException e) {
-      logger.info("Database connection  for a primary database was not initialised.");
-      logger.error(ERROR_MARKER, e.getMessage());
-      dataSource = null;
-    }
+
 
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
@@ -120,18 +113,34 @@ public class MysqlDatabaseManager extends DatabaseManager {
             + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
             + "> 0 and "
             + "TABLE_SCHEMA like 'mv_%'";
-    try (Connection testConnection = dataSource.getConnection();
-         Statement testStatement = testConnection.createStatement();
-         ResultSet resultSet = testStatement.executeQuery(sql)
-
-    ) {
+    Connection testConnection = null;
+    Statement testStatement = null;
+    ResultSet resultSet = null;
+    try {
+      testConnection = dataSource.getConnection();
+      testStatement = testConnection.createStatement();
+      resultSet = testStatement.executeQuery(sql);
       String database;
       while (resultSet.next()) {
         database = resultSet.getString("TABLE_SCHEMA");
         listDB.put(database, "");
       }
-    } catch (SQLException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+    } catch (Exception e) {
+      logger.error( e.getMessage());
+    }finally {
+      try {
+      if(resultSet != null){
+          resultSet.close();
+      }
+      if(testStatement != null){
+        testStatement.close();
+      }
+      if(testConnection != null){
+        testConnection.close();
+      }
+      } catch (SQLException e) {
+        logger.error(e.getMessage());
+      }
     }
 
     if (updateGroups) {
@@ -168,7 +177,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
       }
 
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER,"Can't get groups for database " + database + " SQL exception: " + e);
+      logger.error("Can't get groups for database " + database + " SQL exception: " + e);
     }
     if (group.isEmpty()) {
       group = MVUtil.DEFAULT_DATABASE_GROUP;
@@ -202,16 +211,20 @@ public class MysqlDatabaseManager extends DatabaseManager {
    * @return - db connection
    * @throws SQLException
    */
-  public Connection getConnection(String db) throws SQLException {
+  public Connection getConnection(String db) {
     Connection con = null;
       try {
         con = dataSource.getConnection();
         con.setCatalog(db);
         con.setNetworkTimeout(Executors.newSingleThreadExecutor(), 0);
       } catch (Exception e) {
-        logger.error(ERROR_MARKER,"can't get connection for database " + db + " " + e.getMessage());
+        logger.error("can't get connection for database " + db + " " + e.getMessage());
         if (con != null) {
-          con.close();
+          try {
+            con.close();
+          } catch (SQLException ex) {
+            logger.error(ex.getMessage());
+          }
         }
       }
     return con;
@@ -228,7 +241,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
       con = dataSource.getConnection();
       con.setNetworkTimeout(Executors.newSingleThreadExecutor(), 0);
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER,"can't get connection " + e.getMessage());
+      logger.error("can't get connection " + e.getMessage());
     }
     return con;
   }

@@ -11,8 +11,7 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+
 import org.apache.logging.log4j.io.IoBuilder;
 
 import java.io.File;
@@ -25,8 +24,7 @@ import static edu.ucar.metviewer.MVUtil.createYamlFile;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class SumPythonManager extends PythonManager {
-  private static final Logger logger = LogManager.getLogger("SumPythonManager");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final Logger logger = LogManager.getLogger(SumPythonManager.class);
 
   private static final String PYTHON_SCRIPT = "/metcalcpy/sum_stat.py";
   private final Map<String, Object> yamlInfo;
@@ -144,7 +142,7 @@ public class SumPythonManager extends PythonManager {
           }
           printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
         } catch (StopWatchException | IOException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
 
         //done with summary aggregation - start with scorecard
@@ -259,7 +257,7 @@ public class SumPythonManager extends PythonManager {
           }
           printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
         } catch (IOException | StopWatchException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
 
       }

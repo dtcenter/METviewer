@@ -34,8 +34,7 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+
 
 import static edu.ucar.metviewer.MVUtil.GROUP_SEPARATOR;
 import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.BINARY;
@@ -48,7 +47,6 @@ import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.DATE_FORMATTER;
 public abstract class DatabaseManagerSql implements DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("DatabaseManagerSql");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
   private final Map<String, List<Entry>> columnsDescription;
   private final List<String> databaseNames;
@@ -106,7 +104,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           pstmt.close();
           con.close();
         } catch (SQLException | IOException | StopWatchException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
     }
@@ -394,7 +392,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       }
 
     } catch (IOException | SQLException | EmptyResultSetException e) {
-      logger.error(ERROR_MARKER,
+      logger.error(
               "  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
   }
@@ -416,7 +414,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       }
 
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     result.put("numPctThresh", numPctThresh);
     result.put("pctThresh", pctThresh);

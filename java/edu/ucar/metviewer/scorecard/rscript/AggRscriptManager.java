@@ -36,8 +36,7 @@ import org.apache.logging.log4j.io.IoBuilder;
  */
 public class AggRscriptManager extends RscriptManager {
 
-  private static final Logger logger = LogManager.getLogger("AggRscriptManager");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final Logger logger = LogManager.getLogger(AggRscriptManager.class);
 
   private static final String STAT_SCRIPT_FILE_NAME = "/include/agg_stat.R";
   private final String strAggInfo;
@@ -166,7 +165,7 @@ public class AggRscriptManager extends RscriptManager {
           }
           printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
         } catch (IOException | StopWatchException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
     }

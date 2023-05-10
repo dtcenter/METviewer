@@ -34,8 +34,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
   protected static final DateTimeFormatter DB_DATE_STAT_FORMAT
           = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-  private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final Logger logger = LogManager.getLogger(MysqlLoadDatabaseManager.class);
   private static final DecimalFormat format = new DecimalFormat("##.00");
 
   private static final int INDEX_LINE_DATA = 1;
@@ -487,7 +486,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //1091; Symbol: ER_CANT_DROP_FIELD_OR_KEY; SQLSTATE: 42000 Message: Can't
         // DROP '%s'; check that column/key exists
         if (se.getErrorCode() != 1091 && se.getErrorCode() != 1061) {
-          logger.error(ERROR_MARKER, se.getMessage());
+          logger.error( se.getMessage());
         }
       }
     }
@@ -496,7 +495,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       logger.info("Indexes {} {}", operation, stopWatch.getFormattedTotalDuration());
 
     } catch (StopWatchException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     logger.info("");
   }
@@ -552,14 +551,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         try {
           pstmt.close();
         } catch (SQLException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
       if (res != null) {
         try {
           res.close();
         } catch (SQLException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
     }
@@ -879,27 +878,27 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 foundStatHeader = true;
               }
             } catch (SQLException | NumberFormatException e) {
-              logger.error(ERROR_MARKER, e.getMessage());
+              logger.error( e.getMessage());
             } finally {
 
               if (res != null) {
                 try {
                   res.close();
                 } catch (SQLException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
+                  logger.error( e.getMessage());
                 }
               }
               if (stmt != null) {
                 try {
                   stmt.close();
                 } catch (SQLException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
+                  logger.error( e.getMessage());
                 }
               }
               try {
                 con.close();
               } catch (SQLException e) {
-                logger.error(ERROR_MARKER, e.getMessage());
+                logger.error( e.getMessage());
               }
             }
           }
@@ -941,7 +940,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               statHeaderInsert = stmt.executeUpdate();
 
             } catch (SQLException se) {
-              logger.error(ERROR_MARKER, se.getMessage());
+              logger.error( se.getMessage());
               throw new DatabaseException("caught SQLException calling executeUpdate: " + se.getMessage());
             }
 
@@ -1275,7 +1274,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
     } catch
     (NegativeArraySizeException | IOException | ArrayIndexOutOfBoundsException | NumberFormatException | DatabaseException e) {
-      logger.error(ERROR_MARKER, "ERROR for file {} : {}", filename, e.getMessage());
+      logger.error( "ERROR for file {} : {}", filename, e.getMessage());
     }
 
     //  commit all the remaining stored data
@@ -1395,7 +1394,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                           listVarLengthValues.size() + "\n        " + statInsertData.getFileLine());
         }
       } catch (SQLException se) {
-        logger.error(ERROR_MARKER, se.getMessage());
+        logger.error( se.getMessage());
         throw new DatabaseException(
                 "caught SQLException calling executeUpdate: " + se.getMessage());
       }
@@ -1648,26 +1647,26 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   foundStatHeader = true;
                 }
               } catch (SQLException | NumberFormatException e) {
-                logger.error(ERROR_MARKER, e.getMessage());
+                logger.error( e.getMessage());
               } finally {
                 try {
                   if (res != null) {
                     res.close();
                   }
                 } catch (SQLException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
+                  logger.error( e.getMessage());
                 }
                 try {
                   if (stmt != null) {
                     stmt.close();
                   }
                 } catch (SQLException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
+                  logger.error( e.getMessage());
                 }
                 try {
                   con.close();
                 } catch (SQLException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
+                  logger.error( e.getMessage());
                 }
               }
             }
@@ -1709,7 +1708,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
                 intStatHeaderInsert = stmt.executeUpdate();
               } catch (SQLException se) {
-                logger.error(ERROR_MARKER, se.getMessage());
+                logger.error( se.getMessage());
                 throw new DatabaseException(
                         "caught SQLException calling executeUpdate: " + se.getMessage());
               }
@@ -1938,7 +1937,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   on = Double.valueOf(listToken[intGroupIndex + intGroupSize]).intValue();
                   total = total + on;
                 } catch (NumberFormatException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
+                  logger.error( e.getMessage());
                 }
                 intGroupIndex++;
               }
@@ -2223,13 +2222,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
         } catch (NumberFormatException e) {
           logger.info("ERROR: line:{} has errors and would be ignored.", line);
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
 
       }
 
     } catch (IOException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
 
     //  commit all the remaining stored data
@@ -2551,13 +2550,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                         "  **  WARNING: found duplicate mode_header record with id {}\n        {}", modeHeaderIdDup, strFileLine);
               }
             } catch (SQLException e) {
-              logger.error(ERROR_MARKER, e.getMessage());
+              logger.error( e.getMessage());
             } finally {
               if (res != null) {
                 try {
                   res.close();
                 } catch (SQLException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
+                  logger.error( e.getMessage());
                 }
               }
             }
@@ -2636,7 +2635,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
               modeHeaderInsertCount = stmt.executeUpdate();
             } catch (SQLException se) {
-              logger.error(ERROR_MARKER, se.getMessage());
+              logger.error( se.getMessage());
               throw new DatabaseException(
                       "caught SQLException calling executeUpdate: " + se.getMessage());
             }
@@ -2684,7 +2683,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             modeCtsInsertCount = stmt.executeUpdate();
 
           } catch (SQLException se) {
-            logger.error(ERROR_MARKER, se.getMessage());
+            logger.error( se.getMessage());
             throw new DatabaseException(
                     "caught SQLException calling executeUpdate: " + se.getMessage());
           }
@@ -2818,7 +2817,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             intModeObjSingleInsert = stmt.executeUpdate();
 
           } catch (SQLException se) {
-            logger.error(ERROR_MARKER, se.getMessage());
+            logger.error( se.getMessage());
             throw new DatabaseException(
                     "caught SQLException calling executeUpdate: " + se.getMessage());
           }
@@ -2904,7 +2903,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             intModeObjPairInsert = stmt.executeUpdate();
 
           } catch (SQLException se) {
-            logger.error(ERROR_MARKER, se.getMessage());
+            logger.error( se.getMessage());
             throw new DatabaseException(
                     "caught SQLException calling executeUpdate: " + se.getMessage());
           }
@@ -2921,7 +2920,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       reader.close();
 
     } catch (IOException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
 
     //  increment the global mode counters
@@ -3025,7 +3024,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         line++;
       }
     } catch (IOException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     int revisionLines = 0;
 
@@ -3113,13 +3112,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
       }
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     } finally {
       if (res != null) {
         try {
           res.close();
         } catch (SQLException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
     }
@@ -3188,7 +3187,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
 
         } else {
-          System.out.println("not revision - skip");
+          logger.info("not revision - skip");
         }
 
         dataForObjId = new ArrayList<>();
@@ -3235,7 +3234,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
 
     } else {
-      System.out.println("not revision - skip");
+      logger.info("not revision - skip");
     }
 
 
@@ -3259,7 +3258,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
 
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     if (!currentCategory.equals(group)) {
       if (nrows == 0) {
@@ -3270,7 +3269,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           stmt.setString(2, "");
           stmt.executeUpdate();
         } catch (SQLException se) {
-          logger.error(ERROR_MARKER, se.getMessage());
+          logger.error( se.getMessage());
           throw new DatabaseException(
                   "caught SQLException calling executeUpdate: " + se.getMessage());
         }
@@ -3283,7 +3282,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           stmt.setString(2, currentCategory);
           stmt.executeUpdate();
         } catch (SQLException se) {
-          logger.error(ERROR_MARKER, se.getMessage());
+          logger.error( se.getMessage());
           throw new DatabaseException(
                   "caught SQLException calling executeUpdate: " + se.getMessage());
         }
@@ -3308,7 +3307,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
 
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     if (!currentDescription.equals(description)) {
       if (nrows == 0) {
@@ -3319,7 +3318,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           stmt.setString(2, description);
           stmt.executeUpdate();
         } catch (SQLException se) {
-          logger.error(ERROR_MARKER, se.getMessage());
+          logger.error( se.getMessage());
           throw new DatabaseException(
                   "caught SQLException calling executeUpdate: " + se.getMessage());
         }
@@ -3333,7 +3332,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           stmt.setString(2, currentDescription);
           stmt.executeUpdate();
         } catch (SQLException se) {
-          logger.error(ERROR_MARKER, se.getMessage());
+          logger.error( se.getMessage());
           throw new DatabaseException(
                   "caught SQLException calling executeUpdate: " + se.getMessage());
         }
@@ -3382,28 +3381,28 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
 
     } catch (SQLException se) {
-      logger.error(ERROR_MARKER, se.getMessage());
+      logger.error( se.getMessage());
       throw new DatabaseException("caught SQLException calling executeBatch: " + se.getMessage());
     } finally {
       if (ps != null) {
         try {
           ps.close();
         } catch (SQLException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
       if (stmt != null) {
         try {
           stmt.close();
         } catch (SQLException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
       if (con != null) {
         try {
           con.close();
         } catch (SQLException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
 
@@ -3478,7 +3477,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
       }
     } catch (IOException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     if (lines == 0) {
       logger.warn("  **  WARNING: file {} is empty and will be ignored", file.getAbsolutePath());
@@ -3537,7 +3536,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         try {
           resultSet.close();
         } catch (SQLException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
     }
@@ -3583,7 +3582,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       stmt.setObject(6, modDate, Types.TIMESTAMP);
       resCounter = stmt.executeUpdate();
     } catch (SQLException se) {
-      logger.error(ERROR_MARKER, se.getMessage());
+      logger.error( se.getMessage());
       throw new DatabaseException(
               "caught SQLException calling executeUpdate: " + se.getMessage());
     }
@@ -3618,7 +3617,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           loadXmlStr.append(reader.readLineBounded().trim());
         }
       } catch (IOException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
+        logger.error( e.getMessage());
       }
     }
 
@@ -3640,7 +3639,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       stmt.setString(5, loadXmlStr.toString());
       insert = stmt.executeUpdate();
     } catch (SQLException se) {
-      logger.error(ERROR_MARKER, se.getMessage());
+      logger.error( se.getMessage());
       throw new DatabaseException(
               "caught SQLException calling executeUpdate: " + se.getMessage());
     }
@@ -3950,13 +3949,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               logger.warn("  **  WARNING: found duplicate mtd_header record with id {}\n        {}", strMtdHeaderIdDup, strFileLine);
             }
           } catch (NumberFormatException | SQLException e) {
-            logger.error(ERROR_MARKER, e.getMessage());
+            logger.error( e.getMessage());
           } finally {
             if (res != null) {
               try {
                 res.close();
               } catch (SQLException e) {
-                logger.error(ERROR_MARKER, e.getMessage());
+                logger.error( e.getMessage());
               }
             }
           }
@@ -4041,7 +4040,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             mtdHeaderInsert = stmt.executeUpdate();
 
           } catch (SQLException se) {
-            logger.error(ERROR_MARKER, se.getMessage());
+            logger.error( se.getMessage());
             throw new DatabaseException("caught SQLException calling executeUpdate: " + se.getMessage());
           }
 
@@ -4111,7 +4110,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           mtd3dObjSingleInsert = stmt.executeUpdate();
 
         } catch (SQLException se) {
-          logger.error(ERROR_MARKER, se.getMessage());
+          logger.error( se.getMessage());
           throw new DatabaseException(
                   "caught SQLException calling executeUpdate: " + se.getMessage());
         }
@@ -4179,7 +4178,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           mtd2dObjInsert = stmt.executeUpdate();
         } catch (SQLException se) {
-          logger.error(ERROR_MARKER, se.getMessage());
+          logger.error( se.getMessage());
           throw new DatabaseException(
                   "caught SQLException calling executeUpdate: " + se.getMessage());
         }
@@ -4253,7 +4252,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           stmt.setInt(16, matchedFlag);
           mtd3dObjPairInsert = stmt.executeUpdate();
         } catch (SQLException se) {
-          logger.info(ERROR_MARKER, se.getMessage());
+          logger.info( se.getMessage());
           throw new DatabaseException(
                   "caught SQLException calling executeUpdate: " + se.getMessage());
         }

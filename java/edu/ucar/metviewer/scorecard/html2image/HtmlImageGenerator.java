@@ -20,8 +20,7 @@ import java.io.InputStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+
 
 /**
  * @author : tatiana $
@@ -30,7 +29,6 @@ import org.apache.logging.log4j.MarkerManager;
 public class HtmlImageGenerator {
 
   private static final Logger logger = LogManager.getLogger("HtmlImageGenerator");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
   private static final String TEXT_HTML = "text/html";
 
@@ -52,7 +50,7 @@ public class HtmlImageGenerator {
       font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 14);
     } catch (FontFormatException | IOException e) {
       font = new Font("SansSerif", Font.PLAIN, 14);
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     editorPane.setFont(font);
   }
@@ -79,7 +77,7 @@ public class HtmlImageGenerator {
         throw new IOException("Error during creating an image  " + file);
       }
     } catch (IOException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
       throw new RuntimeException("Error during creating an image  " + file);
     }
   }

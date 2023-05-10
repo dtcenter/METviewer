@@ -1,7 +1,6 @@
 package edu.ucar.metviewer;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -36,7 +35,6 @@ import java.util.regex.Pattern;
 public class MVUtil {
 
   private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger("MVUtil");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
 
   public static final Pattern thresh = Pattern.compile("([<>=!]{1,2})(\\d*(?:\\.\\d+)?)");
@@ -141,8 +139,6 @@ public class MVUtil {
 
   public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
           .setLevel(org.apache.logging.log4j.Level.INFO)
-          .setMarker(
-                  new MarkerManager.Log4jMarker("ERROR"))
           .buildPrintStream();
   public static final String DEFAULT_DATABASE_GROUP = "NO GROUP";
 
@@ -1833,35 +1829,35 @@ public class MVUtil {
         }
       }
     } catch (SecurityException | IOException | IllegalArgumentException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     } finally {
 
       if (inputStreamReader != null) {
         try {
           inputStreamReader.close();
         } catch (IOException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
       if (errorInputStreamReader != null) {
         try {
           errorInputStreamReader.close();
         } catch (IOException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
       if (readerProcStd != null) {
         try {
           readerProcStd.close();
         } catch (IOException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
       if (readerProcErr != null) {
         try {
           readerProcErr.close();
         } catch (IOException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
       if (proc != null) {
@@ -1922,7 +1918,7 @@ public class MVUtil {
         writer.println(strOutputLine);
       }
     } catch (IOException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
       throw e;
     }
 
@@ -2030,7 +2026,7 @@ public class MVUtil {
       Logger l = (Logger) LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
       l.getContext().setConfigLocation(imgurl);
     } catch (URISyntaxException | SecurityException | UnsupportedOperationException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
 
   }
@@ -2754,7 +2750,7 @@ public class MVUtil {
       transformer.transform(source, new StreamResult(stringWriter));
       result = stringWriter.toString();
     } catch (TransformerException | IOException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     return result;
   }
@@ -2771,7 +2767,7 @@ public class MVUtil {
       try {
         fileWriter.close();
       } catch (IOException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
+        logger.error( e.getMessage());
       }
     }
   }
