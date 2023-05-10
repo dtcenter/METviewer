@@ -10,13 +10,14 @@ import java.util.Map;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.jobManager.*;
-import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.io.IoBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 
 public class MVBatch {
 
-
+  private static final Logger logger = LogManager.getLogger(MVBatch.class);
   private PrintStream printStream;
   private PrintStream printStreamSql;
   private PrintStream printStreamEr;
@@ -80,19 +81,18 @@ public class MVBatch {
 
   public MVBatch() {
 
-    this(IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
-                    .buildPrintStream(),
-            IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
-                    .buildPrintStream(),
-            IoBuilder.forLogger().setLevel(org.apache.logging.log4j.Level.INFO)
-                    .setMarker(new MarkerManager.Log4jMarker("ERROR"))
-                    .buildPrintStream(), null);
+    this.printStream = null;
+    this.printStreamSql = null;
+    this.printStreamEr = null;
+    databaseManager = null;
   }
 
   public void print(String message) {
     if (this.printStream != null) {
       this.printStream.println(message);
       this.printStream.flush();
+    }else {
+      System.out.println(message);
     }
   }
 
@@ -100,6 +100,8 @@ public class MVBatch {
     if (this.printStreamSql != null) {
       this.printStreamSql.print(message);
       this.printStreamSql.flush();
+    }else {
+      System.out.println(message);
     }
   }
 
@@ -107,6 +109,8 @@ public class MVBatch {
     if (this.printStreamEr != null) {
       this.printStreamEr.print(message);
       this.printStreamEr.flush();
+    }else {
+      System.out.println(message);
     }
   }
 
@@ -252,12 +256,13 @@ public class MVBatch {
     stopWatch.start();
     MVBatch mvBatch = new MVBatch();
 
-    mvBatch.print("----  MVBatch  ----\n");
+    logger.info("----  MVBatch  ----\n");
     try {
       MVPlotJob[] jobs;
       // if no input file is present, bail
       if (1 > argv.length) {
-        mvBatch.print(getUsage() + "\n----  MVBatch Done  ----");
+        mvBatch.print(getUsage());
+        logger.info( "----  MVBatch Done  ----");
         return;
       }
       //  parse the command line options
@@ -269,12 +274,14 @@ public class MVBatch {
         } else if (argv[intArg].equals("-printSql")) {
           mvBatch.setVerbose(true);
         }else if ("-h".equalsIgnoreCase(argv[0]) || "--h".equalsIgnoreCase(argv[0]) || "-help".equalsIgnoreCase(argv[0])) {
-          mvBatch.print(getUsage() + "\n\n----  MVBatch Done  ----");
+          mvBatch.print(getUsage());
+          logger.info( "----  MVBatch Done  ----");
           return;
         } else {
-          mvBatch.print(
-                  "  **  ERROR: unrecognized option '"
-                          + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
+          logger.error("  **  ERROR: unrecognized option '" + argv[intArg]);
+          mvBatch.print(getUsage());
+          logger.info( "----  MVBatch Done  ----");
+
           return;
         }
       }
@@ -311,7 +318,7 @@ public class MVBatch {
 
       //  if only a list of plot jobs is requested, return
       if (boolList) {
-        mvBatch.print("\n----  MVBatch Done  ----");
+        logger.info("----  MVBatch Done  ----");
         return;
       }
 
@@ -322,7 +329,11 @@ public class MVBatch {
         ArrayList listJobs = new ArrayList();
         for (String listJobName : listJobNames) {
           if (!mapJobs.containsKey(listJobName)) {
-            mvBatch.printStream.println("  **  WARNING: unrecognized job \"" + listJobName + "\"");
+            if (mvBatch.printStream == null){
+              logger.info("  **  WARNING: unrecognized job \"" + listJobName + "\"");
+            }else {
+              mvBatch.printStream.println("  **  WARNING: unrecognized job \"" + listJobName + "\"");
+            }
             continue;
           }
           listJobs.add(mapJobs.get(listJobName));
@@ -434,13 +445,14 @@ public class MVBatch {
 
     } catch (Exception e) {
       stopWatch.stop();
-      mvBatch.print("  **  ERROR:  " + e.getMessage());
+      logger.error("  **  ERROR:  " + e.getMessage());
+
     }
     mvBatch.closeDataSource();
 
-    mvBatch.print("----  MVBatch Done  ----");
+    logger.info("----  MVBatch Done  ----");
 
-    mvBatch.print("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
+    logger.info("Total execution time " + stopWatch.getFormattedTotalDuration());
 
   }
 

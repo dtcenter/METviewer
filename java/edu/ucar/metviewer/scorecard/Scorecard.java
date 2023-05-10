@@ -22,8 +22,6 @@ import edu.ucar.metviewer.scorecard.model.WorkingFolders;
 import edu.ucar.metviewer.scorecard.rscript.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 
 import java.io.File;
 import java.util.*;
@@ -39,7 +37,6 @@ import static edu.ucar.metviewer.MVUtil.*;
 public class Scorecard {
 
   private static final Logger logger = LogManager.getLogger("Scorecard");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
   private List<String> databaseNames;
   private String user;
@@ -207,7 +204,7 @@ public class Scorecard {
             }
 
           } catch (Exception e) {
-            logger.error(ERROR_MARKER, e.getMessage());
+            logger.error( e.getMessage());
           }
           stopWatch.stop();
           logger.info("\nRow execution time " + stopWatch.getFormattedDuration());

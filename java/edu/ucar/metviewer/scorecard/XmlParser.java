@@ -21,8 +21,7 @@ import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -35,8 +34,7 @@ import org.xml.sax.SAXException;
  */
 class XmlParser {
 
-  private static final Logger logger = LogManager.getLogger("XmlParser");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final Logger logger = LogManager.getLogger(XmlParser.class);
 
 
   public Scorecard parseParameters(String filename) throws ValidationException {
@@ -105,7 +103,7 @@ class XmlParser {
       }
     } catch (ParserConfigurationException | SAXException | IOException e) {
       logger.info("ERROR during reading XML file : " + e.getMessage());
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     return scorecard;
   }

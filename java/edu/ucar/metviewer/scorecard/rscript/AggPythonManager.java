@@ -35,8 +35,7 @@ import static edu.ucar.metviewer.MVUtil.createYamlFile;
  */
 public class AggPythonManager extends PythonManager {
 
-  private static final Logger logger = LogManager.getLogger("AggRscriptManager");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final Logger logger = LogManager.getLogger(AggRscriptManager.class);
 
   private final String aggInfoFileName;
   private final Map<String, Object> yamlInfo;
@@ -142,7 +141,7 @@ public class AggPythonManager extends PythonManager {
           }
           printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
         } catch (IOException | StopWatchException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
     }

@@ -34,8 +34,6 @@ public class RscriptSumStatManager extends RscriptStatManager {
   private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
           .setLevel(org.apache
                   .logging.log4j.Level.INFO)
-          .setMarker(
-                  new MarkerManager.Log4jMarker("ERROR"))
           .buildPrintStream();
 
   public RscriptSumStatManager(MVBatch mvBatch) {

@@ -29,8 +29,7 @@ import java.util.regex.Pattern;
 public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements AppDatabaseManager {
 
 
-  private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final Logger logger = LogManager.getLogger(MysqlAppDatabaseManager.class);
 
   private final List<String> statHeaderSqlType = new ArrayList<>();
   private final List<String> modeHeaderSqlType = new ArrayList<>();
@@ -322,13 +321,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           intStatIndex++;
         }
       } catch (SQLException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
+        logger.error( e.getMessage());
       } finally {
         if (res != null) {
           try {
             res.close();
           } catch (SQLException e) {
-            logger.error(ERROR_MARKER, e.getMessage());
+            logger.error( e.getMessage());
           }
         }
       }
@@ -559,10 +558,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
 
         } catch (SQLException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       } catch (SQLException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
+        logger.error( e.getMessage());
       }
     }
     Collections.sort(listRes);
@@ -603,7 +602,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 ResultSet.CONCUR_READ_ONLY)) {
           stmt.execute(aListSqlBeforeSelect);
         } catch (SQLException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
         }
       }
       dbStopWatch.stop();
@@ -629,7 +628,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           mvResponse.setSuccess(true);
 
         } catch (SQLException | IOException e) {
-          logger.error(ERROR_MARKER, e.getMessage());
+          logger.error( e.getMessage());
           String stat = "This";
           if (e.getMessage().contains("Unknown column")) {
             String[] queryArr = listSqlLastSelect.get(i).split(",");
@@ -662,7 +661,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       con.close();
 
     } catch (SQLException | StopWatchException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     String message = null;
     try {
@@ -673,7 +672,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 + saveToFileStopWatch.getFormattedTotalDuration();
       }
     } catch (StopWatchException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
 
     mvResponse.setInfoMessage(message);
@@ -764,12 +763,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
     } catch (EmptyResultSetException | SQLException | IOException e) {
-      logger.error(ERROR_MARKER,
+      logger.error(
               "  **  ERROR: Caught " + e.getClass()
                       + " in printFormattedTable(ResultSet res): " + e.getMessage());
       logger.info("  **  ERROR: Caught " + e.getClass()
-              + " in printFormattedTable(ResultSet res): " + e.getMessage());
-      System.out.println("  **  ERROR: Caught " + e.getClass()
               + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
   }
@@ -791,7 +788,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     result.put("numPctThresh", numPctThresh);
     result.put("pctThresh", pctThresh);
@@ -816,7 +813,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     result.put("numNcat", numNcat);
     result.put("nCat", nCat);
@@ -841,7 +838,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     result.put("numEcValue", numEcValue);
     result.put("ecValue", ecValue);
@@ -864,7 +861,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
     } catch (SQLException e) {
-      logger.error(ERROR_MARKER, e.getMessage());
+      logger.error( e.getMessage());
     }
     return result;
   }

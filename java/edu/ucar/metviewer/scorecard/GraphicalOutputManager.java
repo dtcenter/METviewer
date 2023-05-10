@@ -33,8 +33,7 @@ import j2html.tags.UnescapedText;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -54,7 +53,6 @@ class GraphicalOutputManager {
   private static final String BLACK_000000 = "#000000";
 
   private static final Logger logger = LogManager.getLogger("GraphicalOutputManager");
-  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
   private static final String CSS
           = "table {border-collapse: collapse;border-spacing: 0;}"
@@ -235,7 +233,7 @@ class GraphicalOutputManager {
 
       } catch (ParserConfigurationException | IOException | SAXException e) {
         logger.info("ERROR during reading weightRequirements XML file : " + e.getMessage());
-        logger.error(ERROR_MARKER, e.getMessage());
+        logger.error( e.getMessage());
         rangeList.clear();
 
       }
@@ -312,7 +310,7 @@ class GraphicalOutputManager {
       } catch (ParserConfigurationException | IOException | SAXException e) {
         logger.info("ERROR during reading threshold XML file : " + e.getMessage());
         logger.info("Default threshold configurations will be used");
-        logger.error(ERROR_MARKER, e.getMessage());
+        logger.error( e.getMessage());
         rangeList.clear();
 
       }
@@ -531,14 +529,10 @@ class GraphicalOutputManager {
         for (Map<String, Entry> mapColumn : listColumns) {
           Map<String, Entry> cellFieldsValues = new HashMap<>(listRows.get(rowCounter));
           cellFieldsValues.putAll(mapColumn);
-          int index = -1;
-          boolean isCellCreated = false;
           // find the corresponding value in the JSON table and create a cell
           BigDecimal valueForSymbol = BigDecimal.valueOf(-9999);
           BigDecimal valueForNumber = BigDecimal.valueOf(-9999);
           WeightRequirements.Weight satisfied = null;
-          JsonNode cellNode = null;
-
 
           for (int i = 0; i < table.size(); i++) {
 
@@ -676,11 +670,9 @@ class GraphicalOutputManager {
     String color = BLACK_000000;
     String background = WHITE_FFFFFF;
     String title = "";
-    String text = "&nbsp;";
     String borderColor = null;
     boolean checkLowLimit = false;
     boolean checkUpperLimit = false;
-    StringBuilder textStr = new StringBuilder();
     ContainerTag valueContainer = null;
     ContainerTag symbolContainer = null;
     if (!valueForSymbol.equals(BigDecimal.valueOf(-9999))) {
