@@ -8,3 +8,5 @@ Support for the METplus components is provided through the
 Users are welcome and encouraged to answer or address each other's questions there!  For more
 information, please read
 "[Welcome to the METplus Components Discussions](https://github.com/dtcenter/METplus/discussions/939)".
+
+For information about the support provided for releases, see our [Release Support Policy](https://metplus.readthedocs.io/en/develop/Release_Guide/index.html#release-support-policy).
