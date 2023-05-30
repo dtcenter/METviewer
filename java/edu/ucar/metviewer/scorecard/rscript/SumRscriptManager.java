@@ -8,7 +8,6 @@ package edu.ucar.metviewer.scorecard.rscript;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,8 +24,6 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import org.apache.logging.log4j.io.IoBuilder;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -173,9 +170,7 @@ public class SumRscriptManager extends RscriptManager {
         String thredInfoFileName = strSumInfo.substring(0, lastDot)
                 + threadName + strSumInfo.substring(lastDot);
 
-        try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
-                .setLevel(org.apache.logging.log4j.Level.INFO)
-                .buildPrintStream()) {
+        try {
           String sumStatTemplScript;
           String sumStatTemplFile;
 
@@ -185,7 +180,7 @@ public class SumRscriptManager extends RscriptManager {
 
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          printStream.println("Running " + rScriptCommand + " " + sumStatTemplScript);
+          logger.info("Running " + rScriptCommand + " " + sumStatTemplScript);
 
 
           MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
@@ -193,12 +188,12 @@ public class SumRscriptManager extends RscriptManager {
 
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
-            printStream.println(mvResponse.getInfoMessage());
+            logger.info(mvResponse.getInfoMessage());
           }
           if (mvResponse.getErrorMessage() != null) {
-            printStream.println(mvResponse.getErrorMessage());
+            logger.error(mvResponse.getErrorMessage());
           }
-          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+          logger.info("Rscript time " + stopWatch.getFormattedTotalDuration());
         } catch (StopWatchException | IOException e) {
           logger.error( e.getMessage());
         }
@@ -213,25 +208,23 @@ public class SumRscriptManager extends RscriptManager {
                 tableCalcStatInfoCommon.get("sum_stat_output"));
 
 
-        try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
-                .setLevel(org.apache.logging.log4j.Level.INFO)
-                .buildPrintStream()) {
+        try {
           MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
 
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          printStream.println("Running " + rScriptCommand + " " + strRFile);
+          logger.info("Running " + rScriptCommand + " " + strRFile);
 
 
           MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, strRFile);
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
-            printStream.println(mvResponse.getInfoMessage());
+            logger.info(mvResponse.getInfoMessage());
           }
           if (mvResponse.getErrorMessage() != null) {
-            printStream.println(mvResponse.getErrorMessage());
+            logger.error(mvResponse.getErrorMessage());
           }
-          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+          logger.info("Rscript time " + stopWatch.getFormattedTotalDuration());
         } catch (IOException | StopWatchException e) {
           logger.error( e.getMessage());
         }

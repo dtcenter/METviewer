@@ -16,13 +16,10 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.io.IoBuilder;
+
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.*;
 
 import static edu.ucar.metviewer.MVUtil.createYamlFile;
@@ -119,13 +116,11 @@ public class AggPythonManager extends PythonManager {
         }
         yamlInfo.put("append_to_file", isAppend ? "True" : "False");
 
-        try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
-                .setLevel(org.apache.logging.log4j.Level.INFO)
-                .buildPrintStream()) {
+        try  {
           createYamlFile(aggInfoFileName, yamlInfo);
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          printStream.println("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
+          logger.info("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
 
 
           MvResponse mvResponse = MVUtil.runRscript(python,
@@ -134,12 +129,12 @@ public class AggPythonManager extends PythonManager {
                   new String[]{"PYTHONPATH=" + metCalcpyHome});
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
-            printStream.println(mvResponse.getInfoMessage());
+            logger.info(mvResponse.getInfoMessage());
           }
           if (mvResponse.getErrorMessage() != null) {
-            printStream.println(mvResponse.getErrorMessage());
+            logger.error(mvResponse.getErrorMessage());
           }
-          printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
+          logger.info("Python time " + stopWatch.getFormattedTotalDuration());
         } catch (IOException | StopWatchException e) {
           logger.error( e.getMessage());
         }

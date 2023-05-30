@@ -59,6 +59,8 @@ public class MVPruneDB {
   public static void main(String[] args) throws Exception {
     String filename;
     String dbType = "mysql";
+    String username = System.getProperty("user.name");
+
     if (0 == args.length) {
       logger.error("  Error: no arguments!!!");
       logger.info(getUsage());
@@ -81,6 +83,8 @@ public class MVPruneDB {
             return;
         }
       }
+      logger.info("----  Database pruning started by user " + username + "----\n");
+
       String version  = MVUtil.getVersionNumber();
       if (!version.isEmpty()){
         logger.info("Version: " + version + "\n");
@@ -109,7 +113,7 @@ public class MVPruneDB {
       }
 
     }
-    logger.info("----  MVPruneDB Done  ----");
+    logger.info("----  MVPruneDB Done by user " + username +" ----");
   }
 
   public Set<String> getDirectories() {

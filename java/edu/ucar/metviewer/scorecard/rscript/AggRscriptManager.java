@@ -8,7 +8,6 @@ package edu.ucar.metviewer.scorecard.rscript;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,9 +23,7 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.io.IoBuilder;
+
 
 /**
  * Constructs and runs Rscript for agg stats
@@ -138,9 +135,7 @@ public class AggRscriptManager extends RscriptManager {
         String thredInfoFileName = strAggInfo.substring(0, lastDot) + threadName + strAggInfo
                 .substring(lastDot);
 
-        try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
-                .setLevel(org.apache.logging.log4j.Level.INFO)
-                .buildPrintStream()) {
+        try  {
 
           String aggStatTemplScript;
           String aggStatTemplFile;
@@ -151,19 +146,19 @@ public class AggRscriptManager extends RscriptManager {
           MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          printStream.println("Running " + rScriptCommand + " " + aggStatTemplScript);
+          logger.info("Running " + rScriptCommand + " " + aggStatTemplScript);
 
 
           MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, aggStatTemplScript,
                   new String[]{thredInfoFileName});
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
-            printStream.println(mvResponse.getInfoMessage());
+            logger.info(mvResponse.getInfoMessage());
           }
           if (mvResponse.getErrorMessage() != null) {
-            printStream.println(mvResponse.getErrorMessage());
+            logger.error(mvResponse.getErrorMessage());
           }
-          printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
+          logger.info("Rscript time " + stopWatch.getFormattedTotalDuration());
         } catch (IOException | StopWatchException e) {
           logger.error( e.getMessage());
         }

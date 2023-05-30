@@ -92,9 +92,13 @@ public class Scorecard {
     String dbType = "mysql";
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
+    String username = System.getProperty("user.name");
+    logger.info("----  Scorecard  started by user " + username + "----\n");
+
     if (0 == args.length) {
       logger.info("  Error: no arguments!!!");
       logger.info(getUsage());
+      logger.info("----  Scorecard Done by user " + username + " ----");
 
     } else {
 
@@ -108,11 +112,13 @@ public class Scorecard {
           dbType = "aurora";
         } else if ("-h".equalsIgnoreCase(args[intArg]) || "--h".equalsIgnoreCase(args[intArg]) || "-help".equalsIgnoreCase(args[intArg])) {
           logger.info(getUsage());
+          logger.info("----  Scorecard Done by user " + username + " ----");
           return;
         }
       }
 
       filename = args[intArg];
+
 
       String version  = MVUtil.getVersionNumber();
       if (!version.isEmpty()){
@@ -235,6 +241,7 @@ public class Scorecard {
       }
     }
     stopWatch.stop();
+    logger.info("----  Scorecard  is done by user " + username + "----\n");
     logger.info("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
 
   }

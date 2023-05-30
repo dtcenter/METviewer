@@ -12,11 +12,9 @@ import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.apache.logging.log4j.io.IoBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -117,15 +115,13 @@ public class SumPythonManager extends PythonManager {
         yamlInfo.put("fixed_vars_vals_input", listFixedValEx);
 
 
-        try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
-                .setLevel(org.apache.logging.log4j.Level.INFO)
-                .buildPrintStream()) {
+        try  {
 
           createYamlFile(sumInfoFileName, yamlInfo);
 
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          printStream.println("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
+          logger.info("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
 
 
           MvResponse mvResponse = MVUtil.runRscript(python,
@@ -135,12 +131,12 @@ public class SumPythonManager extends PythonManager {
 
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
-            printStream.println(mvResponse.getInfoMessage());
+            logger.info(mvResponse.getInfoMessage());
           }
           if (mvResponse.getErrorMessage() != null) {
-            printStream.println(mvResponse.getErrorMessage());
+            logger.error(mvResponse.getErrorMessage());
           }
-          printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
+          logger.info("Python time " + stopWatch.getFormattedTotalDuration());
         } catch (StopWatchException | IOException e) {
           logger.error( e.getMessage());
         }
@@ -232,15 +228,13 @@ public class SumPythonManager extends PythonManager {
         yamlInfo.put("sum_stat_input", scorecardInput);
         yamlInfo.put("sum_stat_output", scorecardOutput);
 
-        try (PrintStream printStream = IoBuilder.forLogger(SumPythonManager.class)
-                .setLevel(org.apache.logging.log4j.Level.INFO)
-                .buildPrintStream()) {
+        try {
 
           createYamlFile(pythonFileInfo, yamlInfo);
 
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          printStream.println("Running " + python + " " + metCalcpyHome + "/metcalcpy/scorecard.py" + " " + pythonFileInfo);
+          logger.info("Running " + python + " " + metCalcpyHome + "/metcalcpy/scorecard.py" + " " + pythonFileInfo);
 
 
           MvResponse mvResponse = MVUtil.runRscript(python,
@@ -250,12 +244,12 @@ public class SumPythonManager extends PythonManager {
 
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
-            printStream.println(mvResponse.getInfoMessage());
+            logger.info(mvResponse.getInfoMessage());
           }
           if (mvResponse.getErrorMessage() != null) {
-            printStream.println(mvResponse.getErrorMessage());
+            logger.error(mvResponse.getErrorMessage());
           }
-          printStream.println("Python time " + stopWatch.getFormattedTotalDuration());
+          logger.info("Python time " + stopWatch.getFormattedTotalDuration());
         } catch (IOException | StopWatchException e) {
           logger.error( e.getMessage());
         }
