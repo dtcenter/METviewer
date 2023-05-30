@@ -255,14 +255,16 @@ public class MVBatch {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     MVBatch mvBatch = new MVBatch();
+    String username = System.getProperty("user.name");
 
-    logger.info("----  MVBatch  ----\n");
+    logger.info("----  MVBatch  started by user " + username + "----\n");
+
     try {
       MVPlotJob[] jobs;
       // if no input file is present, bail
       if (1 > argv.length) {
         mvBatch.print(getUsage());
-        logger.info( "----  MVBatch Done  ----");
+        logger.info("----  MVBatch Done by user " + username + " ----");
         return;
       }
       //  parse the command line options
@@ -275,13 +277,12 @@ public class MVBatch {
           mvBatch.setVerbose(true);
         }else if ("-h".equalsIgnoreCase(argv[0]) || "--h".equalsIgnoreCase(argv[0]) || "-help".equalsIgnoreCase(argv[0])) {
           mvBatch.print(getUsage());
-          logger.info( "----  MVBatch Done  ----");
+          logger.info("----  MVBatch Done by user " + username + " ----");
           return;
         } else {
           logger.error("  **  ERROR: unrecognized option '" + argv[intArg]);
           mvBatch.print(getUsage());
-          logger.info( "----  MVBatch Done  ----");
-
+          logger.info("----  MVBatch Done by user " + username + " ----");
           return;
         }
       }
@@ -318,7 +319,7 @@ public class MVBatch {
 
       //  if only a list of plot jobs is requested, return
       if (boolList) {
-        logger.info("----  MVBatch Done  ----");
+        logger.info("----  MVBatch Done by user " + username + " ----");
         return;
       }
 
@@ -450,7 +451,7 @@ public class MVBatch {
     }
     mvBatch.closeDataSource();
 
-    logger.info("----  MVBatch Done  ----");
+    logger.info("----  MVBatch Done by user " + username + " ----");
 
     logger.info("Total execution time " + stopWatch.getFormattedTotalDuration());
 
