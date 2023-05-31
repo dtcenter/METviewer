@@ -2,28 +2,18 @@
 <Configuration status="info">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout>
-                <MarkerPatternSelector defaultPattern="%msg%n">
-                    <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
-                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd HH:mm} %l %L %M - %msg%n"/>
-                    <PatternMatch key="INFO" pattern="%d{yyyy-MM-dd HH:mm} %l %L %M - %msg%n"/>
-                </MarkerPatternSelector>
-            </PatternLayout>
+                <PatternLayout
+                                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable" />
         </Console>
 
         <File name="RollingFile" fileName="/opt/vxwww/tomcat/logs/mvservlet.log" append="true">
-            <PatternLayout>
-                <MarkerPatternSelector defaultPattern="%msg%n">
-                    <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
-                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd HH:mm} %l %L %M - %msg%n"/>
-                    <PatternMatch key="INFO" pattern="%d{yyyy-MM-dd HH:mm} %l %L %M - %msg%n"/>
-                </MarkerPatternSelector>
-            </PatternLayout>
+             <PatternLayout
+                                 pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable" />
         </File>
     </Appenders>
 
     <Loggers>
-        <Root level="info">
+        <Root level="info" includeLocation="true">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile"/>
         </Root>

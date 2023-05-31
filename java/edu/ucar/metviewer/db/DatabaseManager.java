@@ -29,7 +29,6 @@ public abstract class DatabaseManager {
 
   public static final String MYSQL = "mysql";
   public static final String MARIADB = "mariadb";
-  public static final String CB = "cb";
   public static final String AURORA = "aurora";
 
   public DatabaseManager(DatabaseInfo databaseInfo) {
@@ -71,13 +70,7 @@ public abstract class DatabaseManager {
                         String.class)
                 .newInstance(databaseInfo, password);
         break;
-      case CB:
-        databaseManager = (DatabaseManager) Class.forName(
-                "edu.ucar.metviewer.db.couchbase.CBLoadDatabaseManager")
-                .getDeclaredConstructor(DatabaseInfo.class,
-                        String.class)
-                .newInstance(databaseInfo, password);
-        break;
+
       case MARIADB:
         databaseManager = (DatabaseManager) Class.forName(
                 "edu.ucar.metviewer.db.mariadb.MariaDbLoadDatabaseManager")
@@ -107,11 +100,7 @@ public abstract class DatabaseManager {
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(database);
     DatabaseManager databaseManager;
-    // NOTE: the contstuctor using reflection is to enable us to build
-    // a mysql version without a couchbase dependency
-    // and a CB version without a mysql dependency.
-    // The build.xml will conditionally leave out the unwanted
-    // dependencies (jar files) based on db.management.system
+
     switch (dbType) {
       case MYSQL:
         databaseManager = (DatabaseManager) Class.forName(
@@ -120,13 +109,7 @@ public abstract class DatabaseManager {
                         String.class)
                 .newInstance(databaseInfo, password);
         break;
-      case CB:
-        databaseManager = (DatabaseManager) Class.forName(
-                "edu.ucar.metviewer.db.couchbase.CBAppDatabaseManager")
-                .getDeclaredConstructor(DatabaseInfo.class,
-                        String.class)
-                .newInstance(databaseInfo, password);
-        break;
+
       case MARIADB:
         databaseManager = (DatabaseManager) Class.forName(
                 "edu.ucar.metviewer.db.mariadb.MariaDbAppDatabaseManager")
