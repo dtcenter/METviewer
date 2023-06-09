@@ -9,6 +9,28 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v5.1.0-rc1 <https://github.com/dtcenter/METviewer>`_ release notes (20230609)
+----------------------------------------------------------------------------------------
+
+  .. dropdown:: New Features
+
+     None
+
+  .. dropdown::  Enhancements
+
+     None
+
+  .. dropdown:: Bugfixes
+
+     None
+
+  .. dropdown:: Internal
+
+     * Remove Couchbase code (`#479 <https://github.com/dtcenter/METviewer/issues/479>`_)
+     * Record the username of the user associated with the batch/scorecard run (`#22 <https://github.com/dtcenter/METplus-Internal/issues/22>`_)
+     * The user ID will be added to the log files (`#48 <https://github.com/dtcenter/METplus-Internal/issues/48>`_)
+     * Record a time stamp indicating when the event occurred  (`#11 <https://github.com/dtcenter/METplus-Internal/issues/11>`_)
+
 Version `v5.1.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (20230424)
 ----------------------------------------------------------------------------------------
 
