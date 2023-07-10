@@ -92,7 +92,7 @@ public class MVBatch {
       this.printStream.println(message);
       this.printStream.flush();
     }else {
-      System.out.println(message);
+      logger.info(message);
     }
   }
 
@@ -101,7 +101,7 @@ public class MVBatch {
       this.printStreamSql.print(message);
       this.printStreamSql.flush();
     }else {
-      System.out.println(message);
+      logger.info(message);
     }
   }
 
@@ -110,7 +110,7 @@ public class MVBatch {
       this.printStreamEr.print(message);
       this.printStreamEr.flush();
     }else {
-      System.out.println(message);
+      logger.error(message);
     }
   }
 
@@ -311,11 +311,12 @@ public class MVBatch {
       if (!listJobNamesInput.isEmpty()) {
         listJobNames = MVUtil.toArray(listJobNamesInput);
       }
-      mvBatch.print((boolList ? "" : "processing ") + listJobNames.length + " jobs:");
+      StringBuilder mes = new StringBuilder();
+      mes.append(boolList ? "" : "processing ").append(listJobNames.length).append(" jobs:");
       for (String listJobName : listJobNames) {
-        mvBatch.print("  " + listJobName);
+        mes.append(listJobName).append("\\n");
       }
-
+      mvBatch.print(mes.toString());
 
       //  if only a list of plot jobs is requested, return
       if (boolList) {
@@ -330,11 +331,7 @@ public class MVBatch {
         ArrayList listJobs = new ArrayList();
         for (String listJobName : listJobNames) {
           if (!mapJobs.containsKey(listJobName)) {
-            if (mvBatch.printStream == null){
-              logger.info("  **  WARNING: unrecognized job \"" + listJobName + "\"");
-            }else {
-              mvBatch.printStream.println("  **  WARNING: unrecognized job \"" + listJobName + "\"");
-            }
+            mvBatch.print("  **  WARNING: unrecognized job \"" + listJobName + "\"");
             continue;
           }
           listJobs.add(mapJobs.get(listJobName));
@@ -431,14 +428,13 @@ public class MVBatch {
 
         mvBatch.numPlotsRun++;
         jobsStopWatch.stop();
-        mvBatch.print("\n" + "Job " + (intJob + 1) + " execution time " + jobsStopWatch.getFormattedDuration());
+        mvBatch.print("Job " + (intJob + 1) + " execution time " + jobsStopWatch.getFormattedDuration());
 
       }
       stopWatch.stop();
       long plotAvg = (jobsStopWatch.getTotalDuration() / 1000000) / (long) mvBatch.numPlots;
 
-      mvBatch.print("\n"
-              + MVUtil.padBegin("Plots run: ") + mvBatch.getNumPlotsRun() + " of " + mvBatch.getNumPlots()
+      mvBatch.print(MVUtil.padBegin("Plots run: ") + mvBatch.getNumPlotsRun() + " of " + mvBatch.getNumPlots()
               + "\n"
               + MVUtil.padBegin("Total time: ") + jobsStopWatch.getFormattedTotalDuration() + "\n"
               + MVUtil.padBegin("Avg plot time: ") + MVUtil.formatTimeSpan(plotAvg) + "\n");

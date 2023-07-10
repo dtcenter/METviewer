@@ -146,7 +146,7 @@ public class AggRscriptManager extends RscriptManager {
           MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          logger.info("Running " + rScriptCommand + " " + aggStatTemplScript);
+          logger.info(rScriptCommand + " " + aggStatTemplScript);
 
 
           MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, aggStatTemplScript,

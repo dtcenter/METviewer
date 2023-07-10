@@ -93,7 +93,7 @@ public class Scorecard {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     String username = System.getProperty("user.name");
-    logger.info("----  Scorecard  started by user " + username + "----\n");
+    logger.info("----  Scorecard  started by user " + username + "----");
 
     if (0 == args.length) {
       logger.info("  Error: no arguments!!!");
@@ -213,7 +213,7 @@ public class Scorecard {
             logger.error( e.getMessage());
           }
           stopWatch.stop();
-          logger.info("\nRow execution time " + stopWatch.getFormattedDuration());
+          logger.info("Row execution time " + stopWatch.getFormattedDuration());
           logger.info(
                   "---------------------------------------------------------------------------------------");
           rowCounter++;

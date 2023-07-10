@@ -2104,8 +2104,13 @@ public class MVUtil {
         }
 
         if (!vals.containsKey(strTmplTagName)) {
-          printStream.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg"
-                  + " perm");
+          if(printStream != null) {
+            printStream.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg"
+                    + " perm");
+          }else {
+            logger.info("  **  WARNING: template tag " + strTmplTagName + " not found in agg"
+                    + " perm");
+          }
           continue;
         }
 

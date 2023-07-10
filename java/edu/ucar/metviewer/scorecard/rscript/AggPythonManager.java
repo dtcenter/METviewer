@@ -120,7 +120,7 @@ public class AggPythonManager extends PythonManager {
           createYamlFile(aggInfoFileName, yamlInfo);
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          logger.info("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
+          logger.info(python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
 
 
           MvResponse mvResponse = MVUtil.runRscript(python,

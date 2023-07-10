@@ -97,22 +97,22 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + job.getPlotTmpl(), rScriptFile, info);
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
-      mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile);
+      mvBatch.print(job.getRscript() + " " + rScriptFile);
       mvResponse = MVUtil.runRscript(job.getRscript(), rScriptFile);
       stopWatch.stop();
       if (mvResponse.getInfoMessage() != null) {
-        mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+        mvBatch.print(mvResponse.getInfoMessage());
       }
       if (mvResponse.getErrorMessage() != null) {
-        mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
+        mvBatch.printError(mvResponse.getErrorMessage());
       }
       if (mvResponse.isSuccess()) {
-        mvBatch.getPrintStream().println("Created plot " + getPlotFile());
+        mvBatch.print("Created plot " + getPlotFile());
       } else {
-        mvBatch.getPrintStream().println("Failed to create plot " + getPlotFile());
+        mvBatch.printError("Failed to create plot " + getPlotFile());
       }
 
-      mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
+      mvBatch.print("Rscript time " + stopWatch.getFormattedTotalDuration());
     } catch (IOException | StopWatchException e) {
       errorStream.print(e.getMessage());
       mvResponse = new MvResponse();
@@ -134,8 +134,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       createYamlFile(configFileName, info);
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
-      mvBatch.getPrintStream().println("\nRunning:\n"
-              + mvBatch.getPython()
+      mvBatch.print(mvBatch.getPython()
               + "\n"
               + mvBatch.getMetPlotpyHome() + job.getPlotTmpl()
               + "\n"
@@ -147,12 +146,12 @@ public class RscriptNoneStatManager extends RscriptStatManager {
                            "METPLOTPY_BASE="+mvBatch.getMetPlotpyHome() });
       stopWatch.stop();
       if (mvResponse.getInfoMessage() != null) {
-        mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+        mvBatch.print(mvResponse.getInfoMessage());
       }
       if (mvResponse.getErrorMessage() != null) {
-        mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
+        mvBatch.printError(mvResponse.getErrorMessage());
       }
-      mvBatch.getPrintStream().println("Python script execution time " + stopWatch.getFormattedTotalDuration());
+      mvBatch.print("Python script execution time " + stopWatch.getFormattedTotalDuration());
     } catch (IOException | StopWatchException | ValidationException e) {
       errorStream.print(e.getMessage());
       mvResponse = new MvResponse();

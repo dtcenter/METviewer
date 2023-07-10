@@ -180,7 +180,7 @@ public class SumRscriptManager extends RscriptManager {
 
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          logger.info("Running " + rScriptCommand + " " + sumStatTemplScript);
+          logger.info(rScriptCommand + " " + sumStatTemplScript);
 
 
           MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
@@ -213,7 +213,7 @@ public class SumRscriptManager extends RscriptManager {
 
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          logger.info("Running " + rScriptCommand + " " + strRFile);
+          logger.info(rScriptCommand + " " + strRFile);
 
 
           MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, strRFile);

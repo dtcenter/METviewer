@@ -68,7 +68,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
                         job.isCalcStat(),
                         job.getCurrentDBName().get(i), i == 0);
         if (mvResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+          mvBatch.print(mvResponse.getInfoMessage());
         }
       }
 
@@ -83,8 +83,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
           info.put("agg_stat_input", dataFile + "_ee_input");
           info.put("agg_stat_output", dataFile + ".ee");
           createYamlFile(eeInfo, info);
-          mvBatch.getPrintStream().println("\nRunning "
-                  + mvBatch.getPython()
+          mvBatch.print(mvBatch.getPython()
                   + " "
                   + mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py"
                   + " "
@@ -104,18 +103,18 @@ public class RscriptAggStatManager extends RscriptStatManager {
           String scriptName = mvBatch.getRworkFolder() + "/include/agg_stat_event_equalize.R";
 
 
-          mvBatch.getPrintStream().print("Running '" + job.getRscript() + " " + scriptName + "'");
+          mvBatch.print(job.getRscript() + " " + scriptName);
           mvResponse = MVUtil.runRscript(job.getRscript(), scriptName, new String[]{eeInfo});
         }
         stopWatch.stop();
 
         if (mvResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().print(mvResponse.getInfoMessage());
+          mvBatch.print(mvResponse.getInfoMessage());
         }
         if (mvResponse.getErrorMessage() != null) {
-          mvBatch.getPrintStream().print(mvResponse.getErrorMessage());
+          mvBatch.printError(mvResponse.getErrorMessage());
         }
-        mvBatch.getPrintStream().print("Rscript time " + stopWatch.getFormattedTotalDuration());
+        mvBatch.print("Rscript time " + stopWatch.getFormattedTotalDuration());
       }
 
     }
@@ -194,7 +193,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
                       job.getCurrentDBName().get(i),
                       i == 0);
       if (mvResponse.getInfoMessage() != null) {
-        mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+        mvBatch.print(mvResponse.getInfoMessage());
       }
     }
   }
@@ -241,19 +240,19 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        mvBatch.getPrintStream().println("\nRunning" + job.getRscript() + " " + rScriptFile);
+        mvBatch.print(job.getRscript() + " " + rScriptFile);
 
         mvResponse = MVUtil.runRscript(job.getRscript(),
                 rScriptFile,
                 new String[]{aggInfo});
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+          mvBatch.print(mvResponse.getInfoMessage());
         }
         if (mvResponse.getErrorMessage() != null) {
-          mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
+          mvBatch.printError(mvResponse.getErrorMessage());
         }
-        mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
+        mvBatch.print("Rscript time " + stopWatch.getFormattedTotalDuration());
       }
     } catch (IOException | StopWatchException e) {
       errorStream.print(e.getMessage());
@@ -301,8 +300,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
         stopWatch.start();
 
         if(job.isModeJob() || job.isMtdJob()){
-          mvBatch.getPrintStream().println("\nRunning:\n"
-                  + mvBatch.getPython()
+          mvBatch.print(mvBatch.getPython()
                   + "\n"
                   + mvBatch.getMetCalcpyHome() + rScriptFile
                   + "\n"
@@ -314,8 +312,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
                   new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
         }else {
 
-          mvBatch.getPrintStream().println("\nRunning:\n"
-                  + mvBatch.getPython()
+          mvBatch.print(mvBatch.getPython()
                   + "\n"
                   + mvBatch.getMetCalcpyHome() + rScriptFile
                   + "\n"
@@ -328,12 +325,12 @@ public class RscriptAggStatManager extends RscriptStatManager {
         }
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+          mvBatch.print(mvResponse.getInfoMessage());
         }
         if (mvResponse.getErrorMessage() != null) {
-          mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
+          mvBatch.printError(mvResponse.getErrorMessage());
         }
-        mvBatch.getPrintStream().println("Python script execution time " + stopWatch.getFormattedTotalDuration());
+        mvBatch.print("Python script execution time " + stopWatch.getFormattedTotalDuration());
       }
     } catch (IOException | StopWatchException e) {
       errorStream.print(e.getMessage());

@@ -121,7 +121,7 @@ public class SumPythonManager extends PythonManager {
 
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          logger.info("Running " + python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
+          logger.info(python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
 
 
           MvResponse mvResponse = MVUtil.runRscript(python,
@@ -234,7 +234,7 @@ public class SumPythonManager extends PythonManager {
 
           StopWatch stopWatch = new StopWatch();
           stopWatch.start();
-          logger.info("Running " + python + " " + metCalcpyHome + "/metcalcpy/scorecard.py" + " " + pythonFileInfo);
+          logger.info(python + " " + metCalcpyHome + "/metcalcpy/scorecard.py" + " " + pythonFileInfo);
 
 
           MvResponse mvResponse = MVUtil.runRscript(python,

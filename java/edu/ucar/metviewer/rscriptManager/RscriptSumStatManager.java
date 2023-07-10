@@ -65,7 +65,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
                       job.getCurrentDBName().get(i),
                       i == 0);
       if (mvResponse.getInfoMessage() != null) {
-        mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+        mvBatch.print(mvResponse.getInfoMessage());
       }
     }
   }
@@ -87,16 +87,16 @@ public class RscriptSumStatManager extends RscriptStatManager {
         fileAggOutput.getParentFile().mkdirs();
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile);
+        mvBatch.print(job.getRscript() + " " + rScriptFile);
         mvResponse = MVUtil.runRscript(job.getRscript(), rScriptFile, new String[]{sumInfo});
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+          mvBatch.print(mvResponse.getInfoMessage());
         }
         if (mvResponse.getErrorMessage() != null) {
-          mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
+          mvBatch.printError(mvResponse.getErrorMessage());
         }
-        mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
+        mvBatch.print("Rscript time " + stopWatch.getFormattedTotalDuration());
       }
     } catch (IOException | StopWatchException e) {
       errorStream.print(e.getMessage());
@@ -122,8 +122,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
         fileAggOutput.getParentFile().mkdirs();
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        mvBatch.getPrintStream().println("\nRunning "
-                + mvBatch.getPython()
+        mvBatch.print(mvBatch.getPython()
                 + " "
                 + mvBatch.getMetCalcpyHome() + "/metcalcpy/sum_stat.py"
                 + " "
@@ -134,12 +133,12 @@ public class RscriptSumStatManager extends RscriptStatManager {
                 new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+          mvBatch.print(mvResponse.getInfoMessage());
         }
         if (mvResponse.getErrorMessage() != null) {
-          mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
+          mvBatch.printError(mvResponse.getErrorMessage());
         }
-        mvBatch.getPrintStream().println("Python time " + stopWatch.getFormattedTotalDuration());
+        mvBatch.print("Python time " + stopWatch.getFormattedTotalDuration());
       }
     } catch (IOException | StopWatchException e) {
       errorStream.print(e.getMessage());
