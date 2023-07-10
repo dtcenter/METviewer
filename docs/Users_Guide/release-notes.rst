@@ -9,6 +9,25 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v5.1.0-rc2 <https://github.com/dtcenter/METviewer>`_ release notes (20230710)
+----------------------------------------------------------------------------------------
+
+  .. dropdown:: New Features
+
+     None
+
+  .. dropdown::  Enhancements
+
+     None
+
+  .. dropdown:: Bugfixes
+
+     * error during printing log messages for batch jobs (`#484 <https://github.com/dtcenter/METviewer/issues/484>`_)
+
+  .. dropdown:: Internal
+
+     None
+
 Version `v5.1.0-rc1 <https://github.com/dtcenter/METviewer>`_ release notes (20230613)
 ----------------------------------------------------------------------------------------
 
