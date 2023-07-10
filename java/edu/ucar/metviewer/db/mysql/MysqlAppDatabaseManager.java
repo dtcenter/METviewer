@@ -665,10 +665,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
     String message = null;
     try {
-      message = "Database query time for " + currentDBName + " "
+      message = "Database query time for database \"" + currentDBName + "\" "
               + dbStopWatch.getFormattedTotalDuration();
       if (saveToFileStopWatch.getTotalDuration() != null) {
-        message = message + "\nSave to file time for   " + currentDBName + " "
+        message = message + "\nSave to file time for database\"" + currentDBName + "\" "
                 + saveToFileStopWatch.getFormattedTotalDuration();
       }
     } catch (StopWatchException e) {
@@ -1246,8 +1246,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     selRpsProb = selRpsProb + "  AND  " + plotFixWhere;
                   }
                   selRpsProb = selRpsProb + "  AND ld.stat_header_id = h.stat_header_id;";
-                  printStreamSql.println(selRpsProb + "\n");
-                  printStreamSql.flush();
+                  if(printStreamSql != null) {
+                    printStreamSql.println(selRpsProb + "\n");
+                    printStreamSql.flush();
+                  }else {
+                    logger.info(selRpsProb);
+                  }
                   //  run the PCT thresh query
                   List<String> errors = new ArrayList<>();
                   for (int i = 0; i < job.getCurrentDBName().size(); i++) {
@@ -1354,8 +1358,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 }
                 selPctThresh = selPctThresh + "  AND ld.stat_header_id = h.stat_header_id;";
 
-                printStreamSql.println(selPctThresh + "\n");
-                printStreamSql.flush();
+                if(printStreamSql != null) {
+                  printStreamSql.println(selPctThresh + "\n");
+                  printStreamSql.flush();
+                }else {
+                  logger.info(selPctThresh);
+                }
 
 
                 //  run the PCT thresh query
@@ -1495,9 +1503,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 selMctcNcat = selMctcNcat + commonSelect;
                 selMctcEcValue = selMctcEcValue + commonSelect;
 
-                printStreamSql.println(selMctcNcat + "\n");
-                printStreamSql.println(selMctcEcValue + "\n");
-                printStreamSql.flush();
+                if(printStreamSql != null) {
+                  printStreamSql.println(selMctcNcat + "\n");
+                  printStreamSql.println(selMctcEcValue + "\n");
+                  printStreamSql.flush();
+                }else {
+                  logger.info(selMctcNcat);
+                  logger.info(selMctcEcValue);
+                }
 
 
                 //  run the MCTC thresh query
@@ -3251,6 +3264,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (printStreamSql != null) {
       printStreamSql.println(strNumSelect + "\n");
       printStreamSql.flush();
+    }else {
+      logger.info(strNumSelect);
     }
 
 
@@ -3266,7 +3281,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listNum.size(); i++) {
         strMsg += (0 < i ? ", " : "") + listNum.get(i);
       }
-      printStream.println(strMsg + "\n");
+      if(printStream != null) {
+        printStream.println(strMsg + "\n");
+      }else {
+        logger.info(strMsg);
+      }
     }
 
 
@@ -3308,6 +3327,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
       printStreamSql.flush();
+    }else {
+      logger.info(strPlotDataSelect);
     }
 
     //  get the data for the current plot from the plot_data temp table and write it to a data file
@@ -3320,9 +3341,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               job.getCurrentDBName().get(i),
               i == 0);
       if (mvResponse.getInfoMessage() != null) {
-        printStream.println(mvResponse.getInfoMessage());
+        if(printStream != null) {
+          printStream.println(mvResponse.getInfoMessage());
+        }else {
+          logger.info(mvResponse.getInfoMessage());
+        }
       }
-      printStream.println();
+      if(printStream != null) {
+        printStream.println();
+      }
     }
     return strMsg;
   }
@@ -3385,6 +3412,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     if (printStreamSql != null) {
       printStreamSql.println(strObsThreshSelect + "\n");
+    }else {
+      logger.info(strObsThreshSelect);
     }
 
 
@@ -3411,6 +3440,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       if (printStreamSql != null) {
         printStreamSql.println(strFcstThreshSelect + "\n");
+      }else {
+        logger.info(strFcstThreshSelect);
       }
 
       listFcstThresh = getNumbers(strFcstThreshSelect, job.getCurrentDBName().get(0));
@@ -3510,6 +3541,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
+    }else {
+      logger.info(strPlotDataSelect);
     }
 
 
@@ -3563,7 +3596,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               job.getCurrentDBName().get(i),
               i == 0);
       if (mvResponse.getInfoMessage() != null) {
-        printStream.println(mvResponse.getInfoMessage() + "\n");
+        if(printStream != null) {
+          printStream.println(mvResponse.getInfoMessage() + "\n");
+        }else {
+          logger.info(mvResponse.getInfoMessage());
+        }
       }
     }
 
@@ -3628,6 +3665,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     if (printStreamSql != null) {
       printStreamSql.println(strNumSelect + "\n");
+    }else {
+      logger.info(strNumSelect);
     }
     //  run the rank number query and warn, if necessary
     String strMsg = "";
@@ -3641,7 +3680,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listNum.size(); i++) {
         strMsg += (0 < i ? ", " : "") + listNum.get(i);
       }
-      printStream.println(strMsg + "\n");
+      if(printStream != null) {
+        printStream.println(strMsg + "\n");
+      }else {
+        logger.info(strMsg);
+      }
     }
 
 
@@ -3660,6 +3703,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 + "AND ld.line_data_id = ldt.line_data_id;";
         if (printStreamSql != null) {
           printStreamSql.println(strSelPctThresh + "\n");
+        }else {
+          logger.info(strSelPctThresh);
         }
 
         //  run the PCT thresh query
@@ -3713,6 +3758,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
+    }else {
+      logger.info(strPlotDataSelect);
     }
 
 
@@ -3734,7 +3781,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               job.getCurrentDBName().get(i),
               i == 0);
       if (mvResponse.getInfoMessage() != null) {
-        printStream.println(mvResponse.getInfoMessage());
+        if(printStream != null) {
+          printStream.println(mvResponse.getInfoMessage());
+        }else {
+          logger.info(mvResponse.getInfoMessage());
+        }
       }
     }
 

@@ -252,7 +252,7 @@ public class SeriesJobManager extends JobManager {
                           job.getCurrentDBName().get(i),
                           i == 0);
           if (mvResponse.getInfoMessage() != null) {
-            mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
+            mvBatch.print(mvResponse.getInfoMessage());
           }
         }
 
