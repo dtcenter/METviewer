@@ -266,7 +266,7 @@ RUN pip install cartopy \
  && pip install pyyaml==6.0 \
  && pip install scikit-image==0.19.3 \
  && pip install scikit-learn \
- && pip install scipy==1.8.1 \
+ && pip install scipy==1.11.1 \
  && pip install xarray==2022.3.0 \
  && pip install PyMySQL==1.0.2 \
  && pip install pint==0.19.2 \
