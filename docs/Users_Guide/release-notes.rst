@@ -9,6 +9,14 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v5.1.0-rc3 <https://github.com/dtcenter/METviewer>`_ release notes (20230713)
+----------------------------------------------------------------------------------------
+
+  .. dropdown:: Internal
+
+     * Testing the bug fix in MEtplotpy
+     * Change the version number for scipy to 1.11.1
+
 Version `v5.1.0-rc2 <https://github.com/dtcenter/METviewer>`_ release notes (20230710)
 ----------------------------------------------------------------------------------------
 
