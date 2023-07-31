@@ -5,10 +5,10 @@ MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 #
 # This Dockerfile checks out METviewer from GitHub and builds the specified branch or tag.
 #
-ENV METVIEWER_GIT_NAME develop
-ENV METCALCPY_GIT_NAME develop
-ENV METPLOTPY_GIT_NAME develop
-ENV METDATAIO_GIT_NAME develop
+ENV METVIEWER_GIT_NAME main_v5.1
+ENV METCALCPY_GIT_NAME main_v2.1
+ENV METPLOTPY_GIT_NAME main_v2.1
+ENV METDATAIO_GIT_NAME main_v2.1
 
 #
 # Constants
@@ -267,7 +267,7 @@ RUN pip install cartopy \
  && pip install wheel==0.38.1 \
  && pip install python-dateutil==2.8.2 \
  && pip install opencv-python \
- && pip install pandas==1.5.1
+ && pip install pandas==1.5.2
 #
 #
 

@@ -284,7 +284,7 @@ RUN pip install cartopy \
  && pip install wheel==0.38.1 \
  && pip install python-dateutil==2.8.2 \
  && pip install opencv-python \
- && pip install pandas==1.5.1
+ && pip install pandas==1.5.2
 
 
 

@@ -9,47 +9,22 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
-Version `v5.1.0-rc3 <https://github.com/dtcenter/METviewer>`_ release notes (20230713)
+Version `v5.1.0 <https://github.com/dtcenter/METviewer>`_ release notes (20230731)
 ----------------------------------------------------------------------------------------
 
-  .. dropdown:: Internal
-
-     * Testing the bug fix in MEtplotpy
-     * Change the version number for scipy to 1.11.1
-
-Version `v5.1.0-rc2 <https://github.com/dtcenter/METviewer>`_ release notes (20230710)
-----------------------------------------------------------------------------------------
 
   .. dropdown:: New Features
 
-     None
+      * New Dockerfile that creates a single image with database and METviewer in it. Can be used to create a Singularity image  (`#446 <https://github.com/dtcenter/METviewer/issues/446>`_)
 
   .. dropdown::  Enhancements
 
-     None
+      * Upgrade to using Python 3.10.4 (`#449 <https://github.com/dtcenter/METviewer/issues/449>`_)
 
   .. dropdown:: Bugfixes
 
-     * error during printing log messages for batch jobs (`#484 <https://github.com/dtcenter/METviewer/issues/484>`_)
-
-  .. dropdown:: Internal
-
-     None
-
-Version `v5.1.0-rc1 <https://github.com/dtcenter/METviewer>`_ release notes (20230613)
-----------------------------------------------------------------------------------------
-
-  .. dropdown:: New Features
-
-     None
-
-  .. dropdown::  Enhancements
-
-     None
-
-  .. dropdown:: Bugfixes
-
-     None
+      * Fixed an error during uploading a reliability diagram XML to GUI (`#464 <https://github.com/dtcenter/METviewer/issues/464>`_)
+      * error during printing log messages for batch jobs (`#484 <https://github.com/dtcenter/METviewer/issues/484>`_)
 
   .. dropdown:: Internal
 
@@ -57,45 +32,9 @@ Version `v5.1.0-rc1 <https://github.com/dtcenter/METviewer>`_ release notes (202
      * Record the username of the user associated with the batch/scorecard run (`#22 <https://github.com/dtcenter/METplus-Internal/issues/22>`_)
      * The user ID will be added to the log files (`#48 <https://github.com/dtcenter/METplus-Internal/issues/48>`_)
      * Record a time stamp indicating when the event occurred  (`#11 <https://github.com/dtcenter/METplus-Internal/issues/11>`_)
+     * Testing the bug fix in MEtplotpy
+     * Change the version number for scipy to 1.11.1
 
-Version `v5.1.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (20230424)
-----------------------------------------------------------------------------------------
-
-  .. dropdown:: New Features
-     
-    * New Dockerfile that creates a single image with database and METviewer in it. Can be used to create a Singularity image  (`#446 <https://github.com/dtcenter/METviewer/issues/446>`_)
-
-  .. dropdown::  Enhancements
-  
-     None
-
-  .. dropdown:: Bugfixes
-    
-    * Fixed an error during uploading a reliability diagram XML to GUI (`#464 <https://github.com/dtcenter/METviewer/issues/464>`_)
-
-
-  .. dropdown:: Internal
-  
-     None  
-
-Version `v5.1.0-beta1 <https://github.com/dtcenter/METviewer>`_ release notes (20230301)
-----------------------------------------------------------------------------------------
-
-  .. dropdown:: New Features
-
-     None
-
-  .. dropdown::  Enhancements
-
-     * **Upgrade to using Python 3.10.4** (`#449 <https://github.com/dtcenter/METviewer/issues/449>`_)
-
-  .. dropdown:: Bugfixes
-
-     None
-
-  .. dropdown:: Internal
-
-     None
 
 Version `v5.0.1 <https://github.com/dtcenter/METviewer>`_ release notes (20230130)
 ----------------------------------------------------------------------------------
