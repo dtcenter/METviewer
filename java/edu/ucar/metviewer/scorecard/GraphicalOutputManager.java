@@ -34,12 +34,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
+import static edu.ucar.metviewer.scorecard.Util.getRowspansForRowHeader;
 import static j2html.TagCreator.*;
 
 
@@ -64,6 +62,18 @@ class GraphicalOutputManager {
           + ".legendTable {margin-top:15px;margin-bottom:10px;}"
           + ".weightsTable {margin-top:15px;}"
           + ".legendText {text-align:left;}";
+  private static final String CSS_PLOTS
+          = ".modal {display:none;position:fixed;z-index:1;padding-top:100px;width:100%;height:100%;background-color:rgba(0,0,0,0.4);top:0; left:0;}"
+          + ".modal-content {background-color: #fefefe;margin: auto;padding: 20px;border: 1px solid #888;width: 800px;}"
+          + ".close {color: #aaaaaa;float: right;font-size: 28px;font-weight: bold;}"
+          + ".close:hover,.close:focus {color: #000;text-decoration: none;cursor: pointer;}";
+
+  private static final String JAVASCRIPT
+          = "var modal = document.getElementById(\"myModal\");\n"
+          + "var span = document.getElementsByClassName(\"close\")[0]\n"
+          +"span.onclick = function() {modal.style.display = \"none\";}\n"
+          +"window.onclick = function(event) {if (event.target == modal) {modal.style.display = \"none\";}}\n"
+          +"function showPlot(src){if (typeof changePlotURL === 'function') {changePlotURL(src);}else{ document.getElementById(\"imgId\").src = src; modal.style.display = \"block\";}}";
   public static final String CLASS = "class";
   public static final String STYLE = "style";
 
@@ -83,6 +93,7 @@ class GraphicalOutputManager {
   private final boolean viewSymbol;
   private final boolean viewValue;
   private final boolean viewLegend;
+  private final boolean withPlots;
   private final String diffStatValue;
   private final String diffStatSymbol;
   private final List<String> modelsLabels = new ArrayList<>();
@@ -91,6 +102,7 @@ class GraphicalOutputManager {
   private final String symbolSize;
   private WeightRequirements weightRequirements = null;
   private final SortedMap<Double, String> weightToColor = new TreeMap<>(Collections.reverseOrder());
+  private final List<String> rowTitleList = new ArrayList<>();
 
 
   public GraphicalOutputManager(final Scorecard scorecard) {
@@ -98,12 +110,20 @@ class GraphicalOutputManager {
     title1 = div().attr(CLASS, "title1");
     title2 = div().attr(CLASS, "title2");
     title3 = div().attr(CLASS, "title2");
+
     //add head
-    html.with(head().with(style().attr("type", "text/css").with(text(CSS))));
+    j2html.tags.Text cssText;
+    if(scorecard.getCreatePlots()){
+      cssText = text(CSS + CSS_PLOTS);
+    }else {
+      cssText = text(CSS);
+    }
+    html.with(head().with(style().attr("type", "text/css").with(cssText)));
 
     //create range list
     initRangeList(scorecard.getThresholdFile());
     initWeightRequirements(scorecard.getWeightFile());
+
     dataFileStr = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
     listRows = scorecard.getListOfEachRowWithDesc();
     listColumns = scorecard.getListOfEachColumnWithDesc();
@@ -116,6 +136,7 @@ class GraphicalOutputManager {
     diffStatValue = scorecard.getStatValue();
     diffStatSymbol = scorecard.getStatSymbol();
     symbolSize = scorecard.getSymbolSize();
+    withPlots = scorecard.getCreatePlots();
     List<String> ranges = new ArrayList<>();
 
     for (Field fixField : scorecard.getFixedVars()) {
@@ -405,11 +426,12 @@ class GraphicalOutputManager {
   public void createGraphics() throws IOException, MissingFileException {
     File dataFile = new File(dataFileStr);
     if (dataFile.exists()) {
+
       ArrayNode table = readFileToJsonTable(dataFile);
 
 
       //calculate rowspans for row headers
-      rowFieldToCountMap = getRowspansForRowHeader();
+      rowFieldToCountMap = getRowspansForRowHeader(listRows);
 
 
       //create and add table header
@@ -427,6 +449,17 @@ class GraphicalOutputManager {
       if (viewLegend) {
         htmlBody.with(createHtmlLegend());
       }
+      if(withPlots){
+
+        htmlBody.with(
+                div(attrs("#myModal")).withClass( "modal")
+                .with(
+                        div().withClass("modal-content")
+                                .with(span(rawHtml("&times;")).withClass("close")).with(
+                        div().with(img(attrs("#imgId")).withSrc(""))
+                ))).with(script(JAVASCRIPT));
+      }
+
       String htmlPageStr = html.with(htmlBody).render();
 
       //create  HTML file
@@ -589,7 +622,7 @@ class GraphicalOutputManager {
             //insert empty cell
             htmlTr.with(createEmptyCell());
           } else {
-            htmlTr.with(createTableCell(valueForSymbol, valueForNumber, satisfied));
+            htmlTr.with(createTableCell(valueForSymbol, valueForNumber, satisfied, rowCounter));
           }
         }
       }
@@ -652,7 +685,9 @@ class GraphicalOutputManager {
 
   private void createRowHeader(int rowCounter, ContainerTag htmlTr) {
     int columnNumber = 0;
+    StringBuilder rowTitle = new StringBuilder();
     for (Map.Entry<String, Entry> entry : listRows.get(rowCounter).entrySet()) {
+
       if (rowFieldToCountMap.get(rowCounter).get(entry.getKey()) != 0) {
         ContainerTag td = td(entry.getValue().getLabel());
         if (columnNumber == 0) {
@@ -661,12 +696,14 @@ class GraphicalOutputManager {
         }
         htmlTr.with(td.attr("rowspan", String.valueOf(
                 rowFieldToCountMap.get(rowCounter).get(entry.getKey()))));
+        rowTitle.append(" ").append(entry.getValue().getLabel());
       }
       columnNumber++;
     }
+    rowTitleList.add(rowCounter, rowTitle.toString());
   }
 
-  private ContainerTag createTableCell(BigDecimal valueForSymbol, BigDecimal valueForNumber, WeightRequirements.Weight weight) {
+  private ContainerTag createTableCell(BigDecimal valueForSymbol, BigDecimal valueForNumber, WeightRequirements.Weight weight, int rowCounter) {
     String color = BLACK_000000;
     String background = WHITE_FFFFFF;
     String title = "";
@@ -765,6 +802,12 @@ class GraphicalOutputManager {
               + "border-color:" + borderColor + ";border-width:4px;")
               .attr("title", title);
     }
+    if (withPlots){
+      String plotName = this.plotFileStr.split("\\.")[0] + "_" + (rowCounter+1) + ".png";
+      String[] plotNameArr = plotName.split("/");
+      plotName =plotNameArr[plotNameArr.length-1];
+      result.attr("onClick", rawHtml("javascript:showPlot(\'" + plotName + "\');"));
+    }
     if (symbolContainer != null) {
       result.with(symbolContainer);
     }
@@ -781,48 +824,6 @@ class GraphicalOutputManager {
     return result;
   }
 
-  private List<Map<String, Integer>> getRowspansForRowHeader() {
-    List<Map<String, Integer>> fieldToCountMap = new ArrayList<>(listRows.size());
-    List<List<Entry>> allCombinationsOfValues = new ArrayList<>();
-    //for each row
-    for (Map<String, Entry> row : listRows) {
-
-      Map<String, Integer> rowFieldToCount = new LinkedHashMap<>(row.size());
-      List<String> fieldsFromRow = new ArrayList<>(row.keySet().size());
-
-      //for each field from this row
-      for (String fieldName : row.keySet()) {
-
-        fieldsFromRow.add(fieldName);
-        List<Map<String, Entry>> copyOfAllOriginalRows = new ArrayList<>(listRows);
-        List<Entry> valueCombination = new ArrayList<>();
-
-        //find all rows that have current field and value
-        for (String fieldFromRow : fieldsFromRow) {
-          //get fields value
-          Entry fieldValue = row.get(fieldFromRow);
-          valueCombination.add(fieldValue);
-          //remove rows that don't have this field value
-          for (Map<String, Entry> aRow : listRows) {
-            if (aRow.containsKey(fieldFromRow) && !aRow.get(fieldFromRow).equals(fieldValue)) {
-              copyOfAllOriginalRows.remove(aRow);
-            }
-          }
-        }
-
-        //copyOfAllOriginalRows contains only rows with the unique combination
-        if (!allCombinationsOfValues.contains(valueCombination)) {
-          allCombinationsOfValues.add(valueCombination);
-          rowFieldToCount.put(fieldName, copyOfAllOriginalRows.size());
-        } else {
-          rowFieldToCount.put(fieldName, 0);
-        }
-
-      }
-      fieldToCountMap.add(rowFieldToCount);
-    }
-    return fieldToCountMap;
-  }
 
   private ContainerTag createTableHead() {
     ContainerTag thead = thead();

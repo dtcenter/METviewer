@@ -55,17 +55,7 @@ public abstract class RscriptManager {
 
   public abstract void calculateStatsForRow(Map<String, Entry> mapRow, String threadName);
 
-  /**
-   * Creates a list of comparing models
-   */
-  void initModels() {
-    for (Field fixedField : fixedVars) {
-      if ("model".equals(fixedField.getName())) {
-        models = fixedField.getValues();
-        break;
-      }
-    }
-  }
+
 
   void init(Map<String, Entry> mapRow) {
     stat = Util.getStatForRow(mapRow);
@@ -157,8 +147,6 @@ public abstract class RscriptManager {
       }
     }
 
-    //indyVar = "scorecard";
-    //indyList.append("\"").append("column").append("\"");
     if (seriesList.charAt(seriesList.length() - 1) == ',' && fixVars.length() == 0) {
       seriesList.deleteCharAt(seriesList.length() - 1);
     }

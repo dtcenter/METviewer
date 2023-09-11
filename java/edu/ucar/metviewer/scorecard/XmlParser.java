@@ -191,6 +191,12 @@ class XmlParser {
           } else if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
             scorecard.setPrintSQL(Boolean.FALSE);
           }
+        } else if ("createPlots".equals(plotNode.getNodeName())) {
+          if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
+            scorecard.setCreatePlots(Boolean.TRUE);
+          } else if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
+            scorecard.setCreatePlots(Boolean.FALSE);
+          }
         } else if ("left_column_names".equals(plotNode.getNodeName())) {
           NodeList leftColumnNamesList = plotNode.getChildNodes();
           for (int k = 0; k < leftColumnNamesList.getLength(); k++) {

@@ -22,8 +22,7 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerSql {
   private static final Logger logger = LogManager.getLogger("AggDatabaseManagerMySQL");
 
 
-  public AggDatabaseManagerMySQL(final Scorecard scorecard,
-                                 final MysqlDatabaseManager databaseManager) throws SQLException {
+  public AggDatabaseManagerMySQL(final Scorecard scorecard, final MysqlDatabaseManager databaseManager){
     super(scorecard, databaseManager);
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile();
 
@@ -31,39 +30,38 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerSql {
 
   @Override
   protected String getSelectFields(String table, Integer thresh) {
-    String result = "";
+    StringBuilder result = new StringBuilder();
     if (table.endsWith(MVUtil.CTC)) {
-      result = "total, fy_oy,fy_on,fn_oy,fn_on";
+      result = new StringBuilder("total, fy_oy,fy_on,fn_oy,fn_on");
     } else if (table.endsWith(MVUtil.SL1L2)) {
-      result = "total,fbar,obar,fobar,ffbar,oobar,mae";
+      result = new StringBuilder("total,fbar,obar,fobar,ffbar,oobar,mae");
     } else if (table.endsWith(MVUtil.GRAD)) {
-      result = "total,fgbar,ogbar,mgbar,egbar";
+      result = new StringBuilder("total,fgbar,ogbar,mgbar,egbar");
     } else if (table.endsWith(MVUtil.SAL1L2)) {
-      result = "total,fabar,oabar,foabar,ffabar,ooabar,mae";
+      result = new StringBuilder("total,fabar,oabar,foabar,ffabar,ooabar,mae");
     } else if (table.endsWith(MVUtil.VL1L2)) {
-      result = "total,ufbar,vfbar,uobar,vobar,uvfobar,uvffbar,uvoobar";
+      result = new StringBuilder("total,ufbar,vfbar,uobar,vobar,uvfobar,uvffbar,uvoobar");
     } else if (table.endsWith(MVUtil.VAL1L2)) {
-      result = "total,ufabar,vfabar,uoabar,voabar,uvfoabar,uvffabar,uvooabar";
+      result = new StringBuilder("total,ufabar,vfabar,uoabar,voabar,uvfoabar,uvffabar,uvooabar");
     } else if (table.endsWith(MVUtil.ECNT)) {
-      result = "total,me,rmse,crps,crpss,ign,spread,me_oerr,rmse_oerr,spread_oerr,spread_plus_oerr,crpscl,crps_emp,crpscl_emp ,crpss_emp";
+      result = new StringBuilder("total,me,rmse,crps,crpss,ign,spread,me_oerr,rmse_oerr,spread_oerr,spread_plus_oerr,crpscl,crps_emp,crpscl_emp ,crpss_emp");
     } else if (table.endsWith(MVUtil.RPS)) {
-      result = "total,rps,rpss, rps_comp";
+      result = new StringBuilder("total,rps,rpss, rps_comp");
     } else if (table.endsWith("nbrcnt")) {
-      result = "total,fbs,fss";
+      result = new StringBuilder("total,fbs,fss");
     } else if (table.endsWith(MVUtil.PCT)) {
-      result = "total,(line_data_pct.n_thresh - 1)";
+      result = new StringBuilder("total,(line_data_pct.n_thresh - 1)");
       for (int i = 1; i < thresh; i++) {
-        result += ",";
+        result.append(",");
         if (i < thresh - 1) {
-          result += "  FORMAT((ldt" + i + ".thresh_i + ldt" + (i + 1) + ".thresh_i)/2, 3),";
+          result.append("  FORMAT((ldt").append(i).append(".thresh_i + ldt").append(i + 1).append(".thresh_i)/2, 3),");
         } else {
-          result += "  FORMAT((ldt" + i + ".thresh_i + 1)/2, 3),";
+          result.append("  FORMAT((ldt").append(i).append(".thresh_i + 1)/2, 3),");
         }
-        result += "  ldt" + i + ".oy_i," +
-                "  ldt" + i + ".on_i";
+        result.append("  ldt").append(i).append(".oy_i,").append("  ldt").append(i).append(".on_i");
       }
     }
-    return result;
+    return result.toString();
   }
 
   @Override

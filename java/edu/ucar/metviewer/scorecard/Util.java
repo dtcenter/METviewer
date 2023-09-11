@@ -11,9 +11,7 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author : tatiana $
@@ -81,5 +79,48 @@ public class Util {
     }
 
     return aggType;
+  }
+
+  public static List<Map<String, Integer>> getRowspansForRowHeader(List<Map<String, Entry>> listRows) {
+    List<Map<String, Integer>> fieldToCountMap = new ArrayList<>(listRows.size());
+    List<List<Entry>> allCombinationsOfValues = new ArrayList<>();
+    //for each row
+    for (Map<String, Entry> row : listRows) {
+
+      Map<String, Integer> rowFieldToCount = new LinkedHashMap<>(row.size());
+      List<String> fieldsFromRow = new ArrayList<>(row.keySet().size());
+
+      //for each field from this row
+      for (String fieldName : row.keySet()) {
+
+        fieldsFromRow.add(fieldName);
+        List<Map<String, Entry>> copyOfAllOriginalRows = new ArrayList<>(listRows);
+        List<Entry> valueCombination = new ArrayList<>();
+
+        //find all rows that have current field and value
+        for (String fieldFromRow : fieldsFromRow) {
+          //get fields value
+          Entry fieldValue = row.get(fieldFromRow);
+          valueCombination.add(fieldValue);
+          //remove rows that don't have this field value
+          for (Map<String, Entry> aRow : listRows) {
+            if (aRow.containsKey(fieldFromRow) && !aRow.get(fieldFromRow).equals(fieldValue)) {
+              copyOfAllOriginalRows.remove(aRow);
+            }
+          }
+        }
+
+        //copyOfAllOriginalRows contains only rows with the unique combination
+        if (!allCombinationsOfValues.contains(valueCombination)) {
+          allCombinationsOfValues.add(valueCombination);
+          rowFieldToCount.put(fieldName, copyOfAllOriginalRows.size());
+        } else {
+          rowFieldToCount.put(fieldName, 0);
+        }
+
+      }
+      fieldToCountMap.add(rowFieldToCount);
+    }
+    return fieldToCountMap;
   }
 }

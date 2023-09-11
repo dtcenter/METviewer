@@ -22,6 +22,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -2860,7 +2864,7 @@ public class MVUtil {
     return result.toArray(new String[0][]);
   }
 
-  public static synchronized void createYamlFile(final String fileName, final Map<String, Object> info) throws IOException {
+  public static synchronized void createYamlFile(final String fileName, final Map<String, Object> info) throws IOException, InvalidPathException {
     DumperOptions options = new DumperOptions();
     //options.setDefaultScalarStyle(DumperOptions.ScalarStyle.SINGLE_QUOTED);
     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
@@ -2869,6 +2873,11 @@ public class MVUtil {
     Yaml yaml = new Yaml(options);
     try (FileWriter writer = new FileWriter(fileName)) {
       yaml.dump(sortedMap, writer);
+    }catch (FileNotFoundException e){
+        Files.createDirectories(Paths.get(fileName).getParent());
+      try (FileWriter writer = new FileWriter(fileName)) {
+        yaml.dump(sortedMap, writer);
+      }
     }
   }
   public static boolean isEtbJob(MVPlotJob job){

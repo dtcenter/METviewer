@@ -120,10 +120,7 @@ public class AggRscriptManager extends RscriptManager {
 
         //check id output file exists and its length not 0
         File output = new File((String) tableAggStatInfo.get("agg_stat_output"));
-        boolean isAppend = false;
-        if (output.exists() && output.length() > 0) {
-          isAppend = true;
-        }
+        boolean isAppend = output.exists() && output.length() > 0;
         tableAggStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
         int lastDot = aggStatDataFilePath.lastIndexOf('.');
         String thredFileName = aggStatDataFilePath

@@ -53,7 +53,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
   private final List<Field> fixedVars;
   private final Boolean printSQL;
   String aggStatDataFilePath;
-  private MysqlDatabaseManager databaseManager;
+  private final MysqlDatabaseManager databaseManager;
 
   DatabaseManagerSql(
           final Scorecard scorecard, MysqlDatabaseManager databaseManager) {
@@ -71,8 +71,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
   @Override
   public void createDataFile(
-          Map<String, Entry> map,
-          String threadName) throws DatabaseException, SQLException, IOException, StopWatchException {
+          Map<String, Entry> map, String threadName) throws DatabaseException {
     String mysql = getQueryForRow(map);
     if (mysql != null) {
       if (printSQL) {
@@ -90,7 +89,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         try (Connection con = databaseManager.getConnection(databaseNames.get(i));
              PreparedStatement pstmt = con.prepareStatement(mysql);
              ResultSet res = pstmt.executeQuery();
-             FileWriter fstream = new FileWriter(new File(thredFileName), !newFile);
+             FileWriter fstream = new FileWriter(thredFileName, !newFile);
              BufferedWriter out = new BufferedWriter(fstream)) {
           stopWatch.stop();
           logger.info("Database query time " + stopWatch.getFormattedDuration());
@@ -98,11 +97,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           printFormattedTable(res, out, newFile);// isCalc=false,  isHeader=true
           stopWatch.stop();
           logger.info("Save to file time " + stopWatch.getFormattedDuration());
-          out.flush();
-          out.close();
-          res.close();
-          pstmt.close();
-          con.close();
+
         } catch (SQLException | IOException | StopWatchException e) {
           logger.error( e.getMessage());
         }
@@ -123,14 +118,14 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       aggType = aggType.replace("_", "");
     }
 
-    String table = "line_data_" + aggType;
+    StringBuilder table = new StringBuilder("line_data_" + aggType);
 
 
     for (Map.Entry<String, Entry> entry : map.entrySet()) {
       if ("stat".equals(entry.getKey())) {
         selectFields.append("'").append(entry.getValue().getName())
                 .append("' stat_name,")
-                .append(getStatValue(table, entry.getValue().getName())).append(" 'NA' stat_value,");
+                .append(getStatValue(table.toString(), entry.getValue().getName())).append(" 'NA' stat_value,");
       } else {
         if (selectFields.indexOf(entry.getKey()) == -1) {
           selectFields.append(entry.getKey()).append(",");
@@ -177,7 +172,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         if (values.length() > 0) {
           values.deleteCharAt(values.length() - 1);
         }
-        whereFields.append("HOUR(fcst_init_beg) IN (").append(values.toString()).append(") AND ");
+        whereFields.append("HOUR(fcst_init_beg) IN (").append(values).append(") AND ");
       } else if ("valid_hour".equals(fixedField.getName())) {
         for (Entry val : fixedField.getValues()) {
           values.append(Integer.valueOf(val.getName())).append(",");
@@ -185,7 +180,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         if (values.length() > 0) {
           values.deleteCharAt(values.length() - 1);
         }
-        whereFields.append("HOUR(fcst_valid_beg) IN (").append(values.toString()).append(") AND ");
+        whereFields.append("HOUR(fcst_valid_beg) IN (").append(values).append(") AND ");
       } else {
         for (Entry val : fixedField.getValues()) {
           values.append(val.getName()).append(GROUP_SEPARATOR);
@@ -216,14 +211,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
                 + "fcst_lead , fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset "
                 + "WHERE model_fcst_lead_offset.model = stat_header.model) ) ";
       }
-     /* if (fieldName.equals("fcst_valid_beg")) {
-        fieldNameAdjusted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                + "WHERE model_fcst_lead_offset.model = stat_header.model) is NULL , "
-                + "fcst_valid_beg , ADDTIME(fcst_valid_beg , (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model_fcst_lead_offset.model = model) ) ) fcst_valid_beg";
-        fieldNameAdjustedWhere = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                + "WHERE model_fcst_lead_offset.model = stat_header.model) is NULL , "
-                + "fcst_valid_beg , ADDTIME(fcst_valid_beg , (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model_fcst_lead_offset.model = model) ) )";
-      }*/
+
 
       selectFields.append(fieldNameAdjusted).append(",");
 
@@ -245,9 +233,6 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
     //add necessary fields
     if (selectFields.indexOf("fcst_valid_beg") == -1) {
       selectFields.append("fcst_valid_beg,");
-      //   selectFields.append(" if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-      //          + "WHERE model_fcst_lead_offset.model = stat_header.model) is NULL , "
-      //           + "fcst_valid_beg , ADDTIME(fcst_valid_beg , (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model_fcst_lead_offset.model = stat_header.model) ) ) fcst_valid_beg, " );
     }
     if (selectFields.indexOf("fcst_lead") == -1) {
       //selectFields.append("fcst_lead,");
@@ -293,7 +278,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
     }
 
     if (errors.isEmpty() && allEqual) {
-      selectFields.append(getSelectFields(table, pctThreshList.get(0)));
+      selectFields.append(getSelectFields(table.toString(), pctThreshList.get(0)));
 
 
       //make sure that selectFields doesn't have "," as the last element
@@ -304,7 +289,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
       if (Util.getAggTypeForStat(Util.getStatForRow(map)).equals(MVUtil.PCT)) {
         for (int i = 1; i < pctThreshList.get(0); i++) {
-          table += ",  line_data_pct_thresh ldt" + i;
+          table.append(",  line_data_pct_thresh ldt").append(i);
         }
         for (int i = 1; i < pctThreshList.get(0); i++) {
           if (i != 1) {
@@ -354,7 +339,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       int intLine = 0;
 
       while (res.next()) {
-        String line = "";
+        StringBuilder line = new StringBuilder();
         for (int i = 1; i <= met.getColumnCount(); i++) {
           String strVal;
           String objectType = met.getColumnTypeName(i);
@@ -374,13 +359,13 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
 
           if (1 == i) {
-            line = line + (strVal);
+            line.append(strVal);
           } else {
-            line = line + ("\t" + strVal);
+            line.append("\t").append(strVal);
           }
 
         }
-        bufferedWriter.write(line);
+        bufferedWriter.write(line.toString());
         bufferedWriter.write(MVUtil.LINE_SEPARATOR);
         intLine++;
 

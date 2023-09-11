@@ -40,6 +40,8 @@ public abstract class PythonManager {
   protected String diffStatSymbol;
   protected String python;
   protected String metCalcpyHome;
+  protected  Map<String, Object> yamlInfo = null;
+
 
 
   PythonManager(final Scorecard scorecard) {
@@ -48,23 +50,17 @@ public abstract class PythonManager {
     rScriptCommand = scorecard.getrScriptCommand();
     diffStatValue = scorecard.getStatValue();
     diffStatSymbol = scorecard.getStatSymbol();
-    python = System.getProperty("python.env") + "/bin/python";
+    python = System.getProperty("python.env");
+    if (!python.contains("/bin/")){
+      python = python+ "/bin/python";
+    }
+
     metCalcpyHome = System.getProperty("metcalcpy.home");
   }
 
   public abstract void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) throws NotSupportedException;
 
-  /**
-   * Creates a list of comparing models
-   */
-  void initModels() {
-    for (Field fixedField : fixedVars) {
-      if ("model".equals(fixedField.getName())) {
-        models = fixedField.getValues();
-        break;
-      }
-    }
-  }
+
 
   void init(Map<String, Entry> mapRow) {
     stat = Util.getStatForRow(mapRow);
@@ -182,6 +178,9 @@ public abstract class PythonManager {
     fcstVar = null;
     fixVars = new LinkedHashMap<>();
     stat = null;
+  }
+  public Map<String, Object> getYamlInfo(){
+    return yamlInfo;
   }
 
 }

@@ -243,7 +243,7 @@ RUN pip install cartopy \
  && pip install lxml==4.9.1 \
  && pip install matplotlib==3.5.2 \
  && pip install netcdf4==1.6.2 \
- && pip install numpy==1.22.0 \
+ && pip install numpy==1.24.2 \
  && pip install pytest==7.1.2 \
  && pip install metpy==1.3.1 \
  && pip install pyyaml==6.0 \

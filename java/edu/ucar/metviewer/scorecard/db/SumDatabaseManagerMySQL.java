@@ -17,7 +17,7 @@ import edu.ucar.metviewer.scorecard.Scorecard;
  */
 public class SumDatabaseManagerMySQL extends DatabaseManagerSql {
 
-  public SumDatabaseManagerMySQL(Scorecard scorecard, final MysqlDatabaseManager databaseManager) throws SQLException {
+  public SumDatabaseManagerMySQL(Scorecard scorecard, final MysqlDatabaseManager databaseManager) {
     super(scorecard, databaseManager);
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile().replaceAll(".data", ".dataFromDb");
 

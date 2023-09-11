@@ -800,7 +800,7 @@ function getSelectedDatabases() {
         //try to get it from the text field
         databases = document.getElementById("categories1").childNodes[0].innerText;
     }
-    if (databases === "Select database") {
+    if (databases.startsWith("Select database")) {
         databases = null;
     }
     return databases;
@@ -944,7 +944,6 @@ function updateForecastVariables() {
         $('#plot_data').val("stat");
         $("#plot_data").multiselect('refresh');
     } else {
-
         $.ajax({
             async: false,
             url: "servlet",
@@ -7252,7 +7251,8 @@ function viewImage(id) {
         },
         close: function (e) {
             $(this).empty();
-            $(this).dialog('destroy');
+
+                $(this).dialog('destroy');
             window_center = window_center - 20;
             window_top = window_top - 20;
         },
@@ -8420,12 +8420,12 @@ function initPage() {
 
     $('.multilevel-dropdown').multilevelDropdown();
     $("input[name='multiselect_database']").on('change', function (event) {
+
         if ($(this).val() != null) {
             var selected_db = [];
             $("input[name='multiselect_database']:checked").each(function () {
                 selected_db.push($(this).val());
             });
-
             var text;
             if (selected_db.length === 1) {
                 text = selected_db[0];

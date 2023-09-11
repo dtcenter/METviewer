@@ -65,9 +65,10 @@ public class Scorecard {
   private String statSymbol;
   private String thresholdFile = null;
   private String weightFile = null;
-  private List<String> leftColumnsNames = new ArrayList<>();
+  private final List<String> leftColumnsNames = new ArrayList<>();
   private String symbolSize = "100%";
   private String executionType = PYTHON;
+  private boolean createPlots = Boolean.FALSE;
 
 
   public static String getUsage() {
@@ -138,8 +139,8 @@ public class Scorecard {
       boolean isValid = scorecard.validate();
       if (isValid) {
 
-        DatabaseManager scorecardDbManager = null;
-        Object rscriptManager = null;
+        DatabaseManager scorecardDbManager;
+        Object rscriptManager;
         //create a list of each row with statistic as a key and columns
         List<Map<String, Entry>> listRows = scorecard.getListOfEachRowWithDesc();
 
@@ -208,6 +209,10 @@ public class Scorecard {
                 ((SumRscriptManager) rscriptManager).calculateStatsForRow(mapRow, "");
               }
             }
+            if(scorecard.getCreatePlots() && scorecard.executionType.equals(PYTHON) && rscriptManager instanceof PythonManager) {
+              Map<String, Object> yamlInfo = ((PythonManager)rscriptManager).getYamlInfo();
+              SeriesPythonManager.makePlots(scorecard,yamlInfo, rowCounter);
+            }
 
           } catch (Exception e) {
             logger.error( e.getMessage());
@@ -224,7 +229,7 @@ public class Scorecard {
                 + scorecard.getDataFile());
         //if the resulting file exists - create an image and html file
         if (dataFile.exists()) {
-          stopWatch.stop();
+
           stopWatch.start();
           GraphicalOutputManager graphicalOutputManager = new GraphicalOutputManager(scorecard);
           graphicalOutputManager.createGraphics();
@@ -244,6 +249,14 @@ public class Scorecard {
     logger.info("----  Scorecard  is done by user " + username + "----\n");
     logger.info("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
 
+  }
+
+  public boolean getCreatePlots() {
+    return createPlots;
+  }
+
+  public void setCreatePlots(boolean createPlots) {
+    this.createPlots = createPlots;
   }
 
   public Boolean getPrintSQL() {

@@ -1,0 +1,95 @@
+<project name="scorecard" default="dist" basedir=".">
+
+    <description>Scorecard Viewer build file</description>
+
+    <!-- set global properties for this build -->
+    <property name="src" location="java/edu/ucar/metviewer/scorecard/web"/>
+    <property name="lib" location="lib"/>
+    <property name="build" location="build"/>
+    <property name="dist" location="dist"/>
+    <property name="src.webapp.dir" location="webapp_scorecard"/>
+
+
+    <!-- Initialize the build tree -->
+    <target name="init">
+
+        <delete dir="${build}"/>
+        <mkdir dir="${build}"/>
+
+        <delete dir="${dist}"/>
+        <mkdir dir="${dist}"/>
+    </target>
+
+
+    <path id="classpath">
+        <pathelement location="${lib}/javax.servlet-api-4.0.1.jar"/>
+        <pathelement location="${lib}/jackson-core-2.12.0.jar"/>
+        <pathelement location="${lib}/jackson-databind-2.12.0.jar"/>
+        <pathelement location="${lib}/jackson-annotations-2.12.0.jar"/>
+    </path>
+
+
+    <!-- Compile the java code from ${src} into ${build} -->
+    <target name="compile" depends="init" description="compile the source">
+        <!-- Compile the project java files -->
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="**/*.java"/>
+            <classpath refid="classpath"/>
+        </javac>
+    </target>
+
+    <!-- Create the distribution directory -->
+    <target name="dist" depends="compile"
+            description="generate the distribution">
+        <!-- Create the dist lib folder and put the jared class files there -->
+        <mkdir dir="${dist}/lib"/>
+
+        <manifest file="${build}/MANIFEST.MF">
+            <attribute name="Specification-Version" value="5.1.0"/>
+        </manifest>
+
+        <jar jarfile="${dist}/lib/scorecard.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
+        </jar>
+    </target>
+
+
+    <!-- Build the web application folder -->
+    <target name="webapp" depends="dist"
+            description="build the web application bundle">
+        <!-- Copy the webapp contents to the dist folder -->
+        <delete dir="${dist}/scorecard"/>
+        <copy todir="${dist}/scorecard">
+            <fileset dir="webapp_scorecard"></fileset>
+        </copy>
+
+        <copy todir="${dist}/scorecard/WEB-INF/lib"
+              file="${dist}/lib/scorecard.jar"/>
+        <copy todir="${dist}/scorecard/WEB-INF/lib"
+              file="${lib}/jackson-databind-2.12.0.jar"/>
+        <copy todir="${dist}/scorecard/WEB-INF/lib"
+              file="${lib}/jackson-core-2.12.0.jar"/>
+        <copy todir="${dist}/scorecard/WEB-INF/lib"
+              file="${lib}/jackson-annotations-2.12.0.jar"/>
+
+
+    </target>
+
+
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <target name="clean" description="clean up">
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+    </target>
+
+
+    <target name="war" depends="webapp" description="Create web archive">
+        <war destfile="${dist}/scorecard.war"
+             needxmlfile="false"
+             basedir="${dist}/scorecard"
+             manifest="${build}/MANIFEST.MF"
+        >
+        </war>
+    </target>
+
+</project>
+

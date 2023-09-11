@@ -35,7 +35,6 @@ public class AggPythonManager extends PythonManager {
   private static final Logger logger = LogManager.getLogger(AggRscriptManager.class);
 
   private final String aggInfoFileName;
-  private final Map<String, Object> yamlInfo;
   private static final String PYTHON_SCRIPT = "/metcalcpy/agg_stat.py";
 
 
@@ -110,10 +109,7 @@ public class AggPythonManager extends PythonManager {
 
         //check id output file exists and its length not 0
         File output = new File((String) yamlInfo.get("agg_stat_output"));
-        boolean isAppend = false;
-        if (output.exists() && output.length() > 0) {
-          isAppend = true;
-        }
+        boolean isAppend = output.exists() && output.length() > 0;
         yamlInfo.put("append_to_file", isAppend ? "True" : "False");
 
         try  {
