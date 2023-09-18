@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.ResourceBundle;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -62,12 +61,10 @@ public class ScorecardServlet extends HttpServlet {
   }
 
   public static void sortFilesByDateCreated (File[] files) {
-    Arrays.sort(files, new Comparator<File>() {
-      public int compare (File f1, File f2) {
-        long l1 = getFileCreationEpoch(f1);
-        long l2 = getFileCreationEpoch(f2);
-        return Long.valueOf(l2).compareTo(l1);
-      }
+    Arrays.sort(files, (f1, f2) -> {
+      long l1 = getFileCreationEpoch(f1);
+      long l2 = getFileCreationEpoch(f2);
+      return Long.compare(l2, l1);
     });
   }
   public static long getFileCreationEpoch (File file) {
