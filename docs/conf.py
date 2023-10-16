@@ -34,7 +34,7 @@ copyright = f'{release_year}, {author}'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 # Adding 'sphinx_design' to use drop-down menus in release_notes. 
-extensions = ['sphinx.ext.autodoc','sphinx.ext.intersphinx','sphinx_design',]
+extensions = ['sphinx.ext.autodoc','sphinx.ext.intersphinx','sphinx_design','sphinx_rtd_theme',]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
