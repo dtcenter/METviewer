@@ -1872,12 +1872,18 @@ public class MVUtil {
     }
     if (strProcStd.length() > 0) {
       mvResponse.setInfoMessage(
-              "==== Start " + type + " output  ====\n" + strProcStd + "====   End " + type + " output  ====");
+              "\n==== Start " + type + " output  ====\n" + strProcStd + "====   End " + type + " output  ====\n");
     }
-
+    // add errors if they exist - only the last line
     if (strProcErr.length() > 0) {
+      String[] errorLines = strProcErr.toString().split("\\r?\\n|\\r");
+      mvResponse.setInfoMessage(
+              mvResponse.getInfoMessage() + "\n==== Start " + type + " ERROR  ====\n" + errorLines[errorLines.length-1] + "\n====   End " + type + " error  ====\n"
+
+      );
+
       mvResponse.setErrorMessage(
-              "==== Start " + type + " error  ====\n" + strProcErr + "====   End " + type + " error  ====");
+              "==== Start " + type + " error  ====\n" + strProcErr + "====   End " + type + " ERROR  ====");
     }
     mvResponse.setSuccess(0 == intExitStatus);
     return mvResponse;
