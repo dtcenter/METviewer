@@ -6433,8 +6433,6 @@ function updatePlotFix() {
         for (var i = 0; i < plot_fix_arr.length; i++) {
             var fixed_var_vals = [];
             var equalize = $(plot_fix_arr[i]).attr('equalize');
-            console.log(equalize);
-            console.log(fixed_var_vals);
             if (i > 0) {
                 addFixedVarHist();
             }
