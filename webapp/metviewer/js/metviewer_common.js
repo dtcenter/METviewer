@@ -1837,7 +1837,9 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
 
 function updateFixedVarValHist(index, selectedVals, equalize) {
     if (equalize && equalize === "false") {
-        $("#fix_var_event_equal_" + index).prop("checked", false);
+        $("#fix_var_event_equal_" + index).prop("checked", false).prop('disabled', false);
+    }else {
+        $("#fix_var_event_equal_" + index).prop("checked", true).prop('disabled', false);
     }
     var fixed_var_val = $("#fixed_var_val_" + index);
     fixed_var_val.empty();
@@ -2100,6 +2102,8 @@ function updateDerivedVarVal() {
 function updateFixedVarVal(index, selectedVals, equalize) {
     if (equalize && equalize === "false") {
         $("#fix_var_event_equal_" + index).prop("checked", false);
+    }else{
+        $("#fix_var_event_equal_" + index).prop("checked", true);
     }
     var select = $("#fixed_var_val_" + index);
     select.empty();
@@ -6364,6 +6368,8 @@ function loadXMLRely() {
         }
     }
     loadXMLStatistics();
+    $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true").trigger("change");
+
 }
 
 function loadXMLEns() {
