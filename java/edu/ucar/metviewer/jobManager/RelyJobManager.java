@@ -152,6 +152,8 @@ public class RelyJobManager extends JobManager {
         yamlInfo.put("add_reference_line", job.getAddReferenceLine() ? "True" : "False");
         yamlInfo.put("rely_event_hist", job.getRelyEventHist().equals("TRUE") ? "True" : "False");
         yamlInfo.put("inset_hist", job.getInsetHist() ? "True" : "False");
+        yamlInfo.put("reference_line_col", job.getReferenceLineCol());
+        yamlInfo.put("noskill_line_col", job.getNoskillLineCol());
 
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, yamlInfo, new ArrayList<>());
         job.setPlotTmpl(this.getPythonScript());
