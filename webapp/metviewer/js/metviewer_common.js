@@ -1836,7 +1836,9 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
 
 function updateFixedVarValHist(index, selectedVals, equalize) {
     if (equalize && equalize === "false") {
-        $("#fix_var_event_equal_" + index).prop("checked", false);
+        $("#fix_var_event_equal_" + index).prop("checked", false).prop('disabled', false);
+    }else {
+        $("#fix_var_event_equal_" + index).prop("checked", true).prop('disabled', false);
     }
     var fixed_var_val = $("#fixed_var_val_" + index);
     fixed_var_val.empty();
@@ -2099,6 +2101,8 @@ function updateDerivedVarVal() {
 function updateFixedVarVal(index, selectedVals, equalize) {
     if (equalize && equalize === "false") {
         $("#fix_var_event_equal_" + index).prop("checked", false);
+    }else{
+        $("#fix_var_event_equal_" + index).prop("checked", true);
     }
     var select = $("#fixed_var_val_" + index);
     select.empty();
@@ -6363,6 +6367,8 @@ function loadXMLRely() {
         }
     }
     loadXMLStatistics();
+    $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true").trigger("change");
+
 }
 
 function loadXMLEns() {
@@ -7327,17 +7333,18 @@ function updateResult(result) {
             document.getElementById('plot_sql').innerHTML = "";
         }
     });
+
     $.ajax({
         type: "GET",
-        url: urlOutput + "scripts/" + resultName + ".R",
+        url: urlOutput + "data/" + resultName + ".yaml",
         dataType: "text",
         contentType: 'text/plain',
         mimeType: 'text',
         complete: function (data) {
-            document.getElementById('r_script').innerHTML = (data.responseText).replace(/\n/g, '<br />');
+            document.getElementById('plot_yaml').innerHTML = (data.responseText).replace(/\n/g, '<br />');
         },
         error: function () {
-            document.getElementById('r_script').innerHTML = "";
+            document.getElementById('plot_yaml').innerHTML = "";
         }
     });
     $.ajax({
@@ -7355,7 +7362,7 @@ function updateResult(result) {
     });
 
     $('#ui-tabs-1').empty();
-    $("#r_data_url").prop("href", urlOutput + "data/" + resultName + ".data");
+    $("#plot_data_url").prop("href", urlOutput + "data/" + resultName + ".data");
     $("#y1_points_url").prop("href", urlOutput + "data/" + resultName + ".points1");
     $("#y2_points_url").prop("href", urlOutput + "data/" + resultName + ".points2");
 

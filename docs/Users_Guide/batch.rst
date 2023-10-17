@@ -258,9 +258,6 @@ starting at 1 for each fcst_var.
                         * All series on the plot must be derived from the
 			  same data
           
-                        * If agg_stat is turned on, event equalization
-			  must be turned off (it is done automatically).
-          
                         * agg_stat cannot be used on the same plot with
 			  calc_stat.
 

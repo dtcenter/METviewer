@@ -13,8 +13,8 @@ package edu.ucar.metviewer;
 public class MvResponse {
 
   private boolean success = false;
-  private String infoMessage;
-  private String errorMessage;
+  private String infoMessage = "";
+  private String errorMessage = "";
 
   public boolean isSuccess() {
     return success;
