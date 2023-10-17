@@ -232,6 +232,9 @@ public class MVPlotJob {
 
   protected List<LineAttributes> lines = new ArrayList<>();
 
+  protected String referenceLineCol = "#FF0000";
+  protected String noskillLineCol = "#FF0000";
+
 
   /**
    * Deep copy of the MVPlotJob, useful for inheritance.
@@ -350,6 +353,8 @@ public class MVPlotJob {
     job._strLegendNcol = _strLegendNcol;
     job._strCaptionWeight = _strCaptionWeight;
     job._strCaptionCol = _strCaptionCol;
+    job.referenceLineCol = referenceLineCol;
+    job.noskillLineCol = noskillLineCol;
     job._strCaptionSize = _strCaptionSize;
     job._strCaptionOffset = _strCaptionOffset;
     job._strCaptionAlign = _strCaptionAlign;
@@ -2377,6 +2382,22 @@ public class MVPlotJob {
       return "vl1l2";
     }
     return "N/A";
+  }
+
+  public String getReferenceLineCol() {
+    return referenceLineCol;
+  }
+
+  public void setReferenceLineCol(String referenceLineCol) {
+    this.referenceLineCol = referenceLineCol;
+  }
+
+  public String getNoskillLineCol() {
+    return noskillLineCol;
+  }
+
+  public void setNoskillLineCol(String noskillLineCol) {
+    this.noskillLineCol = noskillLineCol;
   }
 }
 

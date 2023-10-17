@@ -3979,6 +3979,19 @@ function createXMLRely(plot) {
     agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
     agg_stat.append($('<cl_step />').text($('#cl_step').val()));
     plot.append(agg_stat);
+    var reference_line_col = $('#reference_line_col').val();
+    if (reference_line_col.startsWith("#")) {
+        plot.append($('<reference_line_col />').text(reference_line_col));
+    } else {
+        plot.append($('<reference_line_col />').text("#" + reference_line_col));
+    }
+    var noskill_line_col = $('#noskill_line_col').val();
+    if (noskill_line_col.startsWith("#")) {
+        plot.append($('<noskill_line_col />').text(noskill_line_col));
+    } else {
+        plot.append($('<noskill_line_col />').text("#" + noskill_line_col));
+    }
+
     plot = createXMLCommon(plot);
     return plot;
 }
@@ -6367,6 +6380,21 @@ function loadXMLRely() {
             $('#add_reference_line').prop('checked', false);
         }
     }
+    if (initXML.find("plot").find("reference_line_col")) {
+        var reference_line_col = $(initXML.find("plot").find("reference_line_col")).text();
+        if (reference_line_col.length > 7) {
+            reference_line_col = reference_line_col.substring(0, 7);
+        }
+        $('#reference_line_col').colorpicker('setColor', reference_line_col);
+    }
+    if (initXML.find("plot").find("noskill_line_col")) {
+        var noskill_line_col = $(initXML.find("plot").find("noskill_line_col")).text();
+        if (noskill_line_col.length > 7) {
+            noskill_line_col = noskill_line_col.substring(0, 7);
+        }
+        $('#noskill_line_col').colorpicker('setColor', noskill_line_col);
+    }
+
     loadXMLStatistics();
     $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true").trigger("change");
 
@@ -8136,6 +8164,8 @@ function initPage() {
         altField: '#caption_col'
     });
     $('#caption_col').colorpicker('setColor', '#333333');
+
+
 
     $("#error_message").dialog({
         modal: true,
