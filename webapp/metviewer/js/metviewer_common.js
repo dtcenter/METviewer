@@ -7333,17 +7333,18 @@ function updateResult(result) {
             document.getElementById('plot_sql').innerHTML = "";
         }
     });
+
     $.ajax({
         type: "GET",
-        url: urlOutput + "scripts/" + resultName + ".R",
+        url: urlOutput + "data/" + resultName + ".yaml",
         dataType: "text",
         contentType: 'text/plain',
         mimeType: 'text',
         complete: function (data) {
-            document.getElementById('r_script').innerHTML = (data.responseText).replace(/\n/g, '<br />');
+            document.getElementById('plot_yaml').innerHTML = (data.responseText).replace(/\n/g, '<br />');
         },
         error: function () {
-            document.getElementById('r_script').innerHTML = "";
+            document.getElementById('plot_yaml').innerHTML = "";
         }
     });
     $.ajax({
@@ -7361,7 +7362,7 @@ function updateResult(result) {
     });
 
     $('#ui-tabs-1').empty();
-    $("#r_data_url").prop("href", urlOutput + "data/" + resultName + ".data");
+    $("#plot_data_url").prop("href", urlOutput + "data/" + resultName + ".data");
     $("#y1_points_url").prop("href", urlOutput + "data/" + resultName + ".points1");
     $("#y2_points_url").prop("href", urlOutput + "data/" + resultName + ".points2");
 
