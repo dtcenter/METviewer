@@ -1,8 +1,9 @@
+**************
 Testing Module
-==============
+**************
 
-Testing example - install and run on dakota
--------------------------------------------
+Testing Example - Install and Run on dakota
+===========================================
 
 **Testing directory and branch information**
 
@@ -45,8 +46,8 @@ stored in the
 `git store <https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage>`_ .
 Also, **auto_test.sh** should be modified to send emails with testing results.
 
-Testing - capture
------------------
+Testing - Capture
+=================
 
 The testing module is used to execute the regression testing of a specified
 version of METviewer. The capture tool is invoked by using the mv_test.sh
@@ -173,13 +174,13 @@ directory structure might look like this, for example...
                  ...
 
 
-Testing - verify
-----------------
+Testing - Verify
+================
 
 The mv_compare.sh script accepts a branch and a tag that it uses to identify a test subdirectory and a second "expected" branch and tag that it uses to identify a comparison test directory. If tags are omitted the HEAD is used. The compare script looks for corresponding image files in the corresponding plots directories and does a binary comparison of the corresponding files. Differences will be reported as errors.
 
-auto test
----------
+Auto Test
+=========
 
 The auto_test.sh script defines the branch, optionally a tag, directories, and database credentials for a version under test and a comparison version. It performs the following steps.
 
@@ -286,8 +287,8 @@ to pass, produced and expected files should be byte identical.
 NOTE: R scripts create visually similar results but bitwise different
 image files on different platforms.
 
-Testing submodules
-------------------
+Testing Submodules
+==================
                
 **LoadDataTest** recreates and refills the mv_test database with MET output
 data and compares the number of rows in each table with the expected number.
