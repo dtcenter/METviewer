@@ -1,9 +1,9 @@
+*********************
 Overview of METviewer
-=====================
+*********************
 
-
-Purpose and organization of the User's Guide
---------------------------------------------
+Purpose and Organization of the User's Guide
+============================================
 
 The goal of this User's Guide is to provide basic information for users of
 the METviewer database and display system to enable users to create plots
@@ -13,7 +13,7 @@ The METviewer User's Guide is organized as follows.
 
 
 The Developmental Testbed Center (DTC)
---------------------------------------
+======================================
 
 METviewer has been developed, and will be maintained and enhanced, by the
 Developmental Testbed Center (`DTC <http://www.dtcenter.org/>`_ ). The main
@@ -34,8 +34,8 @@ modeling community for testing and evaluation of new model capabilities,
 applications in new environments, and so on.
 
 
-METviewer goals and design philosophy
--------------------------------------
+METviewer Goals and Design Philosophy
+=====================================
 
 The METviewer tool reads MET verification statistics output from a database
 and creates plots using the R statistical package. The tool includes a web
@@ -55,7 +55,7 @@ private sector, and operational modeling and prediction centers.
 
 
 METviewer Requirements
-----------------------
+======================
 
 METviewer requires installation of Java, Apache / Tomcat, MySQL, and R
 statistics.
@@ -70,7 +70,7 @@ statistics.
 .. _userspec:
 
 METviewer User Specifications
------------------------------
+=============================
 
 The top menu allows the user to select a database and type for the plot. 
 
@@ -121,7 +121,7 @@ trying to compare the skill of one or more predictions.
 
 
 METviewer Output
-----------------
+================
 
 METviewer output all appears in the tabbed boxes at the top right quadrant
 of the web browser. The plot will show by default, but the user can click any
@@ -160,7 +160,7 @@ recommended that the user click through at least the plot and xml windows
 and save this output.
 
 METviewer Plot Formatting Specifications
-----------------------------------------
+========================================
 
 METviewer plot formatting options appear in the tabbed boxes at the bottom
 right quadrant of the web browser. The “Titles & Labels” tab will show by
@@ -193,7 +193,7 @@ reset all options to the defaults.
 
 
 METviewer Series Formatting Specifications
-------------------------------------------
+==========================================
 
 At the bottom of the METviewer window is the series formatting box. It allows
 the user to control the minute details of each line on a plot, including
@@ -205,7 +205,7 @@ place (so subsequent plots are identical in format).
 
 
 METviewer History Menu
-----------------------
+======================
 
 Along the left of the METviewer GUI, hidden by default, is the history menu.
 To open this menu, click the arrow at the top left side right underneath
@@ -215,8 +215,8 @@ from this menu to recover plots they may have neglected to save. Clicking
 on the button showing loads the plot.
 
 
-Future development plans
-------------------------
+Future Development Plans
+========================
 
 METviewer is an evolving verification database and display software package.
 New capabilities are planned in controlled, successive version releases. Bug
@@ -226,8 +226,8 @@ releases of METviewer. Additionally, updates to accommodate new features of
 the MET software are often required. 
 
 
-Code support
-------------
+Code Support
+============
 
 METviewer support is provided through the
 `METplus GitHub Discussions Forum <https://github.com/dtcenter/METplus/discussions>`_.

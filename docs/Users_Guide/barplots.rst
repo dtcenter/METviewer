@@ -1,8 +1,9 @@
+*********
 Bar Plots
-=========
+*********
 
 Description
------------
+===========
 
 A bar plot shows comparisons among discrete categories. One axis of the
 chart shows the specific categories being compared, while the other
@@ -22,7 +23,7 @@ Bar plots often represent counts or frequencies, however, bar plots can
 represent means, medians, standard deviations, or any other statistic.
 
 How-To
--------
+======
 
 Selection of options to produce the plot proceeds approximately
 counter-clockwise around the METviewer window. The steps to create a series
@@ -92,7 +93,7 @@ plot are:
 There are many other options for plots, but these are the basics.
 
 Example
---------
+=======
 
 The image below shows an example of the plot and set-up options for a
 series plot in METviewer. This example uses the database

@@ -1,8 +1,9 @@
+************
 Series Plots
-============
+************
 
 Description
------------
+===========
 
 The series plot is the most general of all the METviewer plotting options.
 A series plot is really just a special case of a scatter plot, where the
@@ -15,7 +16,7 @@ lead times or thresholds (on the X-axis). The tremendous flexibility of
 this plot means that the user must specify many options. 
 
 How-To
--------
+======
 
 Selection of options to produce the plot proceeds approximately
 counter-clockwise around the METviewer window. The steps to create a
@@ -93,7 +94,7 @@ There are many other options for plots, but these are the basics.
 
 
 Example
---------
+=======
 
 The image below shows an example of the plot and set-up options for a
 series plot in METviewer. This example uses the database

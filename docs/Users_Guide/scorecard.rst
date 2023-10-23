@@ -1,16 +1,17 @@
+**********
 Scorecards
-==========
+**********
 
 Description
------------
+===========
 
 A scorecard is a graphical representation of significance and performance
 of a comparison, normally a comparison between two models. The scorecard
 can only be produced using xml code. The xml code specifications are
 listed in the detail below. There is no GUI interface.
 
-EMC vs. NCAR method of determining p-values for Aggregation statistics
-----------------------------------------------------------------------
+EMC vs. NCAR Method of Determining p-values for Aggregation Statistics
+======================================================================
 
 In statistics, the p-value represents the probability of a statistic having a value at least as
 extreme as observed, in this case a difference between two
@@ -42,7 +43,8 @@ compared to a resampled distribution rather than a known,
 theoretical distribution.
 
 Line Type
----------
+=========
+
 Scorecards can be run with either summary or aggregation logic. Aggregation
 logic is the default and generally, the better choice. The following are
 line types scorecards support: 
@@ -70,7 +72,7 @@ line types scorecards support:
 * RPS 
 
 How-To
--------
+======
 
 The scorecard module is used to generate a scorecard PNG and HTML images
 using data in the METviewer database. The usage statement:
@@ -316,7 +318,7 @@ system folders.
 		image. Default value: Verification Scorecard
 
 Example
--------
+=======
 
 The image below shows the output of scorecard_example.xml. 
 

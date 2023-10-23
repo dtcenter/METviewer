@@ -1,5 +1,6 @@
+*********************
 METviewer Web Service
-=====================
+*********************
 
 The METviewer web service is a web-server driven API that parses XML
 requests and returns results in an XML structure. All calls are
@@ -33,13 +34,13 @@ loose ordering:
 #. Plot request for user selected database and plot information
 
 API Request/Response Formats
-----------------------------
+============================
 
 The following sections each describe a web service API function in terms
 of the request/response XML structure.
 
 List Databases
-~~~~~~~~~~~~~~
+--------------
 
 List the METviewer databases that are available on the system for access
 through the web app. The returned list reflects the contents of the
@@ -64,7 +65,7 @@ Response:
         </list_db>
 
 List Values
-~~~~~~~~~~~
+-----------
           
 The list_val request is used to conditionally list the distinct values in
 the stat_header table of the selected database. The stat_field element
@@ -148,7 +149,7 @@ vice versa.
 
                   
 List Statistics
-~~~~~~~~~~~~~~~
+---------------
 
 The list_stat request builds a list of all statistics available in the
 METviewer database for the specified fcst_var. It is primarily used to
@@ -182,7 +183,7 @@ criteria is not supported in list_stat requests.
 
 
 Generate Plot
-~~~~~~~~~~~~~
+-------------
 
 Once a user has provided all the information for a complete plot
 specification, the plot request handles the parsing of the plot
@@ -210,8 +211,9 @@ element.
         <r_error>NAs produced by integer overflow</r_error>
 
 
-Open app with predefine database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Open App with Predefine Database
+--------------------------------
+
 Use this url to open METviewer main page with predefine database:
 
 http://www.dtcenter.org/met/metviewer/metviewer1.jsp?db=name_of_database

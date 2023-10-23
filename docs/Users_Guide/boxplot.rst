@@ -1,8 +1,9 @@
+*********
 Box Plots
-=========
+*********
 
 Description
------------
+===========
 
 Box plots, or box and whisker plots, are a way to summarize a distribution
 of values using Tukey's 5-number summary
@@ -27,7 +28,7 @@ threshold. Here, each forecast and observation is binary, but the
 verification statistic is continuous. 
 
 How-To
----------
+======
 
 Selection of options to produce the plot proceeds approximately
 counter-clockwise around the METviewer window. The steps to create a
@@ -105,7 +106,7 @@ There are many other options for plots, but these are the basics.
 
 
 Example
---------
+=======
 
 The example below shows a boxplot of the RMSE for 2m temperature over
 the CONUS. Many of the standard METviewer plotting options are available

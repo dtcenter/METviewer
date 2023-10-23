@@ -1,5 +1,6 @@
+*********************
 Batch Plotting Module
-=====================
+*********************
 
 The batch plotting system is used to generate a number of plots of data in
 the METviewer database. The usage statement:
@@ -439,10 +440,11 @@ starting at 1 for each fcst_var.
 |
 
 MODE Statistics
----------------
+===============
 
 Single Object Statistics
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
+
 MODE statistics are broken up into two categories: single and pair
 statistics. Single statistics are suffixed with a three letter code which
 indicates the group of objects over which the statistic should be calculated
@@ -597,7 +599,7 @@ RATIO\_ with AREARAT\_ and OBJ with OBJA.
     - OBJFBIAS
 
 Pair Object Statistics
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 MODE object pair statistics are specified using the following format:
 STATNAME_CC where STATNAME is one of the Object Pair Statistics in the

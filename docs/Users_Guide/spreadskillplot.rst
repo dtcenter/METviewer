@@ -1,8 +1,9 @@
+**********************
 Spread vs. Skill Plots
-=======================
+**********************
 
 Description
------------
+===========
 
 Spread vs. Skill plots are widely used to evaluate the quality of ensemble
 forecasting systems. One goal of ensemble forecasting is to have the
@@ -17,7 +18,7 @@ ratio is 1.
 
 
 How-To
--------
+======
 
 Selection of options to produce the spread vs. skill plot  proceeds
 approximately counter-clockwise around the METviewer window.
@@ -89,7 +90,7 @@ approximately counter-clockwise around the METviewer window.
 There are many other options for plots, but these are the basics.
 
 Example
---------
+=======
 
 This example shows the 2-m temperature RMSE and spread for a series of
 forecast lead times for an ensemble. Plotted are the spread and the skill.   
