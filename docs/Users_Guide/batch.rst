@@ -171,7 +171,8 @@ conceptually, a list of **<date_range>** structures.
 |               **<listDiffSeries2>:** Turns on a difference curve should be plotted for the y2 series; calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
 |
 
-**Template Formatting**
+Template Formatting
+===================
 
 Template values have the syntax
 {var_name[?param1=val1[&amp;param2=val2[...]]]}. For example,
