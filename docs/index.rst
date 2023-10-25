@@ -115,6 +115,7 @@ To cite this documentation in publications, please refer to the METviewer User's
    :caption: METviewer
 
    Users_Guide/index
+   Contributors_Guide/index
 
 Index
 =====
