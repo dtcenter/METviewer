@@ -1,17 +1,18 @@
 .. _install:
 
+****************************
 METviewer Installation Guide
-============================
+****************************
 
 Introduction
-------------
+============
 
 This chapter describes how to install METviewer. METviewer has been
 developed and tested on Linux operating systems. Support for additional
 platforms and compilers may be added in future releases. 
 
 Installing METviewer
---------------------
+====================
 
 METviewer relies on the following tools. These must be installed and tested
 prior to installing METviewer:
@@ -117,8 +118,8 @@ clone   `METdataio repository <https://github.com/dtcenter/METdataio>`_
 
      git clone https://github.com/dtcenter/METdataio.git
 
-Configure and build METviewer
-_____________________________
+Configure and Build METviewer
+-----------------------------
 
 #. Configure the batch and loading tools:
 
@@ -225,7 +226,8 @@ _____________________________
         ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/sql/mv_mysql.sql mv_mysql.sql
 
 Making a Database Accessible in the METviewer Web Application
--------------------------------------------------------------
+=============================================================
+
 To make a new database accessible in the METviewer Web Application click
 on "Reload list of databases" button in the upper right corner of the
 main JSP page. The list of available databases should be updated and a

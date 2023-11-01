@@ -1,5 +1,6 @@
+*********************
 Batch Plotting Module
-=====================
+*********************
 
 The batch plotting system is used to generate a number of plots of data in
 the METviewer database. The usage statement:
@@ -170,7 +171,8 @@ conceptually, a list of **<date_range>** structures.
 |               **<listDiffSeries2>:** Turns on a difference curve should be plotted for the y2 series; calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
 |
 
-**Template Formatting**
+Template Formatting
+===================
 
 Template values have the syntax
 {var_name[?param1=val1[&amp;param2=val2[...]]]}. For example,
@@ -439,10 +441,11 @@ starting at 1 for each fcst_var.
 |
 
 MODE Statistics
----------------
+===============
 
 Single Object Statistics
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
+
 MODE statistics are broken up into two categories: single and pair
 statistics. Single statistics are suffixed with a three letter code which
 indicates the group of objects over which the statistic should be calculated
@@ -597,7 +600,7 @@ RATIO\_ with AREARAT\_ and OBJ with OBJA.
     - OBJFBIAS
 
 Pair Object Statistics
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 MODE object pair statistics are specified using the following format:
 STATNAME_CC where STATNAME is one of the Object Pair Statistics in the

@@ -1,5 +1,6 @@
+*************************
 Database Scrubbing Module
-=========================
+*************************
 
 The database scrubbing utility is used to to delete data from METviewer
 databases that meets some user-specified selection criteria. The usage
@@ -58,7 +59,7 @@ performed (**FALSE**).
 |
 
 Examples
---------
+========
 
 **Example 1: Prune by describing the data (<fields>)**
 

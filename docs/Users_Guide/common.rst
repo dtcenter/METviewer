@@ -1,5 +1,6 @@
+*********************
 Common XML Structures
-=====================
+*********************
 
 The database loading module and batch plotting module both use XML input files. Some XML structures can be used in either input file. These common structures are documented below.
 
