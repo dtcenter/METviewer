@@ -214,7 +214,7 @@ element.
 Open App with Predefined Database
 --------------------------------
 
-Use this url to open METviewer main page with predefine database:
+Use this url to open METviewer main page with predefined database:
 
 http://www.dtcenter.org/met/metviewer/metviewer1.jsp?db=name_of_database
 
