@@ -212,7 +212,7 @@ element.
 
 
 Open App with Predefined Database
---------------------------------
+---------------------------------
 
 Use this url to open METviewer main page with predefined database:
 
