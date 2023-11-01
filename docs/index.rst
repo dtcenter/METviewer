@@ -118,6 +118,6 @@ To cite this documentation in publications, please refer to the METviewer User's
    Contributors_Guide/index
 
 Index
------
+=====
 
 * :ref:`genindex`
