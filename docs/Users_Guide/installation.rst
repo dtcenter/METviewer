@@ -118,7 +118,7 @@ clone   `METdataio repository <https://github.com/dtcenter/METdataio>`_
 
      git clone https://github.com/dtcenter/METdataio.git
 
-Configure and build METviewer
+Configure and Build METviewer
 -----------------------------
 
 #. Configure the batch and loading tools:
