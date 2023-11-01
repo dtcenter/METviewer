@@ -211,7 +211,7 @@ element.
         <r_error>NAs produced by integer overflow</r_error>
 
 
-Open App with Predefine Database
+Open App with Predefined Database
 --------------------------------
 
 Use this url to open METviewer main page with predefine database:
