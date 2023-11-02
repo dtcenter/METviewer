@@ -122,6 +122,14 @@ public abstract class JobManager {
       throw new ValidationException("length of con_series differs from number of series ("
               + intNumDepSeries + ")");
     }
+    if (job.getShowLegend() == null){
+      throw new ValidationException("ERROR: show_legend parameter is not provided.");
+    }else {
+      if (intNumDepSeries != MVUtil.parseRCol(job.getShowLegend()).length) {
+        throw new ValidationException("length of show_legend differs from number of series ("
+                + intNumDepSeries + ")");
+      }
+    }
   }
 
   protected int getNumDepSeries(int intNumDep1Series, int intNumDep2Series, MVPlotJob job) {
@@ -295,6 +303,10 @@ public abstract class JobManager {
                     MVUtil.rep(1, intNumDepSeries)) : job.getLwd());
     info.put("con_series", job.getConSeries().isEmpty() ? MVUtil.printRCol(
             MVUtil.rep(0, intNumDepSeries)) : job.getConSeries());
+
+    if(job.getShowLegend() != null){
+      info.put("show_legend",MVUtil.printRCol(MVUtil.rep(0, intNumDepSeries)));
+    }
     info.put("legend", job.getLegend().isEmpty() ? "c()" : job.getLegend());
     info.put("y1_lim", job.getY1Lim().isEmpty() ? "c()" : job.getY1Lim());
     info.put("x1_lim", job.getX1Lim().isEmpty() ? "c()" : job.getX1LimR());
@@ -629,6 +641,7 @@ public abstract class JobManager {
     info.put("show_signif", rListToList(job.getShowSignif()));
 
     info.put("con_series", rListToListNumeric(job.getConSeries()));
+    info.put("show_legend", rListToListNumeric(job.getShowLegend()));
     info.put("plot_ci", rListToList(job.getPlotCI()));
 
 
