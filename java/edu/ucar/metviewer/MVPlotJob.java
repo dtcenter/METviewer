@@ -195,6 +195,7 @@ public class MVPlotJob {
   protected String _strLty = "";
   protected String _strLwd = "";
   protected String _strConSeries = "";
+  protected String showLegend = null;
   protected String _strLegend = "";
   protected String _strY1Lim = "";
   protected String _strX1Lim = "";
@@ -414,6 +415,7 @@ public class MVPlotJob {
     job._strLty = _strLty;
     job._strLwd = _strLwd;
     job._strConSeries = _strConSeries;
+    job.showLegend = showLegend;
     job._strLegend = _strLegend;
     job._strY1Lim = _strY1Lim;
     job._strX1Lim = _strX1Lim;
@@ -1817,6 +1819,14 @@ public class MVPlotJob {
 
   public void setConSeries(String conSeries) {
     _strConSeries = conSeries;
+  }
+
+  public String getShowLegend() {
+    return showLegend;
+  }
+
+  public void setShowLegend(String showLegend) {
+    this.showLegend = showLegend;
   }
 
   public String getLegend() {

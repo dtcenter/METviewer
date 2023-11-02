@@ -243,6 +243,8 @@ public final class MVPlotJobParser {
       formatToStrValues
               .put("con_series", MVPlotJob.class.getDeclaredMethod("setConSeries", String.class));
       formatToStrValues
+              .put("show_legend", MVPlotJob.class.getDeclaredMethod("setShowLegend", String.class));
+      formatToStrValues
               .put("legend", MVPlotJob.class.getDeclaredMethod("setLegend", String.class));
       formatToStrValues.put("y1_lim", MVPlotJob.class.getDeclaredMethod("setY1Lim", String.class));
       formatToStrValues.put("x1_lim", MVPlotJob.class.getDeclaredMethod("setX1Lim", String.class));
@@ -1043,6 +1045,7 @@ public final class MVPlotJobParser {
                     "<lty>" + job.getLty() + "</lty>" +
                     "<lwd>" + job.getLwd() + "</lwd>" +
                     "<con_series>" + job.getConSeries() + "</con_series>" +
+                    "<show_legend>" + job.getShowLegend() + "</show_legend>" +
                     "<legend>" + sanitise(job.getLegend()) + "</legend>" +
 
                     "<y1_lim>" + job.getY1Lim() + "</y1_lim>" +
