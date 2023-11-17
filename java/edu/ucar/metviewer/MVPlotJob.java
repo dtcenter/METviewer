@@ -195,6 +195,7 @@ public class MVPlotJob {
   protected String _strLty = "";
   protected String _strLwd = "";
   protected String _strConSeries = "";
+  protected String showLegend = null;
   protected String _strLegend = "";
   protected String _strY1Lim = "";
   protected String _strX1Lim = "";
@@ -231,6 +232,9 @@ public class MVPlotJob {
   protected Boolean isCircularBlockBootstrap = Boolean.TRUE;
 
   protected List<LineAttributes> lines = new ArrayList<>();
+
+  protected String referenceLineCol = "#FF0000";
+  protected String noskillLineCol = "#FF0000";
 
 
   /**
@@ -350,6 +354,8 @@ public class MVPlotJob {
     job._strLegendNcol = _strLegendNcol;
     job._strCaptionWeight = _strCaptionWeight;
     job._strCaptionCol = _strCaptionCol;
+    job.referenceLineCol = referenceLineCol;
+    job.noskillLineCol = noskillLineCol;
     job._strCaptionSize = _strCaptionSize;
     job._strCaptionOffset = _strCaptionOffset;
     job._strCaptionAlign = _strCaptionAlign;
@@ -409,6 +415,7 @@ public class MVPlotJob {
     job._strLty = _strLty;
     job._strLwd = _strLwd;
     job._strConSeries = _strConSeries;
+    job.showLegend = showLegend;
     job._strLegend = _strLegend;
     job._strY1Lim = _strY1Lim;
     job._strX1Lim = _strX1Lim;
@@ -1814,6 +1821,14 @@ public class MVPlotJob {
     _strConSeries = conSeries;
   }
 
+  public String getShowLegend() {
+    return showLegend;
+  }
+
+  public void setShowLegend(String showLegend) {
+    this.showLegend = showLegend;
+  }
+
   public String getLegend() {
     return _strLegend;
   }
@@ -2377,6 +2392,22 @@ public class MVPlotJob {
       return "vl1l2";
     }
     return "N/A";
+  }
+
+  public String getReferenceLineCol() {
+    return referenceLineCol;
+  }
+
+  public void setReferenceLineCol(String referenceLineCol) {
+    this.referenceLineCol = referenceLineCol;
+  }
+
+  public String getNoskillLineCol() {
+    return noskillLineCol;
+  }
+
+  public void setNoskillLineCol(String noskillLineCol) {
+    this.noskillLineCol = noskillLineCol;
   }
 }
 

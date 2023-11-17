@@ -62,6 +62,18 @@
                 open: function (event, ui) {
                 }
             });
+            $('#reference_line_col').colorpicker({
+                parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer'],
+                showOn: 'focus alt click',
+                altField: '#reference_line_col'
+            });
+            $('#reference_line_col').colorpicker('setColor', '#FF0000');
+            $('#noskill_line_col').colorpicker({
+                parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer'],
+                showOn: 'focus alt click',
+                altField: '#noskill_line_col'
+            });
+            $('#noskill_line_col').colorpicker('setColor', '#FF0000');
         });
 
         $('#event_equal').change(function () {
@@ -373,20 +385,20 @@
         <tr>
             <td>
 
-                    <input type="checkbox" name="rely_event_hist" value="false"
-                           id="rely_event_hist"/>
+                    <input type="checkbox" name="rely_event_hist" value="false" id="rely_event_hist"/>
                     <label for="rely_event_hist">Add Reliability Event Histogram </label><br/>
-                    <input type="checkbox" name="inset_hist" value="false"
-                           id="inset_hist"/>
+                    <input type="checkbox" name="inset_hist" value="false" id="inset_hist"/>
                     <label for="inset_hist">Inset Histogram (Python only)</label>
             </td>
             <td style="text-align: left;">
-                <input type="checkbox" id="add_skill_line"><label for="add_skill_line">Add perfect reliability
-                line</label><br/>
-                <input type="checkbox" id="add_reference_line"><label for="add_reference_line">Add no-resolution
-                line</label><br/>
-                <input type="checkbox" id="add_noskill_line"><label for="add_noskill_line">Add no-skill
-                line</label>
+                <input type="checkbox" id="add_skill_line"><label for="add_skill_line">Add perfect reliability line</label><br/>
+                <input type="checkbox" id="add_reference_line"><label for="add_reference_line">Add no-resolution line</label><br/>
+                <input type="checkbox" id="add_noskill_line"><label for="add_noskill_line">Add no-skill line</label>
+            </td>
+            <td style="text-align: left;">
+                <br/>
+                <input type="text" size="12" id="reference_line_col" class="cp-basic" style="width: 50px"><br/>
+                <input type="text" size="12" id="noskill_line_col" class="cp-basic" style="width: 50px">
             </td>
         </tr>
     </table>

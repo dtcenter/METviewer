@@ -658,6 +658,7 @@ var firstSeriesFormatting = {
     lwd: "1",
     show_signif: "No",
     con_series: "1",
+    show_legend: "1",
     legend: "",
     id: "1"
 };
@@ -2514,6 +2515,7 @@ function updateSeriesHist() {
     var plot_ci = [];
     var plot_disp = [];
     var show_signif = [];
+    var show_legend = [];
     var colors = [];
     var pch = [];
     var lty = [];
@@ -2567,6 +2569,7 @@ function updateSeriesHist() {
         lty = initXML.find("plot").find("lty").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         lwd = initXML.find("plot").find("lwd").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         con_series = initXML.find("plot").find("con_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        show_legend = initXML.find("plot").find("show_legend").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         order_series = initXML.find("plot").find("order_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         type = initXML.find("plot").find("type").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         legend = initXML.find("plot").find("legend").text().replace("c(", "").replace(/\)$/, "").replace(/"/g, "").split(",");
@@ -2616,6 +2619,7 @@ function updateSeriesHist() {
                 series_formatting.lty = oldSeriesData[i]['lty'];
                 series_formatting.lwd = oldSeriesData[i]['lwd'];
                 series_formatting.con_series = oldSeriesData[i]['con_series'];
+                series_formatting.show_legend = oldSeriesData[i]['show_legend'];
                 series_formatting.legend = oldSeriesData[i]['legend'];
                 series_formatting.id = number_series + 1;
                 isSeriesOld = true;
@@ -2649,6 +2653,7 @@ function updateSeriesHist() {
                     series_formatting.lty = lty[number_series].trim();
                     series_formatting.lwd = lwd[number_series].trim();
                     series_formatting.con_series = con_series[number_series].trim();
+                    series_formatting.show_legend = show_legend[number_series].trim();
                     series_formatting.legend = legend[number_series].trim();
                     series_formatting.color = colors[number_series].trim();
                     series_formatting.id = number_series + 1;
@@ -2852,6 +2857,7 @@ function updateSeriesEns() {
     var lty = [];
     var lwd = [];
     var con_series = [];
+    var show_legend = [];
     var order_series = [];
     var legend = [];
     var type = [];
@@ -2881,6 +2887,7 @@ function updateSeriesEns() {
         lty = initXML.find("plot").find("lty").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         lwd = initXML.find("plot").find("lwd").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         con_series = initXML.find("plot").find("con_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        show_legend = initXML.find("plot").find("show_legend").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         order_series = initXML.find("plot").find("order_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         type = initXML.find("plot").find("type").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         legend = initXML.find("plot").find("legend").text().replace("c(", "").replace(/\)$/, "").replace(/"/g, "").split(",");
@@ -2936,6 +2943,7 @@ function updateSeriesEns() {
                 series_formatting.lty = oldSeriesData[i]['lty'];
                 series_formatting.lwd = oldSeriesData[i]['lwd'];
                 series_formatting.con_series = oldSeriesData[i]['con_series'];
+                series_formatting.show_legend = oldSeriesData[i]['show_legend'];
                 series_formatting.legend = oldSeriesData[i]['legend'];
                 series_formatting.id = number_series + 1;
                 isSeriesOld = true;
@@ -2969,6 +2977,7 @@ function updateSeriesEns() {
                     series_formatting.lty = lty[number_series].trim();
                     series_formatting.lwd = lwd[number_series].trim();
                     series_formatting.con_series = con_series[number_series].trim();
+                    series_formatting.show_legend = show_legend[number_series].trim();
                     series_formatting.legend = legend[number_series].trim();
                     series_formatting.color = colors[number_series].trim();
                     series_formatting.id = number_series + 1;
@@ -3040,6 +3049,7 @@ function updateSeriesPerf() {
     var lty = [];
     var lwd = [];
     var con_series = [];
+    var show_legend = [];
     var order_series = [];
     var legend = [];
     var type = [];
@@ -3069,6 +3079,7 @@ function updateSeriesPerf() {
         lty = initXML.find("plot").find("lty").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         lwd = initXML.find("plot").find("lwd").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         con_series = initXML.find("plot").find("con_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        show_legend = initXML.find("plot").find("show_legend").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         order_series = initXML.find("plot").find("order_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         type = initXML.find("plot").find("type").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         legend = initXML.find("plot").find("legend").text().replace("c(", "").replace(/\)$/, "").replace(/"/g, "").split(",");
@@ -3102,6 +3113,7 @@ function updateSeriesPerf() {
                 series_formatting.lty = oldSeriesData[i]['lty'];
                 series_formatting.lwd = oldSeriesData[i]['lwd'];
                 series_formatting.con_series = oldSeriesData[i]['con_series'];
+                series_formatting.show_legend = oldSeriesData[i]['show_legend'];
                 series_formatting.legend = oldSeriesData[i]['legend'];
                 series_formatting.id = number_series + 1;
                 isSeriesOld = true;
@@ -3135,6 +3147,7 @@ function updateSeriesPerf() {
                     series_formatting.lty = lty[number_series].trim();
                     series_formatting.lwd = lwd[number_series].trim();
                     series_formatting.con_series = con_series[number_series].trim();
+                    series_formatting.show_legend = show_legend[number_series].trim();
                     series_formatting.legend = legend[number_series].trim();
                     series_formatting.color = colors[number_series].trim();
                     series_formatting.id = number_series + 1;
@@ -3180,7 +3193,12 @@ function updateSeries(isCheckAll) {
     var series_formatting = {};
     var isFixedFormatting = $("#seriesLock").is(':checked');
     var newSeriesData = [];
-    var selected_mode = $("#plot_data").multiselect("getChecked").val();
+    var selected_mode;
+    try {
+        selected_mode = $("#plot_data").multiselect("getChecked").val();
+    } catch (e) {
+        selected_mode = 'stat';
+    }
     var y_axis;
     var fcst_var_indexes;
     var plot_ci = [];
@@ -3191,6 +3209,7 @@ function updateSeries(isCheckAll) {
     var lty = [];
     var lwd = [];
     var con_series = [];
+    var show_legend = [];
     var order_series = [];
     var legend = [];
     var type = [];
@@ -3220,6 +3239,7 @@ function updateSeries(isCheckAll) {
         lty = initXML.find("plot").find("lty").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         lwd = initXML.find("plot").find("lwd").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         con_series = initXML.find("plot").find("con_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        show_legend = initXML.find("plot").find("show_legend").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
         var order_series_el = initXML.find("plot").find("order_series").text();
         if (order_series_el && order_series_el.length > 0) {
             order_series = initXML.find("plot").find("order_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
@@ -3264,7 +3284,6 @@ function updateSeries(isCheckAll) {
                         }
                     }
                 }
-
                 series_perm = [];
                 series_perm[0] = '';
             }
@@ -3314,6 +3333,7 @@ function updateSeries(isCheckAll) {
                                 series_formatting.lty = oldSeriesData[i]['lty'];
                                 series_formatting.lwd = oldSeriesData[i]['lwd'];
                                 series_formatting.con_series = oldSeriesData[i]['con_series'];
+                                series_formatting.show_legend = oldSeriesData[i]['show_legend'];
                                 series_formatting.legend = oldSeriesData[i]['legend'];
                                 series_formatting.id = number_series + 1;
                                 isSeriesOld = true;
@@ -3343,6 +3363,7 @@ function updateSeries(isCheckAll) {
                                     series_formatting.lty = lty[number_series].trim();
                                     series_formatting.lwd = lwd[number_series].trim();
                                     series_formatting.con_series = con_series[number_series].trim();
+                                    series_formatting.show_legend = show_legend[number_series].trim();
                                     series_formatting.legend = legend[number_series].trim();
                                     series_formatting.color = colors[number_series].trim();
                                     series_formatting.id = number_series + 1;
@@ -3415,6 +3436,7 @@ function updateSeries(isCheckAll) {
                     series_formatting.lty = lty[number_series].trim();
                     series_formatting.lwd = lwd[number_series].trim();
                     series_formatting.con_series = con_series[number_series].trim();
+                    series_formatting.show_legend = show_legend[number_series].trim();
                     series_formatting.legend = legend[number_series].trim();
                     series_formatting.color = colors[number_series].trim();
                     series_formatting.id = number_series + 1;
@@ -3476,6 +3498,7 @@ function updateSeries(isCheckAll) {
                     series_formatting.lty = lty[number_series].trim();
                     series_formatting.lwd = lwd[number_series].trim();
                     series_formatting.con_series = con_series[number_series].trim();
+                    series_formatting.show_legend = show_legend[number_series].trim();
                     series_formatting.legend = legend[number_series].trim();
                     series_formatting.color = colors[number_series].trim();
                     series_formatting.id = number_series + 1;
@@ -3978,6 +4001,19 @@ function createXMLRely(plot) {
     agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
     agg_stat.append($('<cl_step />').text($('#cl_step').val()));
     plot.append(agg_stat);
+    var reference_line_col = $('#reference_line_col').val();
+    if (reference_line_col.startsWith("#")) {
+        plot.append($('<reference_line_col />').text(reference_line_col));
+    } else {
+        plot.append($('<reference_line_col />').text("#" + reference_line_col));
+    }
+    var noskill_line_col = $('#noskill_line_col').val();
+    if (noskill_line_col.startsWith("#")) {
+        plot.append($('<noskill_line_col />').text(noskill_line_col));
+    } else {
+        plot.append($('<noskill_line_col />').text("#" + noskill_line_col));
+    }
+
     plot = createXMLCommon(plot);
     return plot;
 }
@@ -4120,8 +4156,12 @@ function createXMLSeries(plot) {
     } catch (err) {
         console.log("Can't save row " + lastSelRow);
     }
-    var selected_mode = $("#plot_data").multiselect("getChecked").val();
-
+    var selected_mode;
+    try {
+        selected_mode = $("#plot_data").multiselect("getChecked").val();
+    } catch (e) {
+        selected_mode = 'stat';
+    }
 
     var dep = $('<dep />');
     dep.append(createDepElementForAxis(1, fcst_var_y1_indexes, selected_mode));
@@ -4375,7 +4415,7 @@ function createXMLCommon(plot) {
 
 
     var allSeries = sortSeries();
-    var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [],
+    var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [], showLegendArr=[],
         orderArr = [], legendArr = [], showSignArr = [], linesArr = [];
     for (var i = 0; i < allSeries.length; i++) {
         if (allSeries[i].order !== '') {
@@ -4397,6 +4437,7 @@ function createXMLCommon(plot) {
             ltyArr.push(allSeries[i].lty);
             lwdArr.push(allSeries[i].lwd);
             conArr.push(allSeries[i].con_series);
+            showLegendArr.push(allSeries[i].show_legend);
             orderArr.push(allSeries[i].order);
             legendArr.push('"' + allSeries[i].legend + '"');
         } else {
@@ -4427,6 +4468,7 @@ function createXMLCommon(plot) {
     plot.append($('<lty />').text("c(" + ltyArr.join() + ")"));
     plot.append($('<lwd />').text("c(" + lwdArr.join() + ")"));
     plot.append($('<con_series />').text("c(" + conArr.join() + ")"));
+    plot.append($('<show_legend />').text("c(" + showLegendArr.join() + ")"));
     plot.append($('<order_series />').text("c(" + orderArr.join() + ")"));
     plot.append($('<plot_cmd />').text($('#plot_cmd').val()));
     plot.append($('<legend />').text("c(" + legendArr.join() + ")"));
@@ -6366,6 +6408,21 @@ function loadXMLRely() {
             $('#add_reference_line').prop('checked', false);
         }
     }
+    if (initXML.find("plot").find("reference_line_col")) {
+        var reference_line_col = $(initXML.find("plot").find("reference_line_col")).text();
+        if (reference_line_col.length > 7) {
+            reference_line_col = reference_line_col.substring(0, 7);
+        }
+        $('#reference_line_col').colorpicker('setColor', reference_line_col);
+    }
+    if (initXML.find("plot").find("noskill_line_col")) {
+        var noskill_line_col = $(initXML.find("plot").find("noskill_line_col")).text();
+        if (noskill_line_col.length > 7) {
+            noskill_line_col = noskill_line_col.substring(0, 7);
+        }
+        $('#noskill_line_col').colorpicker('setColor', noskill_line_col);
+    }
+
     loadXMLStatistics();
     $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true").trigger("change");
 
@@ -7474,7 +7531,7 @@ function initPage() {
         datatype: "local",
         autowidth: true,
         shrinkToFit: true,
-        colNames: ['ID', '#', 'Y axis', 'Hide', 'Title', 'Conf Interval', 'Line Color', 'Point Symbol', 'Series Line Type', 'Line Type', 'Line Width', 'Show Significant', 'Connect Across NA', 'Legend Text'],
+        colNames: ['ID', '#', 'Y axis', 'Hide', 'Title', 'Conf Interval', 'Line Color', 'Point Symbol', 'Series Line Type', 'Line Type', 'Line Width', 'Show Significant', 'Connect Across NA', 'Show Legend', 'Legend Text'],
         colModel: [
             {name: 'id', index: 'id', hidden: true},
             {name: 'order', width: 10, index: 'order', sortable: false},
@@ -7570,6 +7627,17 @@ function initPage() {
                 editoptions: {value: "0:No;1:Yes"},
                 width: 30,
                 align: "center"
+            },
+            {
+                name: 'show_legend',
+                index: 'show_legend',
+                width: 30,
+                align: "center",
+                editable: true,
+                edittype: "select",
+                formatter: 'select',
+                editoptions: {value: "0:No;1:Yes"},
+                sortable: false,
             },
             {
                 name: 'legend',
@@ -8136,6 +8204,8 @@ function initPage() {
         altField: '#caption_col'
     });
     $('#caption_col').colorpicker('setColor', '#333333');
+
+
 
     $("#error_message").dialog({
         modal: true,

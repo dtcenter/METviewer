@@ -1,5 +1,6 @@
+***********************
 Database Loading Module
-=======================
+***********************
 
 The database loading module is used to insert, update, and delete MET output
 data in the database. The tool is invoked using the mv_load.sh script. The
@@ -134,7 +135,7 @@ change it to
 
 
 Example
--------
+=======
 
 Here is a simple example:
 
@@ -203,7 +204,8 @@ specified by the <date_offset> named folder_dates.
         ...
 
 Troubleshooting
----------------
+===============
+
 .. _test:
 
 .. list-table:: 

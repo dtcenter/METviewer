@@ -193,6 +193,10 @@ public final class MVPlotJobParser {
       formatToStrValues
               .put("caption_col", MVPlotJob.class.getDeclaredMethod("setCaptionCol", String.class));
       formatToStrValues
+              .put("reference_line_col", MVPlotJob.class.getDeclaredMethod("setReferenceLineCol", String.class));
+      formatToStrValues
+              .put("noskill_line_col", MVPlotJob.class.getDeclaredMethod("setNoskillLineCol", String.class));
+      formatToStrValues
               .put("caption_size", MVPlotJob.class.getDeclaredMethod("setCaptionSize", String.class));
       formatToStrValues.put("caption_offset",
               MVPlotJob.class.getDeclaredMethod("setCaptionOffset", String.class));
@@ -238,6 +242,8 @@ public final class MVPlotJobParser {
       formatToStrValues.put("lwd", MVPlotJob.class.getDeclaredMethod("setLwd", String.class));
       formatToStrValues
               .put("con_series", MVPlotJob.class.getDeclaredMethod("setConSeries", String.class));
+      formatToStrValues
+              .put("show_legend", MVPlotJob.class.getDeclaredMethod("setShowLegend", String.class));
       formatToStrValues
               .put("legend", MVPlotJob.class.getDeclaredMethod("setLegend", String.class));
       formatToStrValues.put("y1_lim", MVPlotJob.class.getDeclaredMethod("setY1Lim", String.class));
@@ -895,10 +901,10 @@ public final class MVPlotJobParser {
       xmlStr.append("<rely_event_hist>").append(job.getRelyEventHist()).append("</rely_event_hist>");
       xmlStr.append("<add_skill_line>").append(job.getAddSkillLine()).append("</add_skill_line>");
       xmlStr.append("<add_noskill_line>").append(job.getAddNoSkillLine()).append("</add_noskill_line>");
-      xmlStr.append("<add_reference_line>").append(job.getAddReferenceLine())
-              .append("</add_reference_line>");
-      xmlStr.append("<add_point_thresholds>").append(job.getAddPointThresholds())
-              .append("</add_point_thresholds>");
+      xmlStr.append("<noskill_line_col>").append(job.getNoskillLineCol()).append("</noskill_line_col>");
+      xmlStr.append("<add_reference_line>").append(job.getAddReferenceLine()).append("</add_reference_line>");
+      xmlStr.append("<reference_line_col>").append(job.getReferenceLineCol()).append("</reference_line_col>");
+      xmlStr.append("<add_point_thresholds>").append(job.getAddPointThresholds()).append("</add_point_thresholds>");
       xmlStr.append("<reverse_connection_order>").append(job.getReverseConnectionOrder())
               .append("</reverse_connection_order>");
       xmlStr.append("<create_html>").append(job.getCreateHtml())
@@ -1039,6 +1045,7 @@ public final class MVPlotJobParser {
                     "<lty>" + job.getLty() + "</lty>" +
                     "<lwd>" + job.getLwd() + "</lwd>" +
                     "<con_series>" + job.getConSeries() + "</con_series>" +
+                    "<show_legend>" + job.getShowLegend() + "</show_legend>" +
                     "<legend>" + sanitise(job.getLegend()) + "</legend>" +
 
                     "<y1_lim>" + job.getY1Lim() + "</y1_lim>" +
@@ -1919,7 +1926,11 @@ public final class MVPlotJobParser {
       } else if (node.tag.equals("add_noskill_line")) {
         job.setAddNoSkillLine(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("add_reference_line")) {
-        job.setAddReferenceLine(node.value.equalsIgnoreCase("true"));
+        job.setAddReferenceLine(node.value.equalsIgnoreCase("true"));}
+      else if (node.tag.equals("reference_line_col")) {
+        job.setReferenceLineCol(node.value);}
+      else if (node.tag.equals("noskill_line_col")) {
+        job.setNoskillLineCol(node.value);
       } else if (node.tag.equals("create_html")) {
         job.setCreateHtml(node.value.equalsIgnoreCase("true"));
       }

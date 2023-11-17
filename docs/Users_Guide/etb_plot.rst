@@ -1,8 +1,9 @@
+********************************
 Equivalence Testing Bounds Plots
-================================
+********************************
 
 Description
------------
+===========
 
 A statistical hypothesis is an assertion about the distribution function for one or more random variables.
 Generally, two hypotheses are considered, a null hypothesis denoted by H0, and an alternative denoted by
@@ -32,7 +33,7 @@ In this case, H0 is accepted if the CI bounds fall completely between the tolera
 and H0 is rejected otherwise.
 
 How-To
--------
+======
 
 Selection of options to produce the plot proceeds approximately
 counter-clockwise around the METviewer window. The steps to create a
@@ -104,7 +105,7 @@ There are many other options for plots, but these are the basics.
 
 
 Example
---------
+=======
 
 The image below shows an example of the plot and set-up options for a
 series plot in METviewer. This example uses the database

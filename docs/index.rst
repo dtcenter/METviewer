@@ -1,12 +1,14 @@
 ===========================
 METviewer version |version|
 ===========================
+
 Developed by the `Developmental Testbed Center <https://dtcenter.org/>`_, Boulder, CO
 
 .. image:: _static/METplus_banner_photo_web.png
 
 History
 -------
+
 The Model Evaluation Tools (MET) were developed by the Developmental
 Testbed Center (DTC)  and released in January 2008.  The goal of the tools
 was to provide the community with a platform independent and extensible
@@ -36,6 +38,7 @@ contributions.
 
 METplus Concept
 ---------------
+
 METplus is the overarching, or umbrella, repository and hence framework for
 the Unified Forecast System verification capability.  It is intended to be
 extensible through adding additional capability developed by the community.
@@ -112,12 +115,9 @@ To cite this documentation in publications, please refer to the METviewer User's
    :caption: METviewer
 
    Users_Guide/index
+   Contributors_Guide/index
 
 Index
 =====
 
 * :ref:`genindex`
-
-  
-	     
-		      

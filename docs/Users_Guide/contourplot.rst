@@ -1,8 +1,9 @@
+*************
 Contour Plots
-=============
+*************
 
 Description
------------
+===========
 
 Contour plots are a very general plot type somewhat similar to a scatter
 plot. The axes are specified by the user, and any will do so long as the
@@ -13,7 +14,7 @@ examine the difference in statistics between two NWP models as a contour
 plot, as is shown in the example below. 
 
 How-To
--------
+======
 
 Selection of options to produce the plot proceeds approximately
 counter-clockwise around the METviewer window. The steps to create a contour
@@ -76,7 +77,7 @@ plot are:
 There are many other options for plots, but these are the basics.
 
 Example
---------
+=======
 
 The example is a contour plot of temperature mean error (bias) for one
 model at different pressure levels over a range of initialization times.

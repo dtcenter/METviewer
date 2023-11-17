@@ -9,6 +9,24 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v6.0.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (20231116)
+----------------------------------------------------------------------------------------
+
+  .. dropdown:: New Features
+
+     * New feature to specify the color of the no resolution and no skill lines for the reliability diagram (`#465 <https://github.com/dtcenter/METviewer/issues/465>`_)
+     * Hide/show the legend entries line by line (`#501 <https://github.com/dtcenter/METviewer/issues/501>`_)
+
+  .. dropdown::  Enhancements
+     * Reorganise results tabs in METviewer UI (`#387 <https://github.com/dtcenter/METviewer/issues/387>`_)
+
+  .. dropdown:: Bugfixes
+     * Fixed loading Reliability plot XML with EE to UI  (`#494 <https://github.com/dtcenter/METviewer/issues/494>`_)
+     * Fixed printing error messages to the Log tab  (`#495 <https://github.com/dtcenter/METviewer/issues/495>`_)
+
+  .. dropdown:: Internal
+
+
 Version `v6.0.0-beta1 <https://github.com/dtcenter/METviewer>`_ release notes (20230918)
 ----------------------------------------------------------------------------------------
 
