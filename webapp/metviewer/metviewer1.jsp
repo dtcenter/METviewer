@@ -169,6 +169,7 @@
       color: #555;
       text-decoration: none;
       font-weight: normal;
+      white-space: nowrap;
     }
 
   </style>
