@@ -9,6 +9,22 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v6.0.0-beta3 <https://github.com/dtcenter/METviewer>`_ release notes (20240208)
+----------------------------------------------------------------------------------------
+
+  .. dropdown:: New Features
+
+  .. dropdown::  Enhancements
+     * Add summary_curve parameter to ROC YAML (`#506 <https://github.com/dtcenter/METviewer/issues/506>`_)
+     * Add accessibility statement to GUI (`#508 <https://github.com/dtcenter/METviewer/issues/508>`_)
+
+  .. dropdown:: Bugfixes
+
+  .. dropdown:: Internal
+     * Update GitHub actions workflows to switch from node 16 to node 20 (`#510 <https://github.com/dtcenter/METviewer/issues/510>`_)
+
+
+
 Version `v6.0.0-beta2 <https://github.com/dtcenter/METviewer>`_ release notes (20231116)
 ----------------------------------------------------------------------------------------
 
