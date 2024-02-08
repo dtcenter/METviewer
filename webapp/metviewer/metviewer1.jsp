@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer 6.0.0-beta3-dev</TITLE>
+  <TITLE>METviewer 6.0.0-beta3</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -258,7 +258,7 @@
 <div id="header" style="overflow: visible; position: static ">
 
   <div class="toolbar ui-widget" id="toolbar ">
-    <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;text-align: left;" >METviewer 6.0.0-beta3-dev
+    <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;text-align: left;" >METviewer 6.0.0-beta3
       <span id="release" class="ui-icon ui-icon-info " style="float: right;margin-left: .4em;"></span>
       <br><a href="https://www.ucar.edu/accessibility" class="web-acc-st">Web Accessibility Statement</a>
     </div>
