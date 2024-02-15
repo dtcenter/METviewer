@@ -7636,7 +7636,7 @@ function initPage() {
                 editable: true,
                 edittype: "select",
                 formatter: 'select',
-                editoptions: {value: "0:No;1:Yes"},
+                editoptions: {value: "1:Yes;0:No"},
                 sortable: false,
             },
             {

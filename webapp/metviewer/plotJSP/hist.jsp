@@ -220,6 +220,8 @@
                 updateSeriesHist();
             });
             fixed_var_indexes.push(1);
+            series_var_y1_indexes = [];
+
             if (initXML != null) {
                 if(initXML.find("error").length > 0 ){
                     alert(initXML.find("error").text())
@@ -239,7 +241,6 @@
                 }
                 initXML = null;
             } else {
-                series_var_y1_indexes = [];
                 updateSeriesVarValHist(1, []);
                 changeFixedVarHist('rhist');
                 updateFixedVarValHist(1, []);
