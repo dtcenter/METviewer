@@ -257,6 +257,7 @@
       addFixedVar();
     });
     getForecastVariablesHist();
+    series_var_y1_indexes = [];
 
     if (initXML != null) {
       if(initXML.find("error").length > 0 ){
@@ -277,7 +278,6 @@
       }
       initXML = null;
     } else {
-      series_var_y1_indexes = [];
       updateSeriesVarValHist(1, []);
       updateSeriesHist();
     }

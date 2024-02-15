@@ -304,9 +304,7 @@ public abstract class JobManager {
     info.put("con_series", job.getConSeries().isEmpty() ? MVUtil.printRCol(
             MVUtil.rep(0, intNumDepSeries)) : job.getConSeries());
 
-    if(job.getShowLegend() != null){
-      info.put("show_legend",MVUtil.printRCol(MVUtil.rep(0, intNumDepSeries)));
-    }
+    info.put("show_legend",job.getShowLegend().isEmpty() ? "c()" : job.getShowLegend());
     info.put("legend", job.getLegend().isEmpty() ? "c()" : job.getLegend());
     info.put("y1_lim", job.getY1Lim().isEmpty() ? "c()" : job.getY1Lim());
     info.put("x1_lim", job.getX1Lim().isEmpty() ? "c()" : job.getX1LimR());
@@ -641,7 +639,7 @@ public abstract class JobManager {
     info.put("show_signif", rListToList(job.getShowSignif()));
 
     info.put("con_series", rListToListNumeric(job.getConSeries()));
-    info.put("show_legend", rListToListNumeric(job.getShowLegend()));
+    info.put("show_legend", rListToList(job.getShowLegend()));
     info.put("plot_ci", rListToList(job.getPlotCI()));
 
 
