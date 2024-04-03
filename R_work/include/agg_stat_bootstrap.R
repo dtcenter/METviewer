@@ -493,11 +493,23 @@ calc3d_OBJFAS=function(d){
   return ( alcOBJFAS(d[d$object_type == '3d',])  ) ;
 }
 
+
+
 calcOBJCSI=function(d){
-  return ( nrow(d[ d$fcst_flag == 1 & d$matched_flag == 0, ]) /
-  ( nrow(d[ d$simple_flag == 1 & d$matched_flag == 1, ]) + 2 *
-  nrow(d[ d$simple_flag == 1 & d$matched_flag == 0, ]) ) ) ;
+  return (   ( nrow(d[ d$simple_flag == 1 & d$matched_flag == 1, ]) / 2 ) /
+           ( ( nrow(d[ d$simple_flag == 1 & d$matched_flag == 1, ]) / 2 ) +
+               nrow(d[ d$simple_flag == 1 & d$matched_flag == 0, ]) )
+         )
 }
+
+calcOBJACSI=function(d){
+  return (   ( sum(d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area) / 2 ) /
+           ( ( sum(d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area) / 2 ) +
+               sum(d[ d$simple_flag == 1 & d$matched_flag == 0, ]$area) )
+         )
+}
+
+
 
 calc2d_OBJCSI=function(d){
   return ( calcOBJCSI(d[d$object_type == '2d',]) ) ;
@@ -959,11 +971,7 @@ calc3d_OBJVFAS=function(d){
   return ( calcOBJAFAS(d[d$object_type == '3d',])  ) ;
 }
 
-calcOBJACSI=function(d){
-  return ( sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area ) /
-  (sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area ) + 2 *
-  sum( d[ d$simple_flag == 1 & d$matched_flag == 0, ]$area )) ) ;
-}
+
 
 calc2d_OBJACSI=function(d){
   return ( calcOBJACSI(d[d$object_type == '2d',]) ) ;
