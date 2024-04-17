@@ -9,6 +9,20 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v6.0.0-beta3 <https://github.com/dtcenter/METviewer>`_ release notes (20240417)
+----------------------------------------------------------------------------------------
+
+  .. dropdown:: New Features
+
+  .. dropdown::  Enhancements
+
+  .. dropdown:: Bugfixes
+     * Fixed implementation of OBJCSI and OBJACSI (`#519 <https://github.com/dtcenter/METviewer/issues/519>`_)
+     * MODE CSI statistics produces incorrect results (`#516 <https://github.com/dtcenter/METviewer/issues/516>`_)
+     * Bugfix for loading xml (`#513 <https://github.com/dtcenter/METviewer/issues/513>`_)
+
+  .. dropdown:: Internal
+
 Version `v6.0.0-beta3 <https://github.com/dtcenter/METviewer>`_ release notes (20240208)
 ----------------------------------------------------------------------------------------
 
