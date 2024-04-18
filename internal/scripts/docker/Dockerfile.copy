@@ -1,76 +1,36 @@
-ARG MET_BASE_REPO=met-base
-ARG MET_BASE_TAG=v3.2
+FROM centos:7
 
-FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
-MAINTAINER John Halley Gotway <johnhg@ucar.edu>
+MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 
 #
-# This Dockerfile downloads and installs METviewer dependencies
-# and builds the local version found in the /metviewer directory.
-# It then runs the SonarQube static code analysis on the result.
-# https://docs.sonarqube.org/latest/analysis/scan/sonarscanner/
+# This Dockerfile checks out the METviewer dependencies from GitHub
+# and builds the local version of the METviewer code.
 #
+ENV METVIEWER_GIT_NAME develop
+ENV METCALCPY_GIT_NAME develop
+ENV METPLOTPY_GIT_NAME develop
+ENV METDATAIO_GIT_NAME develop
 
 #
-# SonarQube Settings
-#
-ARG SONAR_SCANNER_VERSION=5.0.1.3006
-ARG SONAR_HOST_URL
-ARG SONAR_TOKEN
-ARG SOURCE_BRANCH
-ARG SONAR_REFERENCE_BRANCH
-
-#
-# SONAR_HOST_URL is required.
-#
-RUN if [ "x${SONAR_HOST_URL}" = "x" ]; then \
-      echo "ERROR: SONAR_HOST_URL undefined! Rebuild with \"--build-arg SONAR_HOST_URL={url}\""; \
-      exit 1; \
-    fi
-
-#
-# SONAR_TOKEN is required.
-#
-RUN if [ "x${SONAR_TOKEN}" = "x" ]; then \
-      echo "ERROR: SONAR_TOKEN undefined! Rebuild with \"--build-arg SONAR_TOKEN={token}\""; \
-      exit 1; \
-    fi
-
-#
-# SOURCE_BRANCH is the branch name of the MET source code.
-#
-RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
-      echo "ERROR: SOURCE_BRANCH undefined! Rebuild with \"--build-arg SOURCE_BRANCH={branch name}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument SOURCE_BRANCH=${SOURCE_BRANCH}"; \
-    fi
-
-#
-# SONAR_REFERENCE_BRANCH defines to the version against which this scan should be compared.
-#
-RUN if [ "x${SONAR_REFERENCE_BRANCH}" = "x" ]; then \
-      echo "ERROR: SONAR_REFERENCE_BRANCH undefined! Rebuild with \"--build-arg SONAR_REFERENCE_BRANCH={branch name}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument SONAR_REFERENCE_BRANCH=${SONAR_REFERENCE_BRANCH}"; \
-    fi
-
-#
-# METviewer Settings
+# Constants
 #
 ENV TOMCAT_MINOR_VERSION 5.61
 ENV TOMCAT_MAJOR_VERSION 8
 ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
-ENV METVIEWER_GIT_URL  https://github.com/dtcenter/METviewer
+
 ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
 ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
 ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
 
 #
-# METVIEWER_GIT_NAME is set as ${SOURCE_BRANCH}.
+# METVIEWER_GIT_NAME is required.
 #
-ENV METVIEWER_GIT_NAME ${SOURCE_BRANCH}
+RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
+      echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
+      exit 1; \
+    else \
+      echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}"; \
+    fi
 
 #
 # METCALCPY_GIT_NAME is required.
@@ -167,16 +127,25 @@ RUN echo "Checking out METplotpy ${METPLOTPY_GIT_NAME} from ${METPLOTPY_GIT_URL}
 WORKDIR /METviewer-python/
 RUN git clone --branch ${METPLOTPY_GIT_NAME} ${METPLOTPY_GIT_URL}
 
-RUN echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}" \
+RUN echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}"
 WORKDIR /METviewer-python/
 RUN git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
 
 #
-# Install METviewer
+# Copy in the local version of the METviewer code
 #
-RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}"
-RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
- && echo "Configuring and building METviewer" \
+RUN echo "Copying METviewer into /METviewer" \
+WORKDIR /METviewer
+ && mkdir -p /METviewer
+
+COPY . /METviewer
+
+RUN if [ ! -e "/METviewer/build.xml" ]; then \
+    echo "ERROR: docker build must be run from the METviewer directory"; \
+    exit 1; \
+  fi
+
+RUN echo "Configuring and building METviewer" \
  && cd /METviewer \
  && cat webapp/metviewer/WEB-INF/classes/build.properties | \
     sed -r 's%db.host=.*%db.host=mysql_mv%g' | \

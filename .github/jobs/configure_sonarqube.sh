@@ -2,7 +2,7 @@
 
 # Constants
 SONAR_PROPERTIES_DIR=internal/scripts/sonarqube
-SONAR_PROPERTIES=build_sonar.xml
+SONAR_PROPERTIES=sonar-project.properties
 
 # Check that this is being run from the top-level METviewer directory
 if [ ! -e $SONAR_PROPERTIES_DIR/$SONAR_PROPERTIES ]; then
@@ -29,7 +29,7 @@ if [ -z ${SONAR_TOKEN+x} ]; then
 fi
 
 # Define the version string
-export SONAR_PROJECT_VERSION=$(cat docs/version | cut -d'=' -f2 | tr -d '" ')
+export SONAR_PROJECT_VERSION=$(cat docs/version)
 
 #
 # Define the $SONAR_REFERENCE_BRANCH as the
@@ -45,13 +45,18 @@ else
   export SONAR_REFERENCE_BRANCH=$SOURCE_BRANCH
 fi
 
+# Configure the sonar-project.properties
+[ -e $SONAR_PROPERTIES ] && rm $SONAR_PROPERTIES
+sed -e "s|SONAR_PROJECT_VERSION|$SONAR_PROJECT_VERSION|" \
+    -e "s|SONAR_HOST_URL|$SONAR_HOST_URL|" \
+    -e "s|SONAR_TOKEN|$SONAR_TOKEN|" \
+    -e "s|SONAR_BRANCH_NAME|$SOURCE_BRANCH|" \
+    $SONAR_PROPERTIES_DIR/$SONAR_PROPERTIES > $SONAR_PROPERTIES
+
 # Define new code when the source and reference branches differ
 if [ "$SOURCE_BRANCH" != "$SONAR_REFERENCE_BRANCH" ]; then
-  export SONAR_REFERENCE_BRANCH_PROPERTY="<property name=\"sonar.referenceBranch\" value=\"${SONAR_REFERENCE_BRANCH}\" />"
-else
-  export SONAR_REFERENCE_BRANCH_PROPERTY=""
+  echo "sonar.newCode.referenceBranch=${SONAR_REFERENCE_BRANCH}" >> $SONAR_PROPERTIES
 fi
 
 echo "Contents of the $SONAR_PROPERTIES file:"
 cat $SONAR_PROPERTIES
-

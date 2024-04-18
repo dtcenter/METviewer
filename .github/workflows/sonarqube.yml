@@ -53,7 +53,14 @@ jobs:
       run: echo branch_name=${GITHUB_REF#refs/heads/} >> $GITHUB_OUTPUT
 
     - name: Build METviewer Docker Image 
-      run: .github/jobs/build_metviewer_image.sh
+      run: .github/jobs/build_docker_image.sh
+
+    - name: Copy dist
+      run:
+        cd ${GITHUB_WORKSPACE}
+        id=$(docker create metviewer-gha)
+        docker cp ${id}:/METviewer/dist .
+        docker rm -v ${id}
 
     - name: Configure SonarQube
       run: .github/jobs/configure_sonarqube.sh
