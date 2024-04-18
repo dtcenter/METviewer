@@ -41,11 +41,11 @@ public class ScorecardServlet extends HttpServlet {
     ObjectNode result = mapper.createObjectNode();
     if (dataPath != null) {
       File file = new File(dataPath);
-      File[] directories = file.listFiles((dir, name) -> new File(dir, name).isDirectory());
-      sortFilesByDateCreated(directories);
-      if (directories != null) {
-        for (File f : directories) {
-          scorecards.add(f.getName());
+      File[] files = file.listFiles((dir, name) -> new File(dir, name).getName().endsWith("html"));
+      sortFilesByDateCreated(files);
+      if (files != null) {
+        for (File f : files) {
+          scorecards.add(f.getName().replaceAll(".html", ""));
         }
 
       }

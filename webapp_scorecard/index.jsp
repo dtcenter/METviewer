@@ -67,7 +67,7 @@
                     for(var i=0; i< scorecards.length; i++){
 
                         const li = $("<li>");
-                        const a = $("<a>").attr("href", data_url+ scorecards[i]+'/' +scorecards[i]+".html"+'?' + new Date().getTime()).text(scorecards[i]);
+                        const a = $("<a>").attr("href", data_url+ '/' +scorecards[i]+".html"+'?' + new Date().getTime()).text(scorecards[i]);
                         li.append(a);
                         $('#tabs1_ul').append(li);
                     }
