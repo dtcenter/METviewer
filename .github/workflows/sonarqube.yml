@@ -52,6 +52,9 @@ jobs:
       id: get_branch_name
       run: echo branch_name=${GITHUB_REF#refs/heads/} >> $GITHUB_OUTPUT
 
+    - name: Build METviewer Docker Image 
+      run: .github/jobs/build_metviewer_image.sh
+
     - name: Configure SonarQube
       run: .github/jobs/configure_sonarqube.sh
       env:

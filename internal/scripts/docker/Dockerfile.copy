@@ -1,9 +1,13 @@
-FROM centos:7
+ARG MET_BASE_REPO=met-base
+ARG MET_BASE_TAG=v3.2
+
+FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
 MAINTAINER John Halley Gotway <johnhg@ucar.edu>
 
 #
-# This Dockerfile checks out METviewer from GitHub and runs the
-# SonarQube static code analysis on the specified branch or tag.
+# This Dockerfile downloads and installs METviewer dependencies
+# and builds the local version found in the /metviewer directory.
+# It then runs the SonarQube static code analysis on the result.
 # https://docs.sonarqube.org/latest/analysis/scan/sonarscanner/
 #
 
