@@ -31,7 +31,6 @@ RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
 # Use the develop branch for METviewer dependencies by default.
 # Use "--build-arg" options to override.
 #
-ENV METVIEWER_REPO_DIR /METviewer
 ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
 ENV METPLOTPY_GIT_NAME develop
 ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
@@ -124,7 +123,6 @@ RUN git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
 # Copy in the local version of the METviewer code
 #
 RUN echo "Copying METviewer into /METviewer" \
-WORKDIR /METviewer
  && mkdir -p /METviewer
 
 COPY . /METviewer
