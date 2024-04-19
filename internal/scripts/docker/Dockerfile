@@ -3,24 +3,14 @@ FROM centos:7
 MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 
 #
-# This Dockerfile checks out METviewer from GitHub and builds the specified branch or tag.
+# This Dockerfile checks out METviewer and its dependencies from GitHub and builds the specified branch or tag.
+# Use the develop branches for dependencies by default but override with "--build-arg".
 #
-ENV METVIEWER_GIT_NAME v6.0.0-beta2
-ENV METCALCPY_GIT_NAME v3.0.0-beta2
-ENV METPLOTPY_GIT_NAME v3.0.0-beta2
-ENV METDATAIO_GIT_NAME v3.0.0-beta2
 
-#
-# Constants
-#
-ENV TOMCAT_MINOR_VERSION 5.61
-ENV TOMCAT_MAJOR_VERSION 8
-ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
-
-ENV METVIEWER_GIT_URL  https://github.com/dtcenter/METviewer
-ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
-ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
-ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
+ARG METVIEWER_GIT_NAME
+ARG METPLOTPY_GIT_NAME=develop
+ARG METCALCPY_GIT_NAME=develop
+ARG METDATAIO_GIT_NAME=develop
 
 #
 # METVIEWER_GIT_NAME is required.
@@ -28,39 +18,27 @@ ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
 RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
       echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
       exit 1; \
-    else \
-      echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}"; \
-    fi
+    fi 
+
+RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
+ && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
+ && echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}" \
+ && echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"
 
 #
-# METCALCPY_GIT_NAME is required.
+# Repository URLs
 #
-RUN if [ "x${METCALCPY_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METCALCPY_GIT_NAME undefined! Rebuild with \"--build-arg METCALCPY_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}"; \
-    fi
+ENV METVIEWER_GIT_URL https://github.com/dtcenter/METviewer
+ENV METPLOTPY_GIT_URL https://github.com/dtcenter/METplotpy
+ENV METCALCPY_GIT_URL https://github.com/dtcenter/METcalcpy
+ENV METDATAIO_GIT_URL https://github.com/dtcenter/METdataio
 
 #
-# METPLOTPY_GIT_NAME is required.
+# Constants
 #
-RUN if [ "x${METPLOTPY_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METPLOTPY_GIT_NAME undefined! Rebuild with \"--build-arg METPLOTPY_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}"; \
-    fi
-
-#
-# METDATAIO_GIT_NAME is required.
-#
-RUN if [ "x${METDATAIO_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METDATAIO_GIT_NAME undefined! Rebuild with \"--build-arg METDATAIO_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"; \
-    fi
+ENV TOMCAT_MINOR_VERSION 5.61
+ENV TOMCAT_MAJOR_VERSION 8
+ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
 
 #
 # Install system updates
@@ -123,16 +101,13 @@ RUN mkdir /METviewer-python \
 WORKDIR /METviewer-python/
 RUN git clone --branch ${METCALCPY_GIT_NAME} ${METCALCPY_GIT_URL}
 
-
 RUN echo "Checking out METplotpy ${METPLOTPY_GIT_NAME} from ${METPLOTPY_GIT_URL}"
 WORKDIR /METviewer-python/
 RUN git clone --branch ${METPLOTPY_GIT_NAME} ${METPLOTPY_GIT_URL}
 
-
-RUN echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}" \
+RUN echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}"
 WORKDIR /METviewer-python/
 RUN git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
-
 
 #
 # Install METviewer
@@ -221,7 +196,7 @@ RUN ln -sf /usr/local/bin/pip3.10  /usr/bin/pip3
 RUN ln -sf /usr/bin/pip3  /usr/bin/pip
 
 #
-# install GEOS - needed for cartopy
+# Install GEOS - needed for cartopy
 #
 WORKDIR /tmp
 RUN wget http://download.osgeo.org/geos/geos-3.7.2.tar.bz2
@@ -268,31 +243,30 @@ RUN pip install cartopy \
  && pip install python-dateutil==2.8.2 \
  && pip install opencv-python \
  && pip install pandas==1.5.2
-#
-#
-
-
 
 #
-# set env vars
+# Set env vars
 #
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/"
 
-# remove unneeded scripts
+#
+# Remove unneeded scripts
+#
 RUN rm /METviewer/bin/auto_test.sh \
-    && rm /METviewer/bin/mv_test.sh \
-    && rm /METviewer/bin/nightly_test.sh \
-    && rm /METviewer/bin/prep_dist.sh \
-    && rm /METviewer/bin/mv_compare.sh \
-    && rm -r  /METviewer/test
+ && rm /METviewer/bin/mv_test.sh \
+ && rm /METviewer/bin/nightly_test.sh \
+ && rm /METviewer/bin/prep_dist.sh \
+ && rm /METviewer/bin/mv_compare.sh \
+ && rm -r /METviewer/test
 
-# change permissions of the scripts
+#
+# Change permissions of the scripts
+#
 RUN chmod 755 /METviewer/bin/mv_batch.sh \
-  && chmod 755 /METviewer/bin/mv_load.sh \
-  && chmod 755 /METviewer/bin/mv_prune.sh \
-  && chmod 755 /METviewer/bin/mv_scorecard.sh
-
+ && chmod 755 /METviewer/bin/mv_load.sh \
+ && chmod 755 /METviewer/bin/mv_prune.sh \
+ && chmod 755 /METviewer/bin/mv_scorecard.sh
 
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh  && /bin/bash
 CMD ["true"]

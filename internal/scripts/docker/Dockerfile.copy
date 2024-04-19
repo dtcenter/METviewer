@@ -3,14 +3,18 @@ FROM centos:7
 MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 
 #
-# This Dockerfile checks out the METviewer dependencies from GitHub
-# and builds the local version of the METviewer code.
+# This Dockerfile checks out the METviewer dependencies from GitHub and builds the local METviewer repository.
+# Use the develop branches for dependencies by default but override with "--build-arg".
 #
 
-#
-# SOURCE_BRANCH is not defined when built via DockerHub.
-#
 ARG SOURCE_BRANCH
+ARG METPLOTPY_GIT_NAME=develop
+ARG METCALCPY_GIT_NAME=develop
+ARG METDATAIO_GIT_NAME=develop
+
+#
+# SOURCE_BRANCH is required to define the branch of the local METviewer repository.
+#
 RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
       echo "ERROR: SOURCE_BRANCH undefined! Rebuild with \"--build-arg SOURCE_BRANCH={branch name}\""; \
       exit 1; \
@@ -19,21 +23,18 @@ RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
     fi
 ENV METVIEWER_GIT_NAME ${SOURCE_BRANCH}
 
-#
-# Use the develop branch for METviewer dependencies by default.
-# Use "--build-arg" options to override.
-#
-ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
-ENV METPLOTPY_GIT_NAME develop
-ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
-ENV METCALCPY_GIT_NAME develop
-ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
-ENV METDATAIO_GIT_NAME develop
-
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
  && echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}" \
  && echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"
+
+#
+# Repository URLs
+#
+ENV METVIEWER_GIT_URL https://github.com/dtcenter/METviewer
+ENV METPLOTPY_GIT_URL https://github.com/dtcenter/METplotpy
+ENV METCALCPY_GIT_URL https://github.com/dtcenter/METcalcpy
+ENV METDATAIO_GIT_URL https://github.com/dtcenter/METdataio
 
 #
 # Constants
@@ -112,7 +113,7 @@ WORKDIR /METviewer-python/
 RUN git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
 
 #
-# Copy in the local version of the METviewer code
+# Copy in the local METviewer repository
 #
 RUN echo "Copying METviewer into /METviewer" \
  && mkdir -p /METviewer
@@ -120,7 +121,7 @@ RUN echo "Copying METviewer into /METviewer" \
 COPY . /METviewer
 
 RUN if [ ! -e "/METviewer/build.xml" ]; then \
-    echo "ERROR: docker build must be run from the METviewer directory"; \
+    echo "ERROR: docker build must be run from the top-level METviewer directory"; \
     exit 1; \
   fi
 
@@ -206,7 +207,7 @@ RUN ln -sf /usr/local/bin/pip3.10  /usr/bin/pip3
 RUN ln -sf /usr/bin/pip3  /usr/bin/pip
 
 #
-# install GEOS - needed for cartopy
+# Install GEOS - needed for cartopy
 #
 WORKDIR /tmp
 RUN wget http://download.osgeo.org/geos/geos-3.7.2.tar.bz2
@@ -255,24 +256,28 @@ RUN pip install cartopy \
  && pip install pandas==1.5.2
 
 #
-# set env vars
+# Set env vars
 #
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/"
 
-# remove unneeded scripts
+#
+# Remove unneeded scripts
+#
 RUN rm /METviewer/bin/auto_test.sh \
-    && rm /METviewer/bin/mv_test.sh \
-    && rm /METviewer/bin/nightly_test.sh \
-    && rm /METviewer/bin/prep_dist.sh \
-    && rm /METviewer/bin/mv_compare.sh \
-    && rm -r  /METviewer/test
+ && rm /METviewer/bin/mv_test.sh \
+ && rm /METviewer/bin/nightly_test.sh \
+ && rm /METviewer/bin/prep_dist.sh \
+ && rm /METviewer/bin/mv_compare.sh \
+ && rm -r  /METviewer/test
 
-# change permissions of the scripts
+#
+# Change permissions of the scripts
+#
 RUN chmod 755 /METviewer/bin/mv_batch.sh \
-  && chmod 755 /METviewer/bin/mv_load.sh \
-  && chmod 755 /METviewer/bin/mv_prune.sh \
-  && chmod 755 /METviewer/bin/mv_scorecard.sh
+ && chmod 755 /METviewer/bin/mv_load.sh \
+ && chmod 755 /METviewer/bin/mv_prune.sh \
+ && chmod 755 /METviewer/bin/mv_scorecard.sh
 
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh  && /bin/bash
 CMD ["true"]
