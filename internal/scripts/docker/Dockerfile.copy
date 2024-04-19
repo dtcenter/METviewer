@@ -274,10 +274,6 @@ RUN pip install cartopy \
  && pip install python-dateutil==2.8.2 \
  && pip install opencv-python \
  && pip install pandas==1.5.2
-#
-#
-
-
 
 #
 # set env vars
@@ -298,7 +294,6 @@ RUN chmod 755 /METviewer/bin/mv_batch.sh \
   && chmod 755 /METviewer/bin/mv_load.sh \
   && chmod 755 /METviewer/bin/mv_prune.sh \
   && chmod 755 /METviewer/bin/mv_scorecard.sh
-
 
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh  && /bin/bash
 CMD ["true"]
