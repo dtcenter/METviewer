@@ -17,15 +17,7 @@ RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
     else \
       echo "Build Argument SOURCE_BRANCH=${SOURCE_BRANCH}"; \
     fi
-
-#
-# METVIEWER_GIT_NAME is required.
-#
-ARG METVIEWER_GIT_NAME 
-RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    fi
+ENV METVIEWER_GIT_NAME ${SOURCE_BRANCH}
 
 #
 # Use the develop branch for METviewer dependencies by default.
