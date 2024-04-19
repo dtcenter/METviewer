@@ -8,6 +8,9 @@ DOCKERFILE_PATH=${GITHUB_WORKSPACE}/internal/scripts/docker/Dockerfile.copy
 
 CMD_LOGFILE=${GITHUB_WORKSPACE}/docker_build.log
 
+echo "CURRENT ENVIRONMENT:"
+printenv
+
 time_command docker build -t ${DOCKERHUB_TAG} \
     --build-arg SOURCE_BRANCH \
     --build-arg MET_BASE_REPO \
