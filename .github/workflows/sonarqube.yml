@@ -38,6 +38,9 @@ on:
         default: develop
         type: string
 
+env:
+  DOCKERHUB_REPO: dtcenter/metviewer-dev
+
 jobs:
   sonarqube:
     name: SonarQube Scan
@@ -59,6 +62,8 @@ jobs:
 
     - name: Build METviewer in Docker
       run: .github/jobs/build_docker_image.sh
+      env:
+        SOURCE_BRANCH: ${{ steps.get_branch_name.outputs.branch_name }}
 
     - name: Configure SonarQube
       run: .github/jobs/configure_sonarqube.sh
