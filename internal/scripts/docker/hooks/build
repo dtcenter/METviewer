@@ -1,8 +1,13 @@
 #!/bin/bash
 
+# TODO: Add logic for handling dependencies
+#  - develop or branches from develop should build against develop
+#  - main_vX.Y or branches from main_vX.Y should build against main_v{X-3}.Y
+#  - vX.Y.Z tags should build against v{X-3}.Y.? tags 
+
 docker build -t $IMAGE_NAME \
---build-arg METVIEWER_GIT_NAME=v5.1.0 \
---build-arg METCALCPY_GIT_NAME=v2.1.0 \
---build-arg METDATAIO_GIT_NAME=v2.1.0 \
---build-arg METPLOTPY_GIT_NAME=v2.1.0 .
+--build-arg METVIEWER_GIT_NAME=$SOURCE_BRANCH \
+--build-arg METCALCPY_GIT_NAME=main_v2.1.0 \
+--build-arg METDATAIO_GIT_NAME=main_v2.1.0 \
+--build-arg METPLOTPY_GIT_NAME=main_v2.1.0 .
 
