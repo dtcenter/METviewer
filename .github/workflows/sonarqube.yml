@@ -50,6 +50,9 @@ jobs:
         # Disable shallow clones for better analysis
         fetch-depth: 0
 
+    - name: Create output directories
+      run: mkdir -p ${RUNNER_WORKSPACE}/logs
+
     - name: Get branch name
       id: get_branch_name
       run: echo branch_name=${GITHUB_REF#refs/heads/} >> $GITHUB_OUTPUT
@@ -79,3 +82,15 @@ jobs:
       env:
        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: Copy log files into logs directory
+      if: always()
+      run: cp ${GITHUB_WORKSPACE}/*.log ${RUNNER_WORKSPACE}/logs/
+
+    - name: Upload logs as artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs_sonarqube
+        path: ${{ runner.workspace }}/logs
+        if-no-files-found: ignore
