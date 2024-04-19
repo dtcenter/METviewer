@@ -30,10 +30,10 @@ ENV METCALCPY_GIT_NAME develop
 ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
 ENV METDATAIO_GIT_NAME develop
 
-RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}"; \
- && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}"; \
- && echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}"; \
- && echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}";
+RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
+ && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
+ && echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}" \
+ && echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"
 
 #
 # Constants
