@@ -22,6 +22,7 @@ on:
     branches:
       - develop
       - 'main_v**'
+      - feature_521_develop_sonarqube_gha
     paths-ignore:
       - 'docs/**'
       - '.github/pull_request_template.md'
@@ -52,15 +53,8 @@ jobs:
       id: get_branch_name
       run: echo branch_name=${GITHUB_REF#refs/heads/} >> $GITHUB_OUTPUT
 
-    - name: Build METviewer Docker Image 
+    - name: Build METviewer in Docker
       run: .github/jobs/build_docker_image.sh
-
-    - name: Copy dist
-      run:
-        cd ${GITHUB_WORKSPACE}
-        id=$(docker create metviewer-gha)
-        docker cp ${id}:/METviewer/dist .
-        docker rm -v ${id}
 
     - name: Configure SonarQube
       run: .github/jobs/configure_sonarqube.sh
