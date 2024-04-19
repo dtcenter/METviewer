@@ -6,10 +6,43 @@ MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 # This Dockerfile checks out the METviewer dependencies from GitHub
 # and builds the local version of the METviewer code.
 #
-ENV METVIEWER_GIT_NAME develop
-ENV METCALCPY_GIT_NAME develop
+
+#
+# SOURCE_BRANCH is not defined when built via DockerHub.
+#
+ARG SOURCE_BRANCH
+RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
+      echo "ERROR: SOURCE_BRANCH undefined! Rebuild with \"--build-arg SOURCE_BRANCH={branch name}\""; \
+      exit 1; \
+    else \
+      echo "Build Argument SOURCE_BRANCH=${SOURCE_BRANCH}"; \
+    fi
+
+#
+# METVIEWER_GIT_NAME is required.
+#
+ARG METVIEWER_GIT_NAME 
+RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
+      echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
+      exit 1; \
+    fi
+
+#
+# Use the develop branch for METviewer dependencies by default.
+# Use "--build-arg" options to override.
+#
+ENV METVIEWER_REPO_DIR /METviewer
+ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
 ENV METPLOTPY_GIT_NAME develop
+ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
+ENV METCALCPY_GIT_NAME develop
+ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
 ENV METDATAIO_GIT_NAME develop
+
+RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}"; \
+ && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}"; \
+ && echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}"; \
+ && echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}";
 
 #
 # Constants
@@ -17,50 +50,6 @@ ENV METDATAIO_GIT_NAME develop
 ENV TOMCAT_MINOR_VERSION 5.61
 ENV TOMCAT_MAJOR_VERSION 8
 ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
-
-ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
-ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
-ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
-
-#
-# METVIEWER_GIT_NAME is required.
-#
-RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}"; \
-    fi
-
-#
-# METCALCPY_GIT_NAME is required.
-#
-RUN if [ "x${METCALCPY_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METCALCPY_GIT_NAME undefined! Rebuild with \"--build-arg METCALCPY_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}"; \
-    fi
-
-#
-# METPLOTPY_GIT_NAME is required.
-#
-RUN if [ "x${METPLOTPY_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METPLOTPY_GIT_NAME undefined! Rebuild with \"--build-arg METPLOTPY_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}"; \
-    fi
-
-#
-# METDATAIO_GIT_NAME is required.
-#
-RUN if [ "x${METDATAIO_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METDATAIO_GIT_NAME undefined! Rebuild with \"--build-arg METDATAIO_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"; \
-    fi
 
 #
 # Install system updates
