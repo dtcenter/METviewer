@@ -3,27 +3,14 @@ FROM centos:7
 MAINTAINER Tatiana Burek <tatiana@ucar.edu>
 
 #
-# This Dockerfile checks out METviewer from GitHub and builds the specified branch or tag.
+# This Dockerfile checks out METviewer and its dependencies from GitHub and builds the specified branch or tag.
+# Use the develop branches for dependencies by default but override with "--build-arg".
 #
+
 ARG METVIEWER_GIT_NAME
-ARG METCALCPY_GIT_NAME
-ARG METPLOTPY_GIT_NAME
-ARG METDATAIO_GIT_NAME
-
-#
-# Constants
-#
-ENV TOMCAT_MINOR_VERSION 5.61
-ENV TOMCAT_MAJOR_VERSION 8
-ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
-
-ENV METVIEWER_GIT_URL  https://github.com/dtcenter/METviewer
-ENV METCALCPY_GIT_URL  https://github.com/dtcenter/METcalcpy
-ENV METPLOTPY_GIT_URL  https://github.com/dtcenter/METplotpy
-ENV METDATAIO_GIT_URL  https://github.com/dtcenter/METdataio
-
-# this umask is needed for Tomcat
-ENV UMASK 002
+ARG METPLOTPY_GIT_NAME=develop
+ARG METCALCPY_GIT_NAME=develop
+ARG METDATAIO_GIT_NAME=develop
 
 #
 # METVIEWER_GIT_NAME is required.
@@ -31,39 +18,27 @@ ENV UMASK 002
 RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
       echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
       exit 1; \
-    else \
-      echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}"; \
-    fi
+    fi 
+
+RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
+ && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
+ && echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}" \
+ && echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"
 
 #
-# METCALCPY_GIT_NAME is required.
+# Repository URLs
 #
-RUN if [ "x${METCALCPY_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METCALCPY_GIT_NAME undefined! Rebuild with \"--build-arg METCALCPY_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}"; \
-    fi
+ENV METVIEWER_GIT_URL https://github.com/dtcenter/METviewer
+ENV METPLOTPY_GIT_URL https://github.com/dtcenter/METplotpy
+ENV METCALCPY_GIT_URL https://github.com/dtcenter/METcalcpy
+ENV METDATAIO_GIT_URL https://github.com/dtcenter/METdataio
 
 #
-# METPLOTPY_GIT_NAME is required.
+# Constants
 #
-RUN if [ "x${METPLOTPY_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METPLOTPY_GIT_NAME undefined! Rebuild with \"--build-arg METPLOTPY_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}"; \
-    fi
-
-#
-# METDATAIO_GIT_NAME is required.
-#
-RUN if [ "x${METDATAIO_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METDATAIO_GIT_NAME undefined! Rebuild with \"--build-arg METDATAIO_GIT_NAME={branch, tag, or hash}\""; \
-      exit 1; \
-    else \
-      echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"; \
-    fi
+ENV TOMCAT_MINOR_VERSION 5.61
+ENV TOMCAT_MAJOR_VERSION 8
+ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
 
 #
 # Install system updates
@@ -74,23 +49,11 @@ RUN yum -y update \
  && yum-config-manager --enable PowerTools
 
 #
-# Install MariaDB server
-#
-RUN yum -y install --setopt=tsflags=nodocs epel-release && \
-    yum -y install --setopt=tsflags=nodocs mariadb-server bind-utils pwgen psmisc hostname && \
-    yum -y erase vim-minimal && \
-    yum -y update && yum clean all
-
-#
 # Install required packages
 #
-USER root
-RUN yum -y install wget tar git ant  R mysql ksh \
+RUN yum -y install wget tar git ant java R mysql ksh \
  && rm -rf /var/cache/yum/* \
  && yum clean all
-
-RUN  yum  install java-1.8.0-openjdk-devel
-
 
 #
 # Install gsl-2.5 on which the R gsl package depends.
@@ -138,13 +101,11 @@ RUN mkdir /METviewer-python \
 WORKDIR /METviewer-python/
 RUN git clone --branch ${METCALCPY_GIT_NAME} ${METCALCPY_GIT_URL}
 
-
 RUN echo "Checking out METplotpy ${METPLOTPY_GIT_NAME} from ${METPLOTPY_GIT_URL}"
 WORKDIR /METviewer-python/
 RUN git clone --branch ${METPLOTPY_GIT_NAME} ${METPLOTPY_GIT_URL}
 
-
-RUN echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}" \
+RUN echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}"
 WORKDIR /METviewer-python/
 RUN git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
 
@@ -156,13 +117,13 @@ RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
  && echo "Configuring and building METviewer" \
  && cd /METviewer \
  && cat webapp/metviewer/WEB-INF/classes/build.properties | \
-    sed -r 's%db.host=.*%db.host=localhost%g' | \
+    sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
     sed -r 's%db.user=.*%db.user=root%g' | \
     sed -r 's%db.password=.*%db.password=mvuser%g' | \
     sed -r 's%db.management.system=.*%db.management.system=mysql%g' | \
     sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
     sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
-    sed -r 's%url.output=.*%url.output=/metviewer_output/%g' | \
+    sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
     sed -r 's%python.env=.*%python.env=/usr/%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
@@ -202,7 +163,6 @@ RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
     >  mv_prune.sh-DOCKER \
  && mv mv_prune.sh-DOCKER mv_prune.sh
 
-
 #
 # Install Python 3.10.4
 #
@@ -235,9 +195,8 @@ RUN ln -sf /usr/bin/python3  /usr/bin/python
 RUN ln -sf /usr/local/bin/pip3.10  /usr/bin/pip3
 RUN ln -sf /usr/bin/pip3  /usr/bin/pip
 
-
 #
-# install GEOS - needed for cartopy
+# Install GEOS - needed for cartopy
 #
 WORKDIR /tmp
 RUN wget http://download.osgeo.org/geos/geos-3.7.2.tar.bz2
@@ -248,7 +207,6 @@ RUN make install
 RUN ldconfig
 WORKDIR /tmp
 RUN rm -r geos-3.7.2.tar.bz2
-
 
 #
 # Install Python packages
@@ -286,57 +244,30 @@ RUN pip install cartopy \
  && pip install opencv-python \
  && pip install pandas==1.5.2
 
-
-
 #
-# set env vars
+# Set env vars
 #
 ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/"
 
-
-# remove unneeded scripts
+#
+# Remove unneeded scripts
+#
 RUN rm /METviewer/bin/auto_test.sh \
-    && rm /METviewer/bin/mv_test.sh \
-    && rm /METviewer/bin/nightly_test.sh \
-    && rm /METviewer/bin/prep_dist.sh \
-    && rm /METviewer/bin/mv_compare.sh \
-    && rm -r  /METviewer/test
+ && rm /METviewer/bin/mv_test.sh \
+ && rm /METviewer/bin/nightly_test.sh \
+ && rm /METviewer/bin/prep_dist.sh \
+ && rm /METviewer/bin/mv_compare.sh \
+ && rm -r /METviewer/test
 
 #
-# Change permission on exe's
+# Change permissions of the scripts
 #
 RUN chmod 755 /METviewer/bin/mv_batch.sh \
-  && chmod 755 /METviewer/bin/mv_load.sh \
-  && chmod 755 /METviewer/bin/mv_prune.sh \
-  && chmod 755 /METviewer/bin/mv_scorecard.sh
+ && chmod 755 /METviewer/bin/mv_load.sh \
+ && chmod 755 /METviewer/bin/mv_prune.sh \
+ && chmod 755 /METviewer/bin/mv_scorecard.sh
 
+ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh  && /bin/bash
+CMD ["true"]
 
-#
-# database install
-#
-
-#
-# Fix permissions to allow for running on openshift
-#
-COPY fix-permissions.sh ./
-RUN chmod 777 ./fix-permissions.sh
-RUN ./fix-permissions.sh /var/lib/mysql/   && \
-    ./fix-permissions.sh /var/log/mariadb/ && \
-    ./fix-permissions.sh /var/run/
-
-COPY docker-entrypoint.sh /
-RUN chmod 777 /docker-entrypoint.sh
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
-
-#
-# Place VOLUME statement below all changes to /var/lib/mysql
-#
-VOLUME /var/lib/mysql
-
-#
-# Change to mysql user to start the database server
-#
-USER 27
-CMD ["mysqld_safe"]
