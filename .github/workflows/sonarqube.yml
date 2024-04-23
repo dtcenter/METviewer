@@ -1,0 +1,99 @@
+name: SonarQube Scan
+
+# Run SonarQube for Pull Requests and changes to the develop and main_vX.Y branches
+
+on:
+
+  # Trigger analysis for pushes to develop and main_vX.Y branches
+  push:
+    branches:
+      - develop
+      - 'main_v**'
+    paths-ignore:
+      - 'docs/**'
+      - '.github/pull_request_template.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '**/README.md'
+      - '**/LICENSE.md'
+
+  # Trigger analysis for pull requests to develop and main_vX.Y branches
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - develop
+      - 'main_v**'
+    paths-ignore:
+      - 'docs/**'
+      - '.github/pull_request_template.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '**/README.md'
+      - '**/LICENSE.md'
+
+  workflow_dispatch:
+    inputs:
+      reference_branch:
+        description: 'Reference Branch'
+        default: develop
+        type: string
+
+env:
+  DOCKERHUB_REPO: dtcenter/metviewer-dev
+
+jobs:
+  sonarqube:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v4
+      with:
+        # Disable shallow clones for better analysis
+        fetch-depth: 0
+
+    - name: Create output directories
+      run: mkdir -p ${RUNNER_WORKSPACE}/logs
+
+    - name: Get branch name
+      id: get_branch_name
+      run: echo branch_name=${GITHUB_REF#refs/heads/} >> $GITHUB_OUTPUT
+
+    - name: Build METviewer in Docker
+      run: .github/jobs/build_docker_image.sh
+      env:
+        SOURCE_BRANCH: ${{ steps.get_branch_name.outputs.branch_name }}
+
+    - name: Configure SonarQube
+      run: .github/jobs/configure_sonarqube.sh
+      env:
+        SOURCE_BRANCH: ${{ steps.get_branch_name.outputs.branch_name }}
+        WD_REFERENCE_BRANCH: ${{ github.event.inputs.reference_branch }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      # Force to fail step after specific time.
+      timeout-minutes: 5
+      env:
+       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: Copy log files into logs directory
+      if: always()
+      run: cp ${GITHUB_WORKSPACE}/*.log ${RUNNER_WORKSPACE}/logs/
+
+    - name: Upload logs as artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs_sonarqube
+        path: ${{ runner.workspace }}/logs
+        if-no-files-found: ignore
