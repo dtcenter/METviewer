@@ -18,7 +18,7 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-# Copy the dist directory from the image
+# Copy the build directory from the image
 id=$(docker create ${DOCKERHUB_TAG})
-time_command docker cp $id:/METviewer/dist dist
+time_command docker cp $id:/METviewer/build build
 docker rm -v $id
