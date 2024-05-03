@@ -1032,13 +1032,13 @@ public class MVServlet extends HttpServlet {
 
 
       //  if there is no specified database, print out the list of parameters for debugging
-      try (PrintWriter printWriter = response.getWriter()) {
+      try {
+        PrintWriter printWriter = response.getWriter()
         response.setContentType("text/plain");
         printWriter.println("howdy from MVServlet");
+      } catch (IOException e) {
+        logger.error(e.getMessage());
       }
-    } catch (IOException e) {
-      logger.error( e.getMessage());
-    }
   }
 
   /**
@@ -1109,10 +1109,19 @@ public class MVServlet extends HttpServlet {
 
       } else {
         //  if the request is not a file upload, read it directly
-        requestBody.append(request.getReader().lines().collect(Collectors.joining()));
+        try {
+          requestBody.append(request.getReader().lines().collect(Collectors.joining()));
+        } catch (java.lang.Exception e) {
+          logger.error(e.getMessage());
+        }
+
 
       }
-      logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + requestBody);
+      try {
+        logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + requestBody);
+      } catch (java.lang.Exception e) {
+        logger.error(e.getMessage());
+      }
 
       StringBuilder strResp = new StringBuilder();
 
@@ -1148,10 +1157,14 @@ public class MVServlet extends HttpServlet {
               }
             }
             request.getSession().setAttribute("init_xml", strResp.toString().replace("'", "\""));
-
-            request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
+            try {
+              request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
+            } catch (IOException | ServletException e) {
+              logger.error(e.getMessage())
+            }
           }
         }
+      }
       } else {
 
         //  instantiate and configure the xml parser
@@ -1281,15 +1294,26 @@ public class MVServlet extends HttpServlet {
             urlXml.appendChild(docResp.createCDATASection(urlOutput));
             listDb.appendChild(urlXml);
             strResp.append(MVUtil.domSourceToString(docResp));
-            handleClearListValCache();
-            handleClearListStatCache();
+            try {
+              handleClearListValCache();
+              handleClearListStatCache();
+            } catch (ParserConfigurationException e) {
+              throw new RuntimeException(e.getMessage());
+            }
+
           }
 
           //  <date> tag, which is used to prevent caching
-          else if (nodeCall.tag.equalsIgnoreCase("date")) {
+          try {
+            isDateTag = nodeCall.tag.equalsIgnoreCase("date")
+          } catch (java.lang.Exception e) {
+            logger.info(e.getMessage());
+          }
+          else if (isDateTag) {
             //do nothing
           }
           //  <db_con> node containing the database connection name
+
           else if (nodeCall.tag.equalsIgnoreCase("db_con")) {
             if (nodeCall.value.isEmpty()) {
               currentDbName = new String[0];
@@ -1308,7 +1332,12 @@ public class MVServlet extends HttpServlet {
             strResp.append(handleListStat(nodeCall, requestBody.toString(), currentDbName));
           }
           //  <list_val_clear_cache>
-          else if (nodeCall.tag.equalsIgnoreCase("list_val_clear_cache")) {
+          try {
+            isClearCache = nodeCall.tag.equalsIgnoreCase("list_val_clear_cache")
+          } catch (java.lang.Exception e) {
+            logger.info(e.getMessage());
+          }
+          else if (isClearCache) {
 
             strResp.append(handleClearListValCache());
           }
