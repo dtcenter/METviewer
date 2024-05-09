@@ -1033,7 +1033,7 @@ public class MVServlet extends HttpServlet {
 
       //  if there is no specified database, print out the list of parameters for debugging
       try {
-        PrintWriter printWriter = response.getWriter()
+        PrintWriter printWriter = response.getWriter();
         response.setContentType("text/plain");
         printWriter.println("howdy from MVServlet");
       } catch (IOException e) {
