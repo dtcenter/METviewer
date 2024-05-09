@@ -1031,15 +1031,17 @@ public class MVServlet extends HttpServlet {
       }
 
 
-      //  if there is no specified database, print out the list of parameters for debugging
-      try {
-        PrintWriter printWriter = response.getWriter();
-        response.setContentType("text/plain");
-        printWriter.println("howdy from MVServlet");
-      } catch (IOException e) {
-        logger.error(e.getMessage());
+        //  if there is no specified database, print out the list of parameters for debugging
+        try {
+          PrintWriter printWriter = response.getWriter();
+          response.setContentType("text/plain");
+          printWriter.println("howdy from MVServlet");
+        } catch (IOException e) {
+          logger.error(e.getMessage());
       }
-  }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
 
   /**
    * Override the parent's doPost() method with an implementation that reads XML from the body of
