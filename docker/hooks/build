@@ -1,8 +1,0 @@
-#!/bin/bash
-
-docker build -t $IMAGE_NAME \
---build-arg METVIEWER_GIT_NAME=v6.0.0-beta1 \
---build-arg METCALCPY_GIT_NAME=v3.0.0-beta1 \
---build-arg METDATAIO_GIT_NAME=v3.0.0-beta1 \
---build-arg METPLOTPY_GIT_NAME=v3.0.0-beta1 .
-
