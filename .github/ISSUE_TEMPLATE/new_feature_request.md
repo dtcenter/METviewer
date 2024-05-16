@@ -43,8 +43,8 @@ Consider breaking the new feature down into sub-issues.
 - [ ] Select **requestor(s)**
 
 ### Milestone and Projects ###
-- [ ] Select **Milestone** as the next official version, **Consider for Next Release**, or **Backlog of Development Ideas**
-- [ ] For the next official version, select the **METviewer-X.Y.Z Development** project
+- [ ] Select **Milestone** as a **METviewer-X.Y.Z** version, **Consider for Next Release**, or **Backlog of Development Ideas**
+- [ ] For a **METviewer-X.Y.Z** version, select the **METviewer-X.Y.Z Development** project
 
 ## Define Related Issue(s) ##
 Consider the impact to the other METplus components.
