@@ -38,5 +38,6 @@ CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
 PYTHON_ENV=<path_to_python_env>
 METCALCPY_HOME=<path_to_metcalcpy_home>
+METPLOTPY_HOME=<path_to_metplotpy_home>
 
-java -classpath $CLASSPATH -Xmx4096M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME  edu.ucar.metviewer.scorecard.Scorecard $@
+java -classpath $CLASSPATH -Xmx4096M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME  -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.scorecard.Scorecard $@
