@@ -49,6 +49,7 @@ public class SeriesPythonManager {
       rowTitle.append(" ").append(entry.getValue().getLabel());
     }
     yamlInfo.put("title", rowTitle.toString());
+    yamlInfo.put("show_legend", new Boolean[]{Boolean.TRUE, Boolean.TRUE});
 
     createYamlFile(scorecard.getWorkingFolders().getDataDir() + "/" + yamlName, yamlInfo);
 
@@ -129,6 +130,8 @@ public class SeriesPythonManager {
     yamlInfo.put("event_equal", "False");
     yamlInfo.put("stat_input", yamlInfo.get("agg_stat_output"));
     yamlInfo.put("plot_ci", new String[]{"boot", "boot"});
+    yamlInfo.put("show_legend", new Boolean[]{Boolean.TRUE, Boolean.TRUE});
+
     return yamlInfo;
   }
 }
