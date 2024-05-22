@@ -247,7 +247,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
     List<String> errors = new ArrayList<>();
     List<Integer> pctThreshList = new ArrayList<>();
     if (Util.getAggTypeForStat(Util.getStatForRow(map)).equals(MVUtil.PCT)) {
-      String mysql = "SELECT DISTINCT ld.n_thresh FROM stat_header h,line_data_pct ld WHERE " + whereFields + "ld.stat_header_id = h.stat_header_id";
+      String mysql = "SELECT DISTINCT ld.n_thresh FROM stat_header,line_data_pct ld WHERE " + whereFields + "ld.stat_header_id = stat_header.stat_header_id";
 
 
       for (String databaseName : databaseNames) {
