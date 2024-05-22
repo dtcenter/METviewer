@@ -66,6 +66,8 @@ public class AggPythonManager extends PythonManager {
     yamlInfo.put("derived_series_2", new ArrayList<>());
     yamlInfo.put("agg_stat_input", scorecard.getWorkingFolders().getDataDir() + scorecard
             .getAggStatDataFile());
+    yamlInfo.put("show_legend", new Boolean[]{Boolean.TRUE, Boolean.TRUE});
+
 
   }
 
