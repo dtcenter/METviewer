@@ -22,8 +22,7 @@
         var data_url ;
 
         function changePlotURL(src){
-            var name = src.split(/_(\d)*\.png/)[0];
-            var src_new= data_url + name +'/' + src;
+            var src_new= data_url +'/' + src;
             var pos = {my: "center bottom",
                 at: "center bottom",
                 of: window};
@@ -78,6 +77,9 @@
                                     "Couldn't load this tab. We'll try to fix this as soon as possible. " +
                                     "If this wouldn't be a demo." );
                             });
+                        },
+                        beforeActivate: function( event, ui ) {
+                            $(".ui-dialog-content").dialog("close");
                         }
                     }).addClass( "ui-tabs-vertical ui-helper-clearfix" );
                     $( "#tabs1 li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
