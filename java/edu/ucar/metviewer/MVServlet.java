@@ -1326,12 +1326,19 @@ public class MVServlet extends HttpServlet {
 
           //  <list_val>
           else if (nodeCall.tag.equalsIgnoreCase("list_val")) {
-            strResp.append(handleListVal(nodeCall, requestBody.toString(), currentDbName));
+            try { 
+              strResp.append(handleListVal(nodeCall, requestBody.toString(), currentDbName));
+            } catch (ValidationException e) {
+              logger.info(e.getMessage()); 
           }
 
           //  <list_stat>
           else if (nodeCall.tag.equalsIgnoreCase("list_stat")) {
-            strResp.append(handleListStat(nodeCall, requestBody.toString(), currentDbName));
+            try {
+              strResp.append(handleListStat(nodeCall, requestBody.toString(), currentDbName));
+            } catch (ParserConfigurationException e) {
+              logger.error( e.getMessage());
+            }
           }
           //  <list_val_clear_cache>
           try {
@@ -1340,30 +1347,48 @@ public class MVServlet extends HttpServlet {
             logger.info(e.getMessage());
           }
           else if (isClearCache) {
-
+            try {
             strResp.append(handleClearListValCache());
+            } catch (ParserConfigurationException e) {
+              logger.error( e.getMessage());
+            }
           }
 
           //  <list_val_cache_keys>
           else if (nodeCall.tag.equalsIgnoreCase("list_val_cache_keys")) {
-
+            try {
             strResp.append(handleListValCacheKeys());
+            } catch (ParserConfigurationException e) {
+              logger.error( e.getMessage());
+            }
           }
 
           //  <list_stat_clear_cache>
           else if (nodeCall.tag.equalsIgnoreCase("list_stat_clear_cache")) {
-
+            try {
             strResp.append(handleClearListStatCache());
+            } catch (ParserConfigurationException e) {
+              logger.error( e.getMessage());
+            }
           }
 
           //  <list_stat_cache_keys>
           else if (nodeCall.tag.equalsIgnoreCase("list_stat_cache_keys")) {
+            try {
             strResp.append(handleListStatCacheKeys());
+            } catch (ParserConfigurationException e) {
+              logger.error( e.getMessage());
+            }
           }
 
           //  <plot>
           else if (nodeCall.tag.equalsIgnoreCase("plot")) {
+            try {
             strResp.append(handlePlot(requestBody.toString(), currentDbName));
+            } catch (ParserConfigurationException | DatabaseException | ValidationException | IOException | SAXException e) {
+              logger.error( e.getMessage());
+            }
+
           }
 
 
@@ -1382,7 +1407,11 @@ public class MVServlet extends HttpServlet {
 
           } else if (nodeCall.tag.equalsIgnoreCase("history")) {
             String isShowAll = nodeCall.children[0].value;
-            strResp.append(getAvailableResults(isShowAll));
+            try {
+              strResp.append(getAvailableResults(isShowAll));
+            } catch (ParserConfigurationException e) {
+              logger.error( e.getMessage());
+            }
 
           }
 
@@ -1405,7 +1434,8 @@ public class MVServlet extends HttpServlet {
         response.setContentType("application/xml;charset=UTF-8");
         try (PrintWriter printWriter = response.getWriter()) {
           printWriter.append(strResp);
-        }
+        } catch (IOException e) {
+          logger.info( e.getMessage());
       }
 
 
