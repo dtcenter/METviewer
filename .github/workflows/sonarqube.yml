@@ -9,6 +9,7 @@ on:
     branches:
       - develop
       - 'main_v**'
+      - 'feature_**'
     paths-ignore:
       - 'docs/**'
       - '.github/pull_request_template.md'
