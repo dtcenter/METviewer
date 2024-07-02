@@ -152,29 +152,6 @@ RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
  && mv mv_prune.sh-DOCKER mv_prune.sh
 
 #
-# Install Python 3.10.4
-#
-RUN yum install gcc openssl11 openssl11-devel libreadline-gplv2-dev libncursesw5-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev openssl-devel libssl-dev bzip2-devel libffi-devel zlib-devel libproj-dev proj-data proj-bin libgeos-dev bzip2 -y
-RUN mkdir /usr/local/openssl11
-WORKDIR /usr/local/openssl11
-RUN ln -s /usr/lib64/openssl11 lib
-RUN ln -s /usr/include/openssl11 include
-
-RUN curl https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tgz --output /tmp/Python-3.10.4.tgz
-WORKDIR /tmp
-RUN tar xzf Python-3.10.4.tgz
-WORKDIR /tmp/Python-3.10.4
-RUN ./configure --enable-optimizations --with-openssl=/usr/local/openssl11
-RUN yum install make -y
-RUN make altinstall
-RUN yum install which -y
-WORKDIR /tmp
-RUN rm -r Python-3.10.4.tgz
-RUN yum -y install epel-release
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py | python3.10
-RUN python3.10 -m pip install --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org --upgrade pip
-
-#
 # Create a link for python3
 #
 RUN ln -sf /usr/local/bin/python3.10  /usr/bin/python3
