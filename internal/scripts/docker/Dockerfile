@@ -1,6 +1,8 @@
-FROM centos:7
+ARG MET_BASE_REPO=met-base
+ARG MET_BASE_TAG=v3.2
 
-MAINTAINER Tatiana Burek <tatiana@ucar.edu>
+FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
+MAINTAINER John Halley Gotway <johnhg@ucar.edu>
 
 #
 # This Dockerfile checks out METviewer and its dependencies from GitHub and builds the specified branch or tag.
@@ -41,30 +43,16 @@ ENV TOMCAT_MAJOR_VERSION 8
 ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
 
 #
-# Install system updates
+# Update the OS, as needed
 #
-RUN yum -y update \
- && yum -y install epel-release \
- && yum -y install 'dnf-command(config-manager)' \
- && yum-config-manager --enable PowerTools
+RUN apt update \
+ && apt -y upgrade
+
 
 #
 # Install required packages
 #
-RUN yum -y install wget tar git ant java R mysql ksh \
- && rm -rf /var/cache/yum/* \
- && yum clean all
-
-#
-# Install gsl-2.5 on which the R gsl package depends.
-# The centos7 gal package is too old (version 1.5).
-#
-RUN echo "Compiling gsl-2.5" \
- && curl -SL http://gnu.askapache.com/gsl/gsl-2.5.tar.gz | tar zxC /lib \
- && cd /lib/gsl-2.5 \
- && ./configure --prefix=/usr --libdir=/usr/lib64 >& configure.log \
- && make >& make.log \
- && make install >& make_install.log
+RUN apt -y install ant r-base mariadb-server ksh
 
 #
 # Setup default cran repo
