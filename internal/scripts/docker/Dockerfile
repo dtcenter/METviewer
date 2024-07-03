@@ -38,10 +38,33 @@ ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/MET
 ENV METPLOTPY_BASE "/METviewer-python/METplotpy/"
 
 #
+# Update the OS, as needed
+#
+RUN apt update && apt -y upgrade
+
+#
 # Clone the METviewer repository
 #
 RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}"
 RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer
+
+#
+# Configure METviewer
+#
+RUN echo "Configuring METviewer" \
+ && cd /METviewer \
+ && cat webapp/metviewer/WEB-INF/classes/build.properties | \
+    sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
+    sed -r 's%db.user=.*%db.user=root%g' | \
+    sed -r 's%db.password=.*%db.password=mvuser%g' | \
+    sed -r 's%db.management.system=.*%db.management.system=mysql%g' | \
+    sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
+    sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
+    sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
+    sed -r 's%python.env=.*%python.env=/usr/%g' | \
+    sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
+    sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
+    > build.properties
 
 #
 # Run the build script

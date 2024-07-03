@@ -41,28 +41,16 @@ git clone --branch ${METPLOTPY_GIT_NAME} ${METPLOTPY_GIT_URL}
 echo "Checking out METdataio ${METDATAIO_GIT_NAME} from ${METDATAIO_GIT_URL}"
 git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
 
-# Install METviewer
-echo "Configuring and building METviewer"
+# Build METviewer
+
+echo "Building METviewer"
 cd /METviewer
-cat webapp/metviewer/WEB-INF/classes/build.properties | \
-    sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
-    sed -r 's%db.user=.*%db.user=root%g' | \
-    sed -r 's%db.password=.*%db.password=mvuser%g' | \
-    sed -r 's%db.management.system=.*%db.management.system=mysql%g' | \
-    sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
-    sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
-    sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
-    sed -r 's%python.env=.*%python.env=/usr/%g' | \
-    sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
-    sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
-    > build.properties
 
 ant -Dbuild.properties.file=./build.properties \
     -Ddb.management.system=mysql \
     -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
     -Dmetplotpy.path=/METviewer-python/METplotpy/ \
     -Dpython.env.path=/usr/ war \
-
 mv /METviewer/dist/*.war ${CATALINA_HOME}/webapps
 
 echo "Configuring METviewer scripts"
