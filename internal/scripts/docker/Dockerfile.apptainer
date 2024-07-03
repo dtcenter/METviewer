@@ -50,7 +50,7 @@ RUN apt update && apt -y upgrade
 #
 # Install additional packages for MariaDB server
 #
-RUN apt -y install --setopt=tsflags=nodocs mariadb-server bind9-utils pwgen psmisc hostname
+RUN apt -y install mariadb-server bind9-utils pwgen psmisc hostname
 
 #
 # Clone the METviewer repository
