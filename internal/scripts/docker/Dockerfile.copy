@@ -59,7 +59,7 @@ RUN if [ ! -e "/METviewer/build.xml" ]; then \
   fi
 
 #
-# Run build script
+# Run the build script
 #
 RUN cd /METviewer \
  && internal/scripts/docker/build_metviewer_docker.sh
