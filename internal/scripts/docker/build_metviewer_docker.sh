@@ -136,7 +136,7 @@ cd /tmp
 wget http://download.osgeo.org/geos/geos-3.7.2.tar.bz2
 tar xjf geos-3.7.2.tar.bz2
 cd /tmp/geos-3.7.2
-./configure --enable-php; make clean ; make
+./configure ; make clean ; make
 make install
 ldconfig
 cd /tmp
