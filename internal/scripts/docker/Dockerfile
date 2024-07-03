@@ -5,8 +5,9 @@ FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
 MAINTAINER John Halley Gotway <johnhg@ucar.edu>
 
 #
-# This Dockerfile checks out METviewer and its dependencies from GitHub and builds the specified branch or tag.
-# Use the develop branches for dependencies by default but override with "--build-arg".
+# This Dockerfile checks out METviewer and its dependencies from GitHub and builds
+# the specified branch or tag. Use the develop branches for dependencies by default
+# but override with "--build-arg".
 #
 
 ARG METVIEWER_GIT_NAME
@@ -38,8 +39,8 @@ ENV METDATAIO_GIT_URL https://github.com/dtcenter/METdataio
 #
 # Constants
 #
-ENV TOMCAT_MINOR_VERSION 5.61
-ENV TOMCAT_MAJOR_VERSION 8
+ENV TOMCAT_MAJOR_VERSION 9
+ENV TOMCAT_MINOR_VERSION 0.89
 ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
 
 #
@@ -48,11 +49,10 @@ ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
 RUN apt update \
  && apt -y upgrade
 
-
 #
 # Install required packages
 #
-RUN apt -y install ant r-base mariadb-server ksh
+RUN apt -y install ant openjdk-17-jdk r-base mariadb-server ksh
 
 #
 # Setup default cran repo
@@ -98,7 +98,7 @@ WORKDIR /METviewer-python/
 RUN git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
 
 #
-# Install METviewer
+# Install METviewer by cloning GitHub repository.
 #
 RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}"
 RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
@@ -154,11 +154,11 @@ RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
 #
 # Create a link for python3
 #
-RUN ln -sf /usr/local/bin/python3.10  /usr/bin/python3
-RUN ln -sf /usr/bin/python3  /usr/bin/python
+RUN ln -sf /usr/local/bin/python3.10 /usr/bin/python3
+RUN ln -sf /usr/bin/python3 /usr/bin/python
 
-RUN ln -sf /usr/local/bin/pip3.10  /usr/bin/pip3
-RUN ln -sf /usr/bin/pip3  /usr/bin/pip
+RUN ln -sf /usr/local/bin/pip3.10 /usr/bin/pip3
+RUN ln -sf /usr/bin/pip3 /usr/bin/pip
 
 #
 # Install GEOS - needed for cartopy

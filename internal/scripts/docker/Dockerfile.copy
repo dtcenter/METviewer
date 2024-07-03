@@ -1,10 +1,13 @@
-FROM centos:7
+ARG MET_BASE_REPO=met-base
+ARG MET_BASE_TAG=v3.2
 
-MAINTAINER Tatiana Burek <tatiana@ucar.edu>
+FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
+MAINTAINER John Halley Gotway <johnhg@ucar.edu>
 
 #
-# This Dockerfile checks out the METviewer dependencies from GitHub and builds the local METviewer repository.
-# Use the develop branches for dependencies by default but override with "--build-arg".
+# This Dockerfile checks out the METviewer dependencies from GitHub and builds
+# the local METviewer repository. Use the develop branches for dependencies
+# by default but override with "--build-arg".
 #
 
 ARG SOURCE_BRANCH
@@ -13,7 +16,7 @@ ARG METCALCPY_GIT_NAME=develop
 ARG METDATAIO_GIT_NAME=develop
 
 #
-# SOURCE_BRANCH is required to define the branch of the local METviewer repository.
+# SOURCE_BRANCH is required to define the local METviewer repository branch name.
 #
 RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
       echo "ERROR: SOURCE_BRANCH undefined! Rebuild with \"--build-arg SOURCE_BRANCH={branch name}\""; \
@@ -21,6 +24,7 @@ RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
     else \
       echo "Build Argument SOURCE_BRANCH=${SOURCE_BRANCH}"; \
     fi
+
 ENV METVIEWER_GIT_NAME ${SOURCE_BRANCH}
 
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
@@ -39,35 +43,20 @@ ENV METDATAIO_GIT_URL https://github.com/dtcenter/METdataio
 #
 # Constants
 #
-ENV TOMCAT_MINOR_VERSION 5.61
-ENV TOMCAT_MAJOR_VERSION 8
+ENV TOMCAT_MAJOR_VERSION 9
+ENV TOMCAT_MINOR_VERSION 0.89
 ENV TOMCAT_VERSION ${TOMCAT_MAJOR_VERSION}.${TOMCAT_MINOR_VERSION}
 
 #
-# Install system updates
+# Update the OS, as needed
 #
-RUN yum -y update \
- && yum -y install epel-release \
- && yum -y install 'dnf-command(config-manager)' \
- && yum-config-manager --enable PowerTools
+RUN apt update \
+ && apt -y upgrade
 
 #
 # Install required packages
 #
-RUN yum -y install wget tar git ant java R mysql ksh \
- && rm -rf /var/cache/yum/* \
- && yum clean all
-
-#
-# Install gsl-2.5 on which the R gsl package depends.
-# The centos7 gal package is too old (version 1.5).
-#
-RUN echo "Compiling gsl-2.5" \
- && curl -SL http://gnu.askapache.com/gsl/gsl-2.5.tar.gz | tar zxC /lib \
- && cd /lib/gsl-2.5 \
- && ./configure --prefix=/usr --libdir=/usr/lib64 >& configure.log \
- && make >& make.log \
- && make install >& make_install.log
+RUN apt -y install ant openjdk-17-jdk r-base mariadb-server ksh
 
 #
 # Setup default cran repo
@@ -113,7 +102,7 @@ WORKDIR /METviewer-python/
 RUN git clone --branch ${METDATAIO_GIT_NAME} ${METDATAIO_GIT_URL}
 
 #
-# Copy in the local METviewer repository
+# Install METviewer by copying in the local METviewer repository.
 #
 RUN echo "Copying METviewer into /METviewer" \
  && mkdir -p /METviewer
@@ -175,36 +164,13 @@ RUN echo "Configuring and building METviewer" \
  && mv mv_prune.sh-DOCKER mv_prune.sh
 
 #
-# Install Python 3.10.4
-#
-RUN yum install gcc openssl11 openssl11-devel libreadline-gplv2-dev libncursesw5-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev openssl-devel libssl-dev bzip2-devel libffi-devel zlib-devel libproj-dev proj-data proj-bin libgeos-dev bzip2 -y
-RUN mkdir /usr/local/openssl11
-WORKDIR /usr/local/openssl11
-RUN ln -s /usr/lib64/openssl11 lib
-RUN ln -s /usr/include/openssl11 include
-
-RUN curl https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tgz --output /tmp/Python-3.10.4.tgz
-WORKDIR /tmp
-RUN tar xzf Python-3.10.4.tgz
-WORKDIR /tmp/Python-3.10.4
-RUN ./configure --enable-optimizations --with-openssl=/usr/local/openssl11
-RUN yum install make -y
-RUN make altinstall
-RUN yum install which -y
-WORKDIR /tmp
-RUN rm -r Python-3.10.4.tgz
-RUN yum -y install epel-release
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py | python3.10
-RUN python3.10 -m pip install --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org --upgrade pip
-
-#
 # Create a link for python3
 #
-RUN ln -sf /usr/local/bin/python3.10  /usr/bin/python3
-RUN ln -sf /usr/bin/python3  /usr/bin/python
+RUN ln -sf /usr/local/bin/python3.10 /usr/bin/python3
+RUN ln -sf /usr/bin/python3 /usr/bin/python
 
-RUN ln -sf /usr/local/bin/pip3.10  /usr/bin/pip3
-RUN ln -sf /usr/bin/pip3  /usr/bin/pip
+RUN ln -sf /usr/local/bin/pip3.10 /usr/bin/pip3
+RUN ln -sf /usr/bin/pip3 /usr/bin/pip
 
 #
 # Install GEOS - needed for cartopy
@@ -269,7 +235,7 @@ RUN rm /METviewer/bin/auto_test.sh \
  && rm /METviewer/bin/nightly_test.sh \
  && rm /METviewer/bin/prep_dist.sh \
  && rm /METviewer/bin/mv_compare.sh \
- && rm -r  /METviewer/test
+ && rm -r /METviewer/test
 
 #
 # Change permissions of the scripts
