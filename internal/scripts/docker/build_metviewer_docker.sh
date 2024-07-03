@@ -50,7 +50,7 @@ ant -Dbuild.properties.file=./build.properties \
     -Ddb.management.system=mysql \
     -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
     -Dmetplotpy.path=/METviewer-python/METplotpy/ \
-    -Dpython.env.path=/usr/ war \
+    -Dpython.env.path=/usr/ war
 mv /METviewer/dist/*.war ${CATALINA_HOME}/webapps
 
 echo "Configuring METviewer scripts"
