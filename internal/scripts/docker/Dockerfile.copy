@@ -1,4 +1,4 @@
-ARG MET_BASE_REPO=met-base
+ARG MET_BASE_REPO=met-base-metviewer
 ARG MET_BASE_TAG=v3.2
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
@@ -33,11 +33,6 @@ RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
  && echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}" \
  && echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"
-
-#
-# Expose METviewer port
-#
-EXPOSE 8080
 
 #
 # Set env vars
