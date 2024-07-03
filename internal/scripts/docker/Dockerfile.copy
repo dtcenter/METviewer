@@ -61,7 +61,8 @@ RUN if [ ! -e "/METviewer/build.xml" ]; then \
 #
 # Run build script
 #
-RUN internal/scripts/docker/build_metviewer_docker.sh
+RUN cd /METviewer \
+ && internal/scripts/docker/build_metviewer_docker.sh
 
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
