@@ -37,13 +37,14 @@ Consider breaking the new feature down into sub-issues.
 - [ ] Select **scientist(s)** or **no scientist** required
 
 ### Labels ###
+- [ ] Review default **alert** labels
 - [ ] Select **component(s)**
 - [ ] Select **priority**
 - [ ] Select **requestor(s)**
 
-### Projects and Milestone ###
-- [ ] Select **Repository** and/or **Organization** level **Project(s)** or add **alert: NEED CYCLE ASSIGNMENT** label
-- [ ] Select **Milestone** as the next official version or **Future Versions**
+### Milestone and Projects ###
+- [ ] Select **Milestone** as a **METviewer-X.Y.Z** version, **Consider for Next Release**, or **Backlog of Development Ideas**
+- [ ] For a **METviewer-X.Y.Z** version, select the **METviewer-X.Y.Z Development** project
 
 ## Define Related Issue(s) ##
 Consider the impact to the other METplus components.
@@ -62,9 +63,9 @@ Branch name: `feature_<Issue Number>_<Description>`
 - [ ] Submit a pull request to merge into **develop**.
 Pull request: `feature <Issue Number> <Description>`
 - [ ] Define the pull request metadata, as permissions allow.
-Select: **Reviewer(s)** and **Development** issues
-Select: **Repository** level development cycle **Project** for the next official release
+Select: **Reviewer(s)** and **Development** issue
 Select: **Milestone** as the next official version
+Select: **METviewer-X.Y.Z Development** project for development toward the next official release
 - [ ] Iterate until the reviewer(s) accept and merge your changes.
 - [ ] Delete your fork or branch.
 - [ ] Close this issue.
