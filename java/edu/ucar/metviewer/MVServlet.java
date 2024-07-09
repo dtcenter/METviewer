@@ -1031,17 +1031,18 @@ public class MVServlet extends HttpServlet {
       }
 
 
-        //  if there is no specified database, print out the list of parameters for debugging
-        try {
-          PrintWriter printWriter = response.getWriter();
-          response.setContentType("text/plain");
-          printWriter.println("howdy from MVServlet");
-        } catch (IOException e) {
-          logger.error(e.getMessage());
+      //  if there is no specified database, print out the list of parameters for debugging
+      try {
+        PrintWriter printWriter = response.getWriter();
+        response.setContentType("text/plain");
+        printWriter.println("howdy from MVServlet");
+      } catch (IOException e) {
+        logger.error(e.getMessage());
       }
     } catch (Exception e) {
       logger.error(e.getMessage());
     }
+  }
 
   /**
    * Override the parent's doPost() method with an implementation that reads XML from the body of
@@ -1113,17 +1114,13 @@ public class MVServlet extends HttpServlet {
         //  if the request is not a file upload, read it directly
         try {
           requestBody.append(request.getReader().lines().collect(Collectors.joining()));
-        } catch (java.lang.Exception e) {
+        } catch (Exception e) {
           logger.error(e.getMessage());
         }
 
 
       }
-      try {
-        logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + requestBody);
-      } catch (java.lang.Exception e) {
-        logger.error(e.getMessage());
-      }
+      logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + requestBody);
 
       StringBuilder strResp = new StringBuilder();
 
@@ -1162,11 +1159,10 @@ public class MVServlet extends HttpServlet {
             try {
               request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
             } catch (IOException | ServletException e) {
-              logger.error(e.getMessage())
+              logger.error(e.getMessage());
             }
           }
         }
-      }
       } else {
 
         //  instantiate and configure the xml parser
@@ -1300,22 +1296,16 @@ public class MVServlet extends HttpServlet {
               handleClearListValCache();
               handleClearListStatCache();
             } catch (ParserConfigurationException e) {
-              throw new RuntimeException(e.getMessage());
+              logger.error(e.getMessage());
             }
 
           }
 
           //  <date> tag, which is used to prevent caching
-          try {
-            isDateTag = nodeCall.tag.equalsIgnoreCase("date")
-          } catch (java.lang.Exception e) {
-            logger.info(e.getMessage());
-          }
-          else if (isDateTag) {
+          else if (nodeCall.tag.equalsIgnoreCase("date")) {
             //do nothing
           }
           //  <db_con> node containing the database connection name
-
           else if (nodeCall.tag.equalsIgnoreCase("db_con")) {
             if (nodeCall.value.isEmpty()) {
               currentDbName = new String[0];
@@ -1326,10 +1316,10 @@ public class MVServlet extends HttpServlet {
 
           //  <list_val>
           else if (nodeCall.tag.equalsIgnoreCase("list_val")) {
-            try { 
-              strResp.append(handleListVal(nodeCall, requestBody.toString(), currentDbName));
-            } catch (ValidationException e) {
-              logger.info(e.getMessage()); 
+            //try {
+            strResp.append(handleListVal(nodeCall, requestBody.toString(), currentDbName));
+            //} catch (ValidationException e) {
+            // logger.info(e.getMessage());
           }
 
           //  <list_stat>
@@ -1337,56 +1327,52 @@ public class MVServlet extends HttpServlet {
             try {
               strResp.append(handleListStat(nodeCall, requestBody.toString(), currentDbName));
             } catch (ParserConfigurationException e) {
-              logger.error( e.getMessage());
+              logger.error(e.getMessage());
             }
           }
           //  <list_val_clear_cache>
-          try {
-            isClearCache = nodeCall.tag.equalsIgnoreCase("list_val_clear_cache")
-          } catch (java.lang.Exception e) {
-            logger.info(e.getMessage());
-          }
-          else if (isClearCache) {
+          else if (nodeCall.tag.equalsIgnoreCase("list_val_clear_cache")) {
             try {
-            strResp.append(handleClearListValCache());
+              strResp.append(handleClearListValCache());
             } catch (ParserConfigurationException e) {
-              logger.error( e.getMessage());
+              logger.error(e.getMessage());
             }
           }
 
           //  <list_val_cache_keys>
           else if (nodeCall.tag.equalsIgnoreCase("list_val_cache_keys")) {
             try {
-            strResp.append(handleListValCacheKeys());
+              strResp.append(handleListValCacheKeys());
             } catch (ParserConfigurationException e) {
-              logger.error( e.getMessage());
+              logger.error(e.getMessage());
             }
           }
 
           //  <list_stat_clear_cache>
           else if (nodeCall.tag.equalsIgnoreCase("list_stat_clear_cache")) {
             try {
-            strResp.append(handleClearListStatCache());
+              strResp.append(handleClearListStatCache());
             } catch (ParserConfigurationException e) {
-              logger.error( e.getMessage());
+              logger.error(e.getMessage());
             }
           }
 
           //  <list_stat_cache_keys>
           else if (nodeCall.tag.equalsIgnoreCase("list_stat_cache_keys")) {
             try {
-            strResp.append(handleListStatCacheKeys());
+              strResp.append(handleListStatCacheKeys());
             } catch (ParserConfigurationException e) {
-              logger.error( e.getMessage());
+              logger.error(e.getMessage());
             }
           }
 
           //  <plot>
           else if (nodeCall.tag.equalsIgnoreCase("plot")) {
             try {
-            strResp.append(handlePlot(requestBody.toString(), currentDbName));
-            } catch (ParserConfigurationException | DatabaseException | ValidationException | IOException | SAXException e) {
-              logger.error( e.getMessage());
+              strResp.append(handlePlot(requestBody.toString(), currentDbName));
+            } catch (ParserConfigurationException | DatabaseException | ValidationException | IOException |
+                     SAXException e) {
+              logger.error(e.getMessage());
             }
 
           }
@@ -1410,7 +1396,7 @@ public class MVServlet extends HttpServlet {
             try {
               strResp.append(getAvailableResults(isShowAll));
             } catch (ParserConfigurationException e) {
-              logger.error( e.getMessage());
+              logger.error(e.getMessage());
             }
 
           }
@@ -1435,12 +1421,12 @@ public class MVServlet extends HttpServlet {
         try (PrintWriter printWriter = response.getWriter()) {
           printWriter.append(strResp);
         } catch (IOException e) {
-          logger.info( e.getMessage());
+          logger.info(e.getMessage());
+        }
+
       }
-
-
     } catch (ParserConfigurationException | FileUploadException | IOException | SAXException | ValidationException
-             | DatabaseException | ServletException e) {
+             | ServletException e) {
       errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage());
       logger.info(INFO_MARKER, "doPost() - caught " + e.getClass() + ": " + e.getMessage());
       System.out.println("doPost() - caught " + e.getClass() + ": " + e.getMessage());
