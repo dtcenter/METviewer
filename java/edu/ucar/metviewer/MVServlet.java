@@ -1316,10 +1316,11 @@ public class MVServlet extends HttpServlet {
 
           //  <list_val>
           else if (nodeCall.tag.equalsIgnoreCase("list_val")) {
-            //try {
+            try {
             strResp.append(handleListVal(nodeCall, requestBody.toString(), currentDbName));
-            //} catch (ValidationException e) {
-            // logger.info(e.getMessage());
+            } catch (ValidationException e|ParserConfigurationException e){
+              logger.info(e.getMessage());
+            }
           }
 
           //  <list_stat>
