@@ -1294,10 +1294,6 @@ public class MVServlet extends HttpServlet {
             strResp.append(MVUtil.domSourceToString(docResp));
             try {
               handleClearListValCache();
-            } catch(ParserConfigurationException e) {
-              logger.error(e.getMessage());
-            }
-            try{
               handleClearListStatCache();
             } catch (ParserConfigurationException e) {
               logger.error(e.getMessage());
