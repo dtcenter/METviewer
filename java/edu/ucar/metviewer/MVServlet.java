@@ -1032,12 +1032,15 @@ public class MVServlet extends HttpServlet {
 
 
       //  if there is no specified database, print out the list of parameters for debugging
-      try (PrintWriter printWriter = response.getWriter()) {
+      try {
+        PrintWriter printWriter = response.getWriter();
         response.setContentType("text/plain");
         printWriter.println("howdy from MVServlet");
+      } catch (IOException e) {
+        logger.error(e.getMessage());
       }
-    } catch (IOException e) {
-      logger.error( e.getMessage());
+    } catch (Exception e) {
+      logger.error(e.getMessage());
     }
   }
 
@@ -1109,7 +1112,12 @@ public class MVServlet extends HttpServlet {
 
       } else {
         //  if the request is not a file upload, read it directly
-        requestBody.append(request.getReader().lines().collect(Collectors.joining()));
+        try {
+          requestBody.append(request.getReader().lines().collect(Collectors.joining()));
+        } catch (Exception e) {
+          logger.error(e.getMessage());
+        }
+
 
       }
       logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + requestBody);
@@ -1148,8 +1156,11 @@ public class MVServlet extends HttpServlet {
               }
             }
             request.getSession().setAttribute("init_xml", strResp.toString().replace("'", "\""));
-
-            request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
+            try {
+              request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
+            } catch (IOException | ServletException e) {
+              logger.error(e.getMessage());
+            }
           }
         }
       } else {
@@ -1281,8 +1292,13 @@ public class MVServlet extends HttpServlet {
             urlXml.appendChild(docResp.createCDATASection(urlOutput));
             listDb.appendChild(urlXml);
             strResp.append(MVUtil.domSourceToString(docResp));
-            handleClearListValCache();
-            handleClearListStatCache();
+            try {
+              handleClearListValCache();
+              handleClearListStatCache();
+            } catch (ParserConfigurationException e) {
+              logger.error(e.getMessage());
+            }
+
           }
 
           //  <date> tag, which is used to prevent caching
@@ -1300,39 +1316,66 @@ public class MVServlet extends HttpServlet {
 
           //  <list_val>
           else if (nodeCall.tag.equalsIgnoreCase("list_val")) {
+            try {
             strResp.append(handleListVal(nodeCall, requestBody.toString(), currentDbName));
+            } catch (ValidationException |ParserConfigurationException e){
+              logger.info(e.getMessage());
+            }
           }
 
           //  <list_stat>
           else if (nodeCall.tag.equalsIgnoreCase("list_stat")) {
-            strResp.append(handleListStat(nodeCall, requestBody.toString(), currentDbName));
+            try {
+              strResp.append(handleListStat(nodeCall, requestBody.toString(), currentDbName));
+            } catch (ParserConfigurationException e) {
+              logger.error(e.getMessage());
+            }
           }
           //  <list_val_clear_cache>
           else if (nodeCall.tag.equalsIgnoreCase("list_val_clear_cache")) {
-
-            strResp.append(handleClearListValCache());
+            try {
+              strResp.append(handleClearListValCache());
+            } catch (ParserConfigurationException e) {
+              logger.error(e.getMessage());
+            }
           }
 
           //  <list_val_cache_keys>
           else if (nodeCall.tag.equalsIgnoreCase("list_val_cache_keys")) {
-
-            strResp.append(handleListValCacheKeys());
+            try {
+              strResp.append(handleListValCacheKeys());
+            } catch (ParserConfigurationException e) {
+              logger.error(e.getMessage());
+            }
           }
 
           //  <list_stat_clear_cache>
           else if (nodeCall.tag.equalsIgnoreCase("list_stat_clear_cache")) {
-
-            strResp.append(handleClearListStatCache());
+            try {
+              strResp.append(handleClearListStatCache());
+            } catch (ParserConfigurationException e) {
+              logger.error(e.getMessage());
+            }
           }
 
           //  <list_stat_cache_keys>
           else if (nodeCall.tag.equalsIgnoreCase("list_stat_cache_keys")) {
-            strResp.append(handleListStatCacheKeys());
+            try {
+              strResp.append(handleListStatCacheKeys());
+            } catch (ParserConfigurationException e) {
+              logger.error(e.getMessage());
+            }
           }
 
           //  <plot>
           else if (nodeCall.tag.equalsIgnoreCase("plot")) {
-            strResp.append(handlePlot(requestBody.toString(), currentDbName));
+            try {
+              strResp.append(handlePlot(requestBody.toString(), currentDbName));
+            } catch (ParserConfigurationException | DatabaseException | ValidationException | IOException |
+                     SAXException e) {
+              logger.error(e.getMessage());
+            }
+
           }
 
 
@@ -1351,7 +1394,11 @@ public class MVServlet extends HttpServlet {
 
           } else if (nodeCall.tag.equalsIgnoreCase("history")) {
             String isShowAll = nodeCall.children[0].value;
-            strResp.append(getAvailableResults(isShowAll));
+            try {
+              strResp.append(getAvailableResults(isShowAll));
+            } catch (ParserConfigurationException e) {
+              logger.error(e.getMessage());
+            }
 
           }
 
@@ -1374,12 +1421,13 @@ public class MVServlet extends HttpServlet {
         response.setContentType("application/xml;charset=UTF-8");
         try (PrintWriter printWriter = response.getWriter()) {
           printWriter.append(strResp);
+        } catch (IOException e) {
+          logger.info(e.getMessage());
         }
+
       }
-
-
     } catch (ParserConfigurationException | FileUploadException | IOException | SAXException | ValidationException
-             | DatabaseException | ServletException e) {
+             | ServletException e) {
       errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage());
       logger.info(INFO_MARKER, "doPost() - caught " + e.getClass() + ": " + e.getMessage());
       System.out.println("doPost() - caught " + e.getClass() + ": " + e.getMessage());
