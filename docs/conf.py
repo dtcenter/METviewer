@@ -23,8 +23,8 @@ author_list = "Burek, T., T. Jensen, L. Goodrich, J. Prestopnik, L. Blank, and T
 version = "develop"
 verinfo = version
 release = f'{version}'
-release_year = '2021'
-release_date = f'{release_year}-05-10'
+release_year = '2024'
+release_date = f'{release_year}-07-10'
 copyright = f'{release_year}, {author}'
 
 
