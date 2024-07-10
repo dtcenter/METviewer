@@ -1426,7 +1426,7 @@ public class MVServlet extends HttpServlet {
         }
 
       }
-    } catch (ParserConfigurationException | FileUploadException | IOException | SAXException | ValidationException
+    } catch (ParserConfigurationException | FileUploadException | IOException | SAXException 
              | ServletException e) {
       errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage());
       logger.info(INFO_MARKER, "doPost() - caught " + e.getClass() + ": " + e.getMessage());
