@@ -9,7 +9,7 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
-Version `v6.0.0-beta4 <https://github.com/dtcenter/METviewer>`_ release notes (20240417)
+Version `v6.0.0-beta5 <https://github.com/dtcenter/METviewer>`_ release notes (20240710)
 ----------------------------------------------------------------------------------------
 
 
@@ -18,13 +18,12 @@ Version `v6.0.0-beta4 <https://github.com/dtcenter/METviewer>`_ release notes (2
 
 
   .. dropdown::  Enhancements
-
+     * METviewer:Address SonarQube Vulnerabilities(`#58 <https://github.com/dtcenter/METplus-Internal/issues/58>`_)
 
   .. dropdown:: Bugfixes
 
 
   .. dropdown:: Internal
-     * METviewer:Address SonarQube Vulnerabilities(`#58 <https://github.com/dtcenter/METplus-Internal/issues/58>`_)
      * Update GitHub issue and pull request templates to reflect the current development workflow details(`#491 <https://github.com/dtcenter/METviewer/issues/491>`_)
 
 
