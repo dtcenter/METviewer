@@ -585,6 +585,20 @@ public class MVUtil {
     statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VL1L2});
     statsVcnt.put("VCNT_ANOM_CORR", new String[]{"nc","bc", VAL1L2});
     statsVcnt.put("VCNT_ANOM_CORR_UNCNTR", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_ME", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_ME_BCL", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_ME_BCU", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_MAE", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_MAE_BCL", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_MAE_BCU", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_MSE", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_MSE_BCL", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_MSE_BCU", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_RMSE", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_RMSE_BCL", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_DIR_RMSE_BCU", new String[]{"bc", VAL1L2});
+
+
   }
 
   static {
@@ -611,6 +625,8 @@ public class MVUtil {
     statsEcnt.put("ECNT_ME_GE_OBS", new String[]{ECNT});
     statsEcnt.put("ECNT_N_LT_OBS", new String[]{ECNT});
     statsEcnt.put("ECNT_ME_LT_OBS", new String[]{ECNT});
+    statsEcnt.put("ECNT_IGN_CONV_OERR", new String[]{ECNT});
+    statsEcnt.put("ECNT_IGN_CORR_OERR", new String[]{ECNT});
 
     statsEcnt.put("ECNT_TOTAL", new String[]{ECNT});
   }
@@ -750,6 +766,9 @@ public class MVUtil {
 
   static {
     statsVal1l2.put("VAL1L2_ANOM_CORR", new String[]{VAL1L2});
+    statsVal1l2.put("VAL1L2_DIRA_ME", new String[]{VAL1L2});
+    statsVal1l2.put("VAL1L2_DIRA_MAE", new String[]{VAL1L2});
+    statsVal1l2.put("VAL1L2_DIRA_MSE", new String[]{VAL1L2});
     statsVal1l2.put("VAL1L2_TOTAL", new String[]{VAL1L2});
   }
 
@@ -764,6 +783,9 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_SPEED_ERR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_RMSVE", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_SPEED_DIFF", new String[]{VL1L2});
+    statsVl1l2.put("VL1L2_DIR_ME", new String[]{VL1L2});
+    statsVl1l2.put("VL1L2_DIR_MAE", new String[]{VL1L2});
+    statsVl1l2.put("VL1L2_DIR_MSE", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_TOTAL", new String[]{VL1L2});
   }
 
