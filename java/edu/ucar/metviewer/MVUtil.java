@@ -566,30 +566,32 @@ public class MVUtil {
   }
 
   static {
-    statsVcnt.put("VCNT_FBAR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_OBAR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_FS_RMS", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_OS_RMS", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_MSVE", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_RMSVE", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_FSTDEV", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_OSTDEV", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_FDIR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_ODIR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_FBAR_SPEED", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_OBAR_SPEED", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_VDIFF_SPEED", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_VDIFF_DIR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_SPEED_ERR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_SPEED_ABSERR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_DIR_ERR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_ANOM_CORR", new String[]{"nc","bc", VAL1L2});
-    statsVcnt.put("VCNT_ANOM_CORR_UNCNTR", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_ME", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_MAE", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_MSE", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_RMSE", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_FBAR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_OBAR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_FS_RMS", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_OS_RMS", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_MSVE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_RMSVE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_FSTDEV", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_OSTDEV", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_FDIR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_ODIR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_FBAR_SPEED", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_OBAR_SPEED", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_VDIFF_SPEED", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_VDIFF_DIR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_SPEED_ERR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_SPEED_ABSERR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_ERR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_ANOM_CORR", new String[]{"nc","bc", VCNT});
+    statsVcnt.put("VCNT_ANOM_CORR_UNCNTR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_ME", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_MAE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_MSE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_RMSE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_TOTAL", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_TOTAL_DIR", new String[]{"bc", VCNT});
 
 
   }
