@@ -71,6 +71,7 @@ public class MVUtil {
   public static final String NBRCNT = "nbrcnt"; //  Neighborhood Continuous Statistics
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
   public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial Sum
+  public static final String VCNT = "vcnt"; // Vector Continuous Statistics
   public static final String ECNT = "ecnt"; // Ensemble Continuous Statistics
   public static final String RPS = "rps"; // Ranked Probability Score Statistics
   public static final Map<String, String[]> statsEnscnt = new HashMap<>();
@@ -586,17 +587,9 @@ public class MVUtil {
     statsVcnt.put("VCNT_ANOM_CORR", new String[]{"nc","bc", VAL1L2});
     statsVcnt.put("VCNT_ANOM_CORR_UNCNTR", new String[]{"bc", VAL1L2});
     statsVcnt.put("VCNT_DIR_ME", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_ME_BCL", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_ME_BCU", new String[]{"bc", VAL1L2});
     statsVcnt.put("VCNT_DIR_MAE", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_MAE_BCL", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_MAE_BCU", new String[]{"bc", VAL1L2});
     statsVcnt.put("VCNT_DIR_MSE", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_MSE_BCL", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_MSE_BCU", new String[]{"bc", VAL1L2});
     statsVcnt.put("VCNT_DIR_RMSE", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_RMSE_BCL", new String[]{"bc", VAL1L2});
-    statsVcnt.put("VCNT_DIR_RMSE_BCU", new String[]{"bc", VAL1L2});
 
 
   }
