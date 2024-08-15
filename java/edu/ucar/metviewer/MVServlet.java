@@ -1296,7 +1296,12 @@ public class MVServlet extends HttpServlet {
               handleClearListValCache();
             } catch (ParserConfigurationException e) {
               logger.error(e.getMessage());
+            } catch (Exception e){
+              logger.error(e.getMessage());
+            } finally{
+              return;
             }
+
             try{
               handleClearListStatCache();
             } catch (ParserConfigurationException e) {
