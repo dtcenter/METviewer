@@ -1294,20 +1294,12 @@ public class MVServlet extends HttpServlet {
             strResp.append(MVUtil.domSourceToString(docResp));
             try {
               handleClearListValCache();
+              handleClearListStatCache();
             } catch (ParserConfigurationException e) {
               logger.error(e.getMessage());
             } catch (Exception e){
               logger.error(e.getMessage());
-            } finally{
-              return;
             }
-
-            try{
-              handleClearListStatCache();
-            } catch (ParserConfigurationException e) {
-              logger.error(e.getMessage());
-            }
-
           }
 
           //  <date> tag, which is used to prevent caching
