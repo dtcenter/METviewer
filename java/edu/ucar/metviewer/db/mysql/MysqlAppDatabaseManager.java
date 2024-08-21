@@ -1949,8 +1949,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + "\n ld.n_ge_obs,"
                     + "\n ld.me_ge_obs,"
                     + "\n ld.n_lt_obs,"
-                    + "\n ld.me_lt_obs"
-                    + "\n ld.ign_conv_oerr"
+                    + "\n ld.me_lt_obs,"
+                    + "\n ld.ign_conv_oerr,"
                     + "\n ld.ign_corr_oerr";
           } else if (job.getAggPct()) {
 
@@ -2002,7 +2002,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (job.getAggVal1l2()) {
             selectStat += ",\n  'NA' stat_value,\n  ld.total,\n ld.ufabar,\n ld.vfabar,\n "
                     + "ld.uoabar,\n ld.voabar,\n ld.uvfoabar,\n ld.uvffabar,\n"
-                    + " ld.uvooabar,\n ld.fa_speed_bar,\n ld.oa_speed_bar "
+                    + " ld.uvooabar,\n ld.fa_speed_bar,\n ld.oa_speed_bar, "
                     + "\n ld.version, \n ld.total_dir, \n ld.dira_me, \n ld.dira_mae, \n ld.dira_mse";
           } else if (job.getCalcCtc()) {
             selectStat += ",\n  ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on, "
