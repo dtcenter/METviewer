@@ -782,7 +782,6 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_DIR_MAE", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_DIR_MSE", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_TOTAL", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_VERSION", new String[]{VL1L2});
   }
 
   public static final String COUNT = "COUNT(*)";
