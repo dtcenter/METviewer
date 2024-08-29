@@ -71,6 +71,7 @@ public class MVUtil {
   public static final String NBRCNT = "nbrcnt"; //  Neighborhood Continuous Statistics
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
   public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial Sum
+  public static final String VCNT = "vcnt"; // Vector Continuous Statistics
   public static final String ECNT = "ecnt"; // Ensemble Continuous Statistics
   public static final String RPS = "rps"; // Ranked Probability Score Statistics
   public static final Map<String, String[]> statsEnscnt = new HashMap<>();
@@ -565,26 +566,34 @@ public class MVUtil {
   }
 
   static {
-    statsVcnt.put("VCNT_FBAR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_OBAR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_FS_RMS", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_OS_RMS", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_MSVE", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_RMSVE", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_FSTDEV", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_OSTDEV", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_FDIR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_ODIR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_FBAR_SPEED", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_OBAR_SPEED", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_VDIFF_SPEED", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_VDIFF_DIR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_SPEED_ERR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_SPEED_ABSERR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_DIR_ERR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_ANOM_CORR", new String[]{"nc","bc", VAL1L2});
-    statsVcnt.put("VCNT_ANOM_CORR_UNCNTR", new String[]{"bc", VAL1L2});
+    statsVcnt.put("VCNT_FBAR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_OBAR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_FS_RMS", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_OS_RMS", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_MSVE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_RMSVE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_FSTDEV", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_OSTDEV", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_FDIR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_ODIR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_FBAR_SPEED", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_OBAR_SPEED", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_VDIFF_SPEED", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_VDIFF_DIR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_SPEED_ERR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_SPEED_ABSERR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_ERR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_ANOM_CORR", new String[]{"nc","bc", VCNT});
+    statsVcnt.put("VCNT_ANOM_CORR_UNCNTR", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_ME", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_MAE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_MSE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_DIR_RMSE", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_TOTAL", new String[]{"bc", VCNT});
+    statsVcnt.put("VCNT_TOTAL_DIR", new String[]{"bc", VCNT});
+
+
   }
 
   static {
@@ -611,6 +620,8 @@ public class MVUtil {
     statsEcnt.put("ECNT_ME_GE_OBS", new String[]{ECNT});
     statsEcnt.put("ECNT_N_LT_OBS", new String[]{ECNT});
     statsEcnt.put("ECNT_ME_LT_OBS", new String[]{ECNT});
+    statsEcnt.put("ECNT_IGN_CONV_OERR", new String[]{ECNT});
+    statsEcnt.put("ECNT_IGN_CORR_OERR", new String[]{ECNT});
 
     statsEcnt.put("ECNT_TOTAL", new String[]{ECNT});
   }
@@ -750,6 +761,9 @@ public class MVUtil {
 
   static {
     statsVal1l2.put("VAL1L2_ANOM_CORR", new String[]{VAL1L2});
+    statsVal1l2.put("VAL1L2_DIRA_ME", new String[]{VAL1L2});
+    statsVal1l2.put("VAL1L2_DIRA_MAE", new String[]{VAL1L2});
+    statsVal1l2.put("VAL1L2_DIRA_MSE", new String[]{VAL1L2});
     statsVal1l2.put("VAL1L2_TOTAL", new String[]{VAL1L2});
   }
 
@@ -764,6 +778,9 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_SPEED_ERR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_RMSVE", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_SPEED_DIFF", new String[]{VL1L2});
+    statsVl1l2.put("VL1L2_DIR_ME", new String[]{VL1L2});
+    statsVl1l2.put("VL1L2_DIR_MAE", new String[]{VL1L2});
+    statsVl1l2.put("VL1L2_DIR_MSE", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_TOTAL", new String[]{VL1L2});
   }
 
