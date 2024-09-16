@@ -28,6 +28,6 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
       - name: Build with Ant
-        run: ant -Dpython.env.path=METviewer clean all
+        run: ant -Dpython.env.path=METviewer clean test-compile test
       - name: Run MV JUnit tests
         run: java -jar METviewer/lib/junit-platform-console-standalone-1.4.0.jar -cp METviewer/build/edu/ucar/metviewer/test/mvutil --select-package edu.ucar.metviewer.test.mvutil
