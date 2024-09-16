@@ -8,6 +8,8 @@
     <property name="build" location="build"/>
     <property name="dist" location="dist"/>
     <property name="src.webapp.dir" location="webapp"/>
+    <property name="test.build.dir" location="build/test"/>
+    <property name="test.src.dir" location="java/edu/ucar/metviewer/test"/>
 
 
     <!-- Initialize the build tree -->
@@ -245,6 +247,13 @@
         <pathelement location="${lib}/snakeyaml-1.27.jar"/>
     </path>
 
+    <path id="classpath.test">
+       <pathelement location="lib/junit-4.11.jar"/>
+       <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
+       <pathelement location="${lib}/mockito-all-1.9.5.jar"/>
+       <pathelement location="${lib}/junit-platform-console-standalone-1.4.0.jar"/>
+    </path>
+
     <target name="test.db.management.system">
         <condition property="db.management.system.mysql">
             <equals arg1="${db.management.system}" arg2="mysql"/>
@@ -265,7 +274,8 @@
         <!-- Compile the project java files -->
         <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
             <include name="**/*.java"/>
-            <exclude name="**/test/**"/>
+            <include name="**/test/mvutil/**"/>
+            <!-- exclude name="**/test/**"/ -->
             <!-- aurora-->
             <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.aurora"/>
             <!-- mysql-->
@@ -283,7 +293,7 @@
         <!-- Compile the project java files -->
         <javac sourcepath="" srcdir="${src}" destdir="${build}" includeantruntime="false">
             <include name="**/*.java"/>
-            <include name="edu/ucar/metviewer/test/mvutil/*.java" />
+            <include name="edu/ucar/metviewer/test/**" />
             <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.aurora"/>
             <exclude name="**/TestMariaDbDatabaseManager.java" if="db.management.system.aurora"/>
             <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.aurora"/>
@@ -301,6 +311,28 @@
             path elements specified by refid i.e. mysql, mysql-all-->
             <classpath refid="${db.management.system}-all"/>
         </javac>
+    </target>
+  
+    <!-- JUnit tests -->
+    <target name="test-compile" depends="compile">
+       <mkdir dir="${test.build.dir}" />
+       <javac srcdir="${test.src.dir}" destdir="${test.build.dir}" includeantruntime="false">
+           <classpath refid="classpath.test"/>
+           <include name="edu/ucar/metviewer/test/**" />
+       </javac>
+    </target>
+    
+    <target name="test" depends="test-compile">
+       <junit printsummary="on" haltonfailure="yes" fork="true">
+           <classpath>
+              <path refid="classpath.test"/>
+              <pathelement location="${test.build.dir}"/>
+           </classpath>
+           <formatter type="brief" usefile="false" />
+           <batchtest>
+               <fileset dir="${test.src.dir}" includes="${test.src.dir}/mvutil/TestRunner" />
+           </batchtest>
+        </junit>
     </target>
 
     <!-- Create the distribution directory -->
@@ -320,7 +352,7 @@
         </copy>
         <delete file="${build}/MANIFEST.MF"/>
         <manifest file="${build}/MANIFEST.MF">
-            <attribute name="Specification-Version" value="6.0.0-beta5-dev"/>
+            <attribute name="Specification-Version" value="6.0.0-beta6-dev"/>
         </manifest>
 
         <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
