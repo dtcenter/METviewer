@@ -27,7 +27,7 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
-
-      - name: Run MV JUnit tests
+      - name: Build MV JUnit tests
         run: ant clean test -verbose -noinput
+      - name: Run MV JUnit tests
         run: java -jar lib/junit-platform-console-standalone-1.4.0.jar --select-package edu.ucar.metviewer.test.mvutiljava
