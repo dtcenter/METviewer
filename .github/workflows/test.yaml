@@ -30,3 +30,4 @@ jobs:
 
       - name: Run MV JUnit tests
         run: ant clean test -verbose -noinput
+        run: java -jar lib/junit-platform-console-standalone-1.4.0.jar --select-package edu.ucar.metviewer.test.mvutiljava
