@@ -27,7 +27,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
-      - name: Build with Ant
-        run: ant -Dpython.env.path=METviewer clean test-compile test
+
       - name: Run MV JUnit tests
-        run: ant clean test
+        run: ant clean test -verbose -noinput
