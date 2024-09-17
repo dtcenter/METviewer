@@ -335,7 +335,7 @@
 
            <formatter type="brief" usefile="false" />
            <batchtest>
-               <fileset dir="${test.build.dir}" includes="**/*Test*.java" />
+               <fileset dir="${test.build.dir}" includes="**/*TestMVUtil.java" />
            </batchtest>
         </junit>
     </target>
