@@ -8,6 +8,8 @@
     <property name="build" location="build"/>
     <property name="dist" location="dist"/>
     <property name="src.webapp.dir" location="webapp"/>
+    <property name="test.build.dir" location="build/edu/ucar/metviewer/test"/>
+    <property name="test.src.dir" location="java/edu/ucar/metviewer/test"/>
 
 
     <!-- Initialize the build tree -->
@@ -245,6 +247,15 @@
         <pathelement location="${lib}/snakeyaml-1.27.jar"/>
     </path>
 
+    <path id="classpath.test">
+       <pathelement location="${lib}/junit-4.11.jar"/>
+       <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
+       <pathelement location="${lib}/mockito-all-1.9.5.jar"/>
+       <pathelement location="${lib}/junit-platform-console-standalone-1.4.0.jar"/>
+       <pathelement location="${build}"/>
+
+    </path>
+
     <target name="test.db.management.system">
         <condition property="db.management.system.mysql">
             <equals arg1="${db.management.system}" arg2="mysql"/>
@@ -301,6 +312,38 @@
             <classpath refid="${db.management.system}-all"/>
         </javac>
     </target>
+  
+    <!-- JUnit tests -->
+    <target name="test-compile" depends="compile, compile-all">
+       <javac srcdir="${test.src.dir}"
+              destdir="${test.build.dir}"
+              includeantruntime="true"
+              nowarn="yes"
+              debug="true">
+           <classpath refid="classpath.test"/>
+           <include name="edu/ucar/metviewer/test/**Test" />
+       </javac>
+        <property name="d" refid="classpath.test"/>
+        <echo>classpath.test = ${d}</echo>
+
+    </target>
+    
+    <target name="test" depends="test-compile">
+       <junit printsummary="on" haltonfailure="yes" fork="true">
+           <classpath >
+               <path refid="classpath.test"/>
+               <pathelement location="${test.build.dir}"/>
+           </classpath>
+
+           <formatter type="brief" usefile="false" />
+           <batchtest>
+               <fileset dir="${test.build.dir}">
+                   <include name="TestMVUtil*"/>
+                   <!-- Include other JUnit tests as they are created-->
+               </fileset>
+           </batchtest>
+        </junit>
+    </target>
 
     <!-- Create the distribution directory -->
     <target name="dist" depends="compile"
@@ -319,7 +362,7 @@
         </copy>
         <delete file="${build}/MANIFEST.MF"/>
         <manifest file="${build}/MANIFEST.MF">
-            <attribute name="Specification-Version" value="6.0.0-beta5-dev"/>
+            <attribute name="Specification-Version" value="6.0.0-beta6-dev"/>
         </manifest>
 
         <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
@@ -437,6 +480,7 @@
                 <exclude name="junit-4.11.jar"/>
                 <exclude name="hamcrest-core-1.3.jar"/>
                 <exclude name="mockito-all-1.9.5.jar"/>
+                <exclude name="junit-platform-console-standalone-1.4.0.jar"/>
             </fileset>
         </copy>
         <copy todir="${dist}/metviewer/WEB-INF/lib"
