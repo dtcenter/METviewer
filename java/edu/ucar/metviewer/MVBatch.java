@@ -13,6 +13,7 @@ import edu.ucar.metviewer.jobManager.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
+import java.net.InetAddress;
 
 public class MVBatch {
 
