@@ -1,10 +1,11 @@
+<!-- Suggested code may be subject to a license. Learn more: ~LicenseLog:251802877. -->
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
 
     <Appenders>
         <Console name="appLog" target="SYSTEM_OUT">
             <PatternLayout
-                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%L}{blue}] [%style{%M}{bright,blue}] %style{%C{1.}}{bright,yellow}: \r\n%msg%n%throwable\r\n" />
+                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%L}{blue}] [%style{%M}{bright,blue}] %style{%C{1.}}{bright,yellow} %style{Metviewer}{bright,green} %style{%X{hostName}}{bright,red}: \r\n%msg%n%throwable\r\n" />
         </Console>
     </Appenders>
 

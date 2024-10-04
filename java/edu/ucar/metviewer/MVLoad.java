@@ -10,6 +10,8 @@ import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.db.LoadDatabaseManager;
 import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.io.IoBuilder;
+import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.ThreadContext;
 
 public class MVLoad {
 
@@ -69,6 +71,13 @@ public class MVLoad {
   public static void main(String[] argv) {
 
     logger.info("----  MVLoad  ----\n");
+    try {
+            // Fetch the hostname of the machine and put it into the logging context
+            String hostName = InetAddress.getLocalHost().getHostName();
+            ThreadContext.put("hostName", hostName);  // Add hostname to the ThreadContext
+        } catch (Exception e) {
+            logger.error("Unable to fetch the hostname for logging context", e);
+        }
 
     try {
 
@@ -317,6 +326,7 @@ public class MVLoad {
     }
 
     logger.info("----  MVLoad Done  ----");
+    ThreadContext.clearAll();
   }
 
 

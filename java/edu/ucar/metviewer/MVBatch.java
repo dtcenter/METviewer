@@ -12,8 +12,7 @@ import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.jobManager.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-
+import org.apache.logging.log4j.ThreadContext;
 
 public class MVBatch {
 
@@ -252,6 +251,13 @@ public class MVBatch {
 
   public static void main(String[] argv) throws Exception {
 
+    try {
+            // Fetch the hostname of the machine and put it into the logging context
+            String hostName = InetAddress.getLocalHost().getHostName();
+            ThreadContext.put("hostName", hostName);  // Add hostname to the ThreadContext
+        } catch (Exception e) {
+            logger.error("Unable to fetch the hostname for logging context", e);
+        }
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     MVBatch mvBatch = new MVBatch();
@@ -450,7 +456,7 @@ public class MVBatch {
     logger.info("----  MVBatch Done by user " + username + " ----");
 
     logger.info("Total execution time " + stopWatch.getFormattedTotalDuration());
-
+ 
+    ThreadContext.clearAll();
   }
-
 }
