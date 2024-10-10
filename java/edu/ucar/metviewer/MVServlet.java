@@ -876,6 +876,14 @@ public class MVServlet extends HttpServlet {
   @Override
   public void init() {
     logger.debug("init() - loading properties...");
+    // Add hostname to the ThreadContext for logging
+    try {
+        String hostName = InetAddress.getLocalHost().getHostName();
+        ThreadContext.put("hostName", hostName);
+    } catch (Exception e) {
+        logger.error("Unable to fetch the hostname for logging context", e);
+    }
+
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
 
