@@ -317,7 +317,6 @@ public class MVLoad {
     }
 
     logger.info("----  MVLoad Done  ----");
-    ThreadContext.clearAll();
   }
 
 

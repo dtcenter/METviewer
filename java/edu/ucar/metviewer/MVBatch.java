@@ -449,6 +449,5 @@ public class MVBatch {
 
     logger.info("Total execution time " + stopWatch.getFormattedTotalDuration());
  
-    ThreadContext.clearAll();
   }
 }
