@@ -5,7 +5,7 @@
     <Appenders>
         <Console name="appLog" target="SYSTEM_OUT">
             <PatternLayout
-                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%L}{blue}] [%style{%M}{bright,blue}] %style{%C{1.}}{bright,yellow} %style{METviewer}{bright,green} %style{%X{hostName}}{bright,red}: \r\n%msg%n%throwable\r\n" />
+                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%L}{blue}] [%style{%M}{bright,blue}] %style{%C{1.}}{bright,yellow} %style{METviewer}{bright,green} %style{[%X{hostName}]}{bright,red} %msg%n%throwable%n" />
         </Console>
     </Appenders>
 

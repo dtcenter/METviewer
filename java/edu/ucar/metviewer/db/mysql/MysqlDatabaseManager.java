@@ -65,13 +65,6 @@ public class MysqlDatabaseManager extends DatabaseManager {
     } catch (Exception e) {
         logger.error("Unable to fetch the hostname for logging context", e);
     }
-    // Set the hostname in ThreadContext for logging purposes
-    try {
-        String hostName = InetAddress.getLocalHost().getHostName();
-        ThreadContext.put("hostName", hostName); // Add hostname to the ThreadContext
-    } catch (Exception e) {
-        logger.error("Unable to fetch the hostname for logging context", e);
-    }
     String jdbcUrl = getJdbcUrl(databaseInfo.getHost(), databaseInfo.getDbName());
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
