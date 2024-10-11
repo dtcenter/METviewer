@@ -41,12 +41,6 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 public class MysqlDatabaseManager extends DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger(MysqlDatabaseManager.class);
-  try {
-        String hostName = InetAddress.getLocalHost().getHostName();
-        ThreadContext.put("hostName", hostName);
-    } catch (Exception e) {
-        logger.error("Unable to fetch the hostname for logging context", e);
-    }
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
   private static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
@@ -93,7 +87,13 @@ public class MysqlDatabaseManager extends DatabaseManager {
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
 
-
+    try {
+          String hostName = InetAddress.getLocalHost().getHostName();
+          ThreadContext.put("hostName", hostName);
+      } catch (Exception e) {
+          logger.error("Unable to fetch the hostname for logging context", e);
+      }
+      
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
       updateGroups = true;
