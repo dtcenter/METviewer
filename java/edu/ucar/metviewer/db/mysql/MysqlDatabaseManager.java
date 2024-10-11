@@ -57,7 +57,13 @@ public class MysqlDatabaseManager extends DatabaseManager {
 
   public MysqlDatabaseManager(DatabaseInfo databaseInfo, String password) {
     super(databaseInfo);
-    
+    // Add hostname to the ThreadContext for logging
+    try {
+        String hostName = InetAddress.getLocalHost().getHostName();
+        ThreadContext.put("hostName", hostName);
+    } catch (Exception e) {
+        logger.error("Unable to fetch the hostname for logging context", e);
+    }
     String jdbcUrl = getJdbcUrl(databaseInfo.getHost(), databaseInfo.getDbName());
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
@@ -86,13 +92,6 @@ public class MysqlDatabaseManager extends DatabaseManager {
 
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
-
-    try {
-          String hostName = InetAddress.getLocalHost().getHostName();
-          ThreadContext.put("hostName", hostName);
-      } catch (Exception e) {
-          logger.error("Unable to fetch the hostname for logging context", e);
-      }
       
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
