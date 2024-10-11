@@ -43,7 +43,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
   private static final Logger logger = LogManager.getLogger(MysqlDatabaseManager.class);
   try {
         String hostName = InetAddress.getLocalHost().getHostName();
-        ThreadContext.put("hostName", hostName); // Add hostname to the ThreadContext
+        ThreadContext.put("hostName", hostName);
     } catch (Exception e) {
         logger.error("Unable to fetch the hostname for logging context", e);
     }
