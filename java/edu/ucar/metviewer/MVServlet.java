@@ -39,8 +39,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
-import org.apache.logging.log4j.ThreadContext;
-import java.net.InetAddress;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -878,13 +876,6 @@ public class MVServlet extends HttpServlet {
   @Override
   public void init() {
     logger.debug("init() - loading properties...");
-    // Add hostname to the ThreadContext for logging
-    try {
-        String hostName = InetAddress.getLocalHost().getHostName();
-        ThreadContext.put("hostName", hostName);
-    } catch (Exception e) {
-        logger.error("Unable to fetch the hostname for logging context", e);
-    }
 
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");

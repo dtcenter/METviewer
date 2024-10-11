@@ -13,8 +13,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.ThreadContext;
-import java.net.InetAddress;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -83,12 +81,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   public MysqlLoadDatabaseManager(
           DatabaseInfo databaseInfo, String password) throws DatabaseException {
     super(databaseInfo, password);
-    try {
-        String hostName = InetAddress.getLocalHost().getHostName();
-        ThreadContext.put("hostName", hostName); // Add hostname to the ThreadContext
-    } catch (Exception e) {
-        logger.error("Unable to fetch the hostname for logging context", e);
-    }
     tableToInsert = new HashMap<>();
     tableToInsert.put("line_data_fho", "INSERT INTO line_data_fho VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
             + "?,?)");//14

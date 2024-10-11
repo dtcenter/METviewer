@@ -28,8 +28,6 @@ import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.DatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
-import java.net.InetAddress;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -58,12 +56,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
   public MysqlDatabaseManager(DatabaseInfo databaseInfo, String password) {
     super(databaseInfo);
     // Add hostname to the ThreadContext for logging
-    try {
-        String hostName = InetAddress.getLocalHost().getHostName();
-        ThreadContext.put("hostName", hostName);
-    } catch (Exception e) {
-        logger.error("Unable to fetch the hostname for logging context", e);
-    }
+    
     String jdbcUrl = getJdbcUrl(databaseInfo.getHost(), databaseInfo.getDbName());
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
