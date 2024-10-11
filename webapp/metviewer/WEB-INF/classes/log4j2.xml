@@ -3,12 +3,12 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
                 <PatternLayout
-                                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%L}{blue}] [%style{%M}{bright,blue}] %style{%C{1.}}{bright,yellow} %style{METviewer}{bright,green} %style{[%X{hostName}]}{bright,red} %msg%n%throwable%n" />
+                                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%L}{blue}] [%style{%M}{bright,blue}] %style{%C{1.}}{bright,yellow} %style{METviewer}{bright,green} %style{[${env:HOSTNAME:-None}]}{bright,red} %msg%n%throwable%n" />
         </Console>
 
         <File name="RollingFile" fileName="/opt/vxwww/tomcat/logs/mvservlet.log" append="true">
                 <PatternLayout
-                                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%L}{blue}] [%style{%M}{bright,blue}] %style{%C{1.}}{bright,yellow} %style{METviewer}{bright,green} %style{[%X{hostName}]}{bright,red} %msg%n%throwable%n" />
+                                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%L}{blue}] [%style{%M}{bright,blue}] %style{%C{1.}}{bright,yellow} %style{METviewer}{bright,green} %style{[${env:HOSTNAME:-None}]}{bright,red} %msg%n%throwable%n" />
         </File>
     </Appenders>
 
