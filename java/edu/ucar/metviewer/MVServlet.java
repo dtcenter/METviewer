@@ -876,6 +876,7 @@ public class MVServlet extends HttpServlet {
   @Override
   public void init() {
     logger.debug("init() - loading properties...");
+
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
 

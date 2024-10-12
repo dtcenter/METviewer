@@ -11,6 +11,7 @@ import edu.ucar.metviewer.db.LoadDatabaseManager;
 import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.io.IoBuilder;
 
+
 public class MVLoad {
 
   private static final Logger logger = LogManager.getLogger("MVLoad");
@@ -69,7 +70,6 @@ public class MVLoad {
   public static void main(String[] argv) {
 
     logger.info("----  MVLoad  ----\n");
-
     try {
 
       //  parse the input arguments

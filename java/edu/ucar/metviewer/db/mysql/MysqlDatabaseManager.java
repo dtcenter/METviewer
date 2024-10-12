@@ -28,7 +28,6 @@ import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.DatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -40,7 +39,6 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 public class MysqlDatabaseManager extends DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger(MysqlDatabaseManager.class);
-
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
   private static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
@@ -57,6 +55,8 @@ public class MysqlDatabaseManager extends DatabaseManager {
 
   public MysqlDatabaseManager(DatabaseInfo databaseInfo, String password) {
     super(databaseInfo);
+    // Add hostname to the ThreadContext for logging
+    
     String jdbcUrl = getJdbcUrl(databaseInfo.getHost(), databaseInfo.getDbName());
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
@@ -85,15 +85,14 @@ public class MysqlDatabaseManager extends DatabaseManager {
 
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
-
-
+      
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
       updateGroups = true;
     }
     initDBList(updateGroups);
   }
-
+    
   public synchronized String formatDate(Date date) {
     return DATE_FORMAT.format(date.getTime());
   }

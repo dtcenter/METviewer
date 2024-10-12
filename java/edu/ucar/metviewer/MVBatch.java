@@ -13,8 +13,6 @@ import edu.ucar.metviewer.jobManager.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
-
 public class MVBatch {
 
   private static final Logger logger = LogManager.getLogger(MVBatch.class);
@@ -450,7 +448,6 @@ public class MVBatch {
     logger.info("----  MVBatch Done by user " + username + " ----");
 
     logger.info("Total execution time " + stopWatch.getFormattedTotalDuration());
-
+ 
   }
-
 }
