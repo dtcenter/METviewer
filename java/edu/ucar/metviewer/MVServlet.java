@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 public class MVServlet extends HttpServlet {
-  
+
   private static final Logger logger = LogManager.getLogger(MVServlet.class);
   private static final Marker INFO_MARKER = MarkerManager.getMarker("INFO");
   private static final PrintStream errorStream
@@ -55,8 +55,10 @@ public class MVServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private static final Pattern patDownload = Pattern.compile(".*/download");
   private static final String DELIMITER = File.separator;
+  
   private ResourceBundle bundle;
   private String plotXml;
+  private String plots; // Define plots here
   private AppDatabaseManager databaseManager;
   private boolean isValCache;
   private boolean isStatCache;
@@ -76,40 +78,42 @@ public class MVServlet extends HttpServlet {
     }
 
     logger.info(INFO_MARKER, "METviewer servlet initialized successfully.");
-}
+  }
 
-private void loadProperties() throws Exception {
-  bundle = ResourceBundle.getBundle("mvservlet");
+  private void loadProperties() throws Exception {
+    bundle = ResourceBundle.getBundle("mvservlet");
 
-  plotXml = bundle.getString("folders.plot_xml");
-  plots = bundle.getString("folders.plots");
-  rscript = bundle.getString("rscript.bin");
-  pythonEnv = bundle.getString("python.env");
-  metCalcpyHome = bundle.getString("metcalcpy.home");
-  metPlotpyHome = bundle.getString("metplotpy.home");
+    plotXml = bundle.getString("folders.plot_xml");
+    plots = bundle.getString("folders.plots"); // Initialize plots
+    rscript = bundle.getString("rscript.bin");
+    pythonEnv = bundle.getString("python.env");
+    metCalcpyHome = bundle.getString("metcalcpy.home");
+    metPlotpyHome = bundle.getString("metplotpy.home");
 
-  isValCache = Boolean.parseBoolean(bundle.getString("cache.val"));
-  isStatCache = Boolean.parseBoolean(bundle.getString("cache.stat"));
+    isValCache = Boolean.parseBoolean(bundle.getString("cache.val"));
+    isStatCache = Boolean.parseBoolean(bundle.getString("cache.stat"));
 
-  databaseManager = (AppDatabaseManager) DatabaseManager.getAppManager(
-          bundle.getString("db.managementSystem"),
-          bundle.getString("db.host"),
-          bundle.getString("db.user"),
-          bundle.getString("db.password"),
-          null);
-}
+    databaseManager = (AppDatabaseManager) DatabaseManager.getAppManager(
+            bundle.getString("db.managementSystem"),
+            bundle.getString("db.host"),
+            bundle.getString("db.user"),
+            bundle.getString("db.password"),
+            null);
+  }
 
-private void createRequiredDirectories() {
-  String[] directories = {plotXml, bundle.getString("folders.r_tmpl"),
-          bundle.getString("folders.r_work"), plots,
-          bundle.getString("folders.data"), bundle.getString("folders.scripts")};
+  private void createRequiredDirectories() {
+    String[] directories = {plotXml, bundle.getString("folders.r_tmpl"),
+            bundle.getString("folders.r_work"), plots,
+            bundle.getString("folders.data"), bundle.getString("folders.scripts")};
 
-  for (String dir : directories) {
-      File directory = new File(dir);
-      if (!directory.exists()) {
-          directory.mkdirs();
-      }
-  
+    for (String dir : directories) {
+        File directory = new File(dir);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+    }
+  }
+
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
     try {
@@ -162,7 +166,7 @@ private void createRequiredDirectories() {
             filePath = plotXml + DELIMITER + plot + ".sql";
             break;
         case "plot_image_url":
-            filePath = plots + DELIMITER + plot + ".png";
+            filePath = plots + DELIMITER + plot + ".png"; // Uses plots variable
             break;
         default:
             filePath = plotXml + DELIMITER + plot + ".xml";
@@ -170,7 +174,7 @@ private void createRequiredDirectories() {
     }
 
     return filePath;
-}
+  }
 
   private void sendDebugInfo(HttpServletResponse response) throws IOException {
     response.setContentType("text/plain");
