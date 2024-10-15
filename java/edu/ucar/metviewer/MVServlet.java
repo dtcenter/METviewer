@@ -145,13 +145,25 @@ public class MVServlet extends HttpServlet {
   private String resolveFilePath(HttpServletRequest request) {
     String plot = MVUtil.cleanString(request.getParameter("plot"));
     String type = request.getParameter("type");
-    return switch (type) {
-      case "plot_xml_url" -> plotXml + DELIMITER + plot + ".xml";
-      case "plot_sql_url" -> plotXml + DELIMITER + plot + ".sql";
-      case "plot_image_url" -> plots + DELIMITER + plot + ".png";
-      default -> plotXml + DELIMITER + plot + ".xml";
-    };
-  }
+    String filePath;
+
+    switch (type) {
+        case "plot_xml_url":
+            filePath = plotXml + DELIMITER + plot + ".xml";
+            break;
+        case "plot_sql_url":
+            filePath = plotXml + DELIMITER + plot + ".sql";
+            break;
+        case "plot_image_url":
+            filePath = plots + DELIMITER + plot + ".png";
+            break;
+        default:
+            filePath = plotXml + DELIMITER + plot + ".xml";
+            break;
+    }
+
+    return filePath;
+}
 
   private void sendDebugInfo(HttpServletResponse response) throws IOException {
     response.setContentType("text/plain");
