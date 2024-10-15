@@ -954,105 +954,105 @@ public class MVServlet extends HttpServlet {
    * @param request  Contains request information, including parameters
    * @param response Used to send information back to the requester
    */
+
   @Override
-  @Override
-public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    try {
-        String strPath = request.getRequestURL().toString();
-        Matcher matDownload = patDownload.matcher(strPath);
-        
-        if (matDownload.matches()) {
-            handleFileDownload(request, response);
-        } else {
-            sendDebugInfo(response);
-        }
-    } catch (FileNotFoundException e) {
-        logger.error("File not found in doGet: " + e.getMessage(), e);
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        response.setContentType("application/xml;charset=UTF-8");
-        try (PrintWriter writer = response.getWriter()) {
-            writer.write("<error>Requested file not found</error>");
-        } catch (IOException ioException) {
-            logger.error("Error writing response for FileNotFoundException: " + ioException.getMessage(), ioException);
-        }
-    } catch (IOException e) {
-        logger.error("I/O error in doGet: " + e.getMessage(), e);
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        response.setContentType("application/xml;charset=UTF-8");
-        try (PrintWriter writer = response.getWriter()) {
-            writer.write("<error>Server I/O error</error>");
-        } catch (IOException ioException) {
-            logger.error("Error writing response for IOException: " + ioException.getMessage(), ioException);
-        }
-    } catch (Exception e) {
-        logger.error("Unexpected error in doGet: " + e.getMessage(), e);
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        response.setContentType("application/xml;charset=UTF-8");
-        try (PrintWriter writer = response.getWriter()) {
-            writer.write("<error>Unexpected server error</error>");
-        } catch (IOException ioException) {
-            logger.error("Error writing response for unexpected error: " + ioException.getMessage(), ioException);
-        }
-    }
-}
+  public void doGet(HttpServletRequest request, HttpServletResponse response) {
+      try {
+          String strPath = request.getRequestURL().toString();
+          Matcher matDownload = patDownload.matcher(strPath);
+          
+          if (matDownload.matches()) {
+              handleFileDownload(request, response);
+          } else {
+              sendDebugInfo(response);
+          }
+      } catch (FileNotFoundException e) {
+          logger.error("File not found in doGet: " + e.getMessage(), e);
+          response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          response.setContentType("application/xml;charset=UTF-8");
+          try (PrintWriter writer = response.getWriter()) {
+              writer.write("<error>Requested file not found</error>");
+          } catch (IOException ioException) {
+              logger.error("Error writing response for FileNotFoundException: " + ioException.getMessage(), ioException);
+          }
+      } catch (IOException e) {
+          logger.error("I/O error in doGet: " + e.getMessage(), e);
+          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+          response.setContentType("application/xml;charset=UTF-8");
+          try (PrintWriter writer = response.getWriter()) {
+              writer.write("<error>Server I/O error</error>");
+          } catch (IOException ioException) {
+              logger.error("Error writing response for IOException: " + ioException.getMessage(), ioException);
+          }
+      } catch (Exception e) {
+          logger.error("Unexpected error in doGet: " + e.getMessage(), e);
+          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+          response.setContentType("application/xml;charset=UTF-8");
+          try (PrintWriter writer = response.getWriter()) {
+              writer.write("<error>Unexpected server error</error>");
+          } catch (IOException ioException) {
+              logger.error("Error writing response for unexpected error: " + ioException.getMessage(), ioException);
+          }
+      }
+  }
 
-private void handleFileDownload(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String plot = MVUtil.cleanString(request.getParameter("plot"));
-    String type = request.getParameter("type");
-    String filePath = resolveFilePath(plot, type);
-    File file = new File(filePath);
+  private void handleFileDownload(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      String plot = MVUtil.cleanString(request.getParameter("plot"));
+      String type = request.getParameter("type");
+      String filePath = resolveFilePath(plot, type);
+      File file = new File(filePath);
 
-    if (!file.exists()) {
-        throw new FileNotFoundException("File not found: " + filePath);
-    }
+      if (!file.exists()) {
+          throw new FileNotFoundException("File not found: " + filePath);
+      }
 
-    // Set response headers and content type
-    ServletContext context = getServletConfig().getServletContext();
-    String mimeType = context.getMimeType(filePath);
-    response.setContentType(mimeType != null ? mimeType : "application/octet-stream");
-    response.setContentLength((int) file.length());
-    response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+      // Set response headers and content type
+      ServletContext context = getServletConfig().getServletContext();
+      String mimeType = context.getMimeType(filePath);
+      response.setContentType(mimeType != null ? mimeType : "application/octet-stream");
+      response.setContentLength((int) file.length());
+      response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 
-    // Stream the file to the client
-    try (ServletOutputStream outStream = response.getOutputStream();
-         FileInputStream fileInputStream = new FileInputStream(file)) {
-        byte[] buffer = new byte[4096];
-        int bytesRead;
-        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-            outStream.write(buffer, 0, bytesRead);
-        }
-    }
-}
+      // Stream the file to the client
+      try (ServletOutputStream outStream = response.getOutputStream();
+          FileInputStream fileInputStream = new FileInputStream(file)) {
+          byte[] buffer = new byte[4096];
+          int bytesRead;
+          while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+              outStream.write(buffer, 0, bytesRead);
+          }
+      }
+  }
 
-private String resolveFilePath(String plot, String type) {
-    switch (type) {
-        case "plot_xml_url":
-            return plotXml + DELIMITER + plot + ".xml";
-        case "plot_sql_url":
-            return plotXml + DELIMITER + plot + ".sql";
-        case "r_script_url":
-            return scripts + DELIMITER + plot + ".R";
-        case "r_data_url":
-            return data + DELIMITER + plot + ".data";
-        case "plot_log_url":
-            return plotXml + DELIMITER + plot + ".log";
-        case "plot_image_url":
-            return plots + DELIMITER + plot + ".png";
-        case "y1_points_url":
-            return data + DELIMITER + plot + ".points1";
-        case "y2_points_url":
-            return data + DELIMITER + plot + ".points2";
-        default:
-            return plotXml + DELIMITER + plot + ".xml";
-    }
-}
+  private String resolveFilePath(String plot, String type) {
+      switch (type) {
+          case "plot_xml_url":
+              return plotXml + DELIMITER + plot + ".xml";
+          case "plot_sql_url":
+              return plotXml + DELIMITER + plot + ".sql";
+          case "r_script_url":
+              return scripts + DELIMITER + plot + ".R";
+          case "r_data_url":
+              return data + DELIMITER + plot + ".data";
+          case "plot_log_url":
+              return plotXml + DELIMITER + plot + ".log";
+          case "plot_image_url":
+              return plots + DELIMITER + plot + ".png";
+          case "y1_points_url":
+              return data + DELIMITER + plot + ".points1";
+          case "y2_points_url":
+              return data + DELIMITER + plot + ".points2";
+          default:
+              return plotXml + DELIMITER + plot + ".xml";
+      }
+  }
 
-private void sendDebugInfo(HttpServletResponse response) throws IOException {
-    response.setContentType("text/plain");
-    try (PrintWriter writer = response.getWriter()) {
-        writer.println("howdy from MVServlet");
-    }
-}
+  private void sendDebugInfo(HttpServletResponse response) throws IOException {
+      response.setContentType("text/plain");
+      try (PrintWriter writer = response.getWriter()) {
+          writer.println("howdy from MVServlet");
+      }
+  }
     
   /**
    * Override the parent's doPost() method with an implementation that reads XML from the body of
