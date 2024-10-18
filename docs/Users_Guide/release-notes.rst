@@ -9,13 +9,35 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version `v6.0.0-beta6 <https://github.com/dtcenter/METviewer>`_ release notes (20241018)
+----------------------------------------------------------------------------------------
+
+  .. dropdown:: New Features
+
+     None
+		
+  .. dropdown::  Enhancements
+
+     * **Enhance METviewer to plot statistics added to the ECNT, VL1L2, VAL1L2, and VCNT linetypes introduced in the MET 12.0.0 beta4 dev cycle** (`#517 <https://github.com/dtcenter/METviewer/issues/517>`_)
+       
+  .. dropdown:: Bugfixes
+
+     None
+		
+  .. dropdown:: Internal
+
+     * **METviewer: Add a unique identifier in order to distinguish itself from other application logs** (`METplus-Internal#29 <https://github.com/dtcenter/METplus-internal/issues/29>`_)
+     * METviewer: Adjust SonarQube for “false positive” METviewer vulnerabilities (`METplus-Internal#60 <https://github.com/dtcenter/METplus-internal/issues/60>`_)  
+     * Add testing.yaml testing workflow (`#539 <https://github.com/dtcenter/METviewer/issues/539>`_)   
+
+
 Version `v6.0.0-beta5 <https://github.com/dtcenter/METviewer>`_ release notes (20240710)
 ----------------------------------------------------------------------------------------
 
 
   .. dropdown:: New Features
 
-     * Add GitHub action to run SonarQube for METviewer pull requests and feature branches(`#521 <https://github.com/dtcenter/METviewer/issues/521>`_)
+     * Add GitHub action to run SonarQube for METviewer pull requests and feature branches (`#521 <https://github.com/dtcenter/METviewer/issues/521>`_)
 
 
   .. dropdown::  Enhancements
