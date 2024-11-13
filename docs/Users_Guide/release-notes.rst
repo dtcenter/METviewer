@@ -10,7 +10,7 @@ describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
 Version `v6.0.0-rc1 <https://github.com/dtcenter/METviewer>`_ release notes (20241113)
-----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 
   .. dropdown:: New Features
 
