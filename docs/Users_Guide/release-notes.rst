@@ -68,7 +68,7 @@ Version `v6.0.0 <https://github.com/dtcenter/METviewer>`_ release notes (2024121
      * Record the username of the user associated with the batch/scorecard run (`#22 <https://github.com/dtcenter/METplus-Internal/issues/22>`_)
      * The user ID will be added to the log files (`#48 <https://github.com/dtcenter/METplus-Internal/issues/48>`_)
      * Record a time stamp indicating when the event occurred  (`#11 <https://github.com/dtcenter/METplus-Internal/issues/11>`_)
-     * Testing the bug fix in MEtplotpy
+     * Testing the bug fix in METplotpy
      * Change the version number for scipy to 1.11.1
      * New testing procedure (`#391 <https://github.com/dtcenter/METviewer/issues/391>`_)
      * Rename METdatadb to METdataio (`#406 <https://github.com/dtcenter/METviewer/issues/406>`_)
