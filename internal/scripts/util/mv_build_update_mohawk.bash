@@ -24,7 +24,7 @@ echo" appropriate changes made to the metviewer1.jsp file with updated version n
 echo "=======================================================================================" 
 
 
-# Build the war file using the ant on /d1/mwin/apache-ant-1.10.14/bin/ant
+# Build the war file using the ant on /d2/personal/mwin/apache-ant-1.10.14/bin/ant
 echo "======================================================================="
 echo "Building the war file..."
 echo "======================================================================="
