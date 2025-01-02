@@ -49,4 +49,5 @@ echo "======================================================================="
 echo "Now restarting catalina... !!!YOU NEED TO PROVIDE THE PASSWORD!!!"
 echo "======================================================================="
 echo ""
+/opt/vxwww/tomcat/bin/startup.sh
 
