@@ -317,6 +317,11 @@ system folders.
                 **<title>:** title of the scorecard displayed on the
 		image. Default value: Verification Scorecard
 
+Threshold File
+==============
+
+Add content here
+
 Example
 =======
 
