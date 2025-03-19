@@ -317,6 +317,29 @@ system folders.
                 **<title>:** title of the scorecard displayed on the
 		image. Default value: Verification Scorecard
 
+**Threshold File**
+
+The **<threshold_file>** defines various parameters for symbol representation and p-value range filtering.
+
+           .. literalinclude:: ../_static/xml/threshold_file.xml
+              :language: XML
+
+           **<symbol>:** The Unicode decimal code of the desired symbol.
+
+           **<color>:** The desired hex color for the symbol.
+
+           **<background>:** The desired hex color for the background of the cell.
+
+           **<lower_limit>:** The lower limit of the range of p-values to include.
+
+           **<upper_limit>:** The upper limit of the range of p-values to include.
+
+           **<include_lower_limit>:** **TRUE** or **FALSE**, indicating whether or not to include the lower limit in the range.
+
+           **<include_upper_limit>:** **TRUE** or **FALSE**, indicating whether or not to include the upper limit in the range.
+
+           **<format_string>:** The text to include in the legend for the specific range.
+
 Example
 =======
 
