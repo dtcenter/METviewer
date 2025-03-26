@@ -1,5 +1,5 @@
 ARG MET_BASE_REPO=met-base-metviewer
-ARG MET_BASE_TAG=v3.3
+ARG MET_BASE_TAG=v3.4
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
 MAINTAINER John Halley Gotway <johnhg@ucar.edu>
@@ -23,8 +23,8 @@ RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
       exit 1; \
     fi 
 
-ENV METVIEWER_GIT_URL https://github.com/dtcenter/METviewer
-ENV CATALINA_HOME /opt/tomcat
+ENV METVIEWER_GIT_URL=https://github.com/dtcenter/METviewer
+ENV CATALINA_HOME=/opt/tomcat
 
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
@@ -34,8 +34,8 @@ RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
 #
 # Set env vars
 #
-ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
-ENV METPLOTPY_BASE "/METviewer-python/METplotpy/"
+ENV PYTHONPATH="${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
+ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
 
 #
 # Update the OS, as needed
