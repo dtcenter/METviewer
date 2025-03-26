@@ -2,7 +2,7 @@ ARG MET_BASE_REPO=met-base-metviewer
 ARG MET_BASE_TAG=v3.4
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
-MAINTAINER John Halley Gotway <johnhg@ucar.edu>
+LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 
 #
 # This Dockerfile checks out METviewer and its dependencies from GitHub and builds
@@ -10,7 +10,7 @@ MAINTAINER John Halley Gotway <johnhg@ucar.edu>
 # but override with "--build-arg".
 #
 
-ARG METVIEWER_GIT_NAME
+ARG METVIEWER_GIT_NAME=feature_565_update_python
 ARG METPLOTPY_GIT_NAME=develop
 ARG METCALCPY_GIT_NAME=develop
 ARG METDATAIO_GIT_NAME=develop
@@ -34,7 +34,7 @@ RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
 #
 # Set env vars
 #
-ENV PYTHONPATH="${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
+ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
 
 #
