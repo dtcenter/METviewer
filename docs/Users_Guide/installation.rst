@@ -132,6 +132,7 @@ Configure and Build METviewer
 
 #. Configure the batch and loading tools:
 
+
    * Edit *METviewer/bin/mv_batch.sh*:
 
         * Set the variable **PYTHON_ENV** to point at the Python environment
@@ -148,6 +149,8 @@ Configure and Build METviewer
 
         * Set the variable **PYTHON_ENV** to point at the Python environment
         * Set the variable **METCALCPY_HOME** to point to METcalc directory
+
+   * Verify that the above files have the appropriate execute permissions for the appropriate users.
 
    * Create a custom property file by copying
      *METviewer/webapp/metviewer/WEB-INF/classes/build.properties*
