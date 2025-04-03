@@ -4,19 +4,20 @@ ARG MET_BASE_TAG=v3.4
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
 LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 
+
 #
 # This Dockerfile checks out METviewer and its dependencies from GitHub and builds
 # the specified branch or tag. Use the develop branches for dependencies by default
 # but override with "--build-arg".
 #
 
-ARG METVIEWER_GIT_NAME=feature_565_update_python
 ARG METPLOTPY_GIT_NAME=develop
 ARG METCALCPY_GIT_NAME=develop
 ARG METDATAIO_GIT_NAME=develop
 
 #
 # METVIEWER_GIT_NAME is required.
+ARG METVIEWER_GIT_NAME=feature_565_update_python
 #
 RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
       echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
@@ -72,5 +73,9 @@ RUN echo "Configuring METviewer" \
 RUN cd /METviewer \
  && internal/scripts/docker/build_metviewer_docker.sh
 
+# Explicitly specify the shell to indicate that using the SHELL
+# instruction is a conscious decision: 
+# https://docs.docker.com/reference/build-checks/json-args-recommended/
+SHELL ["/bin/sh", "-c"]
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
