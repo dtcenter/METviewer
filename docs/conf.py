@@ -21,11 +21,11 @@ project = 'METviewer'
 author = 'UCAR/NCAR'
 
 author_list = "Jensen, T., I. Srivastava, M. Win-Gildenmeister, L. Goodrich, J. Prestopnik, L. Blank, T. Fowler, and T. Burek"
-version = "6.1.0-beta2-dev"
+version = "6.1.0-beta2"
 verinfo = version
 release = f'{version}'
 release_year = '2025'
-release_date = f'{release_year}-01-23'
+release_date = f'{release_year}-04-04'
 copyright = f'{release_year}, {author}'
 
 
