@@ -52,76 +52,86 @@ install the latest version. Install required R packages:
  * verification
  * gsl
 
+**Download necessary code**
 
-**Python**: install Python 3.10.4. Create an environment
-(METviewer_py3.10.4) and install required packages:
+Download the appropriate versions of METviewer, METdataio, METcalcpy, and METplotpy based on the
+recommendations listed here:
+https://dtcenter.org/community-code/metplus/download
 
-* Python 3.10.4
-* matplotlib==3.5.2
-* scipy==1.8.1
-* plotly==5.9.0
-* xarray==2022.3.0
-* pyyaml==6.0
-* kaleido==0.2.1
-* pint==0.19.2
-* metpy==1.3.1
-* pandas==1.5.1
-* attrs==22.1.0
-* exceptiongroup==1.0.4
-* iniconfig==1.1.1
-* lxml==4.9.1
-* packaging==22.0
-* pluggy==1.0.0
-* PyMySQL==1.0.2
-* pytz==2022.6
-* setuptools==65.5.1
-* six==1.16.0
-* tomli==2.0.1
-* wheel==0.38.1
-* numpy==1.22.0
-* netcdf4==1.6.2
-* pytest==7.2.0
-* python-dateutil==2.8.2
-* imageio==2.19.3
-* imutils==0.5.4
-* scikit-image==0.19.3
-* opencv-python
+Or download the code via the command line:
 
-
-
-
-**METviewer v5.1** -
+**METviewer** -
 clone   `METviewer repository <https://github.com/dtcenter/METviewer>`_
 
    .. code-block:: none
 
      git clone https://github.com/dtcenter/METviewer.git
 
-**METcalcpy v2.1** -
+     cd to directory where METviewer was saved and perform 
+
+     git checkout version 
+
+
+where *version* corresponds to the appropriate version, i.e. main_v6.0, develop, etc. as specified in the link
+https://dtcenter.org/community-code/metplus/download
+
+**METcalcpy** -
 clone   `METcalcpy repository <https://github.com/dtcenter/METcalcpy>`_
 
    .. code-block:: none
 
      git clone https://github.com/dtcenter/METcalcpy.git
 
-**METplotpy v2.1** -
+     cd to directory where METcalcpy was saved and perform
+
+     git checkout version
+
+
+where *version* corresponds to the appropriate version, i.e. main_v3.0, develop, etc. as specified in the link
+https://dtcenter.org/community-code/metplus/download
+
+**METplotpy** -
 clone   `METplotpy repository <https://github.com/dtcenter/METplotpy>`_
 
    .. code-block:: none
 
      git clone https://github.com/dtcenter/METplotpy.git
+    cd to directory where METplotpy was saved and perform
 
-**METdataio v2.1** -
+     git checkout version
+
+
+where *version* corresponds to the appropriate version, i.e. main_v3.0, develop, etc. as specified in the link
+https://dtcenter.org/community-code/metplus/download
+
+
+**METdataio** -
 clone   `METdataio repository <https://github.com/dtcenter/METdataio>`_
 
    .. code-block:: none
 
      git clone https://github.com/dtcenter/METdataio.git
 
+    cd to directory where METdataio was saved and perform
+
+     git checkout version
+
+
+where *version* corresponds to the appropriate version, i.e. main_v3.0, develop, etc. as specified in the link
+https://dtcenter.org/community-code/metplus/download
+
+
+
+**Python**: install Python 3.12.9. Create an environment
+(METviewer_py3.12.9) and install required packages based on the
+met_plus_requirements.txt or nco_requirements.txt (for NCO/NOAA users):
+https://github.com/dtcenter/METviewer/
+
 Configure and Build METviewer
 -----------------------------
 
 #. Configure the batch and loading tools:
+
 
    * Edit *METviewer/bin/mv_batch.sh*:
 
@@ -139,6 +149,8 @@ Configure and Build METviewer
 
         * Set the variable **PYTHON_ENV** to point at the Python environment
         * Set the variable **METCALCPY_HOME** to point to METcalc directory
+
+   * Verify that the above files have the appropriate execute permissions for the appropriate users.
 
    * Create a custom property file by copying
      *METviewer/webapp/metviewer/WEB-INF/classes/build.properties*
