@@ -186,11 +186,11 @@ Configure and Build METviewer
 
    * Build METviewer and the web application. ``Replace the parameters
      values in the Ant command to what is appropriate for the user's
-     setup``:
+     setup (i.e. Python version number in -Dpython.env.path=METviewer_pyx.y.z``:
 
    .. code-block:: none
 
-        cd MRTviewer
+        cd METviewer
         ant -Dbuild.properties.file=METviewer/build.properties \
         -Ddb.management.system=mariadb -Dmetcalcpy.path=METcalcpy/ -Dmetplotpy.path=METplotpy/ \
         -Dmetdataio.path=METdataio/ \
