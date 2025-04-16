@@ -17,7 +17,7 @@ ARG METDATAIO_GIT_NAME=develop
 
 #
 # METVIEWER_GIT_NAME is required.
-ARG METVIEWER_GIT_NAME=feature_565_update_python
+ARG METVIEWER_GIT_NAME=develop
 #
 RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
       echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
