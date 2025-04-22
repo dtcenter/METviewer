@@ -10,7 +10,6 @@ services:
 
       environment:
           MYSQL_ROOT_PASSWORD: mvuser
-      platform: linux/arm64/v8
       tty: true
   #
   metviewer:
