@@ -105,7 +105,7 @@ the **<load_val>** tag structure.
 |
 |                **<date_list>:** Specifies a previously declared **<date_list>** element, using the name attribute, which represents a list of dates in a particular format.
 |                
-|        **<line_type>:** A list structure containing the MET output file line types to load. If omitted, all line types are loaded.
+|**<line_type>:** A list structure containing the MET output file line types to load. If omitted, all line types are loaded.
 | 
 |                **<val>:** Contains a single MET output file line type to be loaded, for example, CNT.
 | 
