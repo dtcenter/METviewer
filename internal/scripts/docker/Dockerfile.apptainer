@@ -1,8 +1,8 @@
 ARG MET_BASE_REPO=met-base-metviewer
-ARG MET_BASE_TAG=v3.3
+ARG MET_BASE_TAG=v3.4
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
-MAINTAINER John Halley Gotway <johnhg@ucar.edu>
+LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 
 #
 # This Dockerfile checks out METviewer and its dependencies from GitHub and builds
@@ -10,21 +10,21 @@ MAINTAINER John Halley Gotway <johnhg@ucar.edu>
 # but override with "--build-arg".
 #
 
-ARG METVIEWER_GIT_NAME
 ARG METPLOTPY_GIT_NAME=develop
 ARG METCALCPY_GIT_NAME=develop
 ARG METDATAIO_GIT_NAME=develop
 
-#
 # METVIEWER_GIT_NAME is required.
-#
+
+ARG METVIEWER_GIT_NAME
+
 RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
       echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
       exit 1; \
     fi 
 
-ENV METVIEWER_GIT_URL https://github.com/dtcenter/METviewer
-ENV CATALINA_HOME /opt/tomcat
+ENV METVIEWER_GIT_URL=https://github.com/dtcenter/METviewer
+ENV CATALINA_HOME=/opt/tomcat
 
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
@@ -34,8 +34,8 @@ RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
 #
 # Set env vars
 #
-ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
-ENV METPLOTPY_BASE "/METviewer-python/METplotpy/"
+ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
+ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
 
 #
 # Run as root
@@ -44,26 +44,18 @@ USER root
 
 #
 # Update the OS, as needed
-#
-RUN apt update && apt -y upgrade
-
-#
 # Install additional packages for MariaDB server
-#
-RUN apt -y install mariadb-server bind9-utils pwgen psmisc hostname
-
-#
 # Clone the METviewer repository
-#
-RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}"
-RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer
-
-#
 # Configure METviewer
+# Run the build script
 #
-RUN echo "Configuring METviewer" \
- && cd /METviewer \
- && cat webapp/metviewer/WEB-INF/classes/build.properties | \
+RUN apt update && apt -y upgrade \
+ && apt -y install bind9-utils hostname mariadb-server psmisc pwgen && apt clean \
+ && echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}" &&\
+    git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
+ && echo "Configuring METviewer" \
+ && cd /METviewer &&\
+    cat webapp/metviewer/WEB-INF/classes/build.properties | \
     sed -r 's%db.host=.*%db.host=localhost%g' | \
     sed -r 's%db.user=.*%db.user=root%g' | \
     sed -r 's%db.password=.*%db.password=mvuser%g' | \
@@ -74,20 +66,16 @@ RUN echo "Configuring METviewer" \
     sed -r 's%python.env=.*%python.env=/usr/%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
-    > build.properties
-
-#
-# Run the build script
-#
-RUN cd /METviewer \
- && internal/scripts/docker/build_metviewer_docker.sh
+    > build.properties \
+ && cd /METviewer &&\
+    internal/scripts/docker/build_metviewer_docker.sh
 
 #
 # Fix permissions to allow for running on openshift
 #
 COPY fix-permissions.sh ./
-RUN chmod 777 ./fix-permissions.sh
-RUN ./fix-permissions.sh /var/lib/mysql/ \
+RUN chmod 777 ./fix-permissions.sh \
+ && ./fix-permissions.sh /var/lib/mysql/ \
  && ./fix-permissions.sh /var/log/mariadb/ \
  && ./fix-permissions.sh /var/run/
 
