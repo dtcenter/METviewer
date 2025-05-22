@@ -11,7 +11,7 @@ https://github.com/dtcenter/METviewer/issues
 
 
 Version `v6.1.0 rc1 <https://github.com/dtcenter/METviewer>`_ Release Notes (20250522)
-----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 
 
   .. dropdown:: New Features
@@ -21,11 +21,11 @@ Version `v6.1.0 rc1 <https://github.com/dtcenter/METviewer>`_ Release Notes (202
 
   .. dropdown::  Enhancements
 
-  * Update Dockerfile for Apptainer to use MET base 3.4/Python 3.12 (`#576 <https://github.com/dtcenter/METviewer/issues/576>`_)
+     * Update Dockerfile for Apptainer to use MET base 3.4/Python 3.12 (`#576 <https://github.com/dtcenter/METviewer/issues/576>`_)
 
   .. dropdown:: Bugfixes
 
-   * Bugfix: Update Docker files to allow METviewer to run in METplus use case tests (`#574 <https://github.com/dtcenter/METviewer/issues/574>`_)
+     * Bugfix: Update Docker files to allow METviewer to run in METplus use case tests (`#574 <https://github.com/dtcenter/METviewer/issues/574>`_)
 
 
   .. dropdown:: Documentation
