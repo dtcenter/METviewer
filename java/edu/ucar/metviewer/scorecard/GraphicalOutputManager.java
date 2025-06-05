@@ -951,27 +951,23 @@ class GraphicalOutputManager {
         row.put(headers[i], values[i]);
       } else {
         row.put("derived_stat", values[i].split("\\(")[0]);
-        // retrieve model names
 
         // verify that there is ony one '-' character. If there is more - create a warning
         int count = StringUtils.countMatches(values[i], "-");
         if (count > 1){
-          logger.error("WARNING: one of the fields contains '-'. The scorecard could be invalid!!!!! ");
+          logger.info("Info: a model name contains 1 or more '-'. Replacing '-' with '_'. ");
         }
-        String truncated = values[i].replace("DIFF_SIG(", "").replace(")", "").replace("-", " ");
-        String[] truncatedArr = truncated.split(" ");
-        String model1 = null;
-        String model2 = null;
-        for (String st : truncatedArr) {
-          if (this.models.contains(st)) {
-            if (model1 == null) {
-              model1 = st;
-            } else {
-              model2 = st;
-              break;
-            }
-          }
-        }
+
+        String truncated = values[i].replace("DIFF_SIG(", "").replace(")", "");
+		ArrayList<String> parts = new ArrayList<>(Arrays.asList(truncated.split(" ")));
+		String firstModel = parts.get(1);
+		String secondModel = parts.get(5);
+		String regex = "(-)+";
+		parts.set(1, firstModel.replaceAll(regex, "_"));
+		parts.set(5, secondModel.replaceAll(regex, "_"));
+        String model1 = parts.get(1);
+		String model2 = parts.get(5);
+
         row.put("model1", model1);
         row.put("model2", model2);
       }
