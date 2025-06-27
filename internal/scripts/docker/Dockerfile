@@ -1,5 +1,5 @@
 ARG MET_BASE_REPO=met-base-metviewer
-ARG MET_BASE_TAG=v3.4
+ARG MET_BASE_TAG=v3.4_patch_20250627
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
 LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
