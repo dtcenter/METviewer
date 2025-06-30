@@ -133,7 +133,7 @@
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
-        <pathelement location="${lib}/snakeyaml-1.27.jar"/>
+        <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="mysql-all">
@@ -156,7 +156,7 @@
         <pathelement location="${lib}/commons-lang3-3.11.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/snakeyaml-1.27.jar"/>
+        <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="mariadb">
@@ -177,7 +177,7 @@
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
-        <pathelement location="${lib}/snakeyaml-1.27.jar"/>
+        <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="mariadb-all">
@@ -200,7 +200,7 @@
         <pathelement location="${lib}/commons-lang3-3.11.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/snakeyaml-1.27.jar"/>
+        <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="aurora">
@@ -221,7 +221,7 @@
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
-        <pathelement location="${lib}/snakeyaml-1.27.jar"/>
+        <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="aurora-all">
@@ -244,7 +244,7 @@
         <pathelement location="${lib}/commons-lang3-3.11.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/snakeyaml-1.27.jar"/>
+        <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="classpath.test">
