@@ -2,7 +2,7 @@ ARG MET_BASE_REPO=met-base-metviewer
 ARG MET_BASE_TAG=v3.3
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
-MAINTAINER John Halley Gotway <johnhg@ucar.edu>
+LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>" 
 
 #
 # This Dockerfile checks out METviewer and its dependencies from GitHub and builds
@@ -10,10 +10,11 @@ MAINTAINER John Halley Gotway <johnhg@ucar.edu>
 # but override with "--build-arg".
 #
 
-ARG METVIEWER_GIT_NAME
-ARG METPLOTPY_GIT_NAME=develop
-ARG METCALCPY_GIT_NAME=develop
-ARG METDATAIO_GIT_NAME=develop
+ARG METVIEWER_GIT_NAME=feature_585_update_jars
+ARG METPLOTPY_GIT_NAME=main_v3.0
+ARG METCALCPY_GIT_NAME=main_v3.0
+ARG METDATAIO_GIT_NAME=main_v3.0
+
 
 #
 # METVIEWER_GIT_NAME is required.
@@ -23,8 +24,8 @@ RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
       exit 1; \
     fi 
 
-ENV METVIEWER_GIT_URL https://github.com/dtcenter/METviewer
-ENV CATALINA_HOME /opt/tomcat
+ENV METVIEWER_GIT_URL=https://github.com/dtcenter/METviewer
+ENV CATALINA_HOME=/opt/tomcat
 
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
@@ -34,8 +35,8 @@ RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
 #
 # Set env vars
 #
-ENV PYTHONPATH "${PYTHONPATH}:/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
-ENV METPLOTPY_BASE "/METviewer-python/METplotpy/"
+ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
+ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
 
 #
 # Update the OS, as needed
@@ -61,10 +62,16 @@ RUN echo "Configuring METviewer" \
     sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
     sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
     sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
-    sed -r 's%python.env=.*%python.env=/usr/%g' | \
+    sed -r 's%python.env=.*%python.env=/usr/local/%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
     > build.properties
+
+#
+#  Ensure compatible versions of numpy and pandas are installed
+#
+RUN python3 -m pip install --upgrade pip
+RUN pip install numpy==1.24.2 pandas==1.5.2
 
 #
 # Run the build script
@@ -72,5 +79,6 @@ RUN echo "Configuring METviewer" \
 RUN cd /METviewer \
  && internal/scripts/docker/build_metviewer_docker.sh
 
+SHELL ["/bin/sh", "-c"]
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
