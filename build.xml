@@ -47,13 +47,13 @@
         e.g -Dmetdataio.path=/d1/python/METdataio/
 
         use -Dpython.env.path to define a path to METplotpy directory.
-        e.g -Dpython.env.path=/d1/python/METviewer_py3.6.3/
+        e.g -Dpython.env.path=/d1/python/METviewer_py3.10.4/
 
     example build command...
     ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/build-model-vxtest.properties \
          -Dlog4j2.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/build-model-vxtest.log4j2.xml \
          -Ddb.management.system=mariadb -Dmetcalcpy.path=/d1/python/METcalcpy/ -Dmetplotpy.path=/d1/python/METplotpy/\
-         -Dmetdataio.path=/d1/python/METdataio/ -Dpython.env.path=/d1/python/METviewer_py3.6.3/ -Dcontext.path.suffix="-mariadb" clean all
+         -Dmetdataio.path=/d1/python/METdataio/ -Dpython.env.path=/d1/python/METviewer_py3.10.4/ -Dcontext.path.suffix="-mariadb" clean all
 
     will produce a war file .war with jar files appropriate for mariadb and the properties from the
     $HOME/METViewer/webapp/metviewer/WEB-INF/classes/build-model-vxtest.properties file, and a tar file
@@ -126,14 +126,14 @@
         <pathelement location="${lib}/javax.servlet-api-4.0.1.jar"/>
         <pathelement location="${lib}/commons-fileupload-1.4.jar"/>
         <pathelement location="${lib}/commons-io-2.8.0.jar"/>
+        <pathelement location="${lib}/guava-33.4.8.jar"/>
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
         <pathelement location="${lib}/jackson-core-2.12.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.12.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.11.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
-        <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
-        <pathelement location="${lib}/snakeyaml-1.27.jar"/>
+        <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="mysql-all">
