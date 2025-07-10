@@ -1,7 +1,6 @@
-version: "3.0"
 services:
   db:
-      image: mysql:5.7
+      image: mariadb:10.5.8
       container_name: mysql_mv
       user: "mysql:mysql"
       ports:
