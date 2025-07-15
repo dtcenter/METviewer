@@ -15,6 +15,7 @@ fi
 CMD_LOGFILE=${GITHUB_WORKSPACE}/docker_build.log
 
 time_command docker build -t ${DOCKERHUB_TAG} \
+    --build-arg METVIEWER_GIT_NAME=${SOURCE_BRANCH} \
     --build-arg SOURCE_BRANCH \
     --build-arg MET_BASE_REPO \
     --build-arg MET_BASE_TAG \
