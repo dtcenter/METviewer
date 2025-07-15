@@ -10,20 +10,23 @@ MAINTAINER John Halley Gotway <johnhg@ucar.edu>
 # but override with "--build-arg".
 #
 
-ARG METVIEWER_GIT_NAME
-ARG METPLOTPY_GIT_NAME=develop
-ARG METCALCPY_GIT_NAME=develop
-ARG METDATAIO_GIT_NAME=develop
+ARG SOURCE_BRANCH
+ENV METPLOTPY_GIT_NAME=develop
+ENV METCALCPY_GIT_NAME=develop
+ENV METDATAIO_GIT_NAME=develop
 
 #
-# METVIEWER_GIT_NAME is required.
+# SOURCE_BRANCH is required to define the local METviewer repository branch name.
 #
-RUN if [ "x${METVIEWER_GIT_NAME}" = "x" ]; then \
-      echo "ERROR: METVIEWER_GIT_NAME undefined! Rebuild with \"--build-arg METVIEWER_GIT_NAME={branch, tag, or hash}\""; \
+RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
+      echo "ERROR: SOURCE_BRANCH undefined! Rebuild with \"--build-arg SOURCE_BRANCH={branch name}\""; \
       exit 1; \
-    fi 
+    else \
+      echo "Build Argument SOURCE_BRANCH=${SOURCE_BRANCH}"; \
+    fi
 
 ENV METVIEWER_GIT_URL https://github.com/dtcenter/METviewer
+ENV METVIEWER_GIT_NAME ${SOURCE_BRANCH}
 ENV CATALINA_HOME /opt/tomcat
 
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
