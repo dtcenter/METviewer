@@ -10,12 +10,15 @@ LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 # the specified branch or tag. Use the develop branches for dependencies by default
 # but override with "--build-arg".
 #
+
 ARG SOURCE_BRANCH
-ARG METPLOTPY_GIT_NAME=develop
-ARG METCALCPY_GIT_NAME=develop
-ARG METDATAIO_GIT_NAME=develop
+ARG METPLOTPY_GIT_NAME=main_v3.1
+ARG METCALCPY_GIT_NAME=main_v3.1
+ARG METDATAIO_GIT_NAME=main_v3.1
 
 #
+# METVIEWER_GIT_NAME is required.
+ARG METVIEWER_GIT_NAME=main_v3.1
 # SOURCE_BRANCH is required.
 #
 RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
@@ -64,7 +67,7 @@ RUN echo "Configuring METviewer" \
     sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
     sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
     sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \
-    sed -r 's%python.env=.*%python.env=/usr/%g' | \
+    sed -r 's%python.env=.*%python.env=/usr/local%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
     > build.properties
@@ -81,3 +84,40 @@ RUN cd /METviewer \
 SHELL ["/bin/sh", "-c"]
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
+
+
+#
+# Get Chrome
+#
+
+#--------
+# From stack overflow https://stackoverflow.com/questions/70955307/how-to-install-google-chrome-in-a-docker-container
+# updated from August 2024
+
+# install wget
+RUN apt -f install -y
+RUN apt update
+RUN apt install -y wget
+
+# Install Chrome
+RUN wget -q  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN apt install -y ./google-chrome-stable_current_amd64.deb
+
+RUN ls -la /usr/bin/google-chrome* && \
+      google-chrome --version
+
+# Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy 
+ENV PRE_LOAD_CHROME='False'
+RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
+
+#  end Stack Overflow https://stackoverflow.com/questions/70955307/how-to-install-google-chrome-in-a-docker-container
+#-------
+
+# Install 3rd-party Python packages
+# based on requirements.txt file
+COPY /met_out/requirements.txt .
+RUN pip install -r requirements.txt
+RUN pip install PLOTLY==6.1.1
+RUN pip install kaleido==1.0.0
+COPY . .
+
