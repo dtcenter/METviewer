@@ -19,9 +19,8 @@ sys.path.insert(0, os.path.abspath('.'))
 
 project = 'METviewer'
 author = 'UCAR/NCAR'
-
 author_list = "Jensen, T., I. Srivastava, M. Win-Gildenmeister, L. Goodrich, J. Prestopnik, L. Blank, T. Fowler, and T. Burek"
-version = "6.1.0-rc1"
+version = "6.2.0-rc1-dev"
 verinfo = version
 release = f'{version}'
 release_year = '2025'
@@ -50,6 +49,10 @@ suppress_warnings = ['ref.citation']
 
 
 # -- Options for HTML output -------------------------------------------------
+# Add any paths that contain custom static files (such as style sheets) here,
+# relative to this directory. They are copied after the builtin static files,
+# so a file named "default.css" will overwrite the builtin "default.css".
+html_static_path = ['_static']
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
