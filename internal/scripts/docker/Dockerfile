@@ -11,7 +11,7 @@ LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 # but override with "--build-arg".
 #
 
-ARG SOURCE_BRANCH=feature_585_update_jars
+ARG SOURCE_BRANCH=main_v6.0
 ARG METPLOTPY_GIT_NAME=main_v3.0
 ARG METCALCPY_GIT_NAME=main_v3.0
 ARG METDATAIO_GIT_NAME=main_v3.0
@@ -21,6 +21,7 @@ ARG METDATAIO_GIT_NAME=main_v3.0
 #
 RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
       echo "ERROR: SOURCE_BRANCH undefined! Rebuild with \"--build-arg SOURCE_BRANCH={branch, tag, or hash}\""; \
+
       exit 1; \
     else \
       echo "Build Argument SOURCE_BRANCH=${SOURCE_BRANCH}"; \
@@ -29,6 +30,7 @@ RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
 ENV METVIEWER_GIT_URL=https://github.com/dtcenter/METviewer
 ENV METVIEWER_GIT_NAME=${SOURCE_BRANCH}
 ENV CATALINA_HOME=/opt/tomcat
+
 
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
