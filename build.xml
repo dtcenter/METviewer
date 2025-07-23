@@ -47,7 +47,7 @@
         e.g -Dmetdataio.path=/d1/python/METdataio/
 
         use -Dpython.env.path to define a path to METplotpy directory.
-        e.g -Dpython.env.path=/d1/python/METviewer_py3.10.4/
+        e.g -Dpython.env.path=/d1/python/METviewer_py3.10.18/
 
     example build command...
     ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/build-model-vxtest.properties \
