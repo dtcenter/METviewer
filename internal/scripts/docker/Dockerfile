@@ -10,14 +10,14 @@ LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 # the specified branch or tag. Use the develop branches for dependencies by default
 # but override with "--build-arg".
 #
-
-ARG SOURCE_BRANCH=main_v6.1
-ARG METPLOTPY_GIT_NAME=main_v3.1
-ARG METCALCPY_GIT_NAME=main_v3.1
-ARG METDATAIO_GIT_NAME=main_v3.1
+# METVIEWER_GIT_NAME is required.
+=======
+ARG SOURCE_BRANCH=develop
+ARG METPLOTPY_GIT_NAME=develop
+ARG METCALCPY_GIT_NAME=develop
+ARG METDATAIO_GIT_NAME=develop
 
 #
-# METVIEWER_GIT_NAME is required.
 # SOURCE_BRANCH is required.
 #
 RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
