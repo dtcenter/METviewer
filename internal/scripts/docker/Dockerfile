@@ -101,7 +101,7 @@ RUN ls -la /usr/bin/google-chrome* && \
       google-chrome --version
 
 # Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy 
-ENV PRE_LOAD_CHROME='False'
+ENV PRE_LOAD_CHROME='True'
 RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
 
 
