@@ -104,15 +104,16 @@ the **<load_val>** tag structure.
 |                **<val>:** A single template value which will slot into the template in the value specified by the parent field's name.
 |
 |                **<date_list>:** Specifies a previously declared **<date_list>** element, using the name attribute, which represents a list of dates in a particular format.
-|                
-|        **<line_type>:** A list structure containing the MET output file line types to load. If omitted, all line types are loaded.
-| 
-|                **<val>:** Contains a single MET output file line type to be loaded, for example, CNT.
-| 
-| **<load_note>:** If present, creates a record in the instance_info database database table with a note containing the body of this tag
-| 
-| **<load_xml>:   TRUE** or **FALSE**, this option indicates whether or not to save the load xml; only effective if **<load_note>** is present - default: TRUE
-| 
+
+            
+**<line_type>:** A list structure containing the MET output file line types to load. If omitted, all line types are loaded.
+ 
+                **<val>:** Contains a single MET output file line type to be loaded, for example, CNT.
+ 
+**<load_note>:** If present, creates a record in the instance_info database database table with a note containing the body of this tag
+ 
+**<load_xml>:   TRUE** or **FALSE**, this option indicates whether or not to save the load xml; only effective if **<load_note>** is present - default: TRUE
+ 
 
 **Note**
 

@@ -137,7 +137,7 @@ To cite this documentation in publications, please refer to the METviewer User's
    METplus Tutorial <https://metplus-training.readthedocs.io/en/latest/Tutorial/index.html>
    Training Series <https://metplus-training.readthedocs.io/en/latest/Training_Series/index.html>
    Featured Topics <https://metplus-training.readthedocs.io/en/latest/Featured_Topics/index.html>
-
+             
 .. toctree::
    :hidden:
    :caption: METplus
@@ -188,7 +188,7 @@ To cite this documentation in publications, please refer to the METviewer User's
    User's Guide <https://metplus.readthedocs.io/projects/metdataio/en/latest/Users_Guide/index.html>
    Contributor's Guide <https://metplus.readthedocs.io/projects/metdataio/en/latest/Contributors_Guide/index.html>
 
-
+   
 Index
 =====
 

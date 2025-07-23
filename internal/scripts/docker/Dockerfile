@@ -1,5 +1,5 @@
 ARG MET_BASE_REPO=met-base-metviewer
-ARG MET_BASE_TAG=v3.3.1
+ARG MET_BASE_TAG=v3.4.1
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
 LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
@@ -11,17 +11,17 @@ LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 # but override with "--build-arg".
 #
 
-ARG SOURCE_BRANCH=main_v6.0
-ARG METPLOTPY_GIT_NAME=main_v3.0
-ARG METCALCPY_GIT_NAME=main_v3.0
-ARG METDATAIO_GIT_NAME=main_v3.0
+ARG SOURCE_BRANCH=main_v6.1
+ARG METPLOTPY_GIT_NAME=main_v3.1
+ARG METCALCPY_GIT_NAME=main_v3.1
+ARG METDATAIO_GIT_NAME=main_v3.1
 
 #
+# METVIEWER_GIT_NAME is required.
 # SOURCE_BRANCH is required.
 #
 RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
       echo "ERROR: SOURCE_BRANCH undefined! Rebuild with \"--build-arg SOURCE_BRANCH={branch, tag, or hash}\""; \
-
       exit 1; \
     else \
       echo "Build Argument SOURCE_BRANCH=${SOURCE_BRANCH}"; \
@@ -30,7 +30,6 @@ RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
 ENV METVIEWER_GIT_URL=https://github.com/dtcenter/METviewer
 ENV METVIEWER_GIT_NAME=${SOURCE_BRANCH}
 ENV CATALINA_HOME=/opt/tomcat
-
 
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
@@ -96,7 +95,6 @@ RUN apt-get install -y wget
 # Install Chrome
 RUN wget -q  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
-
 RUN ls -la /usr/bin/google-chrome* && \
       google-chrome --version
 
@@ -104,13 +102,9 @@ RUN ls -la /usr/bin/google-chrome* && \
 ENV PRE_LOAD_CHROME='True'
 RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
 
-
-# Ensure correct Plotly and kaleido are installed
-# based on requirements.txt file
-# Force numpy to 1.24.2, base image uses 2.2.6 which results in ValueError:
-# numpy.dtype size changed error. Compatible pandas version is 1.5.2
+# Ensure correct Plotly and kaleido versions are installed
 RUN python -m pip install PLOTLY==6.1.1
 RUN python -m pip install kaleido==1.0.0
-RUN python -m pip install numpy==1.24.2 pandas==1.5.2
+RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
 COPY . .
 
