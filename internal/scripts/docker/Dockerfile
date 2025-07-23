@@ -11,14 +11,12 @@ LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 # but override with "--build-arg".
 #
 
-ARG SOURCE_BRANCH
+ARG SOURCE_BRANCH=develop
 ARG METPLOTPY_GIT_NAME=develop
 ARG METCALCPY_GIT_NAME=develop
 ARG METDATAIO_GIT_NAME=develop
 
 #
-# METVIEWER_GIT_NAME is required.
-ARG METVIEWER_GIT_NAME=develop
 # SOURCE_BRANCH is required.
 #
 RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
