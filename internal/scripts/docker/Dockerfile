@@ -12,10 +12,11 @@ LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 #
 
 ARG SOURCE_BRANCH=feature_585_update_jars
-ARG METPLOTPY_GIT_NAME=v3.0
+ARG METPLOTPY_GIT_NAME=main_v3.0
 ARG METCALCPY_GIT_NAME=main_v3.0
 ARG METDATAIO_GIT_NAME=main_v3.0
 
+#
 # SOURCE_BRANCH is required.
 #
 RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
