@@ -53,7 +53,7 @@
     ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/build-model-vxtest.properties \
          -Dlog4j2.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/build-model-vxtest.log4j2.xml \
          -Ddb.management.system=mariadb -Dmetcalcpy.path=/d1/python/METcalcpy/ -Dmetplotpy.path=/d1/python/METplotpy/\
-         -Dmetdataio.path=/d1/python/METdataio/ -Dpython.env.path=/d1/python/METviewer_py3.10.4/ -Dcontext.path.suffix="-mariadb" clean all
+         -Dmetdataio.path=/d1/python/METdataio/ -Dpython.env.path=/d1/python/METviewer_py3.10.18/ -Dcontext.path.suffix="-mariadb" clean all
 
     will produce a war file .war with jar files appropriate for mariadb and the properties from the
     $HOME/METViewer/webapp/metviewer/WEB-INF/classes/build-model-vxtest.properties file, and a tar file
@@ -609,7 +609,7 @@
         <fail unless="metcalcpy.path">You must specify the path to METcalcpy directory</fail>
         <fail unless="metplotpy.path">You must specify the path to METplotpy directory</fail>
         <fail unless="metdataio.path">You must specify the path to METdataio directory</fail>
-        <fail unless="python.env.path">You must specify the path to METviewer_py3.10.4</fail>
+        <fail unless="python.env.path">You must specify the path to METviewer_py3.10.18</fail>
 
         <tar destfile="${dist}/batch_load.tar" >
             <tarfileset dir="."  prefix="METviewer/">
