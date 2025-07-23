@@ -50,7 +50,7 @@ ant -Dbuild.properties.file=./build.properties \
     -Ddb.management.system=mysql \
     -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
     -Dmetplotpy.path=/METviewer-python/METplotpy/ \
-    -Dpython.env.path=/usr/ war
+    -Dpython.env.path=/usr/local war
 mv /METviewer/dist/*.war ${CATALINA_HOME}/webapps
 
 echo "Configuring METviewer scripts"
@@ -65,7 +65,7 @@ cat mv_batch.sh | \
 mv mv_batch.sh-DOCKER mv_batch.sh
 
 cat mv_load.sh | \
-    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr%g'  | \
+    sed -r 's%PYTHON_ENV=.*%PYTHON_ENV=/usr/local%g'  | \
     sed -r 's%METDATAIO_HOME=.*%METDATAIO_HOME=/METviewer-python/METdataio/%g' \
     > mv_load.sh-DOCKER
 mv mv_load.sh-DOCKER mv_load.sh \
