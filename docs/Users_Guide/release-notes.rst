@@ -56,11 +56,18 @@ METviewer Upgrade Instructions
     
  .. note::
 
-    Kaleido and Plotly were updated (1.0.0 and 6.1.1 respectively) to address the upcoming deprecation
-    of kaleido 0.x versions. 
+    Kaleido and Plotly were updated (1.0.0 and 6.1.1 respectively) to address the **pending deprecation
+    of kaleido 0.x versions** (after September 2025).
 
-    METviewer docker images CANNOT be built or run on Macs with the M1/M2 processor
-    (Apple silicon). The AMD64 platforms (i.e. x86-64, Mac Intel) can still be built and run with 
-    the newer versions of Plotly (6.1.1) and kaleido (1.0.0).
+    Plotly/kaleido will **no longer include Chrome**. The  METviewer Dockerfile was updated to
+    retrieve and install Chrome.
 
-    This issue has been raised with the Plotly team, and a response is pending.
+    **ATTENTION:  Mac M1/M2 processors (Apple Silicon)**
+
+    METviewer docker images built or run on a Mac with the M1/M2 processor (Apple silicon) will result in an error
+    emanating from Plotly/kaleido.  As a result, no plot is generated.
+
+    Docker images built or run on AMD64 platforms (i.e. x86-64, Mac Intel) can still successfully generate
+    a static image.
+
+    The Plotly team has been contacted about this issue, and a response is pending.
