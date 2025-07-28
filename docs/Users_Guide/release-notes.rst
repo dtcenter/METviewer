@@ -34,9 +34,6 @@ Version `v6.1.0  <https://github.com/dtcenter/METviewer>`_ Release Notes (202507
     * Document the scorecard <threshold_file> in the METviewer User's Guide (`#564 <https://github.com/dtcenter/METviewer/issues/564>`_)
 
 
-
-
-
 METviewer Upgrade Instructions
 ==============================
 
@@ -71,3 +68,4 @@ METviewer Upgrade Instructions
     a static image.
 
     The Plotly team has been contacted about this issue, and a response is pending.
+    This issue has been raised with the Plotly team, and a response is pending.
