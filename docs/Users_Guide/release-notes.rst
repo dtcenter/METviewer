@@ -68,4 +68,4 @@ METviewer Upgrade Instructions
     a static image.
 
     The Plotly team has been contacted about this issue, and a response is pending.
-    This issue has been raised with the Plotly team, and a response is pending.
+   
