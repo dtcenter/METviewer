@@ -35,7 +35,7 @@ echo ""
 -Dmetcalcpy.path=/d2/projects/METViewer/METcalcpy/ \
 -Dmetplotpy.path=/d2/projects/METViewer/METplotpy/ \
 -Dmetdataio.path=/d2/projects/METViewer/METdataio/ \
--Dpython.env.path=/d2/projects/METViewer/METviewer_py3.10.4/ clean all
+-Dpython.env.path=/d2/projects/METViewer/METviewer_py3.12/ clean all
 
 # copy the war file as metviewer_dev.war to the tomcat directory
 echo "================================================================================="
