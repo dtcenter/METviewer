@@ -185,7 +185,7 @@ fi
 
 # Construct the classpath for mv_test.sh from classpath
 # categories defined in the all_jars_for_classpath.sh
-source all_jars_for_classpath.sh
+source $MV_HOME/bin/all_jars_for_classpath.sh
 CLASSPATH=$CLASSPATH_COMMON:$CLASSPATH_TESTING:$CLASSPATH_SNAKE
 echo -e "CLASSPATH for mv_test: \n$CLASSPATH\n"
 

@@ -35,7 +35,7 @@ MV_HOME="$(dirname "$DIR")"
 
 # Construct the classpath for MVBatch from classpath
 # categories defined in the all_jars_for_classpath.sh
-source all_jars_for_classpath.sh
+source $MV_HOME/bin/all_jars_for_classpath.sh
 CLASSPATH=$CLASSPATH_COMMON:$CLASSPATH_MV:$CLASSPATH_SNAKE
 echo -e "CLASSPATH for mv_batch: \n $CLASSPATH\n"
 

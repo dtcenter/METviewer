@@ -37,7 +37,7 @@ MV_HOME="$(dirname "$DIR")"
 
 # Construct the classpath for MVLoad from classpath
 # categories defined in the all_jars_for_classpath.sh
-source all_jars_for_classpath.sh
+source $MV_HOME/bin/all_jars_for_classpath.sh
 CLASSPATH=$CLASSPATH_COMMON:$CLASSPATH_MV
 echo -e " CLASSPATH for mv_load_mv: \n$CLASSPATH\n"
 

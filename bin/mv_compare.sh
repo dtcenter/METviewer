@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Necessary for generating the classpath
-source all_jars_for_classpath.sh
+source $MV_HOME/bin/all_jars_for_classpath.sh
 
 # The METViewer test directory is set to something appropriate i.e. it has already been cloned and checked out to the right branch.
 usage() { echo "Usage: $0 -t <path to METViewer test directory> -m <path to METViewer home> -c <path to METViewer test compare directory>" 1>&2; exit 1; }
