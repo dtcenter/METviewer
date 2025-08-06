@@ -15,21 +15,29 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 
 MV_HOME="$(dirname "$DIR")"
 
-# construct the classpath for MVBatch
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/xercesImpl.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/xml-apis.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/juli-6.0.53.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-api-1.7.5.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-log4j12-1.7.5.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/guava-14.0.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-1.27.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
+# ------------
+# jar files needed for MVPruneDB (latest version numbers are
+# in all_jars_for_classpath.sh)
+# ------------
+# guava-14.0.1.jar
+# log4j-api-2.17.1.jar
+# log4j-core-2.17.1.jar
+# log4j-iostreams-2.17.1.jar
+# mariadb-java-client-2.7.1.jar
+# metviewer.jar
+# servlet-api.jar
+# slf4j-api-1.7.5.jar
+# slf4j-log4j12-1.7.5.jar
+# snakeyaml-1.27.jar
+# tomcat-jdbc-8.5.61.jar
+# xercesImpl.jar
+# xml-apis.jar
+
+# Construct the classpath for MVBatch from classpath
+# categories defined in the all_jars_for_classpath.sh
+source all_jars_for_classpath.sh
+CLASSPATH=$CLASSPATH_COMMON:$CLASSPATH_MV:$CLASSPATH_SNAKE
+echo -e "CLASSPATH for mv_batch: \n $CLASSPATH\n"
 
 PYTHON_ENV=<path_to_python_env>
 METCALCPY_HOME=<path_to_metcalcpy_home>

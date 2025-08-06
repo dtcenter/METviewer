@@ -20,8 +20,6 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 
 MV_HOME="$(dirname "$DIR")"
 
-echo -e  "MV_HOME: \n$MV_HOME"
-
 # jars common to all scripts
 CLASSPATH_COMMON=$CLASSPATH_COMMON:$MV_HOME/lib/guava-33.4.8.jar
 CLASSPATH_COMMON=$CLASSPATH_COMMON:$MV_HOME/lib/log4j-api-2.17.1.jar

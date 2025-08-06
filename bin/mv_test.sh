@@ -156,33 +156,38 @@ else
 	echo "METDATAIO_HOME is set to ${METDATAIO_HOME}"
 fi
 
-# construct the classpath
-CLASSPATH=${MV_HOME}/lib/xercesImpl.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/xml-apis.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/juli-6.0.53.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-api-1.7.5.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-log4j12-1.7.5.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/guava-14.0.1.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/junit-4.11.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/hamcrest-core-1.3.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/commons-io-2.8.0.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/mockito-all-1.9.5.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/servlet-api-4.0.1.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/commons-fileupload-1.4.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/dist/lib/metviewer_all.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/j2html-1.4.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-core-2.12.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-databind-2.12.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.11.jar
+# ------------
+# jar files needed for mv_test (latest version numbers are
+# in all_jars_for_classpath.sh)
+# ------------
+#  commons-fileupload-1.4.jar
+#  commons-io-2.8.0.jar
+#  commons-lang3-3.11.jar
+#  guava-14.0.1.jar
+#  hamcrest-core-1.3.jar
+#  j2html-1.4.0.jar
+#  jackson-core-2.12.0.jar
+#  jackson-databind-2.12.0.jar
+#  junit-4.11.jar
+#  log4j-api-2.17.1.jar
+#  log4j-core-2.17.1.jar
+#  log4j-iostreams-2.17.1.jar
+#  mariadb-java-client-2.7.1.jar
+#  metviewer_all.jar
+#  mockito-all-1.9.5.jar
+#  servlet-api-4.0.1.jar
+#  snakeyaml-1.27.jar
+#  slf4j-api-1.7.5.jar
+#  slf4j-log4j12-1.7.5.jar
+#  tomcat-jdbc-8.5.61.jar
+#  xercesImpl.jar
+#  xml-apis.jar
 
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-1.27.jar
-
-
+# Construct the classpath for mv_test.sh from classpath
+# categories defined in the all_jars_for_classpath.sh
+source all_jars_for_classpath.sh
+CLASSPATH=$CLASSPATH_COMMON:$CLASSPATH_TESTING:$CLASSPATH_SNAKE
+echo -e "CLASSPATH for mv_test: \n$CLASSPATH\n"
 
 echo "Running allRestRunner"
 
