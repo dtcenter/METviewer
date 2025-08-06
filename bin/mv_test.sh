@@ -109,10 +109,8 @@ fi
 
 if [ -z ${MV_HOME+x} ]; then 
 	echo "MV_HOME is unset"
-	echo "setting it to /d3/projects/METViewer
-/src_dev/apps/METviewer"
-	MV_HOME=/d3/projects/METViewer
-/src_dev/apps/METviewer
+	echo "setting it to /d3/projects/METViewer/src_dev/apps/METviewer"
+	MV_HOME=/d3/projects/METViewer/src_dev/apps/METviewer
 else
 	echo "MV_HOME is set to ${MV_HOME}"
 fi
@@ -130,8 +128,8 @@ fi
 
 if [ -z ${PYTHON_ENV+x} ]; then
 	echo "PYTHON_ENV is unset"
-	echo "setting it to /d3/projects/METViewer/METviewer_py3.6.3/"
-	PYTHON_ENV=/d3/projects/METViewer/METviewer_py3.6.3/
+	echo "setting it to /d3/projects/METViewer/METviewer_py3.12/"
+	PYTHON_ENV=/d3/projects/METViewer/METviewer_py3.12/
 else
 	echo "PYTHON_ENV is set to ${PYTHON_ENV}"
 fi
@@ -153,7 +151,7 @@ else
 fi
 
 if [ -z ${METDATAIO_HOME+x} ]; then
-	echo "METDATABD_HOME is unset"
+	echo "METDATAIO_HOME is unset"
 	echo "setting it to /d3/projects/METViewer/METdataio/"
 	METDATAIO_HOME=/d3/projects/METViewer/METdataio/
 else
