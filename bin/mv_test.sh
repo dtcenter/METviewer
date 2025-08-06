@@ -109,8 +109,10 @@ fi
 
 if [ -z ${MV_HOME+x} ]; then 
 	echo "MV_HOME is unset"
-	echo "setting it to /d3/projects/METviewer/src_dev/apps/METviewer"
-	MV_HOME=/d3/projects/METviewer/src_dev/apps/METviewer
+	echo "setting it to /d3/projects/METViewer
+/src_dev/apps/METviewer"
+	MV_HOME=/d3/projects/METViewer
+/src_dev/apps/METviewer
 else
 	echo "MV_HOME is set to ${MV_HOME}"
 fi
@@ -118,8 +120,10 @@ fi
 
 if [ -z ${MV_TEST_HOME+x} ]; then
 	echo "MV_TEST_HOME is unset"
-	echo "setting it to /d3/projects/METviewer/src_dev/apps/METviewer/test_data"
-	MV_TEST_HOME=/d3/projects/METviewer/test_data
+	echo "setting it to /d3/projects/METViewer
+/src_dev/apps/METviewer/test_data"
+	MV_TEST_HOME=/d3/projects/METViewer
+/test_data
 else
 	echo "MV_TEST_HOME is set to ${MV_TEST_HOME}"
 fi
