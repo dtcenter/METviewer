@@ -51,7 +51,7 @@ CLASSPATH_TESTING=$CLASSPATH_TESTING:${MV_HOME}/lib/servlet-api-4.0.1.jar
 CLASSPATH_MV=$CLASSPATH_MV:$MV_HOME/dist/lib/metviewer.jar
 
 #snakeyaml
-CLASSPATH_SNAKE=$CLASSPATH_SNAKE:$MV_HOME/lib/snakeyaml-1.27.jar
+CLASSPATH_SNAKE=$CLASSPATH_SNAKE:$MV_HOME/lib/snakeyaml-2.0.jar
 
 
 
