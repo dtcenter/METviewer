@@ -1,5 +1,5 @@
 #!/bin/bash
-
+export MV_HOME=/Users/minnawin/bugfix_603_jars_in_scripts/METviewer
 # The METviewer test directory is set to something appropriate i.e. it has already been cloned and checked out to the right branch.
 usage() { echo "Usage: $0 -t <path to METviewer test directory> [-m <path to METviewer home>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-l(load data)] [-s(test servlet)]" 1>&2; exit 1; }
 export MV_DATABASE="mv_test"
@@ -203,3 +203,4 @@ echo "---------"
 ret=$?
 echo "$0 result is $ret"
 exit $ret
+
