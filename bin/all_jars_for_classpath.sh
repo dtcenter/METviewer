@@ -21,7 +21,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 MV_HOME="$(dirname "$DIR")"
 
 # jars common to all scripts
-CLASSPATH_COMMON=$CLASSPATH_COMMON:$MV_HOME/lib/guava-33.4.8.jar
+CLASSPATH_COMMON=$MV_HOME/lib/guava-33.4.8.jar
 CLASSPATH_COMMON=$CLASSPATH_COMMON:$MV_HOME/lib/log4j-api-2.17.1.jar
 CLASSPATH_COMMON=$CLASSPATH_COMMON:$MV_HOME/lib/log4j-core-2.17.1.jar
 CLASSPATH_COMMON=$CLASSPATH_COMMON:$MV_HOME/lib/log4j-iostreams-2.17.1.jar
@@ -34,7 +34,7 @@ CLASSPATH_COMMON=$CLASSPATH_COMMON:$MV_HOME/lib/xercesImpl.jar
 CLASSPATH_COMMON=$CLASSPATH_COMMON:$MV_HOME/lib/xml-apis.jar
 
 # jars used for testing (mv_test.sh and mv_compare.sh)
-CLASSPATH_TESTING=$CLASSPATH_TESTING:${MV_HOME}/lib/commons-fileupload-1.4.jar
+CLASSPATH_TESTING=${MV_HOME}/lib/commons-fileupload-1.4.jar
 CLASSPATH_TESTING=$CLASSPATH_TESTING:${MV_HOME}/lib/commons-io-2.8.0.jar
 CLASSPATH_TESTING=$CLASSPATH_TESTING:$MV_HOME/lib/commons-lang3-3.11.jar
 CLASSPATH_TESTING=$CLASSPATH_TESTING:${MV_HOME}/lib/hamcrest-core-1.3.jar
@@ -48,10 +48,10 @@ CLASSPATH_TESTING=$CLASSPATH_TESTING:${MV_HOME}/lib/servlet-api-4.0.1.jar
 
 
 # metviewer
-CLASSPATH_MV=$CLASSPATH_MV:$MV_HOME/dist/lib/metviewer.jar
+CLASSPATH_MV=$MV_HOME/dist/lib/metviewer.jar
 
 #snakeyaml
-CLASSPATH_SNAKE=$CLASSPATH_SNAKE:$MV_HOME/lib/snakeyaml-2.0.jar
+CLASSPATH_SNAKE=$MV_HOME/lib/snakeyaml-2.0.jar
 
 
 
