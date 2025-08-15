@@ -20,7 +20,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xml-apis.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
-#CLASSPATH=$CLASSPATH:$MV_HOME/lib/juli-6.0.53.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/juli-6.0.53.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-api-1.7.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-log4j12-1.7.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/guava-33.4.8.jar
@@ -31,9 +31,9 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-2.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
-PYTHON_ENV=<path_to_python_env>
-METCALCPY_HOME=<path_to_metcalcpy_home>
-METPLOTPY_HOME=<path_to_metplotpy_home>
+PYTHON_ENV=/Volumes/d1/minnawin/miniforge3/envs/kaleido_env
+METCALCPY_HOME=/Users/minnawin/bugfix_605_mv_batch/METcalcpy
+METPLOTPY_HOME=/Users/minnawin/bugfix_605_mv_batch/METplotpy
 
-java -classpath $CLASSPATH -Xmx2048M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.MVBatch $@
+echo "java -classpath $CLASSPATH -Xmx2048M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.MVBatch $@"
 
