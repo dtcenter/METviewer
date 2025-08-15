@@ -31,9 +31,9 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-2.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
-PYTHON_ENV=/Volumes/d1/minnawin/miniforge3/envs/kaleido_env
-METCALCPY_HOME=/Users/minnawin/bugfix_605_mv_batch/METcalcpy
-METPLOTPY_HOME=/Users/minnawin/bugfix_605_mv_batch/METplotpy
+PYTHON_ENV=<path_to_python_env>
+METCALCPY_HOME=<path_to_metcalcpy_home>
+METPLOTPY_HOME=<path_to_metplotpy_home>
 
-echo "java -classpath $CLASSPATH -Xmx2048M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.MVBatch $@"
+java -classpath $CLASSPATH -Xmx2048M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.MVBatch $@
 
