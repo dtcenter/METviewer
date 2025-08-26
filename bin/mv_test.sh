@@ -159,7 +159,7 @@ fi
 # construct the classpath
 CLASSPATH=${MV_HOME}/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/xml-apis.jar
-#CLASSPATH=$CLASSPATH:${MV_HOME}/lib/juli-6.0.53.jar
+CLASSPATH=$CLASSPATH:${MV_HOME}/lib/juli-6.0.53.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-api-1.7.5.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-log4j12-1.7.5.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/guava-33.4.8.jar
