@@ -31,9 +31,28 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-2.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
-PYTHON_ENV=<path_to_python_env>
-METCALCPY_HOME=<path_to_metcalcpy_home>
-METPLOTPY_HOME=<path_to_metplotpy_home>
+PYTHON_ENV=<path-to-python-env>
+METCALCPY_HOME=<path-to-metcalcpy>
+METPLOTPY_HOME=<path-to-metplotpy>
 
-java -classpath $CLASSPATH -Xmx2048M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.MVBatch $@
+echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo -e "Chrome errors will be generated as a result of invoking Python within the Java code.
+\nThis is due to changes in Plotly and its use of Chrome in saving static images.
+\nPlotting will continue via another route. "
+echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n"
+
+#java -classpath $CLASSPATH -Xmx2048M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.MVBatch $@
+
+
+CWD=`pwd`
+BATCH_LOC=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+PYTHON_BINARY="$PYTHON_ENV/bin/python"
+export PYTHONPATH="$METCALCPY_HOME:$METCALCPY_HOME/metcalcpy:$METPLOTPY_HOME:$METPLOTPY_HOME/metplotpy:$METPLOTPY_HOME/metplotpy/plots"
+
+echo -e "Generating Plots Directly with Python...\n"
+$PYTHON_BINARY  $BATCH_LOC/make_batch_plots.py --xml $1 --loc $BATCH_LOC --pyenv $PYTHON_BINARY  --plotpy $METPLOTPY_HOME 
+
+
+
+
 
