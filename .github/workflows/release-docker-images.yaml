@@ -38,7 +38,7 @@ jobs:
         id: get-versions
         run: |
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
-            version_list="\"v6.0.0\",\"v6.0.1\",\"v6.1.0\""
+            version_list="\"v6.0.0\",\"v6.0.1\",\"v6.1.0\""v6.1.1\""
             update_latest="true"
           elif [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
             version_list=${{ toJSON(inputs.release_version) }}

@@ -11,10 +11,10 @@ LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 # but override with "--build-arg".
 #
 # METVIEWER_GIT_NAME is required.
-ARG SOURCE_BRANCH=main_v6.1
-ARG METPLOTPY_GIT_NAME=main_v3.1
-ARG METCALCPY_GIT_NAME=main_v3.1
-ARG METDATAIO_GIT_NAME=main_v3.1
+ARG SOURCE_BRANCH=develop
+ARG METPLOTPY_GIT_NAME=develop
+ARG METCALCPY_GIT_NAME=develop
+ARG METDATAIO_GIT_NAME=develop
 
 #
 # SOURCE_BRANCH is required.
