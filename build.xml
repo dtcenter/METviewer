@@ -123,7 +123,6 @@
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
-        <pathelement location="${lib}/jakarta.servlet-api-5.0.0.jar"/>
         <pathelement location="${lib}/commons-fileupload-1.4.jar"/>
         <pathelement location="${lib}/commons-io-2.8.0.jar"/>
         <pathelement location="${lib}/guava-33.4.8.jar"/>
@@ -145,7 +144,6 @@
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
-        <pathelement location="${lib}/jakarta.servlet-api-5.0.0.jar"/>
         <pathelement location="${lib}/commons-fileupload-1.4.jar"/>
         <pathelement location="${lib}/commons-io-2.8.0.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
@@ -169,7 +167,6 @@
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
-        <pathelement location="${lib}/jakarta.servlet-api-5.0.0.jar"/>
         <pathelement location="${lib}/commons-fileupload-1.4.jar"/>
         <pathelement location="${lib}/commons-io-2.8.0.jar"/>
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
@@ -191,7 +188,6 @@
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
-        <pathelement location="${lib}/jakarta.servlet-api-5.0.0.jar"/>
         <pathelement location="${lib}/commons-fileupload-1.4.jar"/>
         <pathelement location="${lib}/commons-io-2.8.0.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
@@ -215,7 +211,6 @@
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
-        <pathelement location="${lib}/jakarta.servlet-api-5.0.0.jar"/>
         <pathelement location="${lib}/commons-fileupload-1.4.jar"/>
         <pathelement location="${lib}/commons-io-2.8.0.jar"/>
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
@@ -237,7 +232,6 @@
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
-        <pathelement location="${lib}/jakarta.servlet-api-5.0.0.jar"/>
         <pathelement location="${lib}/commons-fileupload-1.4.jar"/>
         <pathelement location="${lib}/commons-io-2.8.0.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
@@ -423,7 +417,6 @@
         <copy todir="${dist}/metviewer/WEB-INF/lib">
             <fileset dir="${lib}">
                 <include name="*.jar"/>
-                <exclude name="jakarta.servlet-api-5.0.0.jar"/>
 
                 <exclude name="junit-4.11.jar"/>
                 <exclude name="hamcrest-core-1.3.jar"/>
@@ -481,7 +474,6 @@
         <copy todir="${dist}/metviewer/WEB-INF/lib">
             <fileset dir="${lib}">
                 <include name="*.jar"/>
-                <exclude name="jakarta.servlet-api-5.0.0.jar"/>
 
                 <exclude name="junit-4.11.jar"/>
                 <exclude name="hamcrest-core-1.3.jar"/>
