@@ -28,6 +28,14 @@ if [ -z ${SONAR_TOKEN+x} ]; then
   exit 1
 fi
 
+# Copy the build directory from the image
+source ${GITHUB_WORKSPACE}/.github/jobs/bash_functions.sh
+DOCKERHUB_TAG=$(get_dockerhub_tag)
+id=$(docker create ${DOCKERHUB_TAG})
+time_command docker cp $id:/METviewer/build build
+docker rm -v $id
+
+
 # Define the version string
 export SONAR_PROJECT_VERSION=$(cat docs/version)
 

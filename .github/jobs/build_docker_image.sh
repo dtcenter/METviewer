@@ -32,8 +32,3 @@ if [ $? != 0 ]; then
   cat ${CMD_LOGFILE}
   exit 1
 fi
-
-# Copy the build directory from the image
-id=$(docker create ${DOCKERHUB_TAG})
-time_command docker cp $id:/METviewer/build build 
-docker rm -v $id
