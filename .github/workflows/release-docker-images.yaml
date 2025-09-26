@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Comma-separated list of versions to build, e.g. "v6.0.0","v6.1.0"'
+        description: 'Comma-separated list of versions to build, e.g. "v6.0.1","v6.1.0"'
         default: '"v6.1.0"'
         required: true
         type: string
@@ -38,7 +38,7 @@ jobs:
         id: get-versions
         run: |
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
-            version_list="\"v6.0.0\",\"v6.1.0\""
+            version_list="\"v6.0.1\",\"v6.1.0\""
             update_latest="true"
           elif [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
             version_list=${{ toJSON(inputs.release_version) }}
@@ -56,6 +56,7 @@ jobs:
     needs: define-matrix
     strategy:
       matrix: ${{ fromJSON(needs.define-matrix.outputs.matrix) }}
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v4
@@ -75,49 +76,55 @@ jobs:
           sparse-checkout: metplus/component_versions.py
           sparse-checkout-cone-mode: false
 
-      - name: Create directories to store output
-        run: |
-          mkdir -p ${RUNNER_WORKSPACE}/logs
+      - name: Free Disk Space
+        uses: dtcenter/metplus-action-free-disk-space@v1
+
+      - name: Create directories to store build log output
+        run: mkdir -p ${RUNNER_WORKSPACE}/logs
 
       - name: Build Docker Image
-        run: |
-          .github/jobs/build_docker_image.sh
+        run: .github/jobs/build_docker_image.sh
         env:
           SOURCE_BRANCH: ${{ matrix.version }}
 
-      - name: Install Syft
+      - name: Get DockerHub tag
+        id: get-dockerhub-tag
         run: |
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-
-      - name: Install Grype
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-
-      - name: Scan Docker Image
-        run: |
-          .github/jobs/scan_docker_image.sh
+          source ${GITHUB_WORKSPACE}/.github/jobs/bash_functions.sh
+          DOCKERHUB_TAG=$(get_dockerhub_tag)
+          echo "DOCKERHUB_TAG=${DOCKERHUB_TAG}" >> $GITHUB_OUTPUT
         env:
           SOURCE_BRANCH: ${{ matrix.version }}
+
+      - name: Scan Docker Images
+        id: security-scan
+        continue-on-error: false
+        uses: dtcenter/metplus-action-scan-docker-images@v1
+        with:
+          images: |
+            [
+              "${{ steps.get-dockerhub-tag.outputs.DOCKERHUB_TAG }}"
+            ]
+          fail-on-critical: "true"
+          log-artifact-name: 'security-scan-logs_${{ matrix.version }}'
 
       - name: Push Docker Image
-        run: |
-          .github/jobs/push_docker_image.sh
+        run: .github/jobs/push_docker_image.sh
         env:
           SOURCE_BRANCH: ${{ matrix.version }}
           UPDATE_LATEST: ${{ fromJSON(needs.define-matrix.outputs.update_latest) }}
           DOCKER_USERNAME: 'dtcenter'
           DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Copy log files into logs directory
+      - name: Copy build log files into logs directory
         if: always()
-        run: |
-          cp ${GITHUB_WORKSPACE}/*.log ${RUNNER_WORKSPACE}/logs/
+        run: cp ${GITHUB_WORKSPACE}/*.log ${RUNNER_WORKSPACE}/logs/
 
-      - name: Upload logs as artifact
+      - name: Upload build logs as artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs_${{ matrix.version }}
+          name: build_logs_${{ matrix.version }}
           path: ${{ runner.workspace }}/logs
           if-no-files-found: ignore
 
