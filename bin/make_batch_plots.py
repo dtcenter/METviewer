@@ -49,7 +49,7 @@ def parse_batch_xml(batch_configfile: str ):
     '''
 
     # named tuple with parameters needed to plot using METplotpy
-    PlotParams = namedtuple('PlotParams', "plots_dir data_dir  plot_type execution_type")
+    PlotParams = namedtuple('PlotParams', "plots_dir data_dir  plot_type execution_type, requested_plots")
 
     try:
         parser = etree.XMLParser(remove_comments=True, resolve_entities=False)
@@ -74,8 +74,18 @@ def parse_batch_xml(batch_configfile: str ):
         # which method to use for plotting, Python or Rscript
         plotting_method:str  = plot_elem[0].xpath('execution_type')[0].text
 
+        # get all the plots requested
+        requested_plots = []
+        num_plot_elems = len(plot_elem)
+        for i in range(1, num_plot_elems):
+            var_stat = plot_elem[i].get('name').upper()
+            requested_plots.append(var_stat)
+
+        for plot in requested_plots:
+            print(f"plot requested for: {plot}")
+
         # Incorporate this information into a named tuple
-        plot_params:namedtuple() = PlotParams(plots_dir, data_dir, plot_type, plotting_method)
+        plot_params:namedtuple() = PlotParams(plots_dir, data_dir, plot_type, plotting_method, requested_plots)
 
     except (RuntimeError, TypeError, NameError, KeyError):
         sys.exit("Parsing error(s) in batch xml file")
@@ -98,11 +108,12 @@ def make_plots(plotting_params:namedtuple, args) -> None:
     '''
 
     # unpack information from the named tuple:
-    # PlotParams = namedtuple('PlotParams', "plots_dir data_dir  plot_type execution_type")
+    # PlotParams = namedtuple('PlotParams', "plots_dir data_dir  plot_type execution_type, requested_plots")
     plot_output_dir = plotting_params.plots_dir
     data_dir = plotting_params.data_dir
     method = plotting_params.execution_type
     plot_type = plotting_params.plot_type
+    requested_plots:list = plotting_params.requested_plots
 
     # retrieve the other parameters used by mv_batch.sh/MVBatch.java to generate
     # plots
@@ -122,15 +133,22 @@ def make_plots(plotting_params:namedtuple, args) -> None:
     python_plot = plotpy_plots + '/' +  R2Python[plot_type]
 
 
-    # Get the data and YAML files necessary for generating plots
+    # Get the data and YAML files necessary for generating the
+    # requested plot(s)
     data_dir_files = pathlib.Path(data_dir)
-    all_yaml:list = list(data_dir_files.glob("*.yaml"))
+    requested_yaml = []
+    for var_stat in requested_plots:
+        expected_yaml = os.path.join(data_dir_files, var_stat+'.yaml')
+        requested_yaml.append(expected_yaml)
+
     print(f"PYTHONPATH: \n {os.getenv('PYTHONPATH')}\n")
-    for cur_yaml in all_yaml:
+    for cur_yaml in requested_yaml:
+        print(f"Plot using yaml config file: {cur_yaml}")
         # Create the command to create the plot
         command = str(python_executable) +" " +  python_plot + " " + str( cur_yaml)
         print(f" Running \n {command}\n")
         return_val = os.system(command )
+        print(f"return value: {return_val}")
 
     return return_val
 
@@ -150,8 +168,11 @@ def main():
 
     # Extract necessary information from the batch XML file
     full_batch_xml:str = os.path.abspath(args.xml)
-    # print(f"\nfull batch config file: {full_batch_xml}\n")
     plotting_params: namedtuple = parse_batch_xml(full_batch_xml)
+    execution_type = str(plotting_params.execution_type)
+    if execution_type.upper() == 'RSCRIPT':
+        print("Rscript requested,  skip plotting via Python")
+        sys.exit(0)
     make_plots(plotting_params, args)
     print("Plotting is complete")
 
