@@ -26,7 +26,9 @@ Version `v6.0.1 <https://github.com/dtcenter/METviewer>`_ Release Notes (2025072
 
   .. dropdown:: Internal
 
-     None
+     * On 2025-09-29, re-tagged release to update base image used to build
+       METviewer Docker images to get latest bugfix changes.
+       There were no METviewer code changes.
 
 METviewer Upgrade Instructions
 ==============================
