@@ -58,7 +58,6 @@ public class MVServlet extends HttpServlet {
   private static final Map<String, Document> valCache = new HashMap<>();
   private static final Map<String, Document> statCache = new HashMap<>();
   private static final String DATE_FORMAT_STRING = "yyyyMMdd_HHmmss";
-  @Serial
   private static final long serialVersionUID = 1L;
   private static final Logger logger = LogManager.getLogger("MVServlet");
   private static final Marker INFO_MARKER = MarkerManager.getMarker("INFO");
