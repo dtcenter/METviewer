@@ -1,12 +1,6 @@
 package edu.ucar.metviewer;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,10 +24,18 @@ import java.util.stream.Collectors;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.jobManager.*;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.jakarta.servlet5.JakartaServletFileUpload;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -56,6 +58,7 @@ public class MVServlet extends HttpServlet {
   private static final Map<String, Document> valCache = new HashMap<>();
   private static final Map<String, Document> statCache = new HashMap<>();
   private static final String DATE_FORMAT_STRING = "yyyyMMdd_HHmmss";
+  @Serial
   private static final long serialVersionUID = 1L;
   private static final Logger logger = LogManager.getLogger("MVServlet");
   private static final Marker INFO_MARKER = MarkerManager.getMarker("INFO");
@@ -1065,10 +1068,20 @@ public class MVServlet extends HttpServlet {
 
 
       //  if the request is a file upload, build the request from the file XML
-      if (ServletFileUpload.isMultipartContent(request)) {
+      if (JakartaServletFileUpload.isMultipartContent(request)) {
         //  set up the upload handler and parse the request
-        ServletFileUpload uploadHandler = new ServletFileUpload(new DiskFileItemFactory());
-        List<FileItem> items = uploadHandler.parseRequest(request);
+          final DiskFileItemFactory fileItemfactory = DiskFileItemFactory.builder().get();
+          final JakartaServletFileUpload fileUpload = new JakartaServletFileUpload(fileItemfactory);
+           List<FileItem> items;
+          try {
+              items = fileUpload.parseRequest(request);
+          } catch (FileUploadException e) {
+              items= new ArrayList<>();
+              //throw new ServletException(e);
+              logger.error(e.getMessage());
+          }
+
+
         //  find the upload file in the request and read its contents
         StringBuilder uploadXml = new StringBuilder();
         String error = null;
@@ -1427,7 +1440,7 @@ public class MVServlet extends HttpServlet {
         }
 
       }
-    } catch (ParserConfigurationException | FileUploadException | IOException | SAXException 
+    } catch (ParserConfigurationException |  IOException | SAXException
              | ServletException e) {
       errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage());
       logger.info(INFO_MARKER, "doPost() - caught " + e.getClass() + ": " + e.getMessage());
