@@ -41,7 +41,7 @@ echo -e "Chrome errors will be generated as a result of invoking Python within t
 \nPlotting will continue via another route. "
 echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n"
 
-#java -classpath $CLASSPATH -Xmx2048M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.MVBatch $@
+java -classpath $CLASSPATH -Xmx2048M -Dpython.env=$PYTHON_ENV -Dmetcalcpy.home=$METCALCPY_HOME -Dmetplotpy.home=$METPLOTPY_HOME edu.ucar.metviewer.MVBatch $@
 
 
 CWD=`pwd`
