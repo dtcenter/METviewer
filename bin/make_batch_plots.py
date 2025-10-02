@@ -74,18 +74,45 @@ def parse_batch_xml(batch_configfile: str ):
         # which method to use for plotting, Python or Rscript
         plotting_method:str  = plot_elem[0].xpath('execution_type')[0].text
 
-        # get all the plots requested
+        # Store the var and stat information for each specific plot name
+        # This information is synonymous with the
         requested_plots = []
-        num_plot_elems = len(plot_elem)
-        for i in range(1, num_plot_elems):
-            var_stat = plot_elem[i].get('name').upper()
-            requested_plots.append(var_stat)
 
+        # get all the plots requested
+        num_plot_elems = len(plot_elem)
+
+        # iterate over all the <plot name...> tags at the bottom of the config file
+        # by starting loop at index 1 instead of 0 which is the <plot> tag at the top
+        # of the config (from which all the later <plot> elements inherit).
+        for i in range(1, num_plot_elems):
+            key = plot_elem[i].get('name')
+            # Get the <dep> elements from the second <plot> element
+            # located at the bottom of the mv batch xml file.  This is the plot
+            # element that defines which plots to generate based on fcst_var/stat
+            # pairs
+            dep_elem = plot_elem[i].xpath('dep')[0]
+            # Get the <dep1> and <dep2> elements
+            for i in range(0, len(dep_elem)):
+                # Get the fcst_var for this dep[i] if it has a child element (ie. fcst_var
+                # element)
+                if len(dep_elem[i]) > 0:
+                    fcst_var_elems = dep_elem[i].xpath('fcst_var')
+                    fcst_var = fcst_var_elems[0].attrib['name']
+
+                    # find all the stats associated with this fcst_var element
+                    stat_elems = fcst_var_elems[0].xpath('stat')
+                    for k in range(len(stat_elems)):
+                        stat_elem = stat_elems[k].text
+                        expected_fname_from_mv = fcst_var + '_' + stat_elem
+                        requested_plots.append(expected_fname_from_mv)
+
+        # list of plots to generate
         for plot in requested_plots:
             print(f"plot requested for: {plot}")
 
         # Incorporate this information into a named tuple
         plot_params:namedtuple() = PlotParams(plots_dir, data_dir, plot_type, plotting_method, requested_plots)
+
 
     except (RuntimeError, TypeError, NameError, KeyError):
         sys.exit("Parsing error(s) in batch xml file")
