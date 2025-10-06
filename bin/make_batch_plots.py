@@ -123,9 +123,7 @@ def parse_batch_xml(batch_configfile: str ):
             exclude = re.match(exclude_pattern, k)
 
             if not exclude:
-                # print(f" replacing {k} with {parsed_info[k]}")
                 data_filename_str = data_filename_str.replace(k, parsed_info[k])
-                # print(f"updated filename: {data_filename_str}")
             else:
                 # keep track of the dep element keys (depn_n, depn_n_statn, etc.)
                 other_keys.append(k)
@@ -163,7 +161,7 @@ def parse_batch_xml(batch_configfile: str ):
         for df in data_filenames:
             df_left= df.replace("{",'')
             df_rt_left = df_left.replace("}",'')
-            final_df = df_rt_left.replace(".data", ".yaml")
+            final_df = df_rt_left.replace(".data", "")
             requested_plots.append(final_df)
 
         # Incorporate this information into a named tuple
@@ -221,11 +219,23 @@ def get_all_template_vals(root_elem: etree.Element) -> dict:
                 # if the title doesn't have the stat value (y-axis) mapping add it
                 results[dep_elem] = val_elem
 
+    # plot_fix element and children
     field_elems = root_elem.xpath('plot')[0].xpath('plot_fix')[0]
     for pfe in field_elems:
         k = pfe.attrib['name']
-        v = pfe.xpath('val')[0].text
-        results[k] = v
+        # MODE has a <set> child of the <field>, others do not
+        # check for the presence of this <set> child to retrieve the <val>
+        if len(pfe.xpath('set')) > 0:
+            all_field_children = list(pfe.iter())
+            for fc in all_field_children:
+                if fc.tag == 'val':
+                    v= fc.text
+                    results[k] = v
+
+        else:
+           v = pfe.xpath('val')[0].text
+           results[k] = v
+
 
     return results
 
