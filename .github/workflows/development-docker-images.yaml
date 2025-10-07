@@ -106,7 +106,7 @@ jobs:
 
       - name: Scan Docker Images
         id: security-scan
-        continue-on-error: false
+        continue-on-error: true
         uses: dtcenter/metplus-action-scan-docker-images@v1
         with:
           images: |
@@ -136,3 +136,7 @@ jobs:
           path: ${{ runner.workspace }}/logs
           if-no-files-found: ignore
 
+      - name: Check scan status
+        run: |
+          echo "Scan status: ${{ steps.security-scan.outputs.scan-status }}"
+          exit ${{ steps.security-scan.outputs.scan-status }}
