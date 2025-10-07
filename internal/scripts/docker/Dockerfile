@@ -1,5 +1,5 @@
-ARG MET_BASE_REPO=met-base-metviewer-dev
-ARG MET_BASE_TAG=feature_setuptools_cve
+ARG MET_BASE_REPO=met-base-metviewer
+ARG MET_BASE_TAG=3.3-latest
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
 LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
