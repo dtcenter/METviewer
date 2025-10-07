@@ -29,7 +29,7 @@ fi
 if [ -n "${METDATAIO_OVERRIDE}" ]; then
   METDATAIO_VERSION=${METDATAIO_OVERRIDE}
 else
-  METDATAIO_VERSION=$(${GITHUB_WORKSPACE}/develop/metplus/component_versions.py -i METviewer -v "${SOURCE_BRANCH}" -o METdataio ${component_args})
+  METDATAIO_VERSION=$(${GITHUB_WORKSPACE}/METplus/metplus/component_versions.py -i METviewer -v "${SOURCE_BRANCH}" -o METdataio ${component_args})
 fi
 
 # if override is not set and cannot get version from script,
@@ -53,7 +53,7 @@ echo "Using METdataio ${METDATAIO_VERSION}"
 if [ -n "${METCALCPY_OVERRIDE}" ]; then
   METCALCPY_VERSION=${METCALCPY_OVERRIDE}
 else
-  METCALCPY_VERSION=$(${GITHUB_WORKSPACE}/develop/metplus/component_versions.py -i METviewer -v "${SOURCE_BRANCH}" -o METcalcpy ${component_args})
+  METCALCPY_VERSION=$(${GITHUB_WORKSPACE}/METplus/metplus/component_versions.py -i METviewer -v "${SOURCE_BRANCH}" -o METcalcpy ${component_args})
 fi
 
 if [ -z "${METCALCPY_VERSION}" ]; then
@@ -74,7 +74,7 @@ echo "Using METcalcpy ${METCALCPY_VERSION}"
 if [ -n "${METPLOTPY_OVERRIDE}" ]; then
   METPLOTPY_VERSION=${METPLOTPY_OVERRIDE}
 else
-  METPLOTPY_VERSION=$(${GITHUB_WORKSPACE}/develop/metplus/component_versions.py -i METviewer -v "${SOURCE_BRANCH}" -o METplotpy ${component_args})
+  METPLOTPY_VERSION=$(${GITHUB_WORKSPACE}/METplus/metplus/component_versions.py -i METviewer -v "${SOURCE_BRANCH}" -o METplotpy ${component_args})
 fi
 
 if [ -z "${METPLOTPY_VERSION}" ]; then
