@@ -1,0 +1,145 @@
+name: Create Development Docker Images
+
+on:
+
+  workflow_dispatch:
+    inputs:
+      metviewer_version:
+        description: 'METviewer version to build, e.g. develop or feature_123_test. Leave blank to use the workflow branch.'
+        default: ''
+        required: false
+        type: string
+      metdataio_version:
+        description: 'METdataio version to use, e.g. feature_123_test. Leave blank to determine version automatically (vX.Y.Z or develop).'
+        default: ''
+        required: false
+        type: string
+      metcalcpy_version:
+        description: 'METcalcpy version to use, e.g. feature_123_test. Leave blank to determine version automatically (vX.Y.Z or develop).'
+        default: ''
+        required: false
+        type: string
+      metplotpy_version:
+        description: 'METplotpy version to use, e.g. feature_123_test. Leave blank to determine version automatically (vX.Y.Z or develop).'
+        default: ''
+        required: false
+        type: string
+
+
+env:
+  DOCKERHUB_REPO: dtcenter/metviewer-dev
+
+jobs:
+
+  define-matrix:
+    name: Define Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.get-versions.outputs.matrix }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: 'dtcenter/metplus'
+          ref: 'develop'
+          sparse-checkout: metplus/component_versions.py
+          sparse-checkout-cone-mode: false
+
+      - name: Get versions to build 
+        id: get-versions
+        run: |
+          if [[ -n "${{ inputs.metviewer_version }}" ]]; then
+            version_string=${{ toJSON(inputs.metviewer_version) }}
+          else
+            version_string=${{ toJSON(github.ref_name) }}
+          fi
+          IFS=',' read -r -a version_array <<< "${version_string}"
+          matrix="{\"version\": ["
+          for version in "${version_array[@]}"; do
+            matrix+=\"${version}\",
+          done
+          matrix+="]}"
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+
+  build_scan_and_push:
+    name: Build, Scan, and Push Images
+    runs-on: ubuntu-latest
+    needs: define-matrix
+    strategy:
+      matrix: ${{ fromJSON(needs.define-matrix.outputs.matrix) }}
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.version }}
+          path: ${{ matrix.version }}
+          sparse-checkout: internal/scripts/docker/Dockerfile
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/checkout@v4
+        with:
+          repository: 'dtcenter/METplus'
+          ref: 'develop'
+          path: 'develop'
+          sparse-checkout: metplus/component_versions.py
+          sparse-checkout-cone-mode: false
+
+      - name: Free Disk Space
+        uses: dtcenter/metplus-action-free-disk-space@v1
+
+      - name: Create directories to store build log output
+        run: mkdir -p ${RUNNER_WORKSPACE}/logs
+
+      - name: Build Docker Image
+        run: .github/jobs/build_docker_image.sh
+        env:
+          SOURCE_BRANCH: ${{ matrix.version }}
+          USE_DEVELOPMENT: true
+          METDATAIO_OVERRIDE: ${{ inputs.metdataio_version }}
+          METCALCPY_OVERRIDE: ${{ inputs.metcalcpy_version }}
+          METPLOTPY_OVERRIDE: ${{ inputs.metplotpy_version }}
+
+      - name: Get DockerHub tag
+        id: get-dockerhub-tag
+        run: |
+          source ${GITHUB_WORKSPACE}/.github/jobs/bash_functions.sh
+          DOCKERHUB_TAG=$(get_dockerhub_tag)
+          echo "DOCKERHUB_TAG=${DOCKERHUB_TAG}" >> $GITHUB_OUTPUT
+        env:
+          SOURCE_BRANCH: ${{ matrix.version }}
+
+      - name: Scan Docker Images
+        id: security-scan
+        continue-on-error: false
+        uses: dtcenter/metplus-action-scan-docker-images@v1
+        with:
+          images: |
+            [
+              "${{ steps.get-dockerhub-tag.outputs.DOCKERHUB_TAG }}"
+            ]
+          fail-on-critical: "true"
+          log-artifact-name: 'security-scan-logs_${{ matrix.version }}'
+
+      - name: Push Docker Image
+        run: .github/jobs/push_docker_image.sh
+        env:
+          SOURCE_BRANCH: ${{ matrix.version }}
+          UPDATE_LATEST: false
+          DOCKER_USERNAME: 'dtcenter'
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Copy build log files into logs directory
+        if: always()
+        run: cp ${GITHUB_WORKSPACE}/*.log ${RUNNER_WORKSPACE}/logs/
+
+      - name: Upload build logs as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_logs_${{ matrix.version }}
+          path: ${{ runner.workspace }}/logs
+          if-no-files-found: ignore
+
