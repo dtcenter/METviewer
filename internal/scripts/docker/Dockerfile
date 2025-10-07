@@ -105,5 +105,4 @@ RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
 RUN python -m pip install PLOTLY==6.1.1
 RUN python -m pip install kaleido==1.0.0
 RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
-COPY . .
 
