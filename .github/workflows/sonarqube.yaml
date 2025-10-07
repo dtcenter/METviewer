@@ -62,6 +62,7 @@ jobs:
       run: .github/jobs/build_docker_image.sh
       env:
         SOURCE_BRANCH: ${{ steps.get_branch_name.outputs.branch_name }}
+        USE_DEVELOPMENT: true
 
     - name: Configure SonarQube
       run: .github/jobs/configure_sonarqube.sh
