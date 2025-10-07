@@ -38,13 +38,6 @@ jobs:
       matrix: ${{ steps.get-versions.outputs.matrix }}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: 'dtcenter/metplus'
-          ref: 'develop'
-          sparse-checkout: metplus/component_versions.py
-          sparse-checkout-cone-mode: false
-
       - name: Get versions to build 
         id: get-versions
         run: |
@@ -83,7 +76,7 @@ jobs:
         with:
           repository: 'dtcenter/METplus'
           ref: 'develop'
-          path: 'develop'
+          path: 'METplus'
           sparse-checkout: metplus/component_versions.py
           sparse-checkout-cone-mode: false
 
