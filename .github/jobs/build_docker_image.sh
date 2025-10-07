@@ -19,6 +19,21 @@ METDATAIO_VERSION=$(${GITHUB_WORKSPACE}/develop/metplus/component_versions.py -i
 METCALCPY_VERSION=$(${GITHUB_WORKSPACE}/develop/metplus/component_versions.py -i METviewer -v "${SOURCE_BRANCH}" -o METcalcpy)
 METPLOTPY_VERSION=$(${GITHUB_WORKSPACE}/develop/metplus/component_versions.py -i METviewer -v "${SOURCE_BRANCH}" -o METplotpy)
 
+if [ -z "${METDATAIO_VERSION}" ]; then
+  echo "ERROR: Could not get METdataio version from ${SOURCE_BRANCH}"
+  exit 1
+fi
+
+if [ -z "${METCALCPY_VERSION}" ]; then
+  echo "ERROR: Could not get METcalcpy version from ${SOURCE_BRANCH}"
+  exit 1
+fi
+
+if [ -z "${METPLOTPY_VERSION}" ]; then
+  echo "ERROR: Could not get METplotpy version from ${SOURCE_BRANCH}"
+  exit 1
+fi
+
 time_command docker build -t ${DOCKERHUB_TAG} \
     --build-arg METVIEWER_GIT_NAME=${SOURCE_BRANCH} \
     --build-arg SOURCE_BRANCH \
