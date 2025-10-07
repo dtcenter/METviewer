@@ -89,7 +89,7 @@ jobs:
         with:
           repository: 'dtcenter/METplus'
           ref: 'develop'
-          path: 'develop'
+          path: 'METplus'
           sparse-checkout: metplus/component_versions.py
           sparse-checkout-cone-mode: false
 
