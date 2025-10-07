@@ -51,6 +51,14 @@ jobs:
         # Disable shallow clones for better analysis
         fetch-depth: 0
 
+    - uses: actions/checkout@v4
+      with:
+        repository: 'dtcenter/METplus'
+        ref: 'develop'
+        path: 'METplus'
+        sparse-checkout: metplus/component_versions.py
+        sparse-checkout-cone-mode: false
+
     - name: Create output directories
       run: mkdir -p ${RUNNER_WORKSPACE}/logs
 
