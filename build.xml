@@ -132,6 +132,7 @@
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.11.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
@@ -153,6 +154,7 @@
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/commons-lang3-3.11.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
@@ -174,6 +176,7 @@
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.11.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
@@ -195,6 +198,7 @@
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/commons-lang3-3.11.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
@@ -216,6 +220,7 @@
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.11.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
@@ -231,6 +236,7 @@
         <pathelement location="${lib}/javax.servlet-api-4.0.1.jar"/>
         <pathelement location="${lib}/commons-fileupload-1.6.0.jar"/>
         <pathelement location="${lib}/commons-io-2.20.0.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
         <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
         <pathelement location="${lib}/mockito-all-1.9.5.jar"/>
