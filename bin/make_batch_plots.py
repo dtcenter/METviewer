@@ -248,7 +248,6 @@ def get_all_template_vals(root_elem: etree.Element) -> dict:
         else:
            v = pfe.xpath('val')[0].text
            results[k] = v
-    print(f"results: {results}")
     return results
 
 
