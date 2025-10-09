@@ -58,7 +58,7 @@ def parse_batch_xml(batch_configfile: str ):
         root = tree.getroot()
 
         parsed_info = {}
-        parsed_info = get_all_template_vals(root)
+        parsed_info:dict = get_all_template_vals(root)
 
         # parent element to the plots and data elements
         folders = root.xpath('folders')
@@ -70,7 +70,7 @@ def parse_batch_xml(batch_configfile: str ):
         data_dir = folders[0].xpath('data')[0].text
 
         # parent element to the template and execution type elements
-        plot_elem = root.xpath('plot')
+        plot_elem:list  = root.xpath('plot')
 
         # plot type e.g. series, ROC, histogram, etc.
         plot_type:str = plot_elem[0].xpath('template')[0].text
@@ -78,91 +78,101 @@ def parse_batch_xml(batch_configfile: str ):
         # which method to use for plotting, Python or Rscript
         plotting_method:str  = plot_elem[0].xpath('execution_type')[0].text
 
-        # Store the var and stat information for each specific plot name
-        # This information is synonymous with the
-        requested_plots = []
+        PlotVarStat = namedtuple('PlotVarStat', ['plot_identifier','var','stats_for_var'])
 
-        # get all the plots requested
-        num_plot_elems = len(plot_elem)
-        var_stat_combinations = []
 
-        # iterate over all the <plot name...> tags at the bottom of the config file
-        # by starting loop at index 1 instead of 0 which is the <plot> tag at the top
-        # of the config (from which all the later <plot> elements inherit).
-        for i in range(1, num_plot_elems):
-            # Get the <dep> elements from the second <plot> element
-            # located at the bottom of the mv batch xml file.  This is the plot
-            # element that defines which plots to generate based on fcst_var/stat
-            # pairs
-            dep_elem = plot_elem[i].xpath('dep')[0]
-            # Get the <dep1> and <dep2> elements
-            for i in range(0, len(dep_elem)):
-                combination = {}
-                # Get the fcst_var for this dep[i] if it has a child element (ie. fcst_var
-                # element)
-                if len(dep_elem[i]) > 0:
-                    fcst_var_elems = dep_elem[i].xpath('fcst_var')
-                    fcst_var = fcst_var_elems[0].attrib['name']
-                    combination['fcst_var'] = fcst_var
+        # list of all the PlotVarStat named tuples
+        all_var_stats = []
 
-                    # find all the stats associated with this fcst_var element
-                    stat_elems = fcst_var_elems[0].xpath('stat')
-                    for k in range(len(stat_elems)):
-                        stat_value = stat_elems[k].text
-                        combination['stat'] = stat_value
-                        var_stat_combinations.append(combination)
+        #
+        #  Retrieve all the variable and stat information that will be used to
+        #  substitute into corresponding template values.
+        #  Store this information into a named tuple that
+        #  links the plot name attribute to the dep1_1 value and its
+        #  corresponding dep1_1_stat1 values.
+        #
+        #  *NOTE:*
+        #  Users are permitted to  create one or  more additional <plot> elements
+        #  that inherit from a parent <plot> elem, or all plot child/sub elements can
+        #  be contained under a single <plot> element.
+        #
+        for cur_plot in plot_elem:
+            # if one or more child element(s) inherits from a parent <plot> element
+            if cur_plot.attrib:
+               plot_identifier = cur_plot.attrib['name']
+            else:
+              # no child <plot> elements, all plot content under one <plot> element
+              plot_identifier = 'unnamed'
 
-        # requested_plots.append(expected_fname_from_mv)
+            for child in list(cur_plot.iter()):
+                if child.tag == 'dep':
+                    dep = child
+                    # retrieve each fcst_var and its corresponding stat elements
+                    for dchild in list(dep.iter()):
+                        # retrieve any dep1_1 and dep1_1_stat
+                        # information from the parsed_info dict (from
+                        # <title> and <y_label>
+                        if 'dep1_1' in parsed_info:
+                           if dchild.tag == parsed_info['dep1_1']:
+                              var = dchild.attrib['name']
+                              temp_stats = []
+                              for stat in list(dchild.iter()):
+                                  if stat.tag == parsed_info['dep1_1_stat1']:
+                                     statname = stat.text
+                                     temp_stats.append(statname)
+                                     # stats for the current key (fcst var name)
+                              cur_plot_var_stat = PlotVarStat(plot_identifier, var, temp_stats)
+                              all_var_stats.append(cur_plot_var_stat)
+
+        # Build the data file names with all templates replaced with actual
+        # values.
         data_filename_str = parsed_info['data_file']
 
-        # for each specified plot, fill in the data filename template values
-        # first, fill in the plot_fix values in the parsed_info dictionary
-        other_keys = []
+        print(f"filename to create: {parsed_info['data_file']}")
+
+        # substitute any <plot_fix> template values (ignore the dep1_1 and
+        # dep1_1_stat1 templates for now
+        dep1_pattern = r'.*(dep\d_\d)'
+        dep1_stat_pattern = r'.*(dep\d_\d_stat\d)'
+        datafile_pattern = r'data_file'
         for k in parsed_info.keys():
-            exclude_pattern = r'.*(dep1).*'
-            exclude = re.match(exclude_pattern, k)
+            dep1_match = re.match(dep1_pattern, k)
+            dep1_stat_match = re.match(dep1_stat_pattern, k)
+            datafile_match = re.match(datafile_pattern, k)
 
-            if not exclude:
-                data_filename_str = data_filename_str.replace(k, parsed_info[k])
-            else:
-                # keep track of the dep element keys (depn_n, depn_n_statn, etc.)
-                other_keys.append(k)
+            # only substitute keys which are not data_filename, dep1_1, or
+            # dep1_1_stat
+            if not dep1_match and not dep1_stat_match and not datafile_match:
+                temp_datafilename = data_filename_str.replace(k, parsed_info[k])
 
-        # now handle any dep1_1, dep1_1_stat1, etc. template values if they exist
-        data_filenames = []
+        # now substitute actual values for any dep1_1_stat  and dep1_1 template
+        # names
+        requested_filenames = []
+        requested_plots = []
+        stat_match = re.match(dep1_stat_pattern, temp_datafilename)
+        var_match = re.match(dep1_pattern, temp_datafilename)
 
-        # keep stat key with its corresponding var key
-        stat_keys = []
-        var_keys = {}
-        for k in other_keys:
-            stat_pattern = r'dep\d_\d_stat\d'
-            stat_match = re.match(stat_pattern, k)
+        # Match each var to its corresponding stats based on the plot_identifier
+        if var_match and stat_match:
+            var_tmpl = var_match.group(1)
+            stats_tmpl = stat_match.group(1)
 
-            if stat_match:
-                stat_keys.append( stat_match.group(0))
-            else:
-                var_pattern = r'dep\d_\d'
-                var_match = re.match(var_pattern, k)
-                # keep the stat with its corresponding var
-                if var_match:
-                   var_keys[k] = stat_keys
+            # Replace each template value with an actual value
+            for var_stat in all_var_stats:
+                cur_var = var_stat.var
+                stat_list = var_stat.stats_for_var
+                for stat in stat_list:
+                    temp = temp_datafilename.replace(stats_tmpl, stat)
+                    temp = temp.replace(var_tmpl, cur_var)
+                    requested_filenames.append(temp)
+        else:
+            # No templates used in filename
+            requested_filenames.append(temp_datafilename)
 
-        for vs in var_stat_combinations:
-            for v in var_keys:
-                var = vs[parsed_info[v]]
-                stat_keyname = var_keys[v][0]
-                stat = vs[parsed_info[stat_keyname]]
-                stat_replaced = data_filename_str.replace(stat_keyname, stat)
-                var_stat_replaced= stat_replaced.replace(v, var)
-            data_filenames.append(var_stat_replaced)
-
-        # remove the curly braces that were used to define template names
-        # and replace .data with .yaml
-        for df in data_filenames:
-            df_left= df.replace("{",'')
-            df_rt_left = df_left.replace("}",'')
-            final_df = df_rt_left.replace(".data", "")
-            requested_plots.append(final_df)
+        # Remove the curly braces and the .data extension
+        for cur_plotname in requested_filenames:
+            cur_plotname = cur_plotname.replace('{', '').replace('}','').replace('.data','')
+            requested_plots.append(cur_plotname)
 
         # Incorporate this information into a named tuple
         plot_params:namedtuple() = PlotParams(plots_dir, data_dir, plot_type, plotting_method, requested_plots)
@@ -192,32 +202,35 @@ def get_all_template_vals(root_elem: etree.Element) -> dict:
 
     results['data_file'] = data_file
 
-    # Get the mappings for the dep child elements to the fcst_var and stat
+    # Get the mappings for the dep child elements to the fcst_var and stats
     title = root_elem.xpath('plot')[0].xpath('tmpl')[0].xpath('title')[0].text
     y1_label = root_elem.xpath('plot')[0].xpath('tmpl')[0].xpath('y1_label')[0].text
 
     title_tokens = title.rsplit('}')
-    for cur in title_tokens:
-        if len(cur) > 0 :
+    if len(title_tokens) > 1:
+        for cur in title_tokens:
             pairs = cur.split('?')
-            dep_elem_str = pairs[0]
-            val_elem_str = pairs[1]
-            dep_elem = dep_elem_str.replace('{', '').strip()
-            val_elem = val_elem_str.replace('map=', '').strip()
-            results[dep_elem] = val_elem
+            if len(pairs) == 2:
+               dep_elem_str = pairs[0]
+               val_elem_str = pairs[1]
+               dep_elem = dep_elem_str.replace('{', '').strip()
+               val_elem = val_elem_str.replace('map=', '').strip()
+               results[dep_elem] = val_elem
 
     y1_tokens = y1_label.rsplit('}')
-    for cur in y1_tokens:
-        if len(cur) > 0:
-            pairs = cur.split("?")
-            dep_elem_str = pairs[0]
-            val_elem_str = pairs[1]
-            dep_elem = dep_elem_str.replace('{' , '').strip()
-            val_elem = val_elem_str.replace('map=', '').strip()
+    num_tokens = len(y1_tokens)
+    if num_tokens > 1:
+       for cur in y1_tokens:
+            if len(cur) > 0:
+               pairs = cur.split("?")
+               dep_elem_str = pairs[0]
+               val_elem_str = pairs[1]
+               dep_elem = dep_elem_str.replace('{' , '').strip()
+               val_elem = val_elem_str.replace('map=', '').strip()
 
-            if dep_elem not in results.keys():
-                # if the title doesn't have the stat value (y-axis) mapping add it
-                results[dep_elem] = val_elem
+               if dep_elem not in results.keys():
+                   # if the title doesn't have the stat value (y-axis) mapping add it
+                   results[dep_elem] = val_elem
 
     # plot_fix element and children
     field_elems = root_elem.xpath('plot')[0].xpath('plot_fix')[0]
@@ -235,10 +248,8 @@ def get_all_template_vals(root_elem: etree.Element) -> dict:
         else:
            v = pfe.xpath('val')[0].text
            results[k] = v
-
-
+    print(f"results: {results}")
     return results
-
 
 
 def make_plots(plotting_params:namedtuple, args) -> None:
