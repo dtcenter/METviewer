@@ -1,5 +1,5 @@
 ARG MET_BASE_REPO=met-base-metviewer
-ARG MET_BASE_TAG=v3.4.1
+ARG MET_BASE_TAG=3.4-latest
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
 LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
@@ -105,5 +105,4 @@ RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
 RUN python -m pip install PLOTLY==6.1.1
 RUN python -m pip install kaleido==1.0.0
 RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
-COPY . .
 

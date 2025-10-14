@@ -1,29 +1,33 @@
-name: Create Release Docker Images
+name: Create Development Docker Images
 
 on:
 
-  push:
-    tags:
-      - v*
-
   workflow_dispatch:
     inputs:
-      release_version:
-        description: 'Comma-separated list of versions to build, e.g. v6.0,v6.1'
-        default: 'v6.0,v6.1'
-        required: true
+      metviewer_version:
+        description: 'METviewer version to build, e.g. develop or feature_123_test. Leave blank to use the workflow branch.'
+        default: ''
+        required: false
         type: string
-      update_latest:
-        description: 'Update "X.Y-latest" images.'
-        default: false
-        required: true
-        type: boolean
+      metdataio_version:
+        description: 'METdataio version to use, e.g. feature_123_test. Leave blank to determine version automatically (vX.Y.Z or develop).'
+        default: ''
+        required: false
+        type: string
+      metcalcpy_version:
+        description: 'METcalcpy version to use, e.g. feature_123_test. Leave blank to determine version automatically (vX.Y.Z or develop).'
+        default: ''
+        required: false
+        type: string
+      metplotpy_version:
+        description: 'METplotpy version to use, e.g. feature_123_test. Leave blank to determine version automatically (vX.Y.Z or develop).'
+        default: ''
+        required: false
+        type: string
 
-  schedule:
-    - cron: "30 03 * * 0"
 
 env:
-  DOCKERHUB_REPO: dtcenter/metviewer
+  DOCKERHUB_REPO: dtcenter/metviewer-dev
 
 jobs:
 
@@ -32,41 +36,23 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.get-versions.outputs.matrix }}
-      update_latest: ${{ steps.get-versions.outputs.update_latest }}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: 'dtcenter/metplus'
-          ref: 'develop'
-          sparse-checkout: metplus/component_versions.py
-          sparse-checkout-cone-mode: false
-
       - name: Get versions to build 
         id: get-versions
         run: |
-          if [[ ${{ github.event_name }} == 'schedule' ]]; then
-            version_string="v6.0,v6.1"
-            update_latest="true"
-          elif [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
-            version_string=${{ toJSON(inputs.release_version) }}
-            update_latest=${{ toJSON(inputs.update_latest) }}
+          if [[ -n "${{ inputs.metviewer_version }}" ]]; then
+            version_string=${{ toJSON(inputs.metviewer_version) }}
           else
             version_string=${{ toJSON(github.ref_name) }}
-            update_latest="true"
           fi
           IFS=',' read -r -a version_array <<< "${version_string}"
           matrix="{\"version\": ["
           for version in "${version_array[@]}"; do
-            if [[ ${version} =~ ^v[0-9]+.[0-9]+$ ]]; then
-              matrix+=\"$(${GITHUB_WORKSPACE}/metplus/component_versions.py -v ${version} -i METviewer -o METviewer)\",
-            else
-              matrix+=\"${version}\",
-            fi
+            matrix+=\"${version}\",
           done
           matrix+="]}"
           echo "matrix=${matrix}" >> $GITHUB_OUTPUT
-          echo "update_latest=${update_latest}" >> $GITHUB_OUTPUT
 
   build_scan_and_push:
     name: Build, Scan, and Push Images
@@ -104,6 +90,10 @@ jobs:
         run: .github/jobs/build_docker_image.sh
         env:
           SOURCE_BRANCH: ${{ matrix.version }}
+          USE_DEVELOPMENT: true
+          METDATAIO_OVERRIDE: ${{ inputs.metdataio_version }}
+          METCALCPY_OVERRIDE: ${{ inputs.metcalcpy_version }}
+          METPLOTPY_OVERRIDE: ${{ inputs.metplotpy_version }}
 
       - name: Get DockerHub tag
         id: get-dockerhub-tag
@@ -116,7 +106,7 @@ jobs:
 
       - name: Scan Docker Images
         id: security-scan
-        continue-on-error: false
+        continue-on-error: true
         uses: dtcenter/metplus-action-scan-docker-images@v1
         with:
           images: |
@@ -130,7 +120,7 @@ jobs:
         run: .github/jobs/push_docker_image.sh
         env:
           SOURCE_BRANCH: ${{ matrix.version }}
-          UPDATE_LATEST: ${{ fromJSON(needs.define-matrix.outputs.update_latest) }}
+          UPDATE_LATEST: false
           DOCKER_USERNAME: 'dtcenter'
           DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
 
@@ -146,3 +136,7 @@ jobs:
           path: ${{ runner.workspace }}/logs
           if-no-files-found: ignore
 
+      - name: Check scan status
+        run: |
+          echo "Scan status: ${{ steps.security-scan.outputs.scan-status }}"
+          exit ${{ steps.security-scan.outputs.scan-status }}
