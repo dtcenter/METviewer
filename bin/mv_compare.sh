@@ -71,27 +71,28 @@ fi
 CLASSPATH=${MV_HOME}/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/xml-apis.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/juli-6.0.53.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-api-1.7.5.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-log4j12-1.7.5.jar
+CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-api-2.0.17.jar
+CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-log4j12-2.0.17.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/guava-33.4.8.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/junit-4.11.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/hamcrest-core-1.3.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/commons-io-2.20.0.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/mockito-all-1.9.5.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/servlet-api-4.0.1.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/commons-fileupload-1.6.0.jar
+CLASSPATH=$CLASSPATH:${MV_HOME}/lib/jakarta.servlet-api-5.0.0.jar
+CLASSPATH=$CLASSPATH:${MV_HOME}/lib/commons-fileupload2-core-2.0.0-M4.jar
+CLASSPATH=$CLASSPATH:${MV_HOME}/lib/commons-fileupload2-jakarta-servlet5-2.0.0-M4.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/dist/lib/metviewer_all.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/j2html-1.4.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-core-2.20.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-databind-2.20.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.11.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.19.0.jar
 
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.1.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-3.5.6.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-10.1.46.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.25.2.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.25.2.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-2.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-2.5.jar
 
 echo "Running allRestRunner"
 #/Users/pierce/test_data all
