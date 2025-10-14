@@ -1828,7 +1828,9 @@ public class MVUtil {
 
         // Create a ProcessBuilder and set the environment variables
         ProcessBuilder pb = new ProcessBuilder(command);
-        pb.environment().putAll(env);
+        if(env != null) {
+            pb.environment().putAll(env);
+        }
 
 
         try {
