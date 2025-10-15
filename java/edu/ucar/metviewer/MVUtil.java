@@ -1,7 +1,6 @@
 package edu.ucar.metviewer;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.w3c.dom.Document;
@@ -1923,13 +1922,13 @@ public class MVUtil {
         }
 
         // Append the standard output to the response
-        if (!strProcStd.isEmpty()) {
+        if (strProcStd.length() > 0) {
             mvResponse.setInfoMessage(
                     "\n==== Start " + type + " output  ====\n" + strProcStd + "====   End " + type + " output  ====\n");
         }
 
         // Append the error output to the response, if any
-        if (!strProcErr.isEmpty()) {
+        if (strProcErr.length() > 0) {
             String[] errorLines = strProcErr.toString().split("\\r?\\n|\\r");
             mvResponse.setInfoMessage(
                     mvResponse.getInfoMessage() + "\n==== Start " + type + " ERROR  ====\n" + errorLines[errorLines.length - 1] + "\n====   End " + type + " error  ====\n"
