@@ -13,6 +13,7 @@ import org.apache.logging.log4j.io.IoBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -88,11 +89,12 @@ public class RscriptAggStatManager extends RscriptStatManager {
                   + mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py"
                   + " "
                   + eeInfo);
-
+          Map<String, String> env = new HashMap<>();
+          env.put("PYTHONPATH", mvBatch.getMetCalcpyHome());
           mvResponse = MVUtil.runRscript(mvBatch.getPython(),
                   mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py",
                   new String[]{eeInfo},
-                  new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
+                  env);
 
 
         }else {
@@ -298,7 +300,8 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-
+        Map<String, String> env = new HashMap<>();
+        env.put("PYTHONPATH", mvBatch.getMetCalcpyHome());
         if(job.isModeJob() || job.isMtdJob()){
           mvBatch.print(mvBatch.getPython()
                   + "\n"
@@ -309,7 +312,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
           mvResponse = MVUtil.runRscript(mvBatch.getPython(),
                   mvBatch.getMetCalcpyHome() + rScriptFile,
                   new String[]{aggInfo},
-                  new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
+                  env);
         }else {
 
           mvBatch.print(mvBatch.getPython()
@@ -321,7 +324,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
           mvResponse = MVUtil.runRscript(mvBatch.getPython(),
                   mvBatch.getMetCalcpyHome() + rScriptFile,
                   new String[]{aggInfo},
-                  new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
+                  env);
         }
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
