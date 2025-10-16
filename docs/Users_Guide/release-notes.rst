@@ -9,6 +9,26 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version v6.0.2 Release Notes (20251016)
+---------------------------------------
+
+  .. dropdown:: New Features
+
+     None
+
+  .. dropdown::  Enhancements
+
+     None
+
+  .. dropdown:: Bugfixes
+
+     * Add env vars to Python script execution for main_v6.0
+       (`#623 <https://github.com/dtcenter/METviewer/issues/623>`_)
+
+  .. dropdown:: Internal
+
+     None
+
 Version `v6.0.1 <https://github.com/dtcenter/METviewer>`_ Release Notes (20250723)
 --------------------------------------------------------------------------------------
 
