@@ -122,8 +122,8 @@ https://dtcenter.org/community-code/metplus/download
 
 
 
-**Python**: install Python 3.12.9. Create an environment
-(METviewer_py3.12.9) and install required packages based on the
+**Python**: install Python 3.12. Create an environment
+(METviewer_py3.12) and install required packages based on the
 met_plus_requirements.txt or nco_requirements.txt (for NCO/NOAA users):
 https://github.com/dtcenter/METviewer/
 
