@@ -27,7 +27,7 @@ Version `v6.2.0 rc1 <https://github.com/dtcenter/METviewer>`_ Release Notes (202
 
   .. dropdown:: Bugfixes
 
-     *Bugfix- METviewer6.1 batch script no longer works (`#605 <https://github.com/dtcenter/METviewer/issues/605>`_)
+     * Bugfix- METviewer6.1 batch script no longer works (`#605 <https://github.com/dtcenter/METviewer/issues/605>`_)
 
 
   .. dropdown:: Documentation
