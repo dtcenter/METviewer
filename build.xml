@@ -130,7 +130,7 @@
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
-        <pathelement location="${lib}/commons-lang3-3.11.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.19.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
@@ -155,7 +155,7 @@
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/commons-lang3-3.11.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.19.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
@@ -174,7 +174,7 @@
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
-        <pathelement location="${lib}/commons-lang3-3.11.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.19.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
@@ -199,7 +199,7 @@
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/commons-lang3-3.11.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.19.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
@@ -218,7 +218,7 @@
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
-        <pathelement location="${lib}/commons-lang3-3.11.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.19.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
@@ -243,7 +243,7 @@
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
-        <pathelement location="${lib}/commons-lang3-3.11.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.19.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-8.5.61.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
