@@ -84,7 +84,7 @@ CLASSPATH=$CLASSPATH:${MV_HOME}/dist/lib/metviewer_all.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/j2html-1.4.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-core-2.20.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-databind-2.20.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.19.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.19.0.jar
 
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
