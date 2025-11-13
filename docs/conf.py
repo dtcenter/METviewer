@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.abspath('.'))
 
 project = 'METviewer'
 author = 'UCAR/NCAR'
-author_list = ("I. Srivastava,  M. Win-Gildenmeister, L. Goodrich, J. Prestopnik, L. Blank, T. Fowler, "
-               ",T. Burek and T. Jensen")
+author_list = ("Srivastava, I. M. Win-Gildenmeister, L. Goodrich, J. Prestopnik, L. Blank, T. Fowler, "
+               "T. Burek and T. Jensen")
 version = "6.2.0"
 verinfo = version
 release = f'{version}'
