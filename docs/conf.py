@@ -25,7 +25,7 @@ version = "6.2.0"
 verinfo = version
 release = f'{version}'
 release_year = '2025'
-release_date = f'{release_year}-11-14'
+release_date = f'{release_year}-11-13'
 copyright = f'{release_year}, {author}'
 
 
