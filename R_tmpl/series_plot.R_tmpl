@@ -1042,7 +1042,7 @@ if( 0 < length(listDep2Plot) ){
     if( !listPlotDispSeries2[i] ){
       next;
     }
-    intStagIndex = listPlotOrderSeries2Part[i];
+    intStagIndex = strtoi(listPlotOrderSeries2Part[i]);
 
 
     # slice the series constituents from the series list
