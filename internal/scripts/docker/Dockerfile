@@ -30,33 +30,30 @@ ENV METVIEWER_GIT_URL=https://github.com/dtcenter/METviewer
 ENV METVIEWER_GIT_NAME=${SOURCE_BRANCH}
 ENV CATALINA_HOME=/opt/tomcat
 
-RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
- && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
- && echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}" \
- && echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}"
-
 #
 # Set env vars
 #
 ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
 
+# Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy
+ENV PRE_LOAD_CHROME='True'
+
 #
 # Update the OS, as needed
-#
-RUN apt-get update && apt-get -y upgrade
-
-#
 # Clone the METviewer repository
-#
-RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}"
-RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer
-
-#
 # Configure METviewer
+# Run the build script
 #
-RUN echo "Configuring METviewer" \
- && cd /METviewer \
+RUN apt-get update && apt-get -y upgrade \
+  && echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
+  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
+  && echo "Build Argument METCALCPY_GIT_NAME=${METCALCPY_GIT_NAME}" \
+  && echo "Build Argument METDATAIO_GIT_NAME=${METDATAIO_GIT_NAME}" \
+  && echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}" &&\
+     git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer \
+  && echo "Configuring METviewer" &&\
+     (cd /METviewer \
  && cat webapp/metviewer/WEB-INF/classes/build.properties | \
     sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
     sed -r 's%db.user=.*%db.user=root%g' | \
@@ -68,12 +65,8 @@ RUN echo "Configuring METviewer" \
     sed -r 's%python.env=.*%python.env=/usr/local%g' | \
     sed -r 's%metcalcpy.home=.*%metcalcpy.home=/METviewer-python/METcalcpy/%g' | \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
-    > build.properties
-
-#
-# Run the build script
-#
-RUN cd /METviewer  && internal/scripts/docker/build_metviewer_docker.sh
+    > build.properties &&\
+    internal/scripts/docker/build_metviewer_docker.sh)
 
 # Explicitly specify the shell to indicate that using the SHELL
 # instruction is a conscious decision: 
@@ -81,28 +74,3 @@ RUN cd /METviewer  && internal/scripts/docker/build_metviewer_docker.sh
 SHELL ["/bin/sh", "-c"]
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
-
-
-#
-# Get Chrome
-#
-# install wget
-RUN apt-get -f install -y
-RUN apt-get update
-RUN apt-get install -y wget
-
-# Install Chrome
-RUN wget -q  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
-RUN ls -la /usr/bin/google-chrome* && \
-      google-chrome --version
-
-# Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy 
-ENV PRE_LOAD_CHROME='True'
-RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
-
-# Ensure correct Plotly and kaleido versions are installed
-RUN python -m pip install PLOTLY==6.1.1
-RUN python -m pip install kaleido==1.0.0
-RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
-
