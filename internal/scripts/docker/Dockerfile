@@ -82,27 +82,5 @@ SHELL ["/bin/sh", "-c"]
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
 
-
-#
-# Get Chrome
-#
-# install wget
-RUN apt-get -f install -y
-RUN apt-get update
-RUN apt-get install -y wget
-
-# Install Chrome
-RUN wget -q  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
-RUN ls -la /usr/bin/google-chrome* && \
-      google-chrome --version
-
-# Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy 
+# Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy
 ENV PRE_LOAD_CHROME='True'
-RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
-
-# Ensure correct Plotly and kaleido versions are installed
-RUN python -m pip install PLOTLY==6.1.1
-RUN python -m pip install kaleido==1.0.0
-RUN echo "INFO: environment PRE_LOAD_CHROME set to ${PRE_LOAD_CHROME} ";
-
