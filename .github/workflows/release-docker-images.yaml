@@ -105,35 +105,6 @@ jobs:
         env:
           SOURCE_BRANCH: ${{ matrix.version }}
 
-      - name: Get DockerHub tag
-        id: get-dockerhub-tag
-        run: |
-          source ${GITHUB_WORKSPACE}/.github/jobs/bash_functions.sh
-          DOCKERHUB_TAG=$(get_dockerhub_tag)
-          echo "DOCKERHUB_TAG=${DOCKERHUB_TAG}" >> $GITHUB_OUTPUT
-        env:
-          SOURCE_BRANCH: ${{ matrix.version }}
-
-      - name: Scan Docker Images
-        id: security-scan
-        continue-on-error: false
-        uses: dtcenter/metplus-action-scan-docker-images@v1
-        with:
-          images: |
-            [
-              "${{ steps.get-dockerhub-tag.outputs.DOCKERHUB_TAG }}"
-            ]
-          fail-on-critical: "true"
-          log-artifact-name: 'security-scan-logs_${{ matrix.version }}'
-
-      - name: Push Docker Image
-        run: .github/jobs/push_docker_image.sh
-        env:
-          SOURCE_BRANCH: ${{ matrix.version }}
-          UPDATE_LATEST: ${{ fromJSON(needs.define-matrix.outputs.update_latest) }}
-          DOCKER_USERNAME: 'dtcenter'
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
-
       - name: Copy build log files into logs directory
         if: always()
         run: cp ${GITHUB_WORKSPACE}/*.log ${RUNNER_WORKSPACE}/logs/
@@ -146,3 +117,30 @@ jobs:
           path: ${{ runner.workspace }}/logs
           if-no-files-found: ignore
 
+      - name: Get DockerHub tag
+        id: get-dockerhub-tag
+        run: |
+          source ${GITHUB_WORKSPACE}/.github/jobs/bash_functions.sh
+          DOCKERHUB_TAG=$(get_dockerhub_tag)
+          echo "DOCKERHUB_TAG=${DOCKERHUB_TAG}" >> $GITHUB_OUTPUT
+        env:
+          SOURCE_BRANCH: ${{ matrix.version }}
+
+      - name: Scan Docker Images
+        id: security-scan
+        uses: dtcenter/metplus-action-scan-docker-images@v1
+        with:
+          images: |
+            [
+              "${{ steps.get-dockerhub-tag.outputs.DOCKERHUB_TAG }}"
+            ]
+          fail-on-critical: "false"
+          log-artifact-name: 'security-scan-logs_${{ matrix.version }}'
+
+      - name: Push Docker Image
+        run: .github/jobs/push_docker_image.sh
+        env:
+          SOURCE_BRANCH: ${{ matrix.version }}
+          UPDATE_LATEST: ${{ fromJSON(needs.define-matrix.outputs.update_latest) }}
+          DOCKER_USERNAME: 'dtcenter'
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
