@@ -9,7 +9,7 @@ DOCKERFILE_PATH=${GITHUB_WORKSPACE}/${SOURCE_BRANCH}/internal/scripts/docker/Doc
 
 # For the sonarqube.yaml workflow
 if [[ ! -f "${DOCKERFILE_PATH}" ]]; then
-  DOCKERFILE_PATH=${GITHUB_WORKSPACE}/internal/scripts/docker/Dockerfile.copy
+  DOCKERFILE_PATH=${GITHUB_WORKSPACE}/internal/scripts/docker/Dockerfile
 fi
 
 CMD_LOGFILE=${GITHUB_WORKSPACE}/docker_build.log
