@@ -1,7 +1,7 @@
 ARG MET_BASE_REPO=met-base-metviewer-dev
 ARG MET_BASE_TAG=feature_52_v3.4_ib_metviewer
 
-FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG}
+FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG} AS build
 LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 
 
@@ -75,12 +75,71 @@ RUN echo "Configuring METviewer" \
 #
 RUN cd /METviewer  && internal/scripts/docker/build_metviewer_docker.sh
 
+# copy only files needed to run METviewer into the final image
+ARG BASE_REGISTRY=docker.io
+ARG BASE_IMAGE=debian
+ARG BASE_TAG=12-slim
+FROM ${BASE_REGISTRY}/${BASE_IMAGE}:${BASE_TAG}
+
+# METviewer code
+COPY --from=build /METviewer /METviewer
+COPY --from=build /METviewer-python /METviewer-python
+
+# Tomcat
+COPY --from=build /opt/tomcat /opt/tomcat
+
+# Database (MariaDB)
+COPY --from=build /var/lib/mysql /var/lib/mysql
+
+# Python
+COPY --from=build /usr/local/bin/python3* /usr/local/bin/
+COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
+COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
+
+# Java
+COPY --from=build /usr/lib/jvm /usr/lib/jvm
+COPY --from=build /etc/java-17-openjdk /etc/java-17-openjdk
+
+# R
+COPY --from=build /etc/R /etc/R
+COPY --from=build /usr/include /usr/include
+COPY --from=build /usr/lib/R /usr/lib/R
+COPY --from=build /usr/bin/R /usr/bin/R
+COPY --from=build /usr/bin/Rscript /usr/bin/Rscript
+COPY --from=build /usr/lib/x86_64-linux-gnu/libblas.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libreadline.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libtirpc.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libicuuc.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libicui18n.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libgomp.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libgssapi_krb5.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libicudata.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libkrb5.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libk5crypto.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libkrb5support.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libkeyutils.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/liblapack.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libgfortran.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libquadmath.so* /usr/lib/x86_64-linux-gnu/
+
+COPY --from=build /usr/local/lib/R/site-library /usr/local/lib/R/site-library
+
+#RUN rm -rf /tmp/*
+
+# set environment variables need to run METviewer
+ENV CATALINA_HOME=/opt/tomcat
+ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
+ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy
+ENV PRE_LOAD_CHROME='True'
+
+WORKDIR /METviewer
+
 # Explicitly specify the shell to indicate that using the SHELL
 # instruction is a conscious decision: 
 # https://docs.docker.com/reference/build-checks/json-args-recommended/
 SHELL ["/bin/sh", "-c"]
 ENTRYPOINT ${CATALINA_HOME}/bin/startup.sh && /bin/bash
 CMD ["true"]
-
-# Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy
-ENV PRE_LOAD_CHROME='True'
