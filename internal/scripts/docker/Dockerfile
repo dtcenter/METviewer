@@ -1,6 +1,11 @@
 ARG MET_BASE_REPO=met-base-metviewer-dev
 ARG MET_BASE_TAG=feature_52_v3.4_ib_metviewer
 
+# base image that files will be copied into
+ARG BASE_REGISTRY=docker.io
+ARG BASE_IMAGE=debian
+ARG BASE_TAG=12-slim
+
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG} AS build
 LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
 
@@ -76,9 +81,6 @@ RUN echo "Configuring METviewer" \
 RUN cd /METviewer  && internal/scripts/docker/build_metviewer_docker.sh
 
 # copy only files needed to run METviewer into the final image
-ARG BASE_REGISTRY=docker.io
-ARG BASE_IMAGE=debian
-ARG BASE_TAG=12-slim
 FROM ${BASE_REGISTRY}/${BASE_IMAGE}:${BASE_TAG}
 
 # METviewer code
