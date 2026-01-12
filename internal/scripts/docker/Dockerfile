@@ -93,6 +93,8 @@ COPY --from=build /opt/tomcat /opt/tomcat
 # Database (MariaDB)
 COPY --from=build /var/lib/mysql /var/lib/mysql
 COPY --from=build /usr/lib/mysql /usr/lib/mysql
+COPY --from=build /usr/bin/mysql* /usr/bin/
+COPY --from=build /usr/bin/mariadb* /usr/bin/
 
 # Python
 COPY --from=build /usr/local/bin/python* /usr/local/bin/
