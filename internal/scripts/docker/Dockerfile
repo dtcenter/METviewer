@@ -92,9 +92,10 @@ COPY --from=build /opt/tomcat /opt/tomcat
 
 # Database (MariaDB)
 COPY --from=build /var/lib/mysql /var/lib/mysql
+COPY --from=build /usr/lib/mysql /usr/lib/mysql
 
 # Python
-COPY --from=build /usr/local/bin/python3* /usr/local/bin/
+COPY --from=build /usr/local/bin/python* /usr/local/bin/
 COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
 
@@ -133,6 +134,7 @@ ENV CATALINA_HOME=/opt/tomcat
 ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV PATH $JAVA_HOME/bin:$PATH
 
 # Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy
 ENV PRE_LOAD_CHROME='True'
