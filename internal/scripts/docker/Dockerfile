@@ -95,6 +95,9 @@ COPY --from=build /var/lib/mysql /var/lib/mysql
 COPY --from=build /usr/lib/mysql /usr/lib/mysql
 COPY --from=build /usr/bin/mysql* /usr/bin/
 COPY --from=build /usr/bin/mariadb* /usr/bin/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libedit.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libncurses.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/lib/x86_64-linux-gnu/libbsd.so* /usr/lib/x86_64-linux-gnu/
 
 # Python
 COPY --from=build /usr/local/bin/python* /usr/local/bin/
