@@ -107,10 +107,13 @@ COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
 
 # chrome (needed by plotly/kaleido python packages)
-COPY --from=build /usr/bin/google-chrome /usr/bin/google-chrome
+#COPY --from=build /usr/bin/google-chrome* /usr/bin/
+COPY --from=build /opt/google/chrome /opt/google/chrome
 COPY --from=build /usr/local/bin/choreo_diagnose /usr/local/bin/choreo_diagnose
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libnss*so* /usr/lib/x86_64-linux-gnu/
 
+RUN ln -s /opt/google/chrome/google-chrome /usr/bin/google-chrome-stable &&\
+    ln -s /usr/bin/google-chrome-stable /usr/bin/google-chrome
 
 # Java
 COPY --from=build /usr/lib/jvm /usr/lib/jvm
