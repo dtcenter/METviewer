@@ -107,6 +107,7 @@ COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
 
 # chrome (needed by plotly/kaleido python packages)
+COPY --from=build /usr/bin/google-chrome /usr/bin/google-chrome
 COPY --from=build /usr/local/bin/choreo_diagnose /usr/local/bin/choreo_diagnose
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libnss*so* /usr/lib/x86_64-linux-gnu/
 
@@ -174,8 +175,6 @@ COPY --from=build /usr/share/ghostscript /usr/share/ghostscript
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libXdmcp.so* /usr/lib/x86_64-linux-gnu/
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libdbus-1.so* /usr/lib/x86_64-linux-gnu/
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libbrotlicommon.so* /usr/lib/x86_64-linux-gnu/
-
-#RUN rm -rf /tmp/*
 
 # set environment variables need to run METviewer
 ENV CATALINA_HOME=/opt/tomcat
