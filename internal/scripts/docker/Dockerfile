@@ -90,19 +90,26 @@ COPY --from=build /METviewer-python /METviewer-python
 # Tomcat
 COPY --from=build /opt/tomcat /opt/tomcat
 
+COPY --from=build /usr/lib/x86_64-linux-gnu/*so* /usr/lib/x86_64-linux-gnu/
+
 # Database (MariaDB)
 COPY --from=build /var/lib/mysql /var/lib/mysql
 COPY --from=build /usr/lib/mysql /usr/lib/mysql
 COPY --from=build /usr/bin/mysql* /usr/bin/
 COPY --from=build /usr/bin/mariadb* /usr/bin/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libedit.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libncurses.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libbsd.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libedit.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libncurses.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libbsd.so* /usr/lib/x86_64-linux-gnu/
 
 # Python
 COPY --from=build /usr/local/bin/python* /usr/local/bin/
 COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
+
+# chrome (needed by plotly/kaleido python packages)
+COPY --from=build /usr/local/bin/choreo_diagnose /usr/local/bin/choreo_diagnose
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libnss*so* /usr/lib/x86_64-linux-gnu/
+
 
 # Java
 COPY --from=build /usr/lib/jvm /usr/lib/jvm
@@ -114,21 +121,21 @@ COPY --from=build /usr/include /usr/include
 COPY --from=build /usr/lib/R /usr/lib/R
 COPY --from=build /usr/bin/R /usr/bin/R
 COPY --from=build /usr/bin/Rscript /usr/bin/Rscript
-COPY --from=build /usr/lib/x86_64-linux-gnu/libblas.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libreadline.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libtirpc.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libicuuc.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libicui18n.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libgomp.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libgssapi_krb5.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libicudata.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libkrb5.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libk5crypto.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libkrb5support.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libkeyutils.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/liblapack.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libgfortran.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libquadmath.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libblas.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libreadline.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libtirpc.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libicuuc.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libicui18n.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libgomp.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libgssapi_krb5.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libicudata.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libkrb5.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libk5crypto.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libkrb5support.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libkeyutils.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/liblapack.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libgfortran.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libquadmath.so* /usr/lib/x86_64-linux-gnu/
 
 # R packages
 COPY --from=build /usr/local/lib/R/site-library /usr/local/lib/R/site-library
@@ -137,36 +144,36 @@ COPY --from=build /usr/local/lib/R/site-library /usr/local/lib/R/site-library
 COPY --from=build /usr/bin/gs /usr/bin/gs
 COPY --from=build /usr/bin/ghostscript /usr/bin/ghostscript
 COPY --from=build /usr/share/ghostscript /usr/share/ghostscript
-COPY --from=build /usr/lib/x86_64-linux-gnu/libgs.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libXt.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libX11.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libtiff.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libcups.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libijs-0.35.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libpng16.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libjbig2dec.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libjpeg.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/liblcms2.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libidn.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libpaper.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libfontconfig.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libfreetype.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libopenjp2.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libSM.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libICE.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libxcb.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libwebp.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libLerc.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libjbig.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libdeflate.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libavahi-common.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libavahi-client.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libexpat.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libbrotlidec.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libXau.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libXdmcp.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libdbus-1.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/lib/x86_64-linux-gnu/libbrotlicommon.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libgs.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libXt.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libX11.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libtiff.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libcups.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libijs-0.35.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libpng16.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libjbig2dec.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libjpeg.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/liblcms2.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libidn.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libpaper.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libfontconfig.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libfreetype.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libopenjp2.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libSM.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libICE.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libxcb.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libwebp.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libLerc.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libjbig.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libdeflate.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libavahi-common.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libavahi-client.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libexpat.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libbrotlidec.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libXau.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libXdmcp.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libdbus-1.so* /usr/lib/x86_64-linux-gnu/
+#COPY --from=build /usr/lib/x86_64-linux-gnu/libbrotlicommon.so* /usr/lib/x86_64-linux-gnu/
 
 #RUN rm -rf /tmp/*
 
