@@ -110,10 +110,20 @@ COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
 #COPY --from=build /usr/bin/google-chrome* /usr/bin/
 COPY --from=build /opt/google/chrome /opt/google/chrome
 COPY --from=build /usr/local/bin/choreo_diagnose /usr/local/bin/choreo_diagnose
+
+# copy package to reinstall to get all missing dependencies
+COPY --from=build /tmp/google-chrome-stable_current_amd64.deb /tmp/google-chrome-stable_current_amd64.deb
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libnss*so* /usr/lib/x86_64-linux-gnu/
 
-RUN ln -s /opt/google/chrome/google-chrome /usr/bin/google-chrome-stable &&\
-    ln -s /usr/bin/google-chrome-stable /usr/bin/google-chrome
+RUN echo "Reinstall chrome to get all dependencies" &&\
+    apt -y update && apt -y upgrade &&\
+    apt-get install -y /tmp/google-chrome-stable_current_amd64.deb \
+ && echo "removing packages containing critical CVEs" &&\
+    apt remove -y libpython3.11-minimal \
+ && apt clean
+
+#RUN ln -s /opt/google/chrome/google-chrome /usr/bin/google-chrome-stable &&\
+#    ln -s /usr/bin/google-chrome-stable /usr/bin/google-chrome
 
 # Java
 COPY --from=build /usr/lib/jvm /usr/lib/jvm
