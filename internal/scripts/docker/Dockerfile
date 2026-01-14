@@ -115,13 +115,6 @@ COPY --from=build /usr/local/bin/choreo_diagnose /usr/local/bin/choreo_diagnose
 COPY --from=build /tmp/google-chrome-stable_current_amd64.deb /tmp/google-chrome-stable_current_amd64.deb
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libnss*so* /usr/lib/x86_64-linux-gnu/
 
-RUN echo "Reinstall chrome to get all dependencies" &&\
-    apt -y update && apt -y upgrade &&\
-    apt-get install -y /tmp/google-chrome-stable_current_amd64.deb \
- && echo "removing packages containing critical CVEs" &&\
-    apt remove -y libpython3.11-minimal \
- && apt clean
-
 #RUN ln -s /opt/google/chrome/google-chrome /usr/bin/google-chrome-stable &&\
 #    ln -s /usr/bin/google-chrome-stable /usr/bin/google-chrome
 
@@ -197,6 +190,18 @@ COPY --from=build /usr/share/color /usr/share/color
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libXdmcp.so* /usr/lib/x86_64-linux-gnu/
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libdbus-1.so* /usr/lib/x86_64-linux-gnu/
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libbrotlicommon.so* /usr/lib/x86_64-linux-gnu/
+
+# increase proxy timeout
+RUN \
+  sed -i 's|connectionTimeout=".*"|connectionTimeout="40000"|g' /opt/tomcat/conf/server.xml
+
+# install chrome
+RUN echo "Reinstall chrome to get all dependencies" &&\
+    apt -y update && apt -y upgrade &&\
+    apt-get install -y /tmp/google-chrome-stable_current_amd64.deb \
+ && echo "removing packages containing critical CVEs" &&\
+    apt remove -y libpython3.11-minimal \
+ && apt clean
 
 # set environment variables need to run METviewer
 ENV CATALINA_HOME=/opt/tomcat
