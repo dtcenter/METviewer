@@ -144,10 +144,19 @@ COPY --from=build /usr/bin/Rscript /usr/bin/Rscript
 # R packages
 COPY --from=build /usr/local/lib/R/site-library /usr/local/lib/R/site-library
 
+# R fonts
+COPY --from=build /etc/fonts /etc/fonts
+COPY --from=build /usr/share/fontconfig /usr/share/fontconfig
+COPY --from=build /usr/share/fonts /usr/share/fonts
+
 # ghostscript (needed by R)
 COPY --from=build /usr/bin/gs /usr/bin/gs
 COPY --from=build /usr/bin/ghostscript /usr/bin/ghostscript
 COPY --from=build /usr/share/ghostscript /usr/share/ghostscript
+COPY --from=build /var/lib/ghostscript /var/lib/ghostscript
+COPY --from=build /etc/ghostscript /etc/ghostscript
+COPY --from=build /usr/share/poppler /usr/share/poppler
+COPY --from=build /usr/share/color /usr/share/color
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libgs.so* /usr/lib/x86_64-linux-gnu/
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libXt.so* /usr/lib/x86_64-linux-gnu/
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libX11.so* /usr/lib/x86_64-linux-gnu/
@@ -184,7 +193,7 @@ ENV CATALINA_HOME=/opt/tomcat
 ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-ENV PATH $JAVA_HOME/bin:$PATH
+ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy
 ENV PRE_LOAD_CHROME='True'
