@@ -1,6 +1,7 @@
 package edu.ucar.metviewer;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.w3c.dom.Document;
@@ -1778,172 +1779,134 @@ public class MVUtil {
     return runRscript(rscriptCommand, scriptName, args, null);
   }
 
-    /**
-     * Executes an R script or Python script using the specified command, script name, arguments,
-     * and environment variables. Captures the standard output and error streams, logs the process,
-     * and returns the result in an `MvResponse` object.
-     *
-     * @param rscriptCommand The command to execute the script (e.g., "Rscript" or "python").
-     * @param scriptName The name of the script to execute.
-     * @param args An array of arguments to pass to the script.
-     * @param env A map of environment variables to set for the process.
-     * @return An `MvResponse` object containing the success status, output, and error messages.
-     */
-    public static MvResponse runRscript(
-            final String rscriptCommand, final String scriptName,
-            final String[] args, final Map<String, String> env) {
+  /**
+   * Run the input R script named r using the Rscript command.  The output and error output will be
+   * written to standard output.
+   *
+   * @param rscriptCommand Rscript command
+   * @param scriptName     R script to run
+   * @param args           (optional) Arguments to pass to the R script
+   * @throws Exception
+   */
+  public static MvResponse runRscript(
+          final String rscriptCommand, final String scriptName,
+          final String[] args, final String[] env) {
 
-        MvResponse mvResponse = new MvResponse();
+    MvResponse mvResponse = new MvResponse();
 
-        // Build a list of arguments from the provided array
-        StringBuilder argList = new StringBuilder();
-        for (int i = 0; null != args && i < args.length; i++) {
-            argList.append(' ').append(args[i]);
-        }
-
-        Process proc = null;
-        InputStreamReader inputStreamReader = null;
-        InputStreamReader errorInputStreamReader = null;
-
-        BoundedBufferedReader readerProcStd = null;
-        BoundedBufferedReader readerProcErr = null;
-
-        boolean boolExit = false;
-        int intExitStatus = 0;
-        StringBuilder strProcStd = new StringBuilder();
-        StringBuilder strProcErr = new StringBuilder();
-        InputStream error = null;
-        InputStream in = null;
-
-        // Clean and prepare the command, script name, and arguments
-        String rscriptCommandClean = cleanString(rscriptCommand);
-        String scriptNameClean = cleanString(scriptName);
-        String strArgListClean = cleanString(argList.toString());
-        List<String> command = new ArrayList<>();
-        command.add(rscriptCommandClean.trim());
-        command.add(scriptNameClean.trim());
-        command.add(strArgListClean.trim());
-        logger.info("Running command: " + String.join(" ", command));
-
-        // Create a ProcessBuilder and set the environment variables
-        ProcessBuilder pb = new ProcessBuilder(command);
-        if(env != null) {
-            pb.environment().putAll(env);
-        }
-
-
-        try {
-            // Start the process and wait for it to complete
-            proc = pb.start();
-            int errorCode = proc.waitFor();
-
-            // Capture the error and standard output streams
-            error = proc.getErrorStream();
-            errorInputStreamReader = new InputStreamReader(error);
-            in = proc.getInputStream();
-            inputStreamReader = new InputStreamReader(in);
-
-            readerProcStd = new BoundedBufferedReader(inputStreamReader, 50000, 2048);
-            readerProcErr = new BoundedBufferedReader(errorInputStreamReader, 50000, 2048);
-
-            // Read the standard output
-            while (readerProcStd.ready()) {
-                String line = readerProcStd.readLineBounded();
-                strProcStd.append(line).append('\n');
-            }
-
-            // Read the error output
-            while (readerProcErr.ready()) {
-                String line = readerProcErr.readLineBounded();
-                strProcErr.append(line).append('\n');
-            }
-
-            // Destroy the process after execution
-            proc.destroy();
-
-        } catch (SecurityException | IOException | IllegalArgumentException | InterruptedException e) {
-            // Log any exceptions that occur during process execution
-            logger.error(e.getMessage());
-        } finally {
-            // Close all streams and clean up resources
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            }
-            if (error != null) {
-                try {
-                    error.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            }
-
-            if (inputStreamReader != null) {
-                try {
-                    inputStreamReader.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            }
-            if (errorInputStreamReader != null) {
-                try {
-                    errorInputStreamReader.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            }
-            if (readerProcStd != null) {
-                try {
-                    readerProcStd.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            }
-            if (readerProcErr != null) {
-                try {
-                    readerProcErr.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            }
-            if (proc != null) {
-                proc.destroy();
-            }
-
-        }
-
-        // Determine the script type (Rscript or Python) based on the command
-        String type = "Rscript";
-        if (rscriptCommand.contains("python")) {
-            type = PYTHON;
-        }
-
-        // Append the standard output to the response
-        if (strProcStd.length() > 0) {
-            mvResponse.setInfoMessage(
-                    "\n==== Start " + type + " output  ====\n" + strProcStd + "====   End " + type + " output  ====\n");
-        }
-
-        // Append the error output to the response, if any
-        if (strProcErr.length() > 0) {
-            String[] errorLines = strProcErr.toString().split("\\r?\\n|\\r");
-            mvResponse.setInfoMessage(
-                    mvResponse.getInfoMessage() + "\n==== Start " + type + " ERROR  ====\n" + errorLines[errorLines.length - 1] + "\n====   End " + type + " error  ====\n"
-
-            );
-
-            mvResponse.setErrorMessage(
-                    "==== Start " + type + " error  ====\n" + strProcErr + "====   End " + type + " ERROR  ====");
-        }
-        // Set the success status of the response
-        mvResponse.setSuccess(0 == intExitStatus);
-        return mvResponse;
+    //  build a list of arguments
+    StringBuilder argList = new StringBuilder();
+    for (int i = 0; null != args && i < args.length; i++) {
+      argList.append(' ').append(args[i]);
     }
 
-    /**
+    Process proc = null;
+    InputStreamReader inputStreamReader = null;
+    InputStreamReader errorInputStreamReader = null;
+
+    BoundedBufferedReader readerProcStd = null;
+    BoundedBufferedReader readerProcErr = null;
+
+    boolean boolExit = false;
+    int intExitStatus = 0;
+    StringBuilder strProcStd = new StringBuilder();
+    StringBuilder strProcErr = new StringBuilder();
+
+
+    try {
+      String rscriptCommandClean = cleanString(rscriptCommand);
+      String scriptNameClean = cleanString(scriptName);
+      String strArgListClean = cleanString(argList.toString());
+
+
+      proc = Runtime.getRuntime()
+              .exec(rscriptCommandClean + " " + scriptNameClean + strArgListClean,
+                      env,
+                      new File(System.getProperty("user.home")));
+      inputStreamReader = new InputStreamReader(proc.getInputStream());
+      errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
+
+      readerProcStd = new BoundedBufferedReader(inputStreamReader, 50000, 2048);
+      readerProcErr = new BoundedBufferedReader(errorInputStreamReader, 50000, 2048);
+      while (!boolExit) {
+        try {
+          intExitStatus = proc.exitValue();
+          boolExit = true;
+        } catch (IllegalThreadStateException e) {
+          logger.debug(e.getMessage());
+        }
+
+        while (readerProcStd.ready()) {
+          String line = readerProcStd.readLineBounded();
+          strProcStd.append(line).append('\n');
+        }
+        while (readerProcErr.ready()) {
+          String line = readerProcErr.readLineBounded();
+          strProcErr.append(line).append('\n');
+        }
+      }
+    } catch (SecurityException | IOException | IllegalArgumentException e) {
+      logger.error( e.getMessage());
+    } finally {
+
+      if (inputStreamReader != null) {
+        try {
+          inputStreamReader.close();
+        } catch (IOException e) {
+          logger.error( e.getMessage());
+        }
+      }
+      if (errorInputStreamReader != null) {
+        try {
+          errorInputStreamReader.close();
+        } catch (IOException e) {
+          logger.error( e.getMessage());
+        }
+      }
+      if (readerProcStd != null) {
+        try {
+          readerProcStd.close();
+        } catch (IOException e) {
+          logger.error( e.getMessage());
+        }
+      }
+      if (readerProcErr != null) {
+        try {
+          readerProcErr.close();
+        } catch (IOException e) {
+          logger.error( e.getMessage());
+        }
+      }
+      if (proc != null) {
+        proc.destroy();
+      }
+
+    }
+
+    String type = "Rscript";
+    if (rscriptCommand.contains("python")) {
+      type = PYTHON;
+    }
+    if (strProcStd.length() > 0) {
+      mvResponse.setInfoMessage(
+              "\n==== Start " + type + " output  ====\n" + strProcStd + "====   End " + type + " output  ====\n");
+    }
+    // add errors if they exist - only the last line
+    if (strProcErr.length() > 0) {
+      String[] errorLines = strProcErr.toString().split("\\r?\\n|\\r");
+      mvResponse.setInfoMessage(
+              mvResponse.getInfoMessage() + "\n==== Start " + type + " ERROR  ====\n" + errorLines[errorLines.length-1] + "\n====   End " + type + " error  ====\n"
+
+      );
+
+      mvResponse.setErrorMessage(
+              "==== Start " + type + " error  ====\n" + strProcErr + "====   End " + type + " ERROR  ====");
+    }
+    mvResponse.setSuccess(0 == intExitStatus);
+    return mvResponse;
+  }
+
+  /**
    * Populate the template tags in the input template file named tmpl with values from the input
    * table vals and write the result to the output file named output.
    *
