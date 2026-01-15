@@ -30,7 +30,7 @@ the command in MySQL and/or make the corresponding edit to */etc/my.cnf*,
 so that the change persists after the next reboot.
 
 **Apache Tomcat** -
-`download Apache Tomcat 8 <https://tomcat.apache.org/download-80.cgi>`_
+`download Apache Tomcat 9 <https://tomcat.apache.org/download-90.cgi>`_
 and install the latest version; test the sample JSP web apps.
 
 Create an output directory under *<Tomcat>/webapps* for METviewer output
