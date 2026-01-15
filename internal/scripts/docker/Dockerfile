@@ -57,11 +57,13 @@ RUN apt-get update && apt-get -y upgrade
 RUN echo "Checking out METviewer ${METVIEWER_GIT_NAME} from ${METVIEWER_GIT_URL}"
 RUN git clone --branch ${METVIEWER_GIT_NAME} ${METVIEWER_GIT_URL} /METviewer
 
+
+WORKDIR /METviewer
+
 #
 # Configure METviewer
 #
 RUN echo "Configuring METviewer" \
- && cd /METviewer \
  && cat webapp/metviewer/WEB-INF/classes/build.properties | \
     sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
     sed -r 's%db.user=.*%db.user=root%g' | \
@@ -75,10 +77,12 @@ RUN echo "Configuring METviewer" \
     sed -r 's%metplotpy.home=.*%metplotpy.home=/METviewer-python/METplotpy/%g' \
     > build.properties
 
+
+
 #
 # Run the build script
 #
-RUN cd /METviewer  && internal/scripts/docker/build_metviewer_docker.sh
+RUN internal/scripts/docker/build_metviewer_docker.sh
 
 # copy only files needed to run METviewer into the final image
 FROM ${BASE_REGISTRY}/${BASE_IMAGE}:${BASE_TAG}
@@ -91,6 +95,9 @@ COPY --from=build /METviewer-python /METviewer-python
 COPY --from=build /opt/tomcat /opt/tomcat
 
 COPY --from=build /usr/lib/x86_64-linux-gnu/*so* /usr/lib/x86_64-linux-gnu/
+
+# created in base image -- look for packages in /usr/local
+COPY --from=build /etc/ld.so.conf.d/usr-local.conf /etc/ld.so.conf.d/usr-local.conf
 
 # Database (MariaDB)
 COPY --from=build /var/lib/mysql /var/lib/mysql
@@ -192,11 +199,11 @@ COPY --from=build /usr/share/color /usr/share/color
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libbrotlicommon.so* /usr/lib/x86_64-linux-gnu/
 
 # increase proxy timeout
-RUN \
-  sed -i 's|connectionTimeout=".*"|connectionTimeout="40000"|g' /opt/tomcat/conf/server.xml
-
 # install chrome
-RUN echo "Reinstall chrome to get all dependencies" &&\
+RUN \
+    ldconfig \
+ && sed -i 's|connectionTimeout=".*"|connectionTimeout="40000"|g' /opt/tomcat/conf/server.xml \
+ && echo "Reinstall chrome to get all dependencies" &&\
     apt -y update && apt -y upgrade &&\
     apt-get install -y /tmp/google-chrome-stable_current_amd64.deb \
  && echo "removing packages containing critical CVEs" &&\
@@ -212,8 +219,6 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy
 ENV PRE_LOAD_CHROME='True'
-
-WORKDIR /METviewer
 
 # Explicitly specify the shell to indicate that using the SHELL
 # instruction is a conscious decision: 
