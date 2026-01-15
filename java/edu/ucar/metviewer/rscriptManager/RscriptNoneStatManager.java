@@ -9,7 +9,6 @@ package edu.ucar.metviewer.rscriptManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -124,44 +123,40 @@ public class RscriptNoneStatManager extends RscriptStatManager {
 
   @Override
   public boolean runPythonScript(MVPlotJob job, Map<String, Object> info) {
-      MvResponse mvResponse;
-      info.put("plot_filename", plotFile);
+    MvResponse mvResponse;
+    info.put("plot_filename", plotFile);
 
-      try {
-          String configFileName = mvBatch.getDataFolder()+"/"+ MVUtil.buildTemplateString(job.getRFileTmpl().replace(".R", ".yaml"),
-                  MVUtil.addTmplValDep(job),
-                  job.getTmplMaps(),
-                  mvBatch.getPrintStream());
-          createYamlFile(configFileName, info);
-          StopWatch stopWatch = new StopWatch();
-          stopWatch.start();
-          mvBatch.print(mvBatch.getPython()
-                  + "\n"
-                  + mvBatch.getMetPlotpyHome() + job.getPlotTmpl()
-                  + "\n"
-                  + configFileName);
-          Map<String, String> env = new HashMap<>();
-          env.put("PYTHONPATH", mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome());
-          env.put("METPLOTPY_BASE", mvBatch.getMetPlotpyHome());
-          env.put("PRE_LOAD_CHROME", "True");
-
-          mvResponse = MVUtil.runRscript( mvBatch.getPython(),
-                  mvBatch.getMetPlotpyHome() + job.getPlotTmpl(),
-                  new String[]{configFileName},
-                  env);
-          stopWatch.stop();
-          if (mvResponse.getInfoMessage() != null) {
-              mvBatch.print(mvResponse.getInfoMessage());
-          }
-          if (mvResponse.getErrorMessage() != null) {
-              mvBatch.printError(mvResponse.getErrorMessage());
-          }
-          mvBatch.print("Python script execution time " + stopWatch.getFormattedTotalDuration());
-      } catch (IOException | StopWatchException | ValidationException e) {
-          errorStream.print(e.getMessage());
-          mvResponse = new MvResponse();
+    try {
+      String configFileName = mvBatch.getDataFolder()+"/"+ MVUtil.buildTemplateString(job.getRFileTmpl().replace(".R", ".yaml"),
+              MVUtil.addTmplValDep(job),
+              job.getTmplMaps(),
+              mvBatch.getPrintStream());
+      createYamlFile(configFileName, info);
+      StopWatch stopWatch = new StopWatch();
+      stopWatch.start();
+      mvBatch.print(mvBatch.getPython()
+              + "\n"
+              + mvBatch.getMetPlotpyHome() + job.getPlotTmpl()
+              + "\n"
+              + configFileName);
+      mvResponse = MVUtil.runRscript(mvBatch.getPython(),
+              mvBatch.getMetPlotpyHome() + job.getPlotTmpl(),
+              new String[]{configFileName},
+              new String[]{"PYTHONPATH=" + mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome(),
+                           "METPLOTPY_BASE="+mvBatch.getMetPlotpyHome() });
+      stopWatch.stop();
+      if (mvResponse.getInfoMessage() != null) {
+        mvBatch.print(mvResponse.getInfoMessage());
       }
-      return false;
+      if (mvResponse.getErrorMessage() != null) {
+        mvBatch.printError(mvResponse.getErrorMessage());
+      }
+      mvBatch.print("Python script execution time " + stopWatch.getFormattedTotalDuration());
+    } catch (IOException | StopWatchException | ValidationException e) {
+      errorStream.print(e.getMessage());
+      mvResponse = new MvResponse();
+    }
+    return false;
   }
 
 }

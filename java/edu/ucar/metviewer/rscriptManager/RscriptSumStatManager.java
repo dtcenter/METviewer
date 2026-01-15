@@ -9,7 +9,6 @@ package edu.ucar.metviewer.rscriptManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -128,12 +127,10 @@ public class RscriptSumStatManager extends RscriptStatManager {
                 + mvBatch.getMetCalcpyHome() + "/metcalcpy/sum_stat.py"
                 + " "
                 + sumInfo);
-        Map<String, String> env = new HashMap<>();
-        env.put("PYTHONPATH", mvBatch.getMetCalcpyHome());
         mvResponse = MVUtil.runRscript(mvBatch.getPython(),
                 mvBatch.getMetCalcpyHome() + "/metcalcpy/sum_stat.py",
                 new String[]{sumInfo},
-                env);
+                new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
           mvBatch.print(mvResponse.getInfoMessage());
