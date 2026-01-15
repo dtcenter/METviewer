@@ -143,7 +143,8 @@ public class RscriptNoneStatManager extends RscriptStatManager {
               mvBatch.getMetPlotpyHome() + job.getPlotTmpl(),
               new String[]{configFileName},
               new String[]{"PYTHONPATH=" + mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome(),
-                           "METPLOTPY_BASE="+mvBatch.getMetPlotpyHome() });
+                           "METPLOTPY_BASE="+mvBatch.getMetPlotpyHome(),
+                           "PRE_LOAD_CHROME=True"});
       stopWatch.stop();
       if (mvResponse.getInfoMessage() != null) {
         mvBatch.print(mvResponse.getInfoMessage());
