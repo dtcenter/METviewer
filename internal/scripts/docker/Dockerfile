@@ -113,6 +113,9 @@ COPY --from=build /usr/local/bin/python* /usr/local/bin/
 COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
 
+# copy geos and sqlite3 dynamic libs
+COPY --from=build /usr/local/lib/*.so* /usr/local/lib/
+
 # chrome (needed by plotly/kaleido python packages)
 #COPY --from=build /usr/bin/google-chrome* /usr/bin/
 COPY --from=build /opt/google/chrome /opt/google/chrome
