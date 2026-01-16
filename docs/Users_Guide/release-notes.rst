@@ -10,6 +10,28 @@ describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
 
+Version v6.2.1 Release Notes (20260116)
+---------------------------------------
+
+
+  .. dropdown:: New Features
+
+     None
+
+  .. dropdown:: Enhancements
+
+     * Change Docker images to use IronBank base images and reduce size
+       (`dtcenter/METbaseimage#52 <https://github.com/dtcenter/METbaseimage/issues/52>`_)
+
+  .. dropdown:: Bugfixes
+
+     * Set PRE_LOAD_CHROME to assist with creating Python plots using Docker
+
+  .. dropdown:: Documentation
+
+     None
+
+
 Version `v6.2.0 <https://github.com/dtcenter/METviewer>`_ Release Notes (20251113)
 ----------------------------------------------------------------------------------
 
