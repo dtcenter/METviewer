@@ -201,19 +201,14 @@ COPY --from=build /usr/share/color /usr/share/color
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libdbus-1.so* /usr/lib/x86_64-linux-gnu/
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libbrotlicommon.so* /usr/lib/x86_64-linux-gnu/
 
+# copy dummy sqlite3 package to prevent reinstallation of libsqlite3-0
+COPY --from=build /tmp/libsqlite3-0_9.9.9_amd64.deb /tmp/libsqlite3-0_9.9.9_amd64.deb
+
 # increase proxy timeout
 # install chrome
 RUN \
-    echo "Create dummy packages to prevent reinstallation of sqlite3-0 package with CVE" &&\
-    ( \
-        echo 'Package: libsqlite3-0'; \
-        echo 'Version: 9:9.9.9'; \
-        echo 'Architecture: amd64'; \
-        echo 'Maintainer: Dummy Pkg'; \
-        echo 'Description: Dummy package to satisfy libnss3 dependency with source-built sqlite3'; \
-    ) > /tmp/libsqlite3-0.control && \
-    equivs-build /tmp/libsqlite3-0.control &&\
-    dpkg -i libsqlite3-0_9.9.9_amd64.deb &&\
+    echo "Add dummy package to prevent reinstallation of sqlite3-0 package with CVE" &&\
+    dpkg -i /tmp/libsqlite3-0_9.9.9_amd64.deb &&\
     ldconfig \
  && sed -i 's|connectionTimeout=".*"|connectionTimeout="40000"|g' /opt/tomcat/conf/server.xml \
  && echo "Reinstall chrome to get all dependencies" &&\
