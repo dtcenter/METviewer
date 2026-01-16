@@ -204,6 +204,16 @@ COPY --from=build /usr/share/color /usr/share/color
 # increase proxy timeout
 # install chrome
 RUN \
+    echo "Create dummy packages to prevent reinstallation of sqlite3-0 package with CVE" &&\
+    ( \
+        echo 'Package: libsqlite3-0'; \
+        echo 'Version: 9:9.9.9'; \
+        echo 'Architecture: amd64'; \
+        echo 'Maintainer: Dummy Pkg'; \
+        echo 'Description: Dummy package to satisfy libnss3 dependency with source-built sqlite3'; \
+    ) > /tmp/libsqlite3-0.control && \
+    equivs-build /tmp/libsqlite3-0.control &&\
+    dpkg -i libsqlite3-0_9.9.9_amd64.deb &&\
     ldconfig \
  && sed -i 's|connectionTimeout=".*"|connectionTimeout="40000"|g' /opt/tomcat/conf/server.xml \
  && echo "Reinstall chrome to get all dependencies" &&\
@@ -211,7 +221,8 @@ RUN \
     apt-get install -y /tmp/google-chrome-stable_current_amd64.deb \
  && echo "removing packages containing critical CVEs" &&\
     apt remove -y libpython3.11-minimal \
- && apt clean
+ && apt clean \
+ && rm -rf /tmp/*
 
 # set environment variables need to run METviewer
 ENV CATALINA_HOME=/opt/tomcat
