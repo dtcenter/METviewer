@@ -24,8 +24,8 @@ author_list = ("Srivastava, I. M. Win-Gildenmeister, L. Goodrich, J. Prestopnik,
 version = "6.2.1"
 verinfo = version
 release = f'{version}'
-release_year = '2025'
-release_date = f'{release_year}-11-13'
+release_year = '2026'
+release_date = f'{release_year}-01-16'
 copyright = f'{release_year}, {author}'
 
 
