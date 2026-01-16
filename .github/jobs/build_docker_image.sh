@@ -95,6 +95,8 @@ time_command docker build -t ${DOCKERHUB_TAG} \
     --build-arg SOURCE_BRANCH \
     --build-arg MET_BASE_REPO \
     --build-arg MET_BASE_TAG \
+    --build-arg BASE_REGISTRY=${DEBIAN_REGISTRY} \
+    --build-arg BASE_IMAGE=${DEBIAN_IMAGE} \
     --build-arg METDATAIO_GIT_NAME=${METDATAIO_VERSION} \
     --build-arg METCALCPY_GIT_NAME=${METCALCPY_VERSION} \
     --build-arg METPLOTPY_GIT_NAME=${METPLOTPY_VERSION} \
