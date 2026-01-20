@@ -216,8 +216,7 @@ RUN \
     apt-get install -y /tmp/google-chrome-stable_current_amd64.deb \
  && echo "removing packages containing critical CVEs" &&\
     apt remove -y libpython3.11-minimal \
- && apt clean \
- && rm -rf /tmp/*
+ && apt clean
 
 # set environment variables need to run METviewer
 ENV CATALINA_HOME=/opt/tomcat
