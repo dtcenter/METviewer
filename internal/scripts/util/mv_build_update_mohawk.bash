@@ -49,5 +49,5 @@ echo "======================================================================="
 echo "Now restarting catalina"
 echo "======================================================================="
 echo ""
-/opt/vxwww/tomcat/bin/startup.sh
+/opt/tomcat/vxwww/bin/startup.sh
 
