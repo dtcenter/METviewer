@@ -1,5 +1,5 @@
-ARG MET_BASE_REPO=met-base-metviewer
-ARG MET_BASE_TAG=3.4-latest
+ARG MET_BASE_REPO=met-base-metviewer-dev
+ARG MET_BASE_TAG=bugfix_pandas_lt3
 
 # base image that files will be copied into
 ARG BASE_REGISTRY=docker.io
