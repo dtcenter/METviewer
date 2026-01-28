@@ -104,6 +104,11 @@ COPY --from=build /var/lib/mysql /var/lib/mysql
 COPY --from=build /usr/lib/mysql /usr/lib/mysql
 COPY --from=build /usr/bin/mysql* /usr/bin/
 COPY --from=build /usr/bin/mariadb* /usr/bin/
+COPY --from=build /usr/bin/my_print_defaults /usr/bin/
+COPY --from=build /usr/share/mysql /usr/share/mysql
+COPY --from=build /usr/sbin/mariadbd /usr/sbin/mariadbd
+COPY --from=build /usr/bin/resolveip /usr/bin/resolveip
+
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libedit.so* /usr/lib/x86_64-linux-gnu/
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libncurses.so* /usr/lib/x86_64-linux-gnu/
 #COPY --from=build /usr/lib/x86_64-linux-gnu/libbsd.so* /usr/lib/x86_64-linux-gnu/
@@ -206,6 +211,7 @@ COPY --from=build /tmp/libsqlite3-0_9.9.9_amd64.deb /tmp/libsqlite3-0_9.9.9_amd6
 
 # increase proxy timeout
 # install chrome
+# create mysql user
 RUN \
     echo "Add dummy package to prevent reinstallation of sqlite3-0 package with CVE" &&\
     dpkg -i /tmp/libsqlite3-0_9.9.9_amd64.deb &&\
@@ -216,7 +222,11 @@ RUN \
     apt-get install -y /tmp/google-chrome-stable_current_amd64.deb \
  && echo "removing packages containing critical CVEs" &&\
     apt remove -y libpython3.11-minimal \
- && apt clean
+ && apt clean \
+ && groupadd -r -g 1002 mysql && \
+    useradd -r -u 1002 -m -g 1002 mysql
+
+
 
 # set environment variables need to run METviewer
 ENV CATALINA_HOME=/opt/tomcat
