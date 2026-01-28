@@ -31,6 +31,10 @@ Version v6.2.1 Release Notes (20260116)
 
      None
 
+.. note::
+
+    This release was recreated on 2026-01-28 to include a hotfix to the Docker image.
+    No source code was modified.
 
 Version `v6.2.0 <https://github.com/dtcenter/METviewer>`_ Release Notes (20251113)
 ----------------------------------------------------------------------------------
