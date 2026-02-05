@@ -11,7 +11,7 @@ https://github.com/dtcenter/METviewer/issues
 
 
 Version 7.0.0 Beta 1 Release Notes (20260205)
---------------------------------
+---------------------------------------------
 
 
   .. dropdown:: New Features
