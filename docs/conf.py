@@ -20,11 +20,11 @@ sys.path.insert(0, os.path.abspath('.'))
 project = 'METviewer'
 author = 'UCAR/NCAR'
 author_list = "Jensen, T., I. Srivastava, M. Win-Gildenmeister, L. Goodrich, J. Prestopnik, L. Blank, T. Fowler, and T. Burek"
-version = "7.0.0-beta1-dev"
+version = "7.0.0-beta1"
 verinfo = version
 release = f'{version}'
-release_year = '2025'
-release_date = f'{release_year}-10-22'
+release_year = '2026'
+release_date = f'{release_year}-02-05'
 copyright = f'{release_year}, {author}'
 
 
