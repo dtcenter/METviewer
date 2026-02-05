@@ -10,8 +10,8 @@ describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
 
-Version `v6.2.0 rc1 <https://github.com/dtcenter/METviewer>`_ Release Notes (20251022)
---------------------------------------------------------------------------------------
+Version 7.0.0 Beta 1 Release Notes (20260205)
+---------------------------------------------
 
 
   .. dropdown:: New Features
@@ -21,13 +21,11 @@ Version `v6.2.0 rc1 <https://github.com/dtcenter/METviewer>`_ Release Notes (202
 
   .. dropdown::  Enhancements
 
-     * Add release-docker-images.yml workflow to routinely rebuild Docker images and scan for CVEs  (`#586 <https://github.com/dtcenter/METviewer/issues/586>`_)
-
-     * Enhance the 'Create Release Docker Images' METplus workflows to determine and build the most recent bugfix versions (`#64 <https://github.com/dtcenter/METplus-Internal/issues/64>`_)
+     None
 
   .. dropdown:: Bugfixes
 
-     * Bugfix- METviewer6.1 batch script no longer works (`#605 <https://github.com/dtcenter/METviewer/issues/605>`_)
+     * Bugfix: Requesting Y1/Y2 points results in an RScript error (`#640 <https://github.com/dtcenter/METviewer/issues/640>`_)
 
 
   .. dropdown:: Documentation

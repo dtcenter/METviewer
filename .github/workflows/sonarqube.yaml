@@ -38,6 +38,8 @@ on:
 
 env:
   DOCKERHUB_REPO: dtcenter/metviewer-dev
+  DEBIAN_REGISTRY: registry1.dso.mil
+  DEBIAN_IMAGE: ironbank/opensource/debian/debian
 
 jobs:
   sonarqube:
@@ -65,6 +67,9 @@ jobs:
     - name: Get branch name
       id: get_branch_name
       run: echo branch_name=${GITHUB_REF#refs/heads/} >> $GITHUB_OUTPUT
+
+    - name: Authenticate IronBank
+      run: echo "${{ secrets.IRONBANK_SECRET }}" | docker login -u ${{ secrets.IRONBANK_USERNAME }} --password-stdin registry1.dso.mil
 
     - name: Build METviewer in Docker
       run: .github/jobs/build_docker_image.sh
