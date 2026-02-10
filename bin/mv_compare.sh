@@ -87,7 +87,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-databind-2.20.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.19.0.jar
 
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.61.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-9.0.115.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.0.jar
