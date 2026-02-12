@@ -10,6 +10,27 @@ describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
 
+Version v6.2.2 Release Notes (20260212)
+---------------------------------------
+
+
+  .. dropdown:: New Features
+
+     None
+
+  .. dropdown:: Enhancements
+
+     * Updated version of tomcat-jdbc jar to 9.0.115 to resolve CVEs
+
+  .. dropdown:: Bugfixes
+
+     None
+
+  .. dropdown:: Documentation
+
+     None
+
+
 Version v6.2.1 Release Notes (20260116)
 ---------------------------------------
 
