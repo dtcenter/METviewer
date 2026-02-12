@@ -224,8 +224,12 @@ RUN \
     apt remove -y libpython3.11-minimal \
  && apt clean \
  && groupadd -r -g 1002 mysql && \
-    useradd -r -u 1002 -m -g 1002 mysql
-
+    useradd -r -u 1002 -m -g 1002 mysql \
+ && echo "Remove SUID and SGID bits" &&\
+    chmod -s /usr/lib64/mysql/plugin/auth_pam_tool_dir/auth_pam_tool &&\
+    chmod -s /usr/lib/dbus-1.0/dbus-daemon-launch-helper &&\
+    chmod -s /opt/google/chrome/chrome-sandbox &&\
+    chmod -s /var/log/journal
 
 
 # set environment variables need to run METviewer
