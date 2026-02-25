@@ -10,6 +10,27 @@ describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
 
+Version v6.2.3 Release Notes (20260225)
+---------------------------------------
+
+
+  .. dropdown:: New Features
+
+     None
+
+  .. dropdown:: Enhancements
+
+     * Updated version of log4j and junit jar files to resolve CVEs
+     * Docker image upgraded to use Python 3.14.3
+
+  .. dropdown:: Bugfixes
+
+     None
+
+  .. dropdown:: Documentation
+
+     None
+
 Version v6.2.2 Release Notes (20260212)
 ---------------------------------------
 
