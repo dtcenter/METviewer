@@ -1,5 +1,5 @@
 ARG MET_BASE_REPO=met-base-metviewer-dev
-ARG MET_BASE_TAG=feature_61_main_v3.4_python314
+ARG MET_BASE_TAG=feature_63_main_v3.4_tomcat_bugfix
 
 # base image that files will be copied into
 ARG BASE_REGISTRY=docker.io
