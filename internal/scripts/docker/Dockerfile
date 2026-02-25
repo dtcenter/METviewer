@@ -115,7 +115,7 @@ COPY --from=build /usr/bin/resolveip /usr/bin/resolveip
 
 # Python
 COPY --from=build /usr/local/bin/python* /usr/local/bin/
-COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
+COPY --from=build /usr/local/lib/python3.14 /usr/local/lib/python3.14
 COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
 
 # copy geos and sqlite3 dynamic libs
