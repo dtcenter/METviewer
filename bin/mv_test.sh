@@ -163,7 +163,7 @@ CLASSPATH=$CLASSPATH:${MV_HOME}/lib/juli-6.0.53.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-api-1.7.5.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/slf4j-log4j12-1.7.5.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/guava-33.4.8.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/junit-4.11.jar
+CLASSPATH=$CLASSPATH:${MV_HOME}/lib/junit-4.13.2.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/hamcrest-core-1.3.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/commons-io-2.20.0.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/mockito-all-1.9.5.jar
@@ -177,9 +177,9 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.19.0.jar
 
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.7.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-9.0.115.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.17.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.17.1.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.17.1.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.25.3.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.25.3.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.25.3.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-2.0.jar
 
 

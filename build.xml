@@ -116,10 +116,10 @@
 
 
     <path id="mysql">
-        <pathelement location="${lib}/log4j-api-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-core-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-web-2.17.1.jar"/>
+        <pathelement location="${lib}/log4j-api-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-core-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-web-2.25.3.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -133,15 +133,15 @@
         <pathelement location="${lib}/commons-lang3-3.19.0.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-9.0.115.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/junit-4.11.jar"/>
+        <pathelement location="${lib}/junit-4.13.2.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="mysql-all">
-        <pathelement location="${lib}/log4j-api-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-core-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-web-2.17.1.jar"/>
+        <pathelement location="${lib}/log4j-api-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-core-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-web-2.25.3.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -149,7 +149,7 @@
         <pathelement location="${lib}/commons-fileupload-1.6.0.jar"/>
         <pathelement location="${lib}/commons-io-2.20.0.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/junit-4.11.jar"/>
+        <pathelement location="${lib}/junit-4.13.2.jar"/>
         <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
         <pathelement location="${lib}/mockito-all-1.9.5.jar"/>
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
@@ -161,10 +161,10 @@
     </path>
 
     <path id="mariadb">
-        <pathelement location="${lib}/log4j-api-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-core-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-web-2.17.1.jar"/>
+        <pathelement location="${lib}/log4j-api-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-core-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-web-2.25.3.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -177,15 +177,15 @@
         <pathelement location="${lib}/commons-lang3-3.19.0.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-9.0.115.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/junit-4.11.jar"/>
+        <pathelement location="${lib}/junit-4.13.2.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="mariadb-all">
-        <pathelement location="${lib}/log4j-api-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-core-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-web-2.17.1.jar"/>
+        <pathelement location="${lib}/log4j-api-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-core-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-web-2.25.3.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -193,7 +193,7 @@
         <pathelement location="${lib}/commons-fileupload-1.6.0.jar"/>
         <pathelement location="${lib}/commons-io-2.20.0.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/junit-4.11.jar"/>
+        <pathelement location="${lib}/junit-4.13.2.jar"/>
         <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
         <pathelement location="${lib}/mockito-all-1.9.5.jar"/>
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
@@ -205,10 +205,10 @@
     </path>
 
     <path id="aurora">
-        <pathelement location="${lib}/log4j-api-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-core-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-web-2.17.1.jar"/>
+        <pathelement location="${lib}/log4j-api-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-core-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-web-2.25.3.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -221,15 +221,15 @@
         <pathelement location="${lib}/commons-lang3-3.19.0.jar"/>
         <pathelement location="${lib}/tomcat-jdbc-9.0.115.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/junit-4.11.jar"/>
+        <pathelement location="${lib}/junit-4.13.2.jar"/>
         <pathelement location="${lib}/snakeyaml-2.0.jar"/>
     </path>
 
     <path id="aurora-all">
-        <pathelement location="${lib}/log4j-api-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-core-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-iostreams-2.17.1.jar"/>
-        <pathelement location="${lib}/log4j-web-2.17.1.jar"/>
+        <pathelement location="${lib}/log4j-api-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-core-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.25.3.jar"/>
+        <pathelement location="${lib}/log4j-web-2.25.3.jar"/>
         <pathelement location="${lib}/mariadb-java-client-2.7.1.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
@@ -237,7 +237,7 @@
         <pathelement location="${lib}/commons-fileupload-1.6.0.jar"/>
         <pathelement location="${lib}/commons-io-2.20.0.jar"/>
         <pathelement location="${lib}/juli-6.0.53.jar"/>
-        <pathelement location="${lib}/junit-4.11.jar"/>
+        <pathelement location="${lib}/junit-4.13.2.jar"/>
         <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
         <pathelement location="${lib}/mockito-all-1.9.5.jar"/>
         <pathelement location="${lib}/j2html-1.4.0.jar"/>
@@ -249,7 +249,7 @@
     </path>
 
     <path id="classpath.test">
-       <pathelement location="${lib}/junit-4.11.jar"/>
+       <pathelement location="${lib}/junit-4.13.2.jar"/>
        <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
        <pathelement location="${lib}/mockito-all-1.9.5.jar"/>
        <pathelement location="${lib}/junit-platform-console-standalone-1.4.0.jar"/>
@@ -420,7 +420,7 @@
                 <include name="*.jar"/>
                 <exclude name="javax.servlet-api-4.0.1.jar"/>
 
-                <exclude name="junit-4.11.jar"/>
+                <exclude name="junit-4.13.2.jar"/>
                 <exclude name="hamcrest-core-1.3.jar"/>
                 <exclude name="mockito-all-1.9.5.jar"/>
             </fileset>
@@ -478,7 +478,7 @@
                 <include name="*.jar"/>
                 <exclude name="javax.servlet-api-4.0.1.jar"/>
 
-                <exclude name="junit-4.11.jar"/>
+                <exclude name="junit-4.13.2.jar"/>
                 <exclude name="hamcrest-core-1.3.jar"/>
                 <exclude name="mockito-all-1.9.5.jar"/>
                 <exclude name="junit-platform-console-standalone-1.4.0.jar"/>
