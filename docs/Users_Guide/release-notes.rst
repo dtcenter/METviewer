@@ -9,6 +9,13 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
+Version v6.2.4 Release Notes (20260320)
+---------------------------------------
+
+  .. dropdown:: Bugfixes
+
+     * Bump version of jackson-core to 2.21.1 to resolve CVE
+       (`#657 <https://github.com/dtcenter/METviewer/issues/657>`_)
 
 Version v6.2.3 Release Notes (20260225)
 ---------------------------------------
