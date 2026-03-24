@@ -48,12 +48,12 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         # Disable shallow clones for better analysis
         fetch-depth: 0
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         repository: 'dtcenter/METplus'
         ref: 'develop'

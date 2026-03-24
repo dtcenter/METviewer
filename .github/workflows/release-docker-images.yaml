@@ -37,7 +37,7 @@ jobs:
       update_latest: ${{ steps.get-versions.outputs.update_latest }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: 'dtcenter/metplus'
           ref: 'develop'
@@ -79,16 +79,16 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ matrix.version }}
           path: ${{ matrix.version }}
           sparse-checkout: internal/scripts/docker/Dockerfile
           sparse-checkout-cone-mode: false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: 'dtcenter/METplus'
           ref: 'develop'
