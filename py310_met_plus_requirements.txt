@@ -23,7 +23,7 @@ wheel==0.38.1
 
 numpy==1.24.2
 netcdf4==1.6.2
-pytest==7.2.0
+pytest==9.0.3
 python-dateutil==2.8.2
 
 imageio==2.19.3
