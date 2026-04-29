@@ -34,6 +34,7 @@ RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
 ENV METVIEWER_GIT_URL=https://github.com/dtcenter/METviewer
 ENV METVIEWER_GIT_NAME=${SOURCE_BRANCH}
 ENV CATALINA_HOME=/opt/tomcat
+ENV PYTHON_XY=3.14
 
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
@@ -115,7 +116,7 @@ COPY --from=build /usr/bin/resolveip /usr/bin/resolveip
 
 # Python
 COPY --from=build /usr/local/bin/python* /usr/local/bin/
-COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
+COPY --from=build /usr/local/lib/python${PYTHON_XY} /usr/local/lib/python${PYTHON_XY}
 COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
 
 # copy geos and sqlite3 dynamic libs
