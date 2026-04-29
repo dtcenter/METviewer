@@ -34,7 +34,6 @@ RUN if [ "x${SOURCE_BRANCH}" = "x" ]; then \
 ENV METVIEWER_GIT_URL=https://github.com/dtcenter/METviewer
 ENV METVIEWER_GIT_NAME=${SOURCE_BRANCH}
 ENV CATALINA_HOME=/opt/tomcat
-ENV PYTHON_XY=3.14
 
 RUN echo "Build Argument METVIEWER_GIT_NAME=${METVIEWER_GIT_NAME}" \
  && echo "Build Argument METPLOTPY_GIT_NAME=${METPLOTPY_GIT_NAME}" \
@@ -87,6 +86,8 @@ RUN internal/scripts/docker/build_metviewer_docker.sh
 
 # copy only files needed to run METviewer into the final image
 FROM ${BASE_REGISTRY}/${BASE_IMAGE}:${BASE_TAG}
+
+ENV PYTHON_XY=3.14
 
 # METviewer code
 COPY --from=build /METviewer /METviewer
