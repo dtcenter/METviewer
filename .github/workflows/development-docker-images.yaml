@@ -1,6 +1,18 @@
 name: Create Development Docker Images
 
 on:
+  push:
+    branches:
+      - develop
+      - 'feature_**'
+      - 'main_v[0-9]*.[0-9]*'
+      - 'bugfix_**'
+    paths-ignore:
+      - 'docs/**'
+      - '.github/pull_request_template.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '**/README.md'
+      - '**/LICENSE.md'
 
   workflow_dispatch:
     inputs:
