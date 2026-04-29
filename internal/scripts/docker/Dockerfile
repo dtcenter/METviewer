@@ -122,18 +122,6 @@ COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
 # copy geos and sqlite3 dynamic libs
 COPY --from=build /usr/local/lib/*.so* /usr/local/lib/
 
-# chrome (needed by plotly/kaleido python packages)
-#COPY --from=build /usr/bin/google-chrome* /usr/bin/
-COPY --from=build /opt/google/chrome /opt/google/chrome
-COPY --from=build /usr/local/bin/choreo_diagnose /usr/local/bin/choreo_diagnose
-
-# copy package to reinstall to get all missing dependencies
-COPY --from=build /tmp/google-chrome-stable_current_amd64.deb /tmp/google-chrome-stable_current_amd64.deb
-#COPY --from=build /usr/lib/x86_64-linux-gnu/libnss*so* /usr/lib/x86_64-linux-gnu/
-
-#RUN ln -s /opt/google/chrome/google-chrome /usr/bin/google-chrome-stable &&\
-#    ln -s /usr/bin/google-chrome-stable /usr/bin/google-chrome
-
 # Java
 COPY --from=build /usr/lib/jvm /usr/lib/jvm
 COPY --from=build /etc/java-17-openjdk /etc/java-17-openjdk
@@ -211,19 +199,12 @@ COPY --from=build /usr/share/color /usr/share/color
 COPY --from=build /tmp/libsqlite3-0_9.9.9_amd64.deb /tmp/libsqlite3-0_9.9.9_amd64.deb
 
 # increase proxy timeout
-# install chrome
 # create mysql user
 RUN \
     echo "Add dummy package to prevent reinstallation of sqlite3-0 package with CVE" &&\
     dpkg -i /tmp/libsqlite3-0_9.9.9_amd64.deb &&\
     ldconfig \
  && sed -i 's|connectionTimeout=".*"|connectionTimeout="40000"|g' /opt/tomcat/conf/server.xml \
- && echo "Reinstall chrome to get all dependencies" &&\
-    apt -y update && apt -y upgrade &&\
-    apt-get install -y /tmp/google-chrome-stable_current_amd64.deb \
- && echo "removing packages containing critical CVEs" &&\
-    apt remove -y libpython3.11-minimal \
- && apt clean \
  && groupadd -r -g 1002 mysql && \
     useradd -r -u 1002 -m -g 1002 mysql
 
@@ -235,9 +216,6 @@ ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
-
-# Set the PRE_LOAD_CHROME env variable to True to prevent invoking get_chrome_sync() from METplotpy
-ENV PRE_LOAD_CHROME='True'
 
 # Explicitly specify the shell to indicate that using the SHELL
 # instruction is a conscious decision: 
