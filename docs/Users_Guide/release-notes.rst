@@ -62,7 +62,7 @@ METviewer Upgrade Instructions
 
  .. note::
 
-    The version numbering for METviewer has been updated to 13.0.0 to provide consistency and clarity with all METplus components. View the requirements.txt/nco_requirements.txt file at the top level of the repository for version numbers for the corresponding third-party packages.   
+    The version numbering for METviewer has been updated to 13.0.0 to provide consistency and clarity with all METplus components. View the met_plus_requirements.txt/nco_requirements.txt file at the top level of the repository for version numbers for the corresponding third-party packages.   
   
     For Mac OS users who install Docker containers, Docker currently only supports the latest two versions of Mac OS.
     Check the latest Docker user's documentation to ensure that your Docker and MacOS environments are compatible.
