@@ -88,8 +88,6 @@ public class RscriptAggStatManager extends RscriptStatManager {
                   + mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py"
                   + " "
                   + eeInfo);
-          Map<String, String> env = new HashMap<>();
-          env.put("PYTHONPATH", mvBatch.getMetCalcpyHome());
           mvResponse = MVUtil.runRscript(mvBatch.getPython(),
                   mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py",
                   new String[]{eeInfo},
