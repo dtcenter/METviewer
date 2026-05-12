@@ -122,12 +122,10 @@ public class AggPythonManager extends PythonManager {
           stopWatch.start();
           logger.info(python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + aggInfoFileName);
 
-          Map<String, String> env = new HashMap<>();
-          env.put("PYTHONPATH", metCalcpyHome);
           MvResponse mvResponse = MVUtil.runRscript(python,
                   metCalcpyHome + PYTHON_SCRIPT,
                   new String[]{aggInfoFileName},
-                  env);
+                  new String[]{"PYTHONPATH=" + metCalcpyHome});
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
             logger.info(mvResponse.getInfoMessage());
