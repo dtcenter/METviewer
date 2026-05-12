@@ -47,7 +47,7 @@ echo "Building METviewer"
 cd /METviewer
 
 ant -Dbuild.properties.file=./build.properties \
-    -Ddb.management.system=mysql \
+    -Ddb.management.system=mariadb \
     -Dmetcalcpy.path=/METviewer-python/METcalcpy/ \
     -Dmetplotpy.path=/METviewer-python/METplotpy/ \
     -Dpython.env.path=/usr/local war
