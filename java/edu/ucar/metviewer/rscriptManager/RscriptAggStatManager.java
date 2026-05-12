@@ -13,7 +13,6 @@ import org.apache.logging.log4j.io.IoBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -95,7 +94,6 @@ public class RscriptAggStatManager extends RscriptStatManager {
                   mvBatch.getMetCalcpyHome() + "/metcalcpy/agg_stat_event_equalize.py",
                   new String[]{eeInfo},
                   new String[]{"PYTHONPATH=" + mvBatch.getMetCalcpyHome()});
-         
 
         }else {
           String tmplFileName = "agg_stat_event_equalize.info_tmpl";
@@ -103,7 +101,6 @@ public class RscriptAggStatManager extends RscriptStatManager {
           info.put("agg_stat_output", dataFile + ".ee");
           MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + "/" + tmplFileName, eeInfo, info);
           String scriptName = mvBatch.getRworkFolder() + "/include/agg_stat_event_equalize.R";
-
 
           mvBatch.print(job.getRscript() + " " + scriptName);
           mvResponse = MVUtil.runRscript(job.getRscript(), scriptName, new String[]{eeInfo});
