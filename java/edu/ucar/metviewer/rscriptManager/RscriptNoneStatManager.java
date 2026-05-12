@@ -159,7 +159,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       mvBatch.print("Python script execution time " + stopWatch.getFormattedTotalDuration());
     } catch (IOException | StopWatchException | ValidationException e) {
       errorStream.print(e.getMessage());
-      64;2500;0c      mvResponse = new MvResponse();
+      mvResponse = new MvResponse();
     }
     return false;
   }
