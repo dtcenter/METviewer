@@ -123,12 +123,10 @@ public class SumPythonManager extends PythonManager {
           stopWatch.start();
           logger.info(python + " " + metCalcpyHome + PYTHON_SCRIPT + " " + sumInfoFileName);
 
-          Map<String, String> env = new HashMap<>();
-          env.put("PYTHONPATH", metCalcpyHome);
           MvResponse mvResponse = MVUtil.runRscript(python,
                   metCalcpyHome + PYTHON_SCRIPT,
                   new String[]{sumInfoFileName},
-                  env);
+                  new String[]{"PYTHONPATH=" + metCalcpyHome});
 
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
@@ -237,12 +235,10 @@ public class SumPythonManager extends PythonManager {
           stopWatch.start();
           logger.info(python + " " + metCalcpyHome + "/metcalcpy/scorecard.py" + " " + pythonFileInfo);
 
-          Map<String, String> env = new HashMap<>();
-          env.put("PYTHONPATH", metCalcpyHome);
           MvResponse mvResponse = MVUtil.runRscript(python,
                   metCalcpyHome + "/metcalcpy/scorecard.py",
                   new String[]{pythonFileInfo},
-                  env);
+                  new String[]{"PYTHONPATH=" + metCalcpyHome});
 
           stopWatch.stop();
           if (mvResponse.getInfoMessage() != null) {
