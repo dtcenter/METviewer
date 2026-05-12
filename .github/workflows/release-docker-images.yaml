@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Comma-separated list of versions to build, e.g. v6.0,v6.1'
-        default: 'v6.0,v6.1'
+        description: 'Comma-separated list of versions to build, e.g. v6.1,v6.2'
+        default: 'v6.1,v6.2'
         required: true
         type: string
       update_latest:
@@ -20,10 +20,12 @@ on:
         type: boolean
 
   schedule:
-    - cron: "30 03 * * 0"
+    - cron: "35 03 * * 0"
 
 env:
   DOCKERHUB_REPO: dtcenter/metviewer
+  DEBIAN_REGISTRY: registry1.dso.mil
+  DEBIAN_IMAGE: ironbank/opensource/debian/debian
 
 jobs:
 
@@ -35,7 +37,7 @@ jobs:
       update_latest: ${{ steps.get-versions.outputs.update_latest }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: 'dtcenter/metplus'
           ref: 'develop'
@@ -46,7 +48,7 @@ jobs:
         id: get-versions
         run: |
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
-            version_string="v6.0,v6.1"
+            version_string="v6.1,v6.2"
             update_latest="true"
           elif [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
             version_string=${{ toJSON(inputs.release_version) }}
@@ -77,16 +79,16 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ matrix.version }}
           path: ${{ matrix.version }}
           sparse-checkout: internal/scripts/docker/Dockerfile
           sparse-checkout-cone-mode: false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: 'dtcenter/METplus'
           ref: 'develop'
@@ -100,39 +102,13 @@ jobs:
       - name: Create directories to store build log output
         run: mkdir -p ${RUNNER_WORKSPACE}/logs
 
+      - name: Authenticate IronBank
+        run: echo "${{ secrets.IRONBANK_SECRET }}" | docker login -u ${{ secrets.IRONBANK_USERNAME }} --password-stdin registry1.dso.mil
+
       - name: Build Docker Image
         run: .github/jobs/build_docker_image.sh
         env:
           SOURCE_BRANCH: ${{ matrix.version }}
-
-      - name: Get DockerHub tag
-        id: get-dockerhub-tag
-        run: |
-          source ${GITHUB_WORKSPACE}/.github/jobs/bash_functions.sh
-          DOCKERHUB_TAG=$(get_dockerhub_tag)
-          echo "DOCKERHUB_TAG=${DOCKERHUB_TAG}" >> $GITHUB_OUTPUT
-        env:
-          SOURCE_BRANCH: ${{ matrix.version }}
-
-      - name: Scan Docker Images
-        id: security-scan
-        continue-on-error: false
-        uses: dtcenter/metplus-action-scan-docker-images@v1
-        with:
-          images: |
-            [
-              "${{ steps.get-dockerhub-tag.outputs.DOCKERHUB_TAG }}"
-            ]
-          fail-on-critical: "true"
-          log-artifact-name: 'security-scan-logs_${{ matrix.version }}'
-
-      - name: Push Docker Image
-        run: .github/jobs/push_docker_image.sh
-        env:
-          SOURCE_BRANCH: ${{ matrix.version }}
-          UPDATE_LATEST: ${{ fromJSON(needs.define-matrix.outputs.update_latest) }}
-          DOCKER_USERNAME: 'dtcenter'
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Copy build log files into logs directory
         if: always()
@@ -146,3 +122,30 @@ jobs:
           path: ${{ runner.workspace }}/logs
           if-no-files-found: ignore
 
+      - name: Get DockerHub tag
+        id: get-dockerhub-tag
+        run: |
+          source ${GITHUB_WORKSPACE}/.github/jobs/bash_functions.sh
+          DOCKERHUB_TAG=$(get_dockerhub_tag)
+          echo "DOCKERHUB_TAG=${DOCKERHUB_TAG}" >> $GITHUB_OUTPUT
+        env:
+          SOURCE_BRANCH: ${{ matrix.version }}
+
+      - name: Scan Docker Images
+        id: security-scan
+        uses: dtcenter/metplus-action-scan-docker-images@v2
+        with:
+          images: |
+            [
+              "${{ steps.get-dockerhub-tag.outputs.DOCKERHUB_TAG }}"
+            ]
+          fail-on-critical: "false"
+          log-artifact-name: 'security-scan-logs_${{ matrix.version }}'
+
+      - name: Push Docker Image
+        run: .github/jobs/push_docker_image.sh
+        env:
+          SOURCE_BRANCH: ${{ matrix.version }}
+          UPDATE_LATEST: ${{ fromJSON(needs.define-matrix.outputs.update_latest) }}
+          DOCKER_USERNAME: 'dtcenter'
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}

@@ -1,6 +1,18 @@
 name: Create Development Docker Images
 
 on:
+  push:
+    branches:
+      - develop
+      - 'feature_**'
+      - 'main_v[0-9]*.[0-9]*'
+      - 'bugfix_**'
+    paths-ignore:
+      - 'docs/**'
+      - '.github/pull_request_template.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '**/README.md'
+      - '**/LICENSE.md'
 
   workflow_dispatch:
     inputs:
@@ -28,6 +40,8 @@ on:
 
 env:
   DOCKERHUB_REPO: dtcenter/metviewer-dev
+  DEBIAN_REGISTRY: registry1.dso.mil
+  DEBIAN_IMAGE: ironbank/opensource/debian/debian
 
 jobs:
 
@@ -63,16 +77,16 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ matrix.version }}
           path: ${{ matrix.version }}
           sparse-checkout: internal/scripts/docker/Dockerfile
           sparse-checkout-cone-mode: false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: 'dtcenter/METplus'
           ref: 'develop'
@@ -86,6 +100,9 @@ jobs:
       - name: Create directories to store build log output
         run: mkdir -p ${RUNNER_WORKSPACE}/logs
 
+      - name: Authenticate IronBank
+        run: echo "${{ secrets.IRONBANK_SECRET }}" | docker login -u ${{ secrets.IRONBANK_USERNAME }} --password-stdin registry1.dso.mil
+
       - name: Build Docker Image
         run: .github/jobs/build_docker_image.sh
         env:
@@ -94,35 +111,6 @@ jobs:
           METDATAIO_OVERRIDE: ${{ inputs.metdataio_version }}
           METCALCPY_OVERRIDE: ${{ inputs.metcalcpy_version }}
           METPLOTPY_OVERRIDE: ${{ inputs.metplotpy_version }}
-
-      - name: Get DockerHub tag
-        id: get-dockerhub-tag
-        run: |
-          source ${GITHUB_WORKSPACE}/.github/jobs/bash_functions.sh
-          DOCKERHUB_TAG=$(get_dockerhub_tag)
-          echo "DOCKERHUB_TAG=${DOCKERHUB_TAG}" >> $GITHUB_OUTPUT
-        env:
-          SOURCE_BRANCH: ${{ matrix.version }}
-
-      - name: Scan Docker Images
-        id: security-scan
-        continue-on-error: true
-        uses: dtcenter/metplus-action-scan-docker-images@v1
-        with:
-          images: |
-            [
-              "${{ steps.get-dockerhub-tag.outputs.DOCKERHUB_TAG }}"
-            ]
-          fail-on-critical: "true"
-          log-artifact-name: 'security-scan-logs_${{ matrix.version }}'
-
-      - name: Push Docker Image
-        run: .github/jobs/push_docker_image.sh
-        env:
-          SOURCE_BRANCH: ${{ matrix.version }}
-          UPDATE_LATEST: false
-          DOCKER_USERNAME: 'dtcenter'
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Copy build log files into logs directory
         if: always()
@@ -136,7 +124,30 @@ jobs:
           path: ${{ runner.workspace }}/logs
           if-no-files-found: ignore
 
-      - name: Check scan status
+      - name: Get DockerHub tag
+        id: get-dockerhub-tag
         run: |
-          echo "Scan status: ${{ steps.security-scan.outputs.scan-status }}"
-          exit ${{ steps.security-scan.outputs.scan-status }}
+          source ${GITHUB_WORKSPACE}/.github/jobs/bash_functions.sh
+          DOCKERHUB_TAG=$(get_dockerhub_tag)
+          echo "DOCKERHUB_TAG=${DOCKERHUB_TAG}" >> $GITHUB_OUTPUT
+        env:
+          SOURCE_BRANCH: ${{ matrix.version }}
+
+      - name: Scan Docker Images
+        id: security-scan
+        uses: dtcenter/metplus-action-scan-docker-images@v2
+        with:
+          images: |
+            [
+              "${{ steps.get-dockerhub-tag.outputs.DOCKERHUB_TAG }}"
+            ]
+          fail-on-critical: "false"
+          log-artifact-name: 'security-scan-logs_${{ matrix.version }}'
+
+      - name: Push Docker Image
+        run: .github/jobs/push_docker_image.sh
+        env:
+          SOURCE_BRANCH: ${{ matrix.version }}
+          UPDATE_LATEST: false
+          DOCKER_USERNAME: 'dtcenter'
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}

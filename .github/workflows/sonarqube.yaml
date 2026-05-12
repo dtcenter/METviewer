@@ -38,6 +38,8 @@ on:
 
 env:
   DOCKERHUB_REPO: dtcenter/metviewer-dev
+  DEBIAN_REGISTRY: registry1.dso.mil
+  DEBIAN_IMAGE: ironbank/opensource/debian/debian
 
 jobs:
   sonarqube:
@@ -46,12 +48,12 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         # Disable shallow clones for better analysis
         fetch-depth: 0
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         repository: 'dtcenter/METplus'
         ref: 'develop'
@@ -66,6 +68,9 @@ jobs:
       id: get_branch_name
       run: echo branch_name=${GITHUB_REF#refs/heads/} >> $GITHUB_OUTPUT
 
+    - name: Authenticate IronBank
+      run: echo "${{ secrets.IRONBANK_SECRET }}" | docker login -u ${{ secrets.IRONBANK_USERNAME }} --password-stdin registry1.dso.mil
+
     - name: Build METviewer in Docker
       run: .github/jobs/build_docker_image.sh
       env:
@@ -77,13 +82,13 @@ jobs:
       env:
         SOURCE_BRANCH: ${{ steps.get_branch_name.outputs.branch_name }}
         WD_REFERENCE_BRANCH: ${{ github.event.inputs.reference_branch }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       env:
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: SonarQube Quality Gate check
@@ -92,7 +97,7 @@ jobs:
       # Force to fail step after specific time.
       timeout-minutes: 5
       env:
-       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+       SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Copy log files into logs directory

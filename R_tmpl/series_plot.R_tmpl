@@ -664,7 +664,7 @@ if( TRUE == boolDumpPoints1 ){
   listSeriesOrdered=list();
   oldInd=1;
   for(index in 1:length(listPlotOrderSeries1Part)){
-    newInd = (3 * listPlotOrderSeries1Part[index]) -2;
+    newInd = (3 * strtoi(listPlotOrderSeries1Part[index])) -2;
     for(i in 0:2){
       listSeriesOrdered[newInd+i]=listSeries1[oldInd+i];
     }
@@ -680,7 +680,7 @@ if( TRUE == boolDumpPoints2 && intNumSeries2){
   listSeriesOrdered=list();
   oldInd=1;
   for(index in 1:length(listPlotOrderSeries2Part)){
-    newInd = (3 * listPlotOrderSeries2Part[index]) -2;
+    newInd = (3 * strtoi(listPlotOrderSeries2Part[index])) -2;
     for(i in 0:2){
       listSeriesOrdered[newInd+i]=listSeries2[oldInd+i];
     }
@@ -1042,7 +1042,7 @@ if( 0 < length(listDep2Plot) ){
     if( !listPlotDispSeries2[i] ){
       next;
     }
-    intStagIndex = listPlotOrderSeries2Part[i];
+    intStagIndex = strtoi(listPlotOrderSeries2Part[i]);
 
 
     # slice the series constituents from the series list

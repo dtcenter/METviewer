@@ -143,12 +143,12 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       Map<String, String> env = new HashMap<>();
         env.put("PYTHONPATH", mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome());
         env.put("METPLOTPY_BASE", mvBatch.getMetPlotpyHome());
-        env.put("PRE_LOAD_CHROME", "True");
 
         mvResponse = MVUtil.runRscript( mvBatch.getPython(),
               mvBatch.getMetPlotpyHome() + job.getPlotTmpl(),
               new String[]{configFileName},
-              env);
+              new String[]{"PYTHONPATH=" + mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome(),
+                           "METPLOTPY_BASE="+mvBatch.getMetPlotpyHome()});
       stopWatch.stop();
       if (mvResponse.getInfoMessage() != null) {
         mvBatch.print(mvResponse.getInfoMessage());
@@ -159,7 +159,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       mvBatch.print("Python script execution time " + stopWatch.getFormattedTotalDuration());
     } catch (IOException | StopWatchException | ValidationException e) {
       errorStream.print(e.getMessage());
-      mvResponse = new MvResponse();
+      64;2500;0c      mvResponse = new MvResponse();
     }
     return false;
   }

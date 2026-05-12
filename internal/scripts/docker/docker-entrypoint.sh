@@ -42,7 +42,7 @@ if [ "$1" = 'mysqld_safe' ]; then
 			fi
 		fi
 
-		if [ "$MYSQL_USER" -a "$MYSQL_PASSWORD" ]; then
+		if [ "$MYSQL_USER" ] && [ "$MYSQL_PASSWORD" ]; then
 			echo "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' ;" >> "$tempSqlFile"
 
 			if [ "$MYSQL_DATABASE" ]; then
