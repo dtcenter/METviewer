@@ -144,11 +144,11 @@ public class RscriptNoneStatManager extends RscriptStatManager {
         env.put("PYTHONPATH", mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome());
         env.put("METPLOTPY_BASE", mvBatch.getMetPlotpyHome());
 
-        mvResponse = MVUtil.runRscript( mvBatch.getPython(),
+      mvResponse = MVUtil.runRscript( mvBatch.getPython(),
               mvBatch.getMetPlotpyHome() + job.getPlotTmpl(),
               new String[]{configFileName},
-              new String[]{"PYTHONPATH=" + mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome(),
-                           "METPLOTPY_BASE="+mvBatch.getMetPlotpyHome()});
+	      env);
+
       stopWatch.stop();
       if (mvResponse.getInfoMessage() != null) {
         mvBatch.print(mvResponse.getInfoMessage());
