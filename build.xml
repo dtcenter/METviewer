@@ -132,7 +132,7 @@
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.19.0.jar"/>
-        <pathelement location="${lib}/tomcat-jdbc-10.1.46.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-10.1.54.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
         <pathelement location="${lib}/snakeyaml-2.5.jar"/>
     </path>
@@ -156,7 +156,7 @@
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.19.0.jar"/>
-        <pathelement location="${lib}/tomcat-jdbc-10.1.46.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-10.1.54.jar"/>
         <pathelement location="${lib}/snakeyaml-2.5.jar"/>
     </path>
 
@@ -176,7 +176,7 @@
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.19.0.jar"/>
-        <pathelement location="${lib}/tomcat-jdbc-10.1.46.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-10.1.54.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
         <pathelement location="${lib}/snakeyaml-2.5.jar"/>
     </path>
@@ -200,7 +200,7 @@
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.19.0.jar"/>
-        <pathelement location="${lib}/tomcat-jdbc-10.1.46.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-10.1.54.jar"/>
         <pathelement location="${lib}/snakeyaml-2.5.jar"/>
     </path>
 
@@ -220,7 +220,7 @@
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.19.0.jar"/>
-        <pathelement location="${lib}/tomcat-jdbc-10.1.46.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-10.1.54.jar"/>
         <pathelement location="${lib}/junit-4.11.jar"/>
         <pathelement location="${lib}/snakeyaml-2.5.jar"/>
     </path>
@@ -244,7 +244,7 @@
         <pathelement location="${lib}/jackson-core-2.20.0.jar"/>
         <pathelement location="${lib}/jackson-databind-2.20.0.jar"/>
         <pathelement location="${lib}/commons-lang3-3.19.0.jar"/>
-        <pathelement location="${lib}/tomcat-jdbc-10.1.46.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-10.1.54.jar"/>
         <pathelement location="${lib}/snakeyaml-2.5.jar"/>
     </path>
 

@@ -801,7 +801,7 @@ function getSelectedDatabases() {
         //try to get it from the text field
         databases = document.getElementById("categories1").childNodes[0].innerText;
     }
-    if (databases === "Select database") {
+    if (databases === "Select database" || databases === "Select databases") {
         databases = null;
     }
     return databases;

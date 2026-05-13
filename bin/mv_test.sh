@@ -177,7 +177,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-databind-2.20.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.19.0.jar
 
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-3.5.6.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-10.1.46.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-10.1.54.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.25.2.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.25.2.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.25.2.jar
