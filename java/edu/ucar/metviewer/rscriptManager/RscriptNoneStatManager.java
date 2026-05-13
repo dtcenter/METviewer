@@ -9,6 +9,7 @@ package edu.ucar.metviewer.rscriptManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -139,12 +140,15 @@ public class RscriptNoneStatManager extends RscriptStatManager {
               + mvBatch.getMetPlotpyHome() + job.getPlotTmpl()
               + "\n"
               + configFileName);
-      mvResponse = MVUtil.runRscript(mvBatch.getPython(),
+      Map<String, String> env = new HashMap<>();
+        env.put("PYTHONPATH", mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome());
+        env.put("METPLOTPY_BASE", mvBatch.getMetPlotpyHome());
+
+      mvResponse = MVUtil.runRscript( mvBatch.getPython(),
               mvBatch.getMetPlotpyHome() + job.getPlotTmpl(),
               new String[]{configFileName},
-              new String[]{"PYTHONPATH=" + mvBatch.getMetPlotpyHome() + ":" + mvBatch.getMetCalcpyHome(),
-                           "METPLOTPY_BASE="+mvBatch.getMetPlotpyHome(),
-                           "PRE_LOAD_CHROME=True"});
+	      env);
+
       stopWatch.stop();
       if (mvResponse.getInfoMessage() != null) {
         mvBatch.print(mvResponse.getInfoMessage());

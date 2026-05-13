@@ -1,5 +1,5 @@
 ARG MET_BASE_REPO=met-base-metviewer
-ARG MET_BASE_TAG=3.4-latest
+ARG MET_BASE_TAG=3.5-latest
 
 # base image that files will be copied into
 ARG BASE_REGISTRY=docker.io
@@ -68,7 +68,7 @@ RUN echo "Configuring METviewer" \
     sed -r 's%db.host=.*%db.host=mysql_mv%g' | \
     sed -r 's%db.user=.*%db.user=root%g' | \
     sed -r 's%db.password=.*%db.password=mvuser%g' | \
-    sed -r 's%db.management.system=.*%db.management.system=mysql%g' | \
+    sed -r 's%db.management.system=.*%db.management.system=mariadb%g' | \
     sed -r 's%output.dir=.*%output.dir=/opt/tomcat/webapps/metviewer_output/%g' | \
     sed -r 's%webapps.dir=.*%webapps.dir=/opt/tomcat/webapps/metviewer/%g' | \
     sed -r 's%url.output=.*%url.output=http://localhost:8080/metviewer_output/%g' | \

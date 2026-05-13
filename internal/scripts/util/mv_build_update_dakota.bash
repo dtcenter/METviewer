@@ -36,18 +36,18 @@ echo ""
 -Dmetcalcpy.path=/d3/projects/METViewer/METcalcpy/ \
 -Dmetplotpy.path=/d3/projects/METViewer/METplotpy/ \
 -Dmetdataio.path=/d3/projects/METViewer/METdataio/ \
--Dpython.env.path=/d3/projects/METViewer/METviewer_py3.10.4/ clean all
+-Dpython.env.path=/d3/projects/METViewer/METviewer_py3.14/ clean all
 
 # copy the war file as metviewer_dev.war to the tomcat directory
 echo "================================================================================="
-echo "Copying the war file to /opt/tomcat/vxwww/webapps/metviewer_dev as metviewer_dev.war"
+echo "Copying the war file to /opt/tomcat10/vxwww/webapps/metviewer_dev as metviewer_dev.war"
 echo "================================================================================="
 echo ""
 
-cp /d3/projects/METViewer/src/apps/METviewer/dist/metviewer.war /opt/tomcat/vxwww/webapps/metviewer_dev.war
+cp /d3/projects/METViewer/src/apps/METviewer/dist/metviewer.war /opt/tomcat10/vxwww/webapps/metviewer_dev.war
 
 echo "======================================================================="
 echo "Now restarting catalina... !!!YOU NEED TO PROVIDE THE PASSWORD!!!"
 echo "======================================================================="
 echo ""
-/opt/tomcat/vxwww/bin/startup.sh
+/opt/tomcat10/vxwww/bin/startup.sh
