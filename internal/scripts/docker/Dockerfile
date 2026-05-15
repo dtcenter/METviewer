@@ -1,5 +1,5 @@
-ARG MET_BASE_REPO=met-base-metviewer
-ARG MET_BASE_TAG=3.5-latest
+ARG MET_BASE_REPO=met-base-metviewer-dev
+ARG MET_BASE_TAG=feature_74_ubi9
 
 # base image that files will be copied into
 ARG BASE_REGISTRY=docker.io
