@@ -90,7 +90,7 @@ COPY --from=build /usr/local/lib/libpython3* /usr/local/lib/
 COPY --from=build /usr/local/lib/libgeos*.so* /usr/local/lib/
 
 # Java
-COPY --from=build /usr/lib/jvm /usr/lib/jvm
+COPY --from=build /usr/lib/jvm/java-17-openjdk-*.x86_64 /usr/lib/jvm/java-17-openjdk-concrete
 COPY --from=build /etc/java /etc/java
 
 # R
@@ -126,7 +126,7 @@ RUN \
 ENV CATALINA_HOME=/opt/tomcat
 ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-concrete
 ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Explicitly specify the shell to indicate that using the SHELL
