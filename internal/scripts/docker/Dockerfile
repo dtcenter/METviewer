@@ -126,7 +126,7 @@ RUN \
 ENV CATALINA_HOME=/opt/tomcat
 ENV PYTHONPATH="/METviewer-python/METcalcpy/:/METviewer-python/METplotpy/"
 ENV METPLOTPY_BASE="/METviewer-python/METplotpy/"
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Explicitly specify the shell to indicate that using the SHELL
