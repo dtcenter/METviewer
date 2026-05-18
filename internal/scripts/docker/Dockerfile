@@ -92,6 +92,7 @@ COPY --from=build /usr/local/lib/libgeos*.so* /usr/local/lib/
 # Java
 COPY --from=build /usr/lib/jvm/java-17-openjdk-*.x86_64 /usr/lib/jvm/java-17-openjdk-concrete
 COPY --from=build /etc/java /etc/java
+COPY --from=build /usr/share/javazi-1.8 /usr/share/javazi-1.8
 
 # R
 #COPY --from=build /etc/R /etc/R
