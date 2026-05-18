@@ -101,6 +101,8 @@ COPY --from=build /usr/include /usr/include
 COPY --from=build /usr/lib64/R /usr/lib64/R
 COPY --from=build /usr/bin/R /usr/bin/R
 COPY --from=build /usr/bin/Rscript /usr/bin/Rscript
+COPY --from=build /usr/lib64/flexiblas/ /usr/lib64/flexiblas/
+COPY --from=build /etc/flexiblasrc /etc/flexiblasrc.d /etc/
 
 # R packages
 COPY --from=build /usr/lib64/R/library /usr/lib64/R/library
