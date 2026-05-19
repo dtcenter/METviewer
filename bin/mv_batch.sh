@@ -16,19 +16,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 MV_HOME="$(dirname "$DIR")"
 
 # construct the classpath for MVBatch
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-3.5.6.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/xercesImpl.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/xml-apis.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-10.1.54.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/juli-6.0.53.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-api-2.0.17.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/slf4j-log4j12-2.0.17.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/guava-33.4.8.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.25.2.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.25.2.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.25.2.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/jakarta.servlet-api-5.0.0.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/snakeyaml-2.5.jar
+CLASSPATH="$MV_HOME/lib/*"
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
 PYTHON_ENV=<path_to_python_env>
