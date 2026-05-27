@@ -4,7 +4,7 @@ ARG MET_BASE_TAG=feature_74_ubi9
 # base image that files will be copied into
 ARG BASE_REGISTRY=docker.io
 ARG BASE_IMAGE=redhat/ubi9
-ARG BASE_TAG=9.7
+ARG BASE_TAG=9.8
 
 FROM dtcenter/${MET_BASE_REPO}:${MET_BASE_TAG} AS build
 LABEL org.opencontainers.image.authors="John Halley Gotway <johnhg@ucar.edu>"
