@@ -72,7 +72,7 @@ html_css_files = ['theme_override.css','custom.css']
 html_logo = os.path.join('_static','met_viewer_logo_2019_09.png')
 
 # -- Intersphinx control -----------------------------------------------------
-intersphinx_mapping = {'numpy':("https://docs.scipy.org/doc/numpy/", None)}
+intersphinx_mapping = {'numpy':("https://numpy.org/doc/stable/", None)}
 
 numfig = True
 
