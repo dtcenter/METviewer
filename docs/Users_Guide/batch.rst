@@ -31,7 +31,7 @@ functional sections.
 NOTE: All **<val>** elements should be listed in alphabetical order.
 
 **<connection>:** Please reference the
-`Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_
+`Common XML Structures <https://metplus.readthedocs.io/projects/metviewer/en/latest/Users_Guide/common.html>`_
 documentation.
 
 **<rscript>:** (optional) This tag specifies the Rscript instance to
@@ -205,7 +205,7 @@ starting at 1 for each fcst_var.
 |                       **Attributes:**
 |                               **name:** The fcst_var whose statistics will be plotted.
 |                               
-|                               **<stat>:** The name of the stat to plot. Its name must be identical to the name in the `MET User's Guide <https://dtcenter.org/community-code/model-evaluation-tools-met/documentation>`_.
+|                               **<stat>:** The name of the stat to plot. Its name must be identical to the name in the `MET User's Guide <https://dtcenter.org/software-tools/model-evaluation-tools-met/documentation>`_.
 |
 |               **<dep2>:** The fcst_var/stat pairs for the second dependent axis (y2). Its structure is identical to that of **<dep1>**
 |               **<fix>:** Do not use **<fix>**, use **<plot_fix>** instead.

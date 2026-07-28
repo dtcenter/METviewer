@@ -45,7 +45,7 @@ series plot are:
    under the tabs. The list contains “Stat”, “MODE”, or “MODE-TD”.
    For details about these types of output statistics in MET, please
    see the most recent version of the
-   `MET User's Guide <https://dtcenter.org/community-code/model-evaluation-tools-met/documentation>`_.
+   `MET User's Guide <https://dtcenter.org/software-tools/model-evaluation-tools-met/documentation>`_.
 
 #. Select the desired variable to calculate statistics for in the
    “Y1 Axis Variables” tab. The first pulldown menu in the “Y1 Dependent
@@ -121,6 +121,6 @@ Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 
-`boxplots_xml.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/boxplots_xml.xml>`_.
+`boxplots_xml.xml <https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/boxplots_xml.xml>`_.
 
 .. literalinclude:: ../_static/xml/boxplots_xml.xml

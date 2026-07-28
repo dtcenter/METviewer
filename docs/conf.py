@@ -91,7 +91,8 @@ linkcheck_ignore = [
     # add regex patterns for URLs that should be skipped, e.g.:
     # r'https://dtcenter\.org/.*',   # if this site blocks automated requests
     # r'https://.*metviewer.*\.rap\.ucar\.edu/.*',  # live demo server; may be down/internal-only from CI
-    # r'https://dev\.mysql\.com/doc/.*',
+    r'https://dev\.mysql\.com/doc.*',
+    r'https://doi\.org/.*', # DOI redirectors often 403 non-browser requests
 ]
 
 linkcheck_allowed_redirects = {
