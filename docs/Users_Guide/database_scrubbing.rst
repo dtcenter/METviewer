@@ -23,9 +23,7 @@ into functional sections. The data to be deleted may be specified in one of
 three ways: as a list of file names, as a list of directories, or as a set
 of values for various fields in the data.
         
-**<connection>:** Please reference the
-`Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_
-documentation.
+**<connection>:** Please reference the :ref:`common` documentation.
 
 **<info_only>:** **TRUE** or **FALSE**, this option indicates if the data
 to be deleted should only be listed (**TRUE**) or the actual deletion
