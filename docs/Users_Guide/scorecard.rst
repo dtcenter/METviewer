@@ -97,8 +97,7 @@ Here is an explanation for the sections:
 **<plot_spec>:** This is the top level tag. It stands for
 "plot specifications". Everything is defined in this tag.
 
-**<connection>:** Please reference the
-`Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_ documentation. 
+**<connection>:** Please reference the :ref:`common` documentation.
 
 **<rscript>:** Specifies the Rscript instance to use, for example
 */usr/local/bin/Rscript*.

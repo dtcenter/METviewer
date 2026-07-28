@@ -206,7 +206,7 @@ Configure and Build METviewer
 
 3. Create a METviewer database:
 
-   * Clone METdataio repositiry: https://github.com/dtcenter/METdataio.git
+   * Clone METdataio repository: :code:`https://github.com/dtcenter/METdataio.git`
 
    * Create a database to store MET data, which has the prefix
      'mv\_', e.g. mv_met_data:
