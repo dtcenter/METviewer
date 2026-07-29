@@ -96,6 +96,7 @@ linkcheck_ignore = [
     r'https://rmets\.onlinelibrary\.wiley\.com/doi/.*',
     r'https://www\.jstor\.org/.*',
     r'https://doi\.org/.*', # DOI redirectors often 403 non-browser requests
+    r'https://journals\.ametsoc\.org/.*',
 ]
 
 linkcheck_allowed_redirects = {
