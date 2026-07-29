@@ -20,7 +20,7 @@ References
 
 | Roebber, P. J., (2009). Visualizing multiple measures of forecast quality.
 |       *Weather and Forecasting*, v:24(2), 601–608.
-|       `https://doi.org/10.1175/2008WAF2222159.1 <https://journals.ametsoc.org:443/view/journals/wefo/24/2/2008waf2222159_1.xml>`_
+|       `https://doi.org/10.1175/2008WAF2222159.1 <https://journals.ametsoc.org/view/journals/wefo/24/2/2008waf2222159_1.xml>`_
 | 
 
 .. _Taylor:
