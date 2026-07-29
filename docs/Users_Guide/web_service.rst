@@ -10,7 +10,7 @@ have to establish a connection with the server and all calls can be
 made automatically.
 
 The web service can be accessed using the relative URL metviewer/servlet,
-for example http://www.dtcenter.org/met/metviewer/servlet. When the web
+for example https://dtcenter.ucar.edu/met/metviewer/servlet. When the web
 service receives an HTTP GET request, it echoes the GET parameters and
 acts as a "ping" mechanism to ensure that the system is online and
 working. All API XML requests should be issued using an HTML POST
@@ -216,5 +216,6 @@ Open App with Predefined Database
 
 Use this url to open METviewer main page with predefined database:
 
-http://www.dtcenter.org/met/metviewer/metviewer1.jsp?db=name_of_database
+https://dtcenter.ucar.edu/met/metviewer/metviewer1.jsp?db=name_of_database
+
 

@@ -35,7 +35,7 @@ Testbed Center (DTC)  and released in January 2008.  The goal of the tools
 was to provide the community with a platform independent and extensible
 framework for reproducible verification.  The DTC partners, including
 NCAR, NOAA, and the USAF, decided to start by replicating the NOAA EMC
-(`see list of acronyms here <https://dtcenter.github.io/METplus/develop/index.html>`_) Mesoscale Branch verification package, called
+(see list of acronyms below) Mesoscale Branch verification package, called
 VSDB.  In the first release, MET included several pre-processing,
 statistical, and analysis tools to provide the primary functionality as
 the EMC VSDB system, and also included a spatial verification package

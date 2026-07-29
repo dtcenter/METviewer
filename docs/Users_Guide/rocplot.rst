@@ -50,7 +50,7 @@ counter-clockwise around the METviewer window.
    of diagram can only use information from the CTC and PCT line types
    available in the “Stat” output. For details about these types of
    statistics from MET, please see the most recent version of the
-   `MET User's Guide <https://dtcenter.org/community-code/model-evaluation-tools-met/documentation>`_.
+   `MET User's Guide <https://dtcenter.org/software-tools/model-evaluation-tools-met/documentation>`_.
 
 #. Select the desired series variable to calculate statistics for in the
    “Series Variables” tab. Press the "+ Series Variable" button to reveal
@@ -120,6 +120,6 @@ Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 
-`roc_xml.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/roc_xml.xml>`_. 
+`roc_xml.xml <https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/roc_xml.xml>`_. 
 
 .. literalinclude:: ../_static/xml/roc_xml.xml
