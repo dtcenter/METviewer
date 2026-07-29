@@ -80,6 +80,26 @@ numfig_format = {
     'figure': 'Figure %s',
 }
 
+# -- linkcheck builder configuration ----------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-the-linkcheck-builder
+
+linkcheck_timeout = 10
+linkcheck_retries = 2
+linkcheck_workers = 8
+
+linkcheck_ignore = [
+    # add regex patterns for URLs that should be skipped, e.g.:
+    # r'https://dtcenter\.org/.*',   # if this site blocks automated requests
+    # r'https://.*metviewer.*\.rap\.ucar\.edu/.*',  # live demo server; may be down/internal-only from CI
+    # r'https://dev\.mysql\.com/doc/.*',
+]
+
+linkcheck_allowed_redirects = {
+    # map of regex -> regex for redirects that are fine to follow
+}
+
+linkcheck_anchors = True
+linkcheck_anchors_ignore = ['^!']
 
 # -- Export variables --------------------------------------------------------
 
