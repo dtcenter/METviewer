@@ -1997,12 +1997,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             selectStat += ",\n  'NA' stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,"
                     + "\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar,"
                     + " \n ld.f_speed_bar, \n ld.o_speed_bar, \n ld.total_dir, \n ld.dir_me, \n ld.dir_mae,"
-                    + "\n ld.dir_mse, \n ld.version" ;
+                    + "\n ld.dir_mse, \n h.version" ;
           } else if (job.getAggVal1l2()) {
             selectStat += ",\n  'NA' stat_value,\n  ld.total,\n ld.ufabar,\n ld.vfabar,\n "
                     + "ld.uoabar,\n ld.voabar,\n ld.uvfoabar,\n ld.uvffabar,\n"
                     + " ld.uvooabar,\n ld.fa_speed_bar,\n ld.oa_speed_bar, "
-                    + "\n ld.version, \n ld.total_dir, \n ld.dira_me, \n ld.dira_mae, \n ld.dira_mse";
+                    + "\n h.version, \n ld.total_dir, \n ld.dira_me, \n ld.dira_mae, \n ld.dira_mse";
           } else if (job.getCalcCtc()) {
             selectStat += ",\n  ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on, "
                     + "'NA' stat_value,\n"
