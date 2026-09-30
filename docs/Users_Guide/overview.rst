@@ -16,7 +16,7 @@ The Developmental Testbed Center (DTC)
 ======================================
 
 METviewer has been developed, and will be maintained and enhanced, by the
-Developmental Testbed Center (`DTC <http://www.dtcenter.org/>`_ ). The main
+Developmental Testbed Center (`DTC <https://dtcenter.org/>`_ ). The main
 goal of the DTC is to serve as a bridge between operations and research, to
 facilitate the activities of these two important components of the numerical
 weather prediction (NWP) community. The DTC provides an environment that is

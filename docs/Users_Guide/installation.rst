@@ -19,7 +19,7 @@ prior to installing METviewer:
 
 **Java JDK 1.8+**
 
-**Ant** - `download ant <http://ant.apache.org/bindownload.cgi>`_ and
+**Ant** - `download ant <https://ant.apache.org/bindownload.cgi>`_ and
 install the latest version.
 
 **Database** - METviewer works with MySQL and MariaDB.
@@ -56,7 +56,7 @@ install the latest version. Install required R packages:
 
 Download the appropriate versions of METviewer, METdataio, METcalcpy, and METplotpy based on the
 recommendations listed here:
-https://dtcenter.org/community-code/metplus/download
+https://dtcenter.org/software-tools/metplus/download
 
 Or download the code via the command line:
 
@@ -65,7 +65,7 @@ clone   `METviewer repository <https://github.com/dtcenter/METviewer>`_
 
    .. code-block:: none
 
-     git clone https://github.com/dtcenter/METviewer.git
+     git clone :code:`https://github.com/dtcenter/METviewer.git`
 
      cd to directory where METviewer was saved and perform 
 
@@ -73,14 +73,14 @@ clone   `METviewer repository <https://github.com/dtcenter/METviewer>`_
 
 
 where *version* corresponds to the appropriate version, i.e. main_v6.0, develop, etc. as specified in the link
-https://dtcenter.org/community-code/metplus/download
+https://dtcenter.org/software-tools/metplus/download
 
 **METcalcpy** -
 clone   `METcalcpy repository <https://github.com/dtcenter/METcalcpy>`_
 
    .. code-block:: none
 
-     git clone https://github.com/dtcenter/METcalcpy.git
+     git clone :code:`https://github.com/dtcenter/METcalcpy.git`
 
      cd to directory where METcalcpy was saved and perform
 
@@ -88,21 +88,22 @@ clone   `METcalcpy repository <https://github.com/dtcenter/METcalcpy>`_
 
 
 where *version* corresponds to the appropriate version, i.e. main_v3.0, develop, etc. as specified in the link
-https://dtcenter.org/community-code/metplus/download
+https://dtcenter.org/software-tools/metplus/download
 
 **METplotpy** -
 clone   `METplotpy repository <https://github.com/dtcenter/METplotpy>`_
 
    .. code-block:: none
 
-     git clone https://github.com/dtcenter/METplotpy.git
-    cd to directory where METplotpy was saved and perform
+     git clone :code:`https://github.com/dtcenter/METplotpy.git`
+
+     cd to directory where METplotpy was saved and perform
 
      git checkout version
 
 
 where *version* corresponds to the appropriate version, i.e. main_v3.0, develop, etc. as specified in the link
-https://dtcenter.org/community-code/metplus/download
+https://dtcenter.org/software-tools/metplus/download
 
 
 **METdataio** -
@@ -110,15 +111,15 @@ clone   `METdataio repository <https://github.com/dtcenter/METdataio>`_
 
    .. code-block:: none
 
-     git clone https://github.com/dtcenter/METdataio.git
+     git :code:`clone https://github.com/dtcenter/METdataio.git`
 
-    cd to directory where METdataio was saved and perform
+     cd to directory where METdataio was saved and perform
 
      git checkout version
 
 
 where *version* corresponds to the appropriate version, i.e. main_v3.0, develop, etc. as specified in the link
-https://dtcenter.org/community-code/metplus/download
+https://dtcenter.org/software-tools/metplus/download
 
 
 
@@ -162,7 +163,7 @@ Configure and Build METviewer
 	  and password
         * Set **db.management.system** to the database type - mysql or mariadb
         * Set redirect to the application name in url (ex. if the
-	  application URL is "http://www.dtcenter.org/met/metviewer/"
+	  application URL is :code:`https://www.dtcenter.org/met/metviewer/`
 	  redirect is "metviewer")
         * Set **output.dir** to the absolute path of the output directory
         * Set **webapps.dir** to the absolute path of the Tomcat's webapps
@@ -205,7 +206,7 @@ Configure and Build METviewer
 
 3. Create a METviewer database:
 
-   * Clone METdataio repositiry: https://github.com/dtcenter/METdataio.git
+   * Clone METdataio repository: :code:`https://github.com/dtcenter/METdataio.git`
 
    * Create a database to store MET data, which has the prefix
      'mv\_', e.g. mv_met_data:

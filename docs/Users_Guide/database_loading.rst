@@ -26,14 +26,9 @@ into the database to the loading module. It is an XML file thats top-level
 tag is <load_spec> which contains the following elements, divided into
 functional sections:
 
-**<connection>:** Please reference the
-`Common XML Structures
-<https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_
-documentation.
+**<connection>:** Please reference the :ref:`common` documentation.
 
-**<date_list>:** Please reference the `Common XML Structures
-<https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_
-documentation.
+**<date_list>:** Please reference the :ref:`common` documentation.
 
 **<load_stat>:** **TRUE** or **FALSE**, this option indicates whether or
 not to load STAT data. Default: TRUE.

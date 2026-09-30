@@ -30,9 +30,7 @@ functional sections.
                                                                                                  
 NOTE: All **<val>** elements should be listed in alphabetical order.
 
-**<connection>:** Please reference the
-`Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_
-documentation.
+**<connection>:** Please reference the :ref:`common` documentation.
 
 **<rscript>:** (optional) This tag specifies the Rscript instance to
 use, for example */usr/local/bin/Rscript*. It defaults to the instance
@@ -46,22 +44,20 @@ system folders.
 |       **<plots>:** The output folder that will contain the generated plots.
 |
 
-**<date_list>:** Please reference the
-`Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_
-documentation. 
+**<date_list>:** Please reference the ref:`common` documentation. 
 
 **<date_range>:** A structure that specifies a date range, including all
 dates and times between. 
 
-|        **<start>:** The start date and time of the date list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure. See `Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_.
-|        **<end>:** The end date and time of the date list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See `Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_.
+|        **<start>:** The start date and time of the date list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure. See ref:`common`.
+|        **<end>:** The end date and time of the date list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See ref:`common`. 
 |
 
 **<date_range_list>:** A structure that specifies a list of date ranges,
 conceptually, a list of **<date_range>** structures.
 
-|       **<range_start>:** The start date and time of the first date range of the list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See `Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_     
-|       **<range_end>:** The start date and time of the last date range of the list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See `Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_   
+|       **<range_start>:** The start date and time of the first date range of the list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See ref:`common`.
+|       **<range_end>:** The start date and time of the last date range of the list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See ref:`common`. 
 |       **<range_length>:** The range length, in minutes.       
 |       **<inc>:** The increment, in minutes, between the end of the previous range member and the start of the next.
 |
@@ -128,16 +124,16 @@ conceptually, a list of **<date_range>** structures.
 |               **name:** The database field name. Its values are contained in the child tag.
 |                
 |               **<val>:** A single value.
-|               **<date_list>:** Refers to a previously declared **<date_list>**, using the name attribute. See `Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_.
-|               **<date_range>:** Refers to a previously declared **<date_range>**, using the name attribute. See `Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_.
-|               **<date_range_list>:** Refers to a previously declared **<date_range_list>**, using the name attribute. See `Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_.
+|               **<date_list>:** Refers to a previously declared **<date_list>**, using the name attribute. See :ref:`common`.
+|               **<date_range>:** Refers to a previously declared **<date_range>**, using the name attribute. See :ref:`common`.
+|               **<date_range_list>:** Refers to a previously declared **<date_range_list>**, using the name attribute. See :ref:`common`.
 |               **<set>:** A set of values.
 |               **Attributes:**                       
 |                       **name:** (optional) Name of the set, used in the field template.
 |                        
 |                       A set can contain one or more of the following:
 |                       **<val>:** A single value.
-|                       **<date_list>:** Refers to a previously declared **<date_list>**, using the name attribute.  See `Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_.
+|                       **<date_list>:** Refers to a previously declared **<date_list>**, using the name attribute.  See :ref:`common`.
 |
 
         **<plot_cond>:** Contains a SQL clause that will be inserted with the clause generated by the **<plot_fix>** information, allowing a user to specify record conditions for plotted statistics. Examples include:
@@ -205,7 +201,7 @@ starting at 1 for each fcst_var.
 |                       **Attributes:**
 |                               **name:** The fcst_var whose statistics will be plotted.
 |                               
-|                               **<stat>:** The name of the stat to plot. Its name must be identical to the name in the `MET User's Guide <https://dtcenter.org/community-code/model-evaluation-tools-met/documentation>`_.
+|                               **<stat>:** The name of the stat to plot. Its name must be identical to the name in the `MET User's Guide <https://dtcenter.org/software-tools/model-evaluation-tools-met/documentation>`_.
 |
 |               **<dep2>:** The fcst_var/stat pairs for the second dependent axis (y2). Its structure is identical to that of **<dep1>**
 |               **<fix>:** Do not use **<fix>**, use **<plot_fix>** instead.

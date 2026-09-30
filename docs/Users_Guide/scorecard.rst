@@ -87,7 +87,7 @@ where scorecard_example.xml is the XML that contains all of the scorecard
 specifications.
 
 The scorecard_example.xml passed to the scorecard module contains
-information about the scorecard that will be generated.   This XML can be downloaded from this link: `scorecard_example.xml <https://dtcenter.github.io/METviewer/latest/_static/xml/scorecard_example.xml>`_
+information about the scorecard that will be generated.   This XML can be downloaded from this link: `scorecard_example.xml <https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/scorecard_example.xml>`_
 
 
 .. literalinclude:: ../_static/xml/scorecard_example.xml
@@ -97,8 +97,7 @@ Here is an explanation for the sections:
 **<plot_spec>:** This is the top level tag. It stands for
 "plot specifications". Everything is defined in this tag.
 
-**<connection>:** Please reference the
-`Common XML Structures <https://dtcenter.github.io/METviewer/latest/Users_Guide/common.html>`_ documentation. 
+**<connection>:** Please reference the :ref:`common` documentation.
 
 **<rscript>:** Specifies the Rscript instance to use, for example
 */usr/local/bin/Rscript*.
