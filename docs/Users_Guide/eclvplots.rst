@@ -46,7 +46,7 @@ counter-clockwise around the METviewer window.
    available in the selected dataset. The second pulldown menu allows the
    selection of the value of that category.
 
-#. For a ECLV plot, the forecast variable (“FCST_VAR”) must be selected.
+#. For an ECLV plot, the forecast variable (“FCST_VAR”) must be selected.
    This is found in the "Specialized Plot Fixed Values" section. In the
    example below, the forecast variable is 6-hour accumulated precipitation
    "APCP_06". 
@@ -102,10 +102,10 @@ criteria, such as forecast latency or computational requirements.
 
 .. figure:: figure/eclv_plot.png
 
-	    Example ECLV plot for three models using two different
-	    thresholds.
+            Example ECLV plot for three models using two different
+            thresholds.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 

@@ -17,12 +17,12 @@ usage statement:
 
           where "load_spec_file" specifies the XML load specification document
           "-index" indicates that no data should be loaded, and only the
-	  indexing commands applied
+          indexing commands applied
 
   ---- MVLoad Done ----
 
 The **load_spec_file** passes information about the MET output files to load
-into the database to the loading module. It is an XML file thats top-level
+into the database to the loading module. It is an XML file whose top-level
 tag is <load_spec> which contains the following elements, divided into
 functional sections:
 
@@ -105,14 +105,14 @@ the **<load_val>** tag structure.
  
                 **<val>:** Contains a single MET output file line type to be loaded, for example, CNT.
  
-**<load_note>:** If present, creates a record in the instance_info database database table with a note containing the body of this tag
+**<load_note>:** If present, creates a record in the instance_info database table with a note containing the body of this tag
  
-**<load_xml>:   TRUE** or **FALSE**, this option indicates whether or not to save the load xml; only effective if **<load_note>** is present - default: TRUE
+**<load_xml>:   TRUE** or **FALSE**, this option indicates whether or not to save the load XML; only effective if **<load_note>** is present - default: TRUE
  
 
 **Note**
 
-If <folder_tmpl> is used, at least one of <load_val> entry should be presented. For example, if the path is:
+If <folder_tmpl> is used, at least one <load_val> entry should be present. For example, if the path is:
 
 .. code-block:: XML
 
@@ -221,6 +221,6 @@ Troubleshooting
       stat_header each time a row is inserted. However, if a stat_header
       row already exists in the table with the insert information, then
       the existing record will be used instead of trying to insert a
-      dupilcate.
+      duplicate.
 
 

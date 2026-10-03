@@ -20,7 +20,7 @@ The database loading module and batch plotting module both use XML input files. 
 |       **<start>:** The start date and time of the date list, specified in the format given by the tag **<format>**
 |       **<end>:** The end date and time, specified in the format given by the tag **<format>**
 |       **<inc>:** The increment, in seconds, between successive members of the date list.       
-|       **<format>:** The date format, specified by the java class SimpleDateFormat.
+|       **<format>:** The date format, specified by the Java class SimpleDateFormat.
 |
 
 | **<date_offset>:** A structure that specifies a date using an offset from another date.

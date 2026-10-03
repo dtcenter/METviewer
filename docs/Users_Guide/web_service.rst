@@ -13,7 +13,7 @@ The web service can be accessed using the relative URL metviewer/servlet,
 for example https://dtcenter.ucar.edu/met/metviewer/servlet. When the web
 service receives an HTTP GET request, it echoes the GET parameters and
 acts as a "ping" mechanism to ensure that the system is online and
-working. All API XML requests should be issued using an HTML POST
+working. All API XML requests should be issued using an HTTP POST
 request with the XML request as the entire body. The XML response
 will indicate the type of request, and echo some information.
 
@@ -72,7 +72,7 @@ the stat_header table of the selected database. The stat_field element
 controls which field's values should be listed. There are two conditions
 that can be optionally included in the request: a fcst_var/stat pair and
 a stat_header field name with a set of values. At this point, it is worth
-noting that although the fields fcst_lead, fcst_valid_beg and fcst_lead_beg
+noting that although the fields fcst_lead, fcst_valid_beg and fcst_init_beg
 are not in the stat_header table of the database schema, they are
 considered stat_header fields from the standpoint of the METviewer servlet
 and client. The virtual fields inithour and validhour are considered
@@ -111,7 +111,7 @@ of the stat_header field fcst_var, without any conditions.
 vx_mask for which the fcst_var is APCP_03 and the statistic type is
 categorical (the statistic CSI can be found in the database table
 line_data_cts). An additional stat_header field condition stipulates
-that only vx_mask values whose fcst_lead is 120000 should be returned.
+that only vx_mask values whose obtype is MC_PCP should be returned.
 
 .. code-block:: XML
 
@@ -135,7 +135,7 @@ that only vx_mask values whose fcst_lead is 120000 should be returned.
 the criteria are satisfied. This feature is useful to users for narrowing
 the results of subsequent search requests. Note that, for performance
 reasons, time criteria such as fcst_valid_beg, fcst_init_beg and
-fcst_lead does not affect the results of non-time based fields and
+fcst_lead do not affect the results of non-time based fields and
 vice versa.
 
 .. code-block:: XML
@@ -154,7 +154,7 @@ List Statistics
 The list_stat request builds a list of all statistics available in the
 METviewer database for the specified fcst_var. It is primarily used to
 construct the dep1 and dep2 portions of the plot request. Conditional
-criteria is not supported in list_stat requests.
+criteria are not supported in list_stat requests.
 
 **Request**
 
@@ -199,8 +199,7 @@ element.
         
         <request>
           <db_con>mv_gfs_nam</db_con>
-          <plot>??(see body of plot element) link to Chapter**
-          </plot>
+          <plot><!-- plot specification, as described in the Batch Plotting Module chapter --></plot>
         </request>
 
 **Response**
@@ -214,7 +213,7 @@ element.
 Open App with Predefined Database
 ---------------------------------
 
-Use this url to open METviewer main page with predefined database:
+Use this URL to open the METviewer main page with a predefined database:
 
 https://dtcenter.ucar.edu/met/metviewer/metviewer1.jsp?db=name_of_database
 

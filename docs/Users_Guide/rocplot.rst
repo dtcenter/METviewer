@@ -73,19 +73,19 @@ counter-clockwise around the METviewer window.
    Otherwise, this is not an ROC plot at all.
 
         * PCT: The most common way to produce an ROC plot is using the Nx2
-	  Probabilistic Contingency Table (PCT) counts from the PCT line in
-	  MET. MET can also write out the PSTD line type which includes the
-	  ROC_AUC column: a number between 0 and 1 indicating the area under
-	  the ROC curve, with 1 being the best. MET calculates this value
-	  and it gets loaded into METviewer. METviewer can plot the ROC_AUC
-	  value but it does not compute it.
+          Probabilistic Contingency Table (PCT) counts from the PCT line in
+          MET. MET can also write out the PSTD line type which includes the
+          ROC_AUC column: a number between 0 and 1 indicating the area under
+          the ROC curve, with 1 being the best. MET calculates this value
+          and it gets loaded into METviewer. METviewer can plot the ROC_AUC
+          value but it does not compute it.
 
         * CTC: The less common way of generating a ROC curve is using several
-	  2x2 contingency table lines. This would be the FHO or CTC line
-	  types from MET. They need to be multiple forecast thresholds all
-	  computed for the *same* observation threshold. However, METviewer
-	  does not currently compute the area under the ROC curve, thus
-	  there is no way for METviewer to plot that statistic.
+          2x2 contingency table lines. This would be the FHO or CTC line
+          types from MET. They need to be multiple forecast thresholds all
+          computed for the *same* observation threshold. However, METviewer
+          does not currently compute the area under the ROC curve, thus
+          there is no way for METviewer to plot that statistic.
 
 #. Now enough information has been entered to produce a graph. To do this,
    click the “Generate Plot” button at the top of the METviewer window (this
@@ -113,10 +113,10 @@ is probably not statistically significant.
 
 .. figure:: figure/roc_plot.png
 
-	    Example ROC diagram showing POD vs. POFD for two different POP
-	    forecasts at thresholds of (0%, 25%, 50%, and 75%).
+            Example ROC diagram showing POD vs. POFD for two different POP
+            forecasts at thresholds of (0%, 25%, 50%, and 75%).
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 

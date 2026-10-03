@@ -100,22 +100,22 @@ The image below shows an example of the plot and set-up options for a
 series plot in METviewer. This example uses the database
 “mv_hrrr_sppmp_test” to plot “Stat” output for seven ensemble members.
 The Frequency bias over the East domain is plotted for 3-hour
-precipitation accumulation exceeding 0.254 cm. Appropriate titles and
+precipitation accumulation exceeding 0.254 mm. Appropriate titles and
 labels have been entered in the titles and labels tab shown below
 the plot. Colors and line formatting are shown across the bottom menu
 of the plot. The values here are the defaults. 
 
 .. figure:: figure/SeriesPlot_MV_Capture.png
 
-	    Screen capture of METviewer configured to produce
-	    a series plot of frequency bias by lead time for 3-hour
-	    accumulated precipitation for seven ensemble members.
+            Screen capture of METviewer configured to produce
+            a series plot of frequency bias by lead time for 3-hour
+            accumulated precipitation for seven ensemble members.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 
 `seriesplot_xml.xml <https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/seriesplot_xml.xml>`_.
 
 .. literalinclude:: ../_static/xml/seriesplot_xml.xml
-	    
+
