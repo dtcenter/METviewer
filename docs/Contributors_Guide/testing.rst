@@ -10,12 +10,12 @@ Testing Example - Install and Run on dakota
 | Testing HOME directory: */d3/projects/METViewer/auto_test*
 | Testing data directory: */d3/projects/METViewer/test_data/load_data/load*
 | Branch to verify against: mv_2_5_dev
-| Branch to verify : mv_2_6
+| Branch to verify: mv_2_6
 | 
 
 **Steps**
 
-#. Check out and copy to the HOME script : **auto_test.sh**
+#. Check out and copy to the HOME script: **auto_test.sh**
    
 #. Create a database for the branch to verify against (mv_2_5_dev):
 
@@ -43,7 +43,7 @@ Testing Example - Install and Run on dakota
 
 If the testing is done using crontab the git user credentials should be
 stored in the
-`git store <https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage>`_ .
+`git store <https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage>`_.
 Also, **auto_test.sh** should be modified to send emails with testing results.
 
 Testing - Capture
@@ -55,7 +55,7 @@ script. During test capture, system or processing errors will be reported
 but images and data are not verified. Verification of data or images is
 performed by the mv_compare.sh script. The mv_test.sh script essentially
 generates output files and copies them from the output directory to the
-appropriate directory test_cases directory.
+appropriate test_cases directory.
 
 Capture and Verification are performed against a specified METviewer branch
 and tag. It is expected that the proper branch or tag has been previously
@@ -65,7 +65,7 @@ then runs test capture and compare - see below). The METviewer test
 directory should also be a subdirectory that corresponds to the proper
 branch and tag, with an output directory that will contain the generated
 images, scripts and data for a given test run, along with the corresponding
-test_data (use case xml files) and load data (load specification xml
+test_data (use case XML files) and load data (load specification XML
 files). The actual load data files are not yet source controlled and so they
 are linked from the path to the met data that is specified with the -l
 option. The auto_test.sh script takes branch and tag parameters and creates
@@ -297,23 +297,23 @@ directory.
 
 **CreatePlotBatchTest** runs MVBatch with testing plot specification files
 and creates output files with the expected output. Any errors encountered
-with creating plots will be reported. Images are not compared
+with creating plots will be reported. Images are not compared.
 Plot specification files and expected output are located in the
 *<test_dir>/plots_batch/<test_type>* directory.
 
 **ComparePlotBatchTest** compares a test ROOT_DIR with a test COMPARE+DIR.
 These directories are specified by the testdir and compare dir.
-plot specification files and expected output are located in the
+Plot specification files and expected output are located in the
 *<test_dir>/test_data_test_cases/<test_type>* directories.
 
 **TestMVServlet** simulates POST intermediate requests (ex. get a list of
-variables), send them to MVServlet and compare the servlet's response
-with the expected output. Requests files and expected response are located
+variables), sends them to MVServlet and compares the servlet's response
+with the expected output. Request files and expected response are located
 in the *<test_dir>/servlet/* directory.
 
 **CreatePlotServletTest** simulates POST, creates plot requests, sends
 them to MVServlet and compares produced output files with the expected output.
-Requests files and expected output files are located in the
+Request files and expected output files are located in the
 *<test_dir>/plots_web/<test_type>* directory.
 
-Location of *<test_dir>* : */d3/projects/METViewer/test_data/*
+Location of *<test_dir>*: */d3/projects/METViewer/test_data/*
