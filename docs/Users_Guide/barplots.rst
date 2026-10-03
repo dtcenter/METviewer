@@ -98,8 +98,8 @@ Example
 The image below shows an example of the plot and set-up options for a
 bar plot in METviewer. This example uses the database
 “mv_hrrr_sppmp_test” to plot “MODE” output for seven ensemble members.
-The total object count over the is plotted for 3-hour precipitation
-accumulation exceeding >=2.54 cm. Appropriate titles and labels have been
+The total object count is plotted for 3-hour precipitation
+accumulation exceeding >=2.54 mm. Appropriate titles and labels have been
 entered in the titles and labels tab shown below the plot. Colors and line
 formatting are shown across the bottom menu of the plot. The values here
 are the defaults.

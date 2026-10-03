@@ -72,7 +72,7 @@ the stat_header table of the selected database. The stat_field element
 controls which field's values should be listed. There are two conditions
 that can be optionally included in the request: a fcst_var/stat pair and
 a stat_header field name with a set of values. At this point, it is worth
-noting that although the fields fcst_lead, fcst_valid_beg and fcst_lead_beg
+noting that although the fields fcst_lead, fcst_valid_beg and fcst_init_beg
 are not in the stat_header table of the database schema, they are
 considered stat_header fields from the standpoint of the METviewer servlet
 and client. The virtual fields inithour and validhour are considered
@@ -111,7 +111,7 @@ of the stat_header field fcst_var, without any conditions.
 vx_mask for which the fcst_var is APCP_03 and the statistic type is
 categorical (the statistic CSI can be found in the database table
 line_data_cts). An additional stat_header field condition stipulates
-that only vx_mask values whose fcst_lead is 120000 should be returned.
+that only vx_mask values whose obtype is MC_PCP should be returned.
 
 .. code-block:: XML
 
@@ -199,8 +199,7 @@ element.
         
         <request>
           <db_con>mv_gfs_nam</db_con>
-          <plot>??(see body of plot element) link to Chapter**
-          </plot>
+          <plot><!-- plot specification, as described in the Batch Plotting Module chapter --></plot>
         </request>
 
 **Response**

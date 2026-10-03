@@ -163,8 +163,8 @@ conceptually, a list of **<date_range>** structures.
 |               **<y1_label>:** Left y axis (y1-axis) label that will be placed on the plot.
 |               **<y2_label>:** Right y axis (y2-axis) label that will be placed on the plot.
 |               **<caption>:** Caption that will be placed on the bottom of the plot.
-|               **<listDiffSeries1>:** Turns on a difference curve should be plotted for the y1 series; calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
-|               **<listDiffSeries2>:** Turns on a difference curve should be plotted for the y2 series; calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
+|               **<listDiffSeries1>:** Specifies difference curves to plot for the y1 series; each is calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
+|               **<listDiffSeries2>:** Specifies difference curves to plot for the y2 series; each is calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
 |
 
 Template Formatting
@@ -326,7 +326,7 @@ starting at 1 for each fcst_var.
 |      **<log_y1>:** **true** or **false**, turns on log-scale on the y1 axis.
 |      **<log_y2>:** **true** or **false**, turns on log-scale on the y2 axis.
 |      **<varianceInflationFactor>:** **true** or **false**, include/exclude the variance inflation factor when computing standard errors for means and medians - **TRUE**: include, **FALSE**: exclude - default value: **TRUE**.
-|      **<order_series>:** **true** or **false**, include/exclude the variance inflation factor when computing standard errors for means and medians - **TRUE**: include, **FALSE**: exclude - default value: **TRUE**.
+|      **<order_series>:** R vector of integers giving the order in which the series are plotted, e.g. c(2,1,3) - default value: the series in the order listed, c(1,2,...,n).
 |      
 |      The following group of settings are each optional and act as placeholders for R plotting function arguments. Specified values should follow the format of the default values listed. The values are passed directly to plotting functions which can be viewed in the R template files for further details. The R function and parameter name that the value is used for is listed after the tag name below. The default value is also shown for each setting.
 |       
