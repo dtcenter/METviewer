@@ -19,7 +19,7 @@ prior to installing METviewer:
 
 **Java JDK 1.8+**
 
-**Ant** - `download ant <https://ant.apache.org/bindownload.cgi>`_ and
+**Ant** - `download Ant <https://ant.apache.org/bindownload.cgi>`_ and
 install the latest version.
 
 **Database** - METviewer works with MySQL and MariaDB.
@@ -72,7 +72,7 @@ clone   `METviewer repository <https://github.com/dtcenter/METviewer>`_
      git checkout version 
 
 
-where *version* corresponds to the appropriate version, i.e. main_v6.0, develop, etc. as specified in the link
+where *version* corresponds to the appropriate version, e.g. main_v6.0, develop, etc. as specified in the link
 https://dtcenter.org/software-tools/metplus/download
 
 **METcalcpy** -
@@ -87,7 +87,7 @@ clone   `METcalcpy repository <https://github.com/dtcenter/METcalcpy>`_
      git checkout version
 
 
-where *version* corresponds to the appropriate version, i.e. main_v3.0, develop, etc. as specified in the link
+where *version* corresponds to the appropriate version, e.g. main_v3.0, develop, etc. as specified in the link
 https://dtcenter.org/software-tools/metplus/download
 
 **METplotpy** -
@@ -102,7 +102,7 @@ clone   `METplotpy repository <https://github.com/dtcenter/METplotpy>`_
      git checkout version
 
 
-where *version* corresponds to the appropriate version, i.e. main_v3.0, develop, etc. as specified in the link
+where *version* corresponds to the appropriate version, e.g. main_v3.0, develop, etc. as specified in the link
 https://dtcenter.org/software-tools/metplus/download
 
 
@@ -118,7 +118,7 @@ clone   `METdataio repository <https://github.com/dtcenter/METdataio>`_
      git checkout version
 
 
-where *version* corresponds to the appropriate version, i.e. main_v3.0, develop, etc. as specified in the link
+where *version* corresponds to the appropriate version, e.g. main_v3.0, develop, etc. as specified in the link
 https://dtcenter.org/software-tools/metplus/download
 
 
@@ -149,7 +149,7 @@ Configure and Build METviewer
    * Edit *METviewer/bin/mv_scorecard.sh*:
 
         * Set the variable **PYTHON_ENV** to point at the Python environment
-        * Set the variable **METCALCPY_HOME** to point to METcalc directory
+        * Set the variable **METCALCPY_HOME** to point to METcalcpy directory
 
    * Verify that the above files have the appropriate execute permissions for the appropriate users.
 
@@ -162,13 +162,13 @@ Configure and Build METviewer
         * Set **db.user** and **db.password** to the database username
           and password
         * Set **db.management.system** to the database type - mysql or mariadb
-        * Set redirect to the application name in url (ex. if the
+        * Set redirect to the application name in URL (ex. if the
           application URL is :code:`https://www.dtcenter.org/met/metviewer/`
           redirect is "metviewer")
         * Set **output.dir** to the absolute path of the output directory
-        * Set **webapps.dir** to the absolute path of the Tomcat's webapps
+        * Set **webapps.dir** to the absolute path of Tomcat's webapps
           directory
-        * Set **url.output** to the url to the output folder
+        * Set **url.output** to the URL of the output folder
         * Set **python.env** to the absolute path of the Python environment
           directory
         * Set **metcalcpy.home** to the absolute path of the METcalcpy
@@ -197,7 +197,7 @@ Configure and Build METviewer
         -Dmetdataio.path=METdataio/ \
        -Dpython.env.path=METviewer_py3.10.4/  clean all
 
-  * Deploy the web app to tomcat
+  * Deploy the web app to Tomcat
 
    .. code-block:: none
 
@@ -241,7 +241,7 @@ Configure and Build METviewer
 Making a Database Accessible in the METviewer Web Application
 =============================================================
 
-To make a new database accessible in the METviewer Web Application click
-on "Reload list of databases" button in the upper right corner of the
+To make a new database accessible in the METviewer Web Application, click
+on the "Reload list of databases" button in the upper right corner of the
 main JSP page. The list of available databases should be updated and a
 new database should be in it.

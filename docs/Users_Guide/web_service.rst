@@ -13,7 +13,7 @@ The web service can be accessed using the relative URL metviewer/servlet,
 for example https://dtcenter.ucar.edu/met/metviewer/servlet. When the web
 service receives an HTTP GET request, it echoes the GET parameters and
 acts as a "ping" mechanism to ensure that the system is online and
-working. All API XML requests should be issued using an HTML POST
+working. All API XML requests should be issued using an HTTP POST
 request with the XML request as the entire body. The XML response
 will indicate the type of request, and echo some information.
 
@@ -135,7 +135,7 @@ that only vx_mask values whose fcst_lead is 120000 should be returned.
 the criteria are satisfied. This feature is useful to users for narrowing
 the results of subsequent search requests. Note that, for performance
 reasons, time criteria such as fcst_valid_beg, fcst_init_beg and
-fcst_lead does not affect the results of non-time based fields and
+fcst_lead do not affect the results of non-time based fields and
 vice versa.
 
 .. code-block:: XML
@@ -154,7 +154,7 @@ List Statistics
 The list_stat request builds a list of all statistics available in the
 METviewer database for the specified fcst_var. It is primarily used to
 construct the dep1 and dep2 portions of the plot request. Conditional
-criteria is not supported in list_stat requests.
+criteria are not supported in list_stat requests.
 
 **Request**
 
@@ -214,7 +214,7 @@ element.
 Open App with Predefined Database
 ---------------------------------
 
-Use this url to open METviewer main page with predefined database:
+Use this URL to open the METviewer main page with a predefined database:
 
 https://dtcenter.ucar.edu/met/metviewer/metviewer1.jsp?db=name_of_database
 
