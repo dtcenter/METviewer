@@ -104,7 +104,7 @@ deviations between model and observation.
 
 .. figure:: figure/taylor_diagram.png
 
-	    Example Taylor diagram.
+            Example Taylor diagram.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by

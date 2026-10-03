@@ -102,8 +102,8 @@ criteria, such as forecast latency or computational requirements.
 
 .. figure:: figure/eclv_plot.png
 
-	    Example ECLV plot for three models using two different
-	    thresholds.
+            Example ECLV plot for three models using two different
+            thresholds.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by

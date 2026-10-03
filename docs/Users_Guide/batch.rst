@@ -6,7 +6,7 @@ The batch plotting system is used to generate a number of plots of data in
 the METviewer database. The usage statement:
 
 .. code-block:: none
-		
+
   ---- MVBatch ----
   
   Usage: mv_batch
@@ -105,9 +105,9 @@ conceptually, a list of **<date_range>** structures.
 |
 
          **<series2>:** Describes the database field names and values
-	 that constitute the various lines, or series, corresponding to
-	 the right y axis (y2-axis) of the plot. The structure is the same
-	 as **<series1>** above.
+         that constitute the various lines, or series, corresponding to
+         the right y axis (y2-axis) of the plot. The structure is the same
+         as **<series1>** above.
 
        **<series_nobs>:** Indicates which database fields should be used
        to calculate the number of observations (NOBS) for the plot.
@@ -144,7 +144,7 @@ conceptually, a list of **<date_range>** structures.
 
 
         **<agg>:** This tag has been replaced by **<plot_fix>**.
-	Do not use **<agg>**.
+        Do not use **<agg>**.
                 
 |       **<tmpl>:**                     
 |               **<val_map>:** A map of key/value pairs used for when templates are populated.
@@ -226,38 +226,38 @@ starting at 1 for each fcst_var.
 |
 
                 When using **<agg_stat>**, the following constraints and
-		conditions apply:
+                conditions apply:
         
                         * To turn off bootstrapping, set **<boot_repl>** to 1.
           
                         * agg_stat types must only be used with appropriate
-			  statistics for each, and only one can be used on
-			  a single plot.
+                          statistics for each, and only one can be used on
+                          a single plot.
 
                         * agg_stat is performed once for each plot that is
-			  created.
+                          created.
 
                         * A plot cannot have both agg_stat and non-agg_stat
-			  data on the same plot.
+                          data on the same plot.
 
                         * If the agg_stat difference curve is turned on,
-			  the plot1 difference curve must be turned off.
+                          the plot1 difference curve must be turned off.
           
                         * To display the calculated bootstrap CIs, set
-			  the plot_cis to "boot".
+                          the plot_cis to "boot".
           
                         * Bootstrapping CIs cannot be calculated for PSTD
-			  stats, instead use the "brier" CI type for Brier
-			  score.
+                          stats, instead use the "brier" CI type for Brier
+                          score.
           
                         * The plot must contain statistics for only one
-			  fcst_var.
+                          fcst_var.
           
                         * All series on the plot must be derived from the
-			  same data
+                          same data
           
                         * agg_stat cannot be used on the same plot with
-			  calc_stat.
+                          calc_stat.
 
 |       **<calc_stat>:** Contains flags telling METviewer to calculate the plot statistics from CTCs or partial sums. If present, calc_stat is turned on. Depending on the selected **<dep>** statistics, only certain settings are appropriate.
 |               **<calc_ctc>:** **TRUE** or **FALSE**, indicating whether or not to calculate CTC stats.
@@ -268,11 +268,11 @@ starting at 1 for each fcst_var.
 |        When using **<calc_stat>**, the following constraints apply:
 
                 * calc_ctc, calc_sl1l2, calc_sal1l2, calc_vl1l2 must only
-		  be used with appropriate statistics for each, and only
-		  one can be used on a single plot.
+                  be used with appropriate statistics for each, and only
+                  one can be used on a single plot.
           
                 * A plot cannot have both calc_stat and non-calc_stat data
-		  on the same plot.
+                  on the same plot.
           
                 * calc_stat cannot be used on the same plot with agg_stat.
 
@@ -284,18 +284,18 @@ starting at 1 for each fcst_var.
                 When using **<roc_calc>**, the following constraints apply:
         
                         * Only one of roc_pct or roc_ctc can be used on a
-			  single plot.
+                          single plot.
         
                         * If using roc_pct, select a list of probabilistic
-			  threshold values as a fcst_thresh **<plot_fix>**
-			  value.
+                          threshold values as a fcst_thresh **<plot_fix>**
+                          value.
           
                         * If using roc_pct, select a single obs_thresh
-			  **<plot_fix>** value.
+                          **<plot_fix>** value.
           
                         * If using roc_ctc, select two or more fcst_thresh
-			  **<plot_fix>** values and a single obs_thresh
-			  **<plot_fix>** value.
+                          **<plot_fix>** values and a single obs_thresh
+                          **<plot_fix>** value.
 
 |        **<normalized_histogram>:** Contains flags telling METviewer which type of histogram to build: normalized or raw counts plot. This setting is required if the rhist.R_tmpl is used, otherwise, it is ignored. The default value is **TRUE** (normalized histogram).
 |               **<normalized_histogram>:** **TRUE** or **FALSE**, indicating whether to build a normalized or raw counts histogram.
@@ -304,12 +304,12 @@ starting at 1 for each fcst_var.
         **<ensss_pts>:** Number of binned points.
         
                 * If the number of binned points is not specified or < 1,
-		  use a default.
+                  use a default.
           
                 * If the number of binned points is > 10 , use 1.
           
                 * In other cases use the result of division of the number
-		  of points on 10.
+                  of points on 10.
 
 |      **<execution_type>:** Rscript or Python, indicating whether to use Rscript or Python for the statistics calculation and plotting (if available). This is an optional element. The default value is Rscript.
 |      **<event_equal>:** **true** or **false**, turns on the event equalizer.

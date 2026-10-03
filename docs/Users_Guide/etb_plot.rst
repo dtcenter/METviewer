@@ -118,8 +118,8 @@ of the plot. The values here are the defaults.
 
 .. figure:: figure/ETB_plot.png
 
-	    Screen capture of METviewer configured to produce
-	    a ETB plot.
+            Screen capture of METviewer configured to produce
+            a ETB plot.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
