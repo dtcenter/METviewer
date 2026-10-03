@@ -32,7 +32,7 @@ How-To
 
 Selection of options to produce the plot proceeds approximately
 counter-clockwise around the METviewer window. The steps to create a
-series plot are:
+box plot are:
 
 #. Select the desired database from the “Select databases” pulldown menu
    at the top margin of the METviewer window.
@@ -117,7 +117,7 @@ for the boxplot.
 	    Example Boxplot created by METviewer for RMSE of
 	    2m temperature over the CONUS by lead time.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 

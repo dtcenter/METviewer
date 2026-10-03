@@ -36,7 +36,7 @@ or Grid-Stat. These are:
 How-To
 ======
 
-Selection of options to produce the reliability diagram proceeds
+Selection of options to produce the performance diagram proceeds
 approximately counter-clockwise around the METviewer window.
 
 #. Select the desired database from the “Select databases” pulldown menu
@@ -45,9 +45,9 @@ approximately counter-clockwise around the METviewer window.
 #. There are a number of tabs just under the database pulldown menu.
    Select the ‘Perf’ tab.
 
-#. Select the desired series variable to calculate for in the “Series
+#. Select the desired series variable to calculate statistics for in the “Series
    Variables” tab. Press the “+ Series Variable” button to reveal two
-   pulldown menus. The first pulldown menu in the lists the categories
+   pulldown menus. The first pulldown menu lists the categories
    available in the selected dataset. The second pulldown menu allows the
    user to select the value of that category.
 
@@ -88,7 +88,7 @@ There are many other options for plots, but these are the basics.
 Example
 =======
  
-The reliability diagram shown below is for 3 hour accumulated
+The performance diagram shown below is for 3 hour accumulated
 precipitation over the CONUS for 8 ensemble members at the 18 hour
 forecast lead time. In the figure, the ensemble members fall closer to
 the lower left area of the diagram, indicating that the ensemble has a
@@ -99,7 +99,7 @@ low performance for forecasting 3-hr accumulated precipitation at the
 
 	    Example performance diagram.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 

@@ -48,7 +48,7 @@ approximately counter-clockwise around the METviewer window.
 
 #. Select the desired series variable to calculate statistics for in the
    “Series Variables” tab. Press the “+ Series Variable” button to reveal
-   two pulldown menus. The first pulldown menu in the lists the categories
+   two pulldown menus. The first pulldown menu lists the categories
    available in the selected dataset. The second pulldown menu allows the
    selection of the value of that category. The reliability diagram only
    makes sense for probability forecasts. These can be from ensemble
@@ -131,7 +131,7 @@ such forecasts are less common.
 	    Example reliability (attributes diagram) with histogram of
 	    observation counts and bootstrap confidence intervals.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 
