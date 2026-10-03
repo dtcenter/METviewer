@@ -117,7 +117,7 @@ Acronyms
 Authors
 -------
 
-Many authors, listed below in alphabetical order, have contributed to the documentation of METplus.
+Many authors, listed below in alphabetical order, have contributed to the documentation of METviewer.
 To cite this documentation in publications, please refer to the METviewer User's Guide :ref:`Citation Instructions<citations>`.
 
 * Tatiana Burek [#NCAR]_

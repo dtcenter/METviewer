@@ -16,7 +16,7 @@ EMC vs. NCAR Method of Determining p-values for Aggregation Statistics
 In statistics, the p-value represents the probability of a statistic having a value at least as
 extreme as observed, in this case a difference between two
 models, given the null hypothesis that the two models come from the same distribution. When the
-p-values are large, there is evidence to reject this null hypothesis.
+p-values are small, there is evidence to reject this null hypothesis.
 
 The EMC and NCAR methods of determining p-values are largely the same, though the output is quite
 different. Both are based on estimates of the mean and standard deviation of the statistic.

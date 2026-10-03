@@ -9,8 +9,6 @@ The goal of this User's Guide is to provide basic information for users of
 the METviewer database and display system to enable users to create plots
 from their MET output statistics. 
 
-The METviewer User's Guide is organized as follows.
-
 
 The Developmental Testbed Center (DTC)
 ======================================
@@ -46,10 +44,10 @@ panel, and lower right quadrant of the METviewer browser. Details about these
 controls are found in :ref:`userspec`. For each plot, METviewer generates
 output in the form of a SQL query, an R script to create the plot, a flat
 file containing the data that will be plotted and the plot itself. This
-output populates the upper right quadrant of the METviewer database. 
+output populates the upper right quadrant of the METviewer web page.
 
 The METviewer code and documentation are maintained by the DTC in Boulder,
-Colorado. The MET package is freely available to the modeling, verification,
+Colorado. METviewer is freely available to the modeling, verification,
 and operational communities, including universities, governments, the
 private sector, and operational modeling and prediction centers.
 
@@ -212,7 +210,7 @@ To open this menu, click the arrow at the top left side right underneath
 the “METviewer” label. This menu provides a list of all (or all successful)
 recent plotting attempts using the METviewer GUI. Users can select items
 from this menu to recover plots they may have neglected to save. Clicking
-on the button showing loads the plot.
+on an item in the menu loads the plot.
 
 
 Future Development Plans
