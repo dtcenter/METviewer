@@ -106,8 +106,8 @@ There are many other options for plots, but these are the basics.
 Example
 =======
 
-The reliability diagram shown below is for the probability of 24 hour
-precipitation with accumulations greater than or equal to 12.7 cm occurring
+The reliability diagram shown below is for the probability of 3 hour
+precipitation with accumulations greater than or equal to 12.7 mm occurring
 over the eastern CONUS. In the figure the reliability curve has a positive
 slope, indicating that as the forecast probability of the event occurring
 increases, so does the likelihood of observing the event. The forecasts

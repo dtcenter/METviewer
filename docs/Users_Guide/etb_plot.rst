@@ -111,7 +111,7 @@ The image below shows an example of the plot and set-up options for a
 series plot in METviewer. This example uses the database
 “mv_hrrr_sppmp_test” to plot “Stat” output for seven ensemble members.
 The Frequency bias over the East domain is plotted for 3-hour
-precipitation accumulation exceeding 0.254 cm. Appropriate titles and
+precipitation accumulation exceeding 0.254 mm. Appropriate titles and
 labels have been entered in the titles and labels tab shown below
 the plot. Colors and line formatting are shown across the bottom menu
 of the plot. The values here are the defaults.
