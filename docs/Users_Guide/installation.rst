@@ -65,7 +65,7 @@ clone   `METviewer repository <https://github.com/dtcenter/METviewer>`_
 
    .. code-block:: none
 
-     git clone :code:`https://github.com/dtcenter/METviewer.git`
+     git clone https://github.com/dtcenter/METviewer.git
 
      cd to directory where METviewer was saved and perform 
 
@@ -80,7 +80,7 @@ clone   `METcalcpy repository <https://github.com/dtcenter/METcalcpy>`_
 
    .. code-block:: none
 
-     git clone :code:`https://github.com/dtcenter/METcalcpy.git`
+     git clone https://github.com/dtcenter/METcalcpy.git
 
      cd to directory where METcalcpy was saved and perform
 
@@ -95,7 +95,7 @@ clone   `METplotpy repository <https://github.com/dtcenter/METplotpy>`_
 
    .. code-block:: none
 
-     git clone :code:`https://github.com/dtcenter/METplotpy.git`
+     git clone https://github.com/dtcenter/METplotpy.git
 
      cd to directory where METplotpy was saved and perform
 
@@ -111,7 +111,7 @@ clone   `METdataio repository <https://github.com/dtcenter/METdataio>`_
 
    .. code-block:: none
 
-     git :code:`clone https://github.com/dtcenter/METdataio.git`
+     git clone https://github.com/dtcenter/METdataio.git
 
      cd to directory where METdataio was saved and perform
 
@@ -185,9 +185,9 @@ Configure and Build METviewer
 
 #. Build and deploy the application:
 
-   * Build METviewer and the web application. ``Replace the parameters
-     values in the Ant command to what is appropriate for the user's
-     setup (i.e. Python version number in -Dpython.env.path=METviewer_pyx.y.z``:
+   * Build METviewer and the web application. Replace the parameter
+     values in the Ant command with what is appropriate for the user's
+     setup (e.g. the Python version number in ``-Dpython.env.path=METviewer_pyx.y.z``):
 
    .. code-block:: none
 
