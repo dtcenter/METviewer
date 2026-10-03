@@ -227,7 +227,7 @@ mv_compare example:
   -b <git branch>
   -B <compare git branch>
   -l <path to met data> causes the LoadDataTest submodule to be executed, gets met data from specified path
-  \-d <mv_database>
+  -d <mv_database>
   -m <path to METviewer home>
   [-a <address list>] commas separated email addresses - default sends output to console
   [-g <git tag>] default is HEAD
@@ -301,7 +301,7 @@ with creating plots will be reported. Images are not compared.
 Plot specification files and expected output are located in the
 *<test_dir>/plots_batch/<test_type>* directory.
 
-**ComparePlotBatchTest** compares a test ROOT_DIR with a test COMPARE+DIR.
+**ComparePlotBatchTest** compares a test ROOT_DIR with a test COMPARE_DIR.
 These directories are specified by the testdir and compare dir.
 Plot specification files and expected output are located in the
 *<test_dir>/test_data_test_cases/<test_type>* directories.
