@@ -40,17 +40,17 @@ The citation for this User's Guide should be:
 
 |author_list|, |release_year|: The METviewer Version |version| User's Guide.
 Developmental Testbed Center. 
-Available at : https://github.com/dtcenter/METviewer/releases. 
+Available at: https://github.com/dtcenter/METviewer/releases. 
 
 **Acknowledgments**
 
 We thank all of the METplus sponsors including: DTC partners (NOAA, NCAR,
 USAF, and NSF), along with NOAA/Office of Atmospheric Research (OAR),
-NOAA/National Weather Service, NOAA/Joint Technology Transfer Program (JTTI),
+NOAA/National Weather Service, NOAA/Joint Technology Transfer Initiative (JTTI),
 NOAA/Subseasonal to Seasonal (S2S) Project, NOAA/Unified Forecast System
 Research to Operations Project (UFS R2O), Met Office and the Naval Research
 Laboratory (NRL). Thanks also go to the staff at the Developmental Testbed
-Center for their help, advice, and many types of support.Finally, the
+Center for their help, advice, and many types of support. Finally, the
 National Center for Atmospheric Research (NCAR) is sponsored by NSF.
 
 

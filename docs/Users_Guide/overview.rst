@@ -16,7 +16,7 @@ The Developmental Testbed Center (DTC)
 ======================================
 
 METviewer has been developed, and will be maintained and enhanced, by the
-Developmental Testbed Center (`DTC <https://dtcenter.org/>`_ ). The main
+Developmental Testbed Center (`DTC <https://dtcenter.org/>`_). The main
 goal of the DTC is to serve as a bridge between operations and research, to
 facilitate the activities of these two important components of the numerical
 weather prediction (NWP) community. The DTC provides an environment that is
@@ -48,7 +48,7 @@ output in the form of a SQL query, an R script to create the plot, a flat
 file containing the data that will be plotted and the plot itself. This
 output populates the upper right quadrant of the METviewer database. 
 
-The METviewer code and documentation is maintained by the DTC in Boulder,
+The METviewer code and documentation are maintained by the DTC in Boulder,
 Colorado. The MET package is freely available to the modeling, verification,
 and operational communities, including universities, governments, the
 private sector, and operational modeling and prediction centers.
@@ -74,7 +74,7 @@ METviewer User Specifications
 
 The top menu allows the user to select a database and type for the plot. 
 
-The first section is where the dependable variable (Y-axis) , statistic of
+The first section is where the dependent variable (Y-axis), statistic of
 interest, and series variables of interest are selected. The Y2 axis can be
 used to plot a Base Rate.
 
@@ -156,7 +156,7 @@ Y2 Points - See above.
 
 The rightmost tab is a small square. Clicking here will save the contents of
 the current window to the default (usually 'Downloads') folder. It is
-recommended that the user click through at least the plot and xml windows
+recommended that the user click through at least the plot and XML windows
 and save this output.
 
 METviewer Plot Formatting Specifications
