@@ -28,7 +28,7 @@ questions being addressed; in addition, the equivalence interval need not be sym
 For a conclusive result, both one-sided tests must be rejected, concluding the difference of the
 means falls within the upper and lower equivalence bounds.
 
-MET employs CI's along with the user-defined tolerance bounds, which can be used to employ an equivalence test.
+MET employs CIs along with the user-defined tolerance bounds, which can be used to employ an equivalence test.
 In this case, H0 is accepted if the CI bounds fall completely between the tolerance bounds,
 and H0 is rejected otherwise.
 
@@ -65,9 +65,9 @@ series plot are:
    section. There are many options. "MODEL" is used in the included
    example. In the second pulldown menu to the right of the first are
    the series variable options, for example, different models.
-   For this plot at least two values of the Series Variable is needed.
+   For this plot at least two values of the Series Variable are needed.
 
-#. Groups are nor supported for this plot type.
+#. Groups are not supported for this plot type.
 
 #. "Independent Variable" is optional and will be used as "Fixed Variable".
 
@@ -83,10 +83,10 @@ series plot are:
 #. Select Lower and Upper equivalence bounds in the Common section.
    The default values are -0.001 and 0.001
 
-#. Create ETB derived curve by opening a pop-up menu with 'Add Derived Curve"
-   button in the bottom of the 'Series Formatting" table. Select curves of interest
-   and check 'Equivalence Testing Bounds" radio button. Since the data for both
-   curves should be similar, the event equalisation is enforced.
+#. Create ETB derived curve by opening a pop-up menu with "Add Derived Curve"
+   button in the bottom of the "Series Formatting" table. Select curves of interest
+   and check "Equivalence Testing Bounds" radio button. Since the data for both
+   curves should be similar, the event equalization is enforced.
 
 #. Now enough information has been entered to produce a graph. To do this,
    click the "Generate Plot" button at the top of the METviewer window
@@ -119,9 +119,9 @@ of the plot. The values here are the defaults.
 .. figure:: figure/ETB_plot.png
 
             Screen capture of METviewer configured to produce
-            a ETB plot.
+            an ETB plot.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link:

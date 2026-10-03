@@ -9,7 +9,7 @@ A bar plot shows comparisons among discrete categories. One axis of the
 chart shows the specific categories being compared, while the other
 represents some measured value. The heights or lengths are proportional to
 the values that they represent. Bar plots are simple and flexible, unlike
-some other METview plot types. Rather than using prescribed statistics in
+some other METviewer plot types. Rather than using prescribed statistics in
 a specific way, the user can select both axes.
 
 Bar plots are distinct from histograms and the two are not interchangeable.
@@ -26,7 +26,7 @@ How-To
 ======
 
 Selection of options to produce the plot proceeds approximately
-counter-clockwise around the METviewer window. The steps to create a series
+counter-clockwise around the METviewer window. The steps to create a bar
 plot are:
 
 #. Select the desired database from the "Select databases" pulldown menu
@@ -96,7 +96,7 @@ Example
 =======
 
 The image below shows an example of the plot and set-up options for a
-series plot in METviewer. This example uses the database
+bar plot in METviewer. This example uses the database
 “mv_hrrr_sppmp_test” to plot “MODE” output for seven ensemble members.
 The total object count over the is plotted for 3-hour precipitation
 accumulation exceeding >=2.54 cm. Appropriate titles and labels have been
@@ -111,7 +111,7 @@ are the defaults.
 
             Example Bar Plot created by METviewer.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 

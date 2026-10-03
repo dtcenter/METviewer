@@ -7,7 +7,7 @@ Description
 
 A scorecard is a graphical representation of significance and performance
 of a comparison, normally a comparison between two models. The scorecard
-can only be produced using xml code. The xml code specifications are
+can only be produced using XML code. The XML code specifications are
 listed in the detail below. There is no GUI interface.
 
 EMC vs. NCAR Method of Determining p-values for Aggregation Statistics
@@ -20,7 +20,7 @@ p-values are large, there is evidence to reject this null hypothesis.
 
 The EMC and NCAR methods of determining p-values are largely the same, though the output is quite
 different. Both are based on estimates of the mean and standard deviation of the statistic.
-Along with the sample size, the standard Student's t value is calculated.When this value
+Along with the sample size, the standard Student's t value is calculated. When this value
 is compared with the known Student's t distribution, the significance level (i.e. p-value)
 is determined. The first difference between the two methods is the identification of the appropriate
 alpha/2 value. In the NCAR version, this value is determined exactly using the statistic and
@@ -37,7 +37,7 @@ are randomly selected with replacement, then the difference
 between the statistics for two models is determined based on that sample. This process is repeated
 a large number of times, resulting in an empirical
 distribution of the differences. To find the p-value, the total percent of the bootstrap
-differences that are more extreme than the observed difference are
+differences that are more extreme than the observed difference is
 calculated. This is the estimated p-value. The only difference here is that the difference is
 compared to a resampled distribution rather than a known,
 theoretical distribution.
@@ -144,7 +144,7 @@ system folders.
         to print SQL queries. The default value is FALSE (do not print).
         
         **<stat>: DIFF** (display a difference between models) or
-        **DIFF_SIG** ( display p_value ) or **SINGLE** (display a value
+        **DIFF_SIG** (display p_value) or **SINGLE** (display a value
         of statistic for the 1st model. In this case the value of the 2nd
         model is optional. This mode works only for
         <agg_stat> **true** </agg_stat>), indicating which statistic
@@ -174,7 +174,7 @@ system folders.
         **<weight_file>:** full path to the XML file describing
         configurations for weights definitions (optional).
 
-        **<left_column_names>:** a list of names for the most left columns
+        **<left_column_names>:** a list of names for the leftmost columns
         as in <val>NAME</val> format.
         
         **<symbol_size>:** a size for the symbols. It can be in '%' or
@@ -189,7 +189,7 @@ system folders.
 
   Attributes
           **name:** the database field name whose values are contained in the child tags
-          **equalize: TRUE** or **FALSE**, indicating whether or not to include this field to the Event Equalisation case. The default value is FALSE (do not include)
+          **equalize: TRUE** or **FALSE**, indicating whether or not to include this field to the Event Equalization case. The default value is FALSE (do not include)
 
                 Model field contains:
 
@@ -198,7 +198,7 @@ system folders.
                 * one value - when the stat values for one model are
                   requested
 
-                * multiples pairs - for the aggregated scorecard
+                * multiple pairs - for the aggregated scorecard
 
                 Date range can be specified using 'fcst_valid_beg' or
                 'fcst_init_beg' and contains one or more groups of two
@@ -219,7 +219,7 @@ system folders.
         Init hour can contain one or more values.
 
         Date/time fields could have **<label>:** attribute. It will be
-        used in the title instead of on the list of dates.
+        used in the title instead of the list of dates.
 
         For example, if 'fcst_valid_beg' example above had a label
         **<field name="fcst_valid_beg" label="July 2011">:**
