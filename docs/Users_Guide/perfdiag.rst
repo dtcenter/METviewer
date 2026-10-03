@@ -97,7 +97,7 @@ low performance for forecasting 3-hr accumulated precipitation at the
 
 .. figure:: figure/perfdiag_plot.png
 
-	    Example performance diagram.
+            Example performance diagram.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by

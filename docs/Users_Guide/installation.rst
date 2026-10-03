@@ -158,29 +158,29 @@ Configure and Build METviewer
      to *METviewer* and providing custom values for the parameters:
      
         * Set **db.host** to the database server host and port,
-	  e.g. db.ncep.gov:3306
+          e.g. db.ncep.gov:3306
         * Set **db.user** and **db.password** to the database username
-	  and password
+          and password
         * Set **db.management.system** to the database type - mysql or mariadb
         * Set redirect to the application name in url (ex. if the
-	  application URL is :code:`https://www.dtcenter.org/met/metviewer/`
-	  redirect is "metviewer")
+          application URL is :code:`https://www.dtcenter.org/met/metviewer/`
+          redirect is "metviewer")
         * Set **output.dir** to the absolute path of the output directory
         * Set **webapps.dir** to the absolute path of the Tomcat's webapps
-	  directory
+          directory
         * Set **url.output** to the url to the output folder
         * Set **python.env** to the absolute path of the Python environment
-	  directory
+          directory
         * Set **metcalcpy.home** to the absolute path of the METcalcpy
-	  directory
+          directory
         * Set **metplotpy.home** to the absolute path of the METplotpy
-	  directory
+          directory
 
 
    * Edit *METviewer/webapp/metviewer/WEB-INF/classes/log4j.properties*:
 
         * Set **log4j.appender.logfile.File** setting to the absolute
-	  path of a log file
+          path of a log file
 
 
 #. Build and deploy the application:

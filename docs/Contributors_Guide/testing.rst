@@ -215,7 +215,7 @@ mv_compare example:
         /bin/sh ./bin/mv_compare.sh -m /myhomedir/METViewer -t /myhomedir/METViewerTest/mv_2_5_dev/HEAD -c /myhomedir/METViewerTest/mv_2_5_dev/HEAD
 
 .. code-block:: none
-	
+
   ---- Auto Test ----
 
   Usage: auto_test.sh 
