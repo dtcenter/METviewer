@@ -128,8 +128,8 @@ such forecasts are less common.
 
 .. figure:: figure/reliability_plot.png
 
-	    Example reliability (attributes diagram) with histogram of
-	    observation counts and bootstrap confidence intervals.
+            Example reliability (attributes diagram) with histogram of
+            observation counts and bootstrap confidence intervals.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
