@@ -7,7 +7,7 @@ Description
 
 Contour plots are a very general plot type somewhat similar to a scatter
 plot. The axes are specified by the user, and any will do so long as the
-entire set of x and y locations has some value (i.e. not missing data). The
+entire set of x and y locations has some value (i.e., not missing data). The
 value is then contoured. This type of plot is often used to examine
 statistics over a series of time or heights. Often, it can be desirable to
 examine the difference in statistics between two NWP models as a contour

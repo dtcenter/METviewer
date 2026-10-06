@@ -121,7 +121,7 @@ predicted (typically over the reference period and at all grid points) with
 different levels of probability. In the example, the majority of forecasts
 predict low probabilities of precipitation (near the climatological
 probability of ~5%). The forecast system is also capable of predicting
-relatively high probabilities of the event (e.g. greater than 40%), but
+relatively high probabilities of the event (e.g., greater than 40%), but
 such forecasts are less common.
 
 .. _reliability_plot.png:

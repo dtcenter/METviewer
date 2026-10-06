@@ -81,7 +81,7 @@ directly related to any git branches. They are different things. A git tag
 simply refers to a specific commit to the git repository. The branches that
 existed at the time of the tagging could all be deleted (except for the master)
 and the tag would still be a valid tag. In METviewer, tags are named after the
-branches, i.e. MV_2_6_<tag_name>. This creates a mnemonic relationship to a
+branches, i.e., MV_2_6_<tag_name>. This creates a mnemonic relationship to a
 branch. Furthermore, only create tags after a commit to a specific branch that
 is then referenced in the tag name. That tagged commit is a special point in
 the history of the repository, a point to be captured for a given branch. By

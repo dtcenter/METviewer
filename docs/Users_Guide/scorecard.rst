@@ -21,7 +21,7 @@ p-values are small, there is evidence to reject this null hypothesis.
 The EMC and NCAR methods of determining p-values are largely the same, though the output is quite
 different. Both are based on estimates of the mean and standard deviation of the statistic.
 Along with the sample size, the standard Student's t value is calculated. When this value
-is compared with the known Student's t distribution, the significance level (i.e. p-value)
+is compared with the known Student's t distribution, the significance level (i.e., p-value)
 is determined. The first difference between the two methods is the identification of the appropriate
 alpha/2 value. In the NCAR version, this value is determined exactly using the statistic and
 the appropriate sample size.
@@ -32,7 +32,7 @@ grouped. Any non-significant differences are denoted by NA,
 significant differences fall into categories of 0.95, 0.99, and 1. Both systems use negative signs
 to denote a better statistic from the second model.
 
-P-values can also be determined by bootstrapping using the percentile method. Cases (e.g. days)
+P-values can also be determined by bootstrapping using the percentile method. Cases (e.g., days)
 are randomly selected with replacement, then the difference
 between the statistics for two models is determined based on that sample. This process is repeated
 a large number of times, resulting in an empirical

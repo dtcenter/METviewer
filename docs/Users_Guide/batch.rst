@@ -192,7 +192,7 @@ starting at 1 for each fcst_var.
 |                       **fcst_thresh**, **fcst_thr**, **obs_thresh** or **obs_thr:** Apply the specified decimal format to the threshold value, according to the formatting syntax for the Java class DecimalFormat.
 |               For any variable, format=R will replace all non-variable characters (like <, = and .) with appropriate letters and underscores.
 |               **units=in:** Can only be used if the variable is a threshold, converts the threshold value to inches from mm.
-|               **symbol=letters:** Can only be used if the variable is a threshold, converts the threshold criteria to FORTRAN-like letters, e.g. >= becomes ge.
+|               **symbol=letters:** Can only be used if the variable is a threshold, converts the threshold criteria to FORTRAN-like letters, e.g., >= becomes ge.
 |
        
 |       **<dep>:** Information about the dependent variables of the plot. Each curve of the plot is assumed to have a constant fcst_var and constant statistic. The stats plotted on the two dependent axes (y1 and y2) are specified using the identical dep1 and dep2 structures. Fixed values, which correspond to each fcst_var, are specified using the fix structure. The MODE statistics documentation can be viewed below on this page.
@@ -220,7 +220,7 @@ starting at 1 for each fcst_var.
 |               **<agg_grad>:** **TRUE** or **FALSE**, indicating whether or not to aggregate GRADs.
 |               **<boot_repl>:** Number of bootstrapping replications, use 1 for no bootstrapping.
 |               **<boot_random_seed>:** Bootstrapping seed.
-|               **<boot_ci>:** Type of confidence interval to calculate, passed to the boot.ci() R function (e.g. bca).
+|               **<boot_ci>:** Type of confidence interval to calculate, passed to the boot.ci() R function (e.g., bca).
 |               **<cache_agg_stat>:** **true** or **false**, turns on/off the prevention of the reuse of existing bootstrapping output data. Default: FALSE
 |               **<circular_block_bootstrap>:** **true** or **false**, turns on/off the circular block bootstrap method. Default: TRUE. Python only.
 |
@@ -326,7 +326,7 @@ starting at 1 for each fcst_var.
 |      **<log_y1>:** **true** or **false**, turns on log-scale on the y1 axis.
 |      **<log_y2>:** **true** or **false**, turns on log-scale on the y2 axis.
 |      **<varianceInflationFactor>:** **true** or **false**, include/exclude the variance inflation factor when computing standard errors for means and medians - **TRUE**: include, **FALSE**: exclude - default value: **TRUE**.
-|      **<order_series>:** R vector of integers giving the order in which the series are plotted, e.g. c(2,1,3) - default value: the series in the order listed, c(1,2,...,n).
+|      **<order_series>:** R vector of integers giving the order in which the series are plotted, e.g., c(2,1,3) - default value: the series in the order listed, c(1,2,...,n).
 |      
 |      The following group of settings are each optional and act as placeholders for R plotting function arguments. Specified values should follow the format of the default values listed. The values are passed directly to plotting functions which can be viewed in the R template files for further details. The R function and parameter name that the value is used for is listed after the tag name below. The default value is also shown for each setting.
 |       

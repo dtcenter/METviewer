@@ -175,7 +175,7 @@ axes, print points.
 Formatting: Plot, title and grid formatting options are available here.
 Options include image type, height, width, and resolution. Margins, offsets,
 text size, line widths, etc. can all be set in units of text point size
-(e.g. 8 = 8 pt font)
+(e.g., 8 = 8 pt font)
 
 X1, X2, Y1, and Y2 - These tabs specify the axis labels and values. The text
 size, weight, alignment and offset can be chosen. For Y1 and Y2 axes, limits

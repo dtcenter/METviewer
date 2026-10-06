@@ -7,7 +7,7 @@ Description
 
 The series plot is the most general of all the METviewer plotting options.
 A series plot is really just a special case of a scatter plot, where the
-dependent variable (i.e. Y-axis value) is related from one value to the
+dependent variable (i.e., Y-axis value) is related from one value to the
 next of the independent variable (X-axis value). Thus, points are placed
 into the graphic as on a scatter plot, but the Y-axis values are shown with
 connecting lines across the X-axis. Examples of data appropriate for this

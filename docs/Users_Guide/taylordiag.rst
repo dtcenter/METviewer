@@ -26,7 +26,7 @@ proportional to the distance from the point on the x-axis identified
 as “observed”. The standard deviation of the forecast is proportional
 to the radial distance from the origin. The means of the fields are
 subtracted out before computing their second-order statistics
-(e.g. bias-corrected RMSE), so the diagram does not provide information
+(e.g., bias-corrected RMSE), so the diagram does not provide information
 about biases. Rather, it characterizes the pattern error.
 
 So, better forecasts lie closer on the Taylor diagram to the observation

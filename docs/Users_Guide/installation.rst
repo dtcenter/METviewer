@@ -72,7 +72,7 @@ clone   `METviewer repository <https://github.com/dtcenter/METviewer>`_
      git checkout version 
 
 
-where *version* corresponds to the appropriate version, e.g. main_v6.0, develop, etc. as specified in the link
+where *version* corresponds to the appropriate version, e.g., main_v6.0, develop, etc. as specified in the link
 https://dtcenter.org/software-tools/metplus/download
 
 **METcalcpy** -
@@ -87,7 +87,7 @@ clone   `METcalcpy repository <https://github.com/dtcenter/METcalcpy>`_
      git checkout version
 
 
-where *version* corresponds to the appropriate version, e.g. main_v3.0, develop, etc. as specified in the link
+where *version* corresponds to the appropriate version, e.g., main_v3.0, develop, etc. as specified in the link
 https://dtcenter.org/software-tools/metplus/download
 
 **METplotpy** -
@@ -102,7 +102,7 @@ clone   `METplotpy repository <https://github.com/dtcenter/METplotpy>`_
      git checkout version
 
 
-where *version* corresponds to the appropriate version, e.g. main_v3.0, develop, etc. as specified in the link
+where *version* corresponds to the appropriate version, e.g., main_v3.0, develop, etc. as specified in the link
 https://dtcenter.org/software-tools/metplus/download
 
 
@@ -118,7 +118,7 @@ clone   `METdataio repository <https://github.com/dtcenter/METdataio>`_
      git checkout version
 
 
-where *version* corresponds to the appropriate version, e.g. main_v3.0, develop, etc. as specified in the link
+where *version* corresponds to the appropriate version, e.g., main_v3.0, develop, etc. as specified in the link
 https://dtcenter.org/software-tools/metplus/download
 
 
@@ -158,7 +158,7 @@ Configure and Build METviewer
      to *METviewer* and providing custom values for the parameters:
      
         * Set **db.host** to the database server host and port,
-	  e.g. db.ncep.gov:3306
+	  e.g., db.ncep.gov:3306
         * Set **db.user** and **db.password** to the database username
 	  and password
         * Set **db.management.system** to the database type - mysql or mariadb
@@ -187,7 +187,7 @@ Configure and Build METviewer
 
    * Build METviewer and the web application. Replace the parameter
      values in the Ant command with what is appropriate for the user's
-     setup (e.g. the Python version number in ``-Dpython.env.path=METviewer_pyx.y.z``):
+     setup (e.g., the Python version number in ``-Dpython.env.path=METviewer_pyx.y.z``):
 
    .. code-block:: none
 
@@ -209,7 +209,7 @@ Configure and Build METviewer
    * Clone METdataio repository: :code:`https://github.com/dtcenter/METdataio.git`
 
    * Create a database to store MET data, which has the prefix
-     'mv\_', e.g. mv_met_data:
+     'mv\_', e.g., mv_met_data:
 
    .. code-block:: none
 
