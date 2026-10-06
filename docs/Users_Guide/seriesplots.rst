@@ -7,7 +7,7 @@ Description
 
 The series plot is the most general of all the METviewer plotting options.
 A series plot is really just a special case of a scatter plot, where the
-dependent variable (i.e. Y-axis value) is related from one value to the
+dependent variable (i.e., Y-axis value) is related from one value to the
 next of the independent variable (X-axis value). Thus, points are placed
 into the graphic as on a scatter plot, but the Y-axis values are shown with
 connecting lines across the X-axis. Examples of data appropriate for this
@@ -100,7 +100,7 @@ The image below shows an example of the plot and set-up options for a
 series plot in METviewer. This example uses the database
 “mv_hrrr_sppmp_test” to plot “Stat” output for seven ensemble members.
 The Frequency bias over the East domain is plotted for 3-hour
-precipitation accumulation exceeding 0.254 cm. Appropriate titles and
+precipitation accumulation exceeding 0.254 mm. Appropriate titles and
 labels have been entered in the titles and labels tab shown below
 the plot. Colors and line formatting are shown across the bottom menu
 of the plot. The values here are the defaults. 
@@ -111,7 +111,7 @@ of the plot. The values here are the defaults.
 	    a series plot of frequency bias by lead time for 3-hour
 	    accumulated precipitation for seven ensemble members.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 

@@ -100,7 +100,7 @@ forecast lead times for an ensemble. Plotted are the spread and the skill.
 	    Example METviewer Spread vs. Skill plot showing temperature
 	    RMSE and spread for a series of forecast lead times.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 

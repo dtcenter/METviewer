@@ -44,20 +44,20 @@ system folders.
 |       **<plots>:** The output folder that will contain the generated plots.
 |
 
-**<date_list>:** Please reference the ref:`common` documentation. 
+**<date_list>:** Please reference the :ref:`common` documentation. 
 
 **<date_range>:** A structure that specifies a date range, including all
 dates and times between. 
 
-|        **<start>:** The start date and time of the date list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure. See ref:`common`.
-|        **<end>:** The end date and time of the date list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See ref:`common`. 
+|        **<start>:** The start date and time of the date list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure. See :ref:`common`.
+|        **<end>:** The end date and time of the date list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See :ref:`common`. 
 |
 
 **<date_range_list>:** A structure that specifies a list of date ranges,
 conceptually, a list of **<date_range>** structures.
 
-|       **<range_start>:** The start date and time of the first date range of the list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See ref:`common`.
-|       **<range_end>:** The start date and time of the last date range of the list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See ref:`common`. 
+|       **<range_start>:** The start date and time of the first date range of the list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See :ref:`common`.
+|       **<range_end>:** The start date and time of the last date range of the list, specified in the format yyyy-MM-dd [HH:mm:ss], or with a **<date_offset>** structure.  See :ref:`common`. 
 |       **<range_length>:** The range length, in minutes.       
 |       **<inc>:** The increment, in minutes, between the end of the previous range member and the start of the next.
 |
@@ -72,13 +72,13 @@ conceptually, a list of **<date_range>** structures.
 |
 |       **<template>:** The name of the R plot script template to use. The following templates are currently supported: 
 |
-|               **series_plot.R_tmpl:** Use for time series, threshold series, date series, and other series type plots which display a fcst_var and statistic vs. A stat_header quantity.
+|               **series_plot.R_tmpl:** Use for time series, threshold series, date series, and other series type plots which display a fcst_var and statistic vs. a stat_header quantity.
 |               **bar_plot.R_tmpl:** Use for bar plots of fcst_var/statistic vs. stat_header quantities.
 |               **box_plot.R_tmpl:** Use for box plots of fcst_var/statistic vs. stat_header quantities.
 |               **rhist.R_tmpl:** Use for ensemble rank histograms, only fixed data must be specified.
 |               **roc.R_tmpl:** Use for ROC plots, only fixed data and PCT/CTC data must be specified.
 |               **rely.R_tmpl:** Use for reliability diagrams, only fixed data must be specified.
-|               **ens_ss.R_tmpl:** Use ensemble spread/skill diagrams, fixed data and series must be specified.
+|               **ens_ss.R_tmpl:** Use for ensemble spread/skill diagrams, fixed data and series must be specified.
 |
 |       **<indep>:** A structure that defines the independent variable and its values for the plot.
 |        **Attributes:**                
@@ -94,7 +94,7 @@ conceptually, a list of **<date_range>** structures.
 |                        **<start>:** The start date and time of the date list, specified in the format yyyy-MM-dd HH:mm:ss.                        
 |                        **<end>:** The end date and time, specified in the format yyyy-MM-dd HH:mm:ss.                        
 |                        **<inc>:** The increment, in seconds, between successive members of the date list.                       
-|                        **<label_format>:** The date format, specified by the java class SimpleDateFormat.
+|                        **<label_format>:** The date format, specified by the Java class SimpleDateFormat.
 |
 |        **<series1>:** Describes the database field names and values that constitute the various lines, or series, corresponding to the left y axis (y1-axis) of the plot.
 |                **<field>:** A database field whose values constitute the members of the series.   
@@ -163,8 +163,8 @@ conceptually, a list of **<date_range>** structures.
 |               **<y1_label>:** Left y axis (y1-axis) label that will be placed on the plot.
 |               **<y2_label>:** Right y axis (y2-axis) label that will be placed on the plot.
 |               **<caption>:** Caption that will be placed on the bottom of the plot.
-|               **<listDiffSeries1>:** Turns on a difference curve should be plotted for the y1 series; calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
-|               **<listDiffSeries2>:** Turns on a difference curve should be plotted for the y2 series; calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
+|               **<listDiffSeries1>:** Specifies difference curves to plot for the y1 series; each is calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
+|               **<listDiffSeries2>:** Specifies difference curves to plot for the y2 series; each is calculated as the pairwise difference between the members of the first series minus the second - example:list(c("series1","series2"), c("series3","series4")).
 |
 
 Template Formatting
@@ -176,7 +176,7 @@ Template values have the syntax
 {fcst_thresh?units=in&amp;symbol=letters}. The var_name must be one of
 the database fields that is used in the plot fixed variables or agg
 variables. When the template is applied, the current plot values for each
-variable replaces the tag in the template. The parameters can be used to
+variable replace the tag in the template. The parameters can be used to
 format, convert or map the values. The dependent variables forecast
 variables are represented using the syntax {depY_N}, where Y is the
 y-axis (either 1 or 2) and N is the index of the fcst_var in the
@@ -189,10 +189,10 @@ starting at 1 for each fcst_var.
 |               **format=[format_type]:** Depending on the variable being formatted the following options apply:
 |                       **fcst_lead:** Use HH for the two-character wide hour, HHmm for the four-character hour and minute
 |                       **init_hour** or **valid_hour:** Use HH for the two-character wide hour init_hour.
-|                       **fcst_thresh**, **fcst_thr**, **obs_thresh** or **obs_thr:** Apply the specified decimal format to the threshold value, according to the formatting syntax for the java class DecimalFormat.
+|                       **fcst_thresh**, **fcst_thr**, **obs_thresh** or **obs_thr:** Apply the specified decimal format to the threshold value, according to the formatting syntax for the Java class DecimalFormat.
 |               For any variable, format=R will replace all non-variable characters (like <, = and .) with appropriate letters and underscores.
 |               **units=in:** Can only be used if the variable is a threshold, converts the threshold value to inches from mm.
-|               **symbol=letters:** Can only be used if the variable is a threshold, converts the threshold criteria to FORTRAN-like letters, e.g. >= becomes ge.
+|               **symbol=letters:** Can only be used if the variable is a threshold, converts the threshold criteria to FORTRAN-like letters, e.g., >= becomes ge.
 |
        
 |       **<dep>:** Information about the dependent variables of the plot. Each curve of the plot is assumed to have a constant fcst_var and constant statistic. The stats plotted on the two dependent axes (y1 and y2) are specified using the identical dep1 and dep2 structures. Fixed values, which correspond to each fcst_var, are specified using the fix structure. The MODE statistics documentation can be viewed below on this page.
@@ -220,8 +220,8 @@ starting at 1 for each fcst_var.
 |               **<agg_grad>:** **TRUE** or **FALSE**, indicating whether or not to aggregate GRADs.
 |               **<boot_repl>:** Number of bootstrapping replications, use 1 for no bootstrapping.
 |               **<boot_random_seed>:** Bootstrapping seed.
-|               **<boot_ci>:** Type of confidence interval to calculate, passed to the boot.ci() R function (e.g. bca).
-|               **<cache_agg_stat>:** **true** or **false**, turns on/off the prevention the reuse of existing bootstrapping output data. Default: FALSE
+|               **<boot_ci>:** Type of confidence interval to calculate, passed to the boot.ci() R function (e.g., bca).
+|               **<cache_agg_stat>:** **true** or **false**, turns on/off the prevention of the reuse of existing bootstrapping output data. Default: FALSE
 |               **<circular_block_bootstrap>:** **true** or **false**, turns on/off the circular block bootstrap method. Default: TRUE. Python only.
 |
 
@@ -306,7 +306,7 @@ starting at 1 for each fcst_var.
                 * If the number of binned points is not specified or < 1,
 		  use a default.
           
-                * If the number of binned points is > 10 , use 1.
+                * If the number of binned points is > 10, use 1.
           
                 * In other cases use the result of division of the number
 		  of points on 10.
@@ -326,7 +326,7 @@ starting at 1 for each fcst_var.
 |      **<log_y1>:** **true** or **false**, turns on log-scale on the y1 axis.
 |      **<log_y2>:** **true** or **false**, turns on log-scale on the y2 axis.
 |      **<varianceInflationFactor>:** **true** or **false**, include/exclude the variance inflation factor when computing standard errors for means and medians - **TRUE**: include, **FALSE**: exclude - default value: **TRUE**.
-|      **<order_series>:** **true** or **false**, include/exclude the variance inflation factor when computing standard errors for means and medians - **TRUE**: include, **FALSE**: exclude - default value: **TRUE**.
+|      **<order_series>:** R vector of integers giving the order in which the series are plotted, e.g., c(2,1,3) - default value: the series in the order listed, c(1,2,...,n).
 |      
 |      The following group of settings are each optional and act as placeholders for R plotting function arguments. Specified values should follow the format of the default values listed. The values are passed directly to plotting functions which can be viewed in the R template files for further details. The R function and parameter name that the value is used for is listed after the tag name below. The default value is also shown for each setting.
 |       
@@ -409,7 +409,7 @@ starting at 1 for each fcst_var.
 
 
 |      **<plot_ci>:** confidence interval type for each series - options: none, norm, boot, brier, std - example: c("norm", "none")
-|      **<show_signif>:** if the statistically significant CI's should be highlighted c(FALSE, TRUE)
+|      **<show_signif>:** if the statistically significant CIs should be highlighted c(FALSE, TRUE)
 |      **<plot_disp>:** indicates which series are visible or not using TRUE/FALSE - example: c(TRUE, FALSE)
 |      **<colors>:** lines(col) - line color for each series - example: c("#33FF00FF", "#00FF19FF")
 |      **<pch>:** lines(pch) - point symbol - see example:(points) - example: c(19, 19)
@@ -420,7 +420,7 @@ starting at 1 for each fcst_var.
 |
 |      **<legend>:** legend labels for each series - example: c("series1", "series2")
 |      **<order_series>:** the order of the series - example: c(1, 2, 3)
-|      **<x1_lim>:** lower y axis (x1-axis) limits - example: c(10,15) or c("2017-05-10 00:00:00","2017-05-15 06:00:00")
+|      **<x1_lim>:** lower x axis (x1-axis) limits - example: c(10,15) or c("2017-05-10 00:00:00","2017-05-15 06:00:00")
 |      **<y1_lim>:** left y axis (y1-axis) limits - example: c(0,5)
 |      **<y1_bufr>:** left y axis (y1-axis) top and bottom buffer - example: .04
 |      **<y2_lim>:** right y axis (y2-axis) limits - example: c(0,1)
@@ -538,13 +538,13 @@ RATIO\_ with AREARAT\_ and OBJ with OBJA.
     - RATIO_OSM_OSA
   * - What percentage of simple observation objects are unmatched?
     - RATIO_OSU_OSA
-  * - What percentage of simple matched objects that are forecast?
+  * - What percentage of simple matched objects are forecast?
     - RATIO_FSM_ASM
-  * - What percentage of simple matched objects that are observation?
+  * - What percentage of simple matched objects are observation?
     - RATIO_OSM_ASM
-  * - What percentage of simple unmatched objects that are forecast?
+  * - What percentage of simple unmatched objects are forecast?
     - RATIO_FSU_ASU
-  * - What percentage of simple unmatched objects that are observation?
+  * - What percentage of simple unmatched objects are observation?
     - RATIO_OSU_ASU
   * - What percentage of all objects are simple?
     - RATIO_ASA_AAA
@@ -629,7 +629,7 @@ table below, and CC follows the following system:
     - UNIONAREA
   * - symmetric_diff
     - SYMDIFF
-  * - intersection_over_areai
+  * - intersection_over_area
     - INTOVERAREA
   * - complexity_ratio
     - CMPLXRATIO

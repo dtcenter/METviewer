@@ -9,14 +9,12 @@ The goal of this User's Guide is to provide basic information for users of
 the METviewer database and display system to enable users to create plots
 from their MET output statistics. 
 
-The METviewer User's Guide is organized as follows.
-
 
 The Developmental Testbed Center (DTC)
 ======================================
 
 METviewer has been developed, and will be maintained and enhanced, by the
-Developmental Testbed Center (`DTC <https://dtcenter.org/>`_ ). The main
+Developmental Testbed Center (`DTC <https://dtcenter.org/>`_). The main
 goal of the DTC is to serve as a bridge between operations and research, to
 facilitate the activities of these two important components of the numerical
 weather prediction (NWP) community. The DTC provides an environment that is
@@ -46,10 +44,10 @@ panel, and lower right quadrant of the METviewer browser. Details about these
 controls are found in :ref:`userspec`. For each plot, METviewer generates
 output in the form of a SQL query, an R script to create the plot, a flat
 file containing the data that will be plotted and the plot itself. This
-output populates the upper right quadrant of the METviewer database. 
+output populates the upper right quadrant of the METviewer web page.
 
-The METviewer code and documentation is maintained by the DTC in Boulder,
-Colorado. The MET package is freely available to the modeling, verification,
+The METviewer code and documentation are maintained by the DTC in Boulder,
+Colorado. METviewer is freely available to the modeling, verification,
 and operational communities, including universities, governments, the
 private sector, and operational modeling and prediction centers.
 
@@ -74,7 +72,7 @@ METviewer User Specifications
 
 The top menu allows the user to select a database and type for the plot. 
 
-The first section is where the dependable variable (Y-axis) , statistic of
+The first section is where the dependent variable (Y-axis), statistic of
 interest, and series variables of interest are selected. The Y2 axis can be
 used to plot a Base Rate.
 
@@ -156,7 +154,7 @@ Y2 Points - See above.
 
 The rightmost tab is a small square. Clicking here will save the contents of
 the current window to the default (usually 'Downloads') folder. It is
-recommended that the user click through at least the plot and xml windows
+recommended that the user click through at least the plot and XML windows
 and save this output.
 
 METviewer Plot Formatting Specifications
@@ -177,7 +175,7 @@ axes, print points.
 Formatting: Plot, title and grid formatting options are available here.
 Options include image type, height, width, and resolution. Margins, offsets,
 text size, line widths, etc. can all be set in units of text point size
-(e.g. 8 = 8 pt font)
+(e.g., 8 = 8 pt font)
 
 X1, X2, Y1, and Y2 - These tabs specify the axis labels and values. The text
 size, weight, alignment and offset can be chosen. For Y1 and Y2 axes, limits
@@ -212,7 +210,7 @@ To open this menu, click the arrow at the top left side right underneath
 the “METviewer” label. This menu provides a list of all (or all successful)
 recent plotting attempts using the METviewer GUI. Users can select items
 from this menu to recover plots they may have neglected to save. Clicking
-on the button showing loads the plot.
+on an item in the menu loads the plot.
 
 
 Future Development Plans

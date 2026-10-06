@@ -7,7 +7,7 @@ Description
 
 Contour plots are a very general plot type somewhat similar to a scatter
 plot. The axes are specified by the user, and any will do so long as the
-entire set of x and y locations has some value (i.e. not missing data). The
+entire set of x and y locations has some value (i.e., not missing data). The
 value is then contoured. This type of plot is often used to examine
 statistics over a series of time or heights. Often, it can be desirable to
 examine the difference in statistics between two NWP models as a contour
@@ -88,7 +88,7 @@ model at different pressure levels over a range of initialization times.
 	    Example METviewer contour plot showing temperature bias by
 	    pressure level over a series of initialization times.
 
-Here is the associated xml for this example. It can be copied into an
+Here is the associated XML for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
 clicking on the "Load XML" button in the upper-right corner of the GUI.
 This XML can be downloaded from this link: 

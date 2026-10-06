@@ -4,15 +4,14 @@ References
 
 .. _Hoaglin:
 
-| Hoaglin, D. C., Mosteller F. and Tukey, J. W. (1983). *Understanding robust*
+| Hoaglin, D. C., Mosteller, F. and Tukey, J. W. (1983). *Understanding robust*
 |        *and exploratory data analysis.* Hoboken, NJ: Wiley.
-|        `https://doi.org/10.2307/2988240 <https://www.jstor.org/stable/2988240?origin=crossref>`_
 | 
 
 .. _Richardson:
 
 | Richardson, D.S. (2000). Skill and relative economic value of the ECMWF
-|        ensemble prediction system. *Quarterly Journal Royal Meteorological*
+|        ensemble prediction system. *Quarterly Journal of the Royal Meteorological*
 |        *Society,* 126, 649-667. `https://doi.org/10.1002/qj.49712656313 <https://rmets.onlinelibrary.wiley.com/doi/10.1002/qj.49712656313>`_
 |
 
