@@ -17,7 +17,7 @@ usage statement:
 
           where "load_spec_file" specifies the XML load specification document
           "-index" indicates that no data should be loaded, and only the
-	  indexing commands applied
+          indexing commands applied
 
   ---- MVLoad Done ----
 

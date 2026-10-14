@@ -85,8 +85,8 @@ model at different pressure levels over a range of initialization times.
 .. figure:: figure/contour_plot.png
 
 
-	    Example METviewer contour plot showing temperature bias by
-	    pressure level over a series of initialization times.
+            Example METviewer contour plot showing temperature bias by
+            pressure level over a series of initialization times.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by

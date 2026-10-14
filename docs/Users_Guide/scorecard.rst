@@ -106,13 +106,13 @@ Here is an explanation for the sections:
 system folders.
         
         **<r_tmpl>:** The folder that contains the R templates used by
-	METviewer, typically *R_tmpl/* from the METviewer CVS source tree.
+        METviewer, typically *R_tmpl/* from the METviewer CVS source tree.
         
         **<r_work>:** The folder that will contain the data and generated
-	R scripts, must contain the sub-folder *include/*.
+        R scripts, must contain the sub-folder *include/*.
         
         **<plots>:** The output folder that will contain generated image
-	and HTML files.
+        and HTML files.
         
         **<data>:** The output folder that will contain generated data files.
         
@@ -121,90 +121,90 @@ system folders.
 **<plot>:** A structure that specifies scorecard characteristics.
         
         **<execution_type>: Rscript** or **Python**, indicating whether
-	to use Rscript or Python for the statistics calculation and
-	plotting (if available). This is an optional element. The default
-	value is Rscript.
+        to use Rscript or Python for the statistics calculation and
+        plotting (if available). This is an optional element. The default
+        value is Rscript.
         
         **<view_value>: TRUE** or **FALSE**, indicating whether or
-	not to display statistical values in the scorecard cells. The
-	default value is FALSE (do not display).
+        not to display statistical values in the scorecard cells. The
+        default value is FALSE (do not display).
         
         **<view_symbol>: TRUE** or **FALSE**, indicating whether or
-	not to display a symbol in the scorecard cells. The default value
-	is TRUE (display).
+        not to display a symbol in the scorecard cells. The default value
+        is TRUE (display).
         
         **<view_legend>: TRUE** or **FALSE**, indicating whether or
-	not to display a legend for the scorecard. The default value is
-	TRUE (display).
+        not to display a legend for the scorecard. The default value is
+        TRUE (display).
         
         **<stat_flag>: NCAR** or **EMC**, which algorithm to use to
-	calculate statistics. The default value is NCAR.
+        calculate statistics. The default value is NCAR.
         
         **<printSQL>: FALSE** or **TRUE**, indicating whether or not
-	to print SQL queries. The default value is FALSE (do not print).
+        to print SQL queries. The default value is FALSE (do not print).
         
         **<stat>: DIFF** (display a difference between models) or
-	**DIFF_SIG** ( display p_value ) or **SINGLE** (display a value
-	of statistic for the 1st model. In this case the value of the 2nd
-	model is optional. This mode works only for
-	<agg_stat> **true** </agg_stat>), indicating which statistic
-	to display for both
-	- values and symbols - in the cell. The default value is DIFF_SIG
-	(display p_value).
+        **DIFF_SIG** ( display p_value ) or **SINGLE** (display a value
+        of statistic for the 1st model. In this case the value of the 2nd
+        model is optional. This mode works only for
+        <agg_stat> **true** </agg_stat>), indicating which statistic
+        to display for both
+        - values and symbols - in the cell. The default value is DIFF_SIG
+        (display p_value).
         
         or
         
         **<stat_value>: DIFF** (display a difference between models)
-	or **DIFF_SIG** (display p_value) or **SINGLE** (display a value
-	of statistic for the 1st model. In this case the value of the 2nd
-	model is optional. This mode works only for
-	<agg_stat> **true** </agg_stat>), indicating which statistic
-	to use to display for values in the cell.
+        or **DIFF_SIG** (display p_value) or **SINGLE** (display a value
+        of statistic for the 1st model. In this case the value of the 2nd
+        model is optional. This mode works only for
+        <agg_stat> **true** </agg_stat>), indicating which statistic
+        to use to display for values in the cell.
         
         **<stat_symbol>: DIFF** (display a difference between models)
-	or **DIFF_SIG** (display p_value) or **SINGLE** (display a value
-	of statistic for the 1st model. In this case the value of the 2nd
-	model is optional. This mode works only for
-	<agg_stat> **true** </agg_stat>), indicating which statistic
-	to use to display for symbols in the cell.
+        or **DIFF_SIG** (display p_value) or **SINGLE** (display a value
+        of statistic for the 1st model. In this case the value of the 2nd
+        model is optional. This mode works only for
+        <agg_stat> **true** </agg_stat>), indicating which statistic
+        to use to display for symbols in the cell.
         
         **<threshold_file>:** full path to the XML file describing
-	configurations for thresholds, colors and symbols (optional).
+        configurations for thresholds, colors and symbols (optional).
 
         **<weight_file>:** full path to the XML file describing
-	configurations for weights definitions (optional).
+        configurations for weights definitions (optional).
 
         **<left_column_names>:** a list of names for the most left columns
-	as in <val>NAME</val> format.
+        as in <val>NAME</val> format.
         
         **<symbol_size>:** a size for the symbols. It can be in '%' or
-	'px'. For example, '120%' will increase the size of symbols by
-	1.2 times. '20px' can also be used.
+        'px'. For example, '120%' will increase the size of symbols by
+        1.2 times. '20px' can also be used.
         
         **<template>:** the name of the R plot script template to use.
-	The following templates are currently supported: scorecard.R_tmpl.
+        The following templates are currently supported: scorecard.R_tmpl.
 
-	**<plot_fix>:** describes database fields - models, date range
-	and init hour - that are constant.
+        **<plot_fix>:** describes database fields - models, date range
+        and init hour - that are constant.
 
   Attributes
           **name:** the database field name whose values are contained in the child tags
           **equalize: TRUE** or **FALSE**, indicating whether or not to include this field to the Event Equalisation case. The default value is FALSE (do not include)
-	
+
                 Model field contains:
 
                 * two values - first and second model names
 
                 * one value - when the stat values for one model are
-		  requested
+                  requested
 
                 * multiples pairs - for the aggregated scorecard
 
                 Date range can be specified using 'fcst_valid_beg' or
-		'fcst_init_beg' and contains one or more groups of two
-		values - start and end dates. This example will create
-		a scorecard for two periods (07-01 00:00 - 07-03 12:00)
-		and (07-05 00:00 - 07-10 12:00)
+                'fcst_init_beg' and contains one or more groups of two
+                values - start and end dates. This example will create
+                a scorecard for two periods (07-01 00:00 - 07-03 12:00)
+                and (07-05 00:00 - 07-10 12:00)
 
         .. code-block:: XML
 
@@ -219,10 +219,10 @@ system folders.
         Init hour can contain one or more values.
 
         Date/time fields could have **<label>:** attribute. It will be
-	used in the title instead of on the list of dates.
-	
+        used in the title instead of on the list of dates.
+
         For example, if 'fcst_valid_beg' example above had a label
-	**<field name="fcst_valid_beg" label="July 2011">:**
+        **<field name="fcst_valid_beg" label="July 2011">:**
         Then the title would be
 
         **METviewer Scorecard**
@@ -255,66 +255,66 @@ system folders.
            Contains 3 or more nested **<field>** elements.
            
                 **<field>:** Describes an individual row or row group
-		in the scorecard table. Attributes:
+                in the scorecard table. Attributes:
                 
                         **name:** Database field name
                         
                         **<val>:** describes a value of the field. Fields
-			can have more than one value element. Attributes:
+                        can have more than one value element. Attributes:
                                 
                                 **name:** Database field name
                                 
                                 **label:** The label that shows up on the
-				image
+                                image
                         
                          **<field>:** next level database field name.
-			 Field can have more than one field element
+                         Field can have more than one field element
            
            **<columns>:** describes an individual column in the scorecard
-	   table.
+           table.
            Contains one or more nested **<field>** elements
            
                 **<field>:** Describes an individual column or column
-		group in the scorecard table. Attributes:
+                group in the scorecard table. Attributes:
                         
                         **name:** Database field name
                                 
                         **<val>:** describes a value of the field. It can be a single value or a group of values separated by ':'.  Fields
-			can have more than one value element. Attributes:
+                        can have more than one value element. Attributes:
                         
                                 **name:** Database field name
                                 
                                 **label:** The label that shows up on the
-				image
+                                image
                         
                         **<field>:** next level database field name. Field
-			can have more than one field element
+                        can have more than one field element
 
            **<agg_stat>: TRUE** (bootstrapping) or **FALSE**
-	   (student-T/normal), indicating whether or not to create
-	   a scorecard using aggregated statistics. The default value
-	   is TRUE (use bootstrapping).
+           (student-T/normal), indicating whether or not to create
+           a scorecard using aggregated statistics. The default value
+           is TRUE (use bootstrapping).
            
            **<boot_repl>:** number of bootstrapping replications, use
-	   1 for no bootstrapping. Used when **<agg_stat>** is TRUE.
+           1 for no bootstrapping. Used when **<agg_stat>** is TRUE.
            
            **<boot_random_seed>:** value of Random.seed for bootstrapping
-	   to get  reproducible random results. Used when **<agg_stat>**
-	   is TRUE.
+           to get  reproducible random results. Used when **<agg_stat>**
+           is TRUE.
            
            **<plot_stat>:** name of the aggregation statistic. **median**
-	   or **mean**. The default value is median.
+           or **mean**. The default value is median.
            
            **<tmpl>:**
            
                 **<data_file>:** name of the R data.frame data file,
-		inside of the **<r_work>** folder specified above
+                inside of the **<r_work>** folder specified above
                 
                 **<plot_file>:** name of the output image file, inside
-		of the **<plots>** folder specified above.
+                of the **<plots>** folder specified above.
                 
                 **<title>:** title of the scorecard displayed on the
-		image. Default value: Verification Scorecard
+                image. Default value: Verification Scorecard
 
 **Threshold File**
 
@@ -346,4 +346,4 @@ The image below shows the output of scorecard_example.xml.
 
 .. figure:: figure/scorecard_example.png
 
-	    Scorecard output example.
+            Scorecard output example.

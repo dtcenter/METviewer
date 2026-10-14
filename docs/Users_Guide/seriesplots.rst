@@ -107,9 +107,9 @@ of the plot. The values here are the defaults.
 
 .. figure:: figure/SeriesPlot_MV_Capture.png
 
-	    Screen capture of METviewer configured to produce
-	    a series plot of frequency bias by lead time for 3-hour
-	    accumulated precipitation for seven ensemble members.
+            Screen capture of METviewer configured to produce
+            a series plot of frequency bias by lead time for 3-hour
+            accumulated precipitation for seven ensemble members.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
@@ -118,4 +118,4 @@ This XML can be downloaded from this link:
 `seriesplot_xml.xml <https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/seriesplot_xml.xml>`_.
 
 .. literalinclude:: ../_static/xml/seriesplot_xml.xml
-	    
+

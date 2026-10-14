@@ -114,8 +114,8 @@ for the boxplot.
 
 .. figure:: figure/boxplots_plot.png
 
-	    Example Boxplot created by METviewer for RMSE of
-	    2m temperature over the CONUS by lead time.
+            Example Boxplot created by METviewer for RMSE of
+            2m temperature over the CONUS by lead time.
 
 Here is the associated xml for this example. It can be copied into an
 empty file and saved to the desktop then uploaded into the system by
