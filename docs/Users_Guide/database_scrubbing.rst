@@ -2,7 +2,7 @@
 Database Scrubbing Module
 *************************
 
-The database scrubbing utility is used to to delete data from METviewer
+The database scrubbing utility is used to delete data from METviewer
 databases that meets some user-specified selection criteria. The usage
 statement:
 
