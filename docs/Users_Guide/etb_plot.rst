@@ -28,7 +28,7 @@ questions being addressed; in addition, the equivalence interval need not be sym
 For a conclusive result, both one-sided tests must be rejected, concluding the difference of the
 means falls within the upper and lower equivalence bounds.
 
-MET employs CIs along with the user-defined tolerance bounds, which can be used to employ an equivalence test.
+METviewer employs CIs along with the user-defined tolerance bounds, which can be used to perform an equivalence test.
 In this case, H0 is accepted if the CI bounds fall completely between the tolerance bounds,
 and H0 is rejected otherwise.
 
@@ -83,10 +83,10 @@ series plot are:
 #. Select Lower and Upper equivalence bounds in the Common section.
    The default values are -0.001 and 0.001
 
-#. Create ETB derived curve by opening a pop-up menu with "Add Derived Curve"
-   button in the bottom of the "Series Formatting" table. Select curves of interest
-   and check "Equivalence Testing Bounds" radio button. Since the data for both
-   curves should be similar, the event equalization is enforced.
+#. Create an ETB derived curve using the "Add Derived Curve" button at the
+   bottom of the "Series Formatting" table to open a pop-up menu. Select curves
+   of interest and check the "Equivalence Testing Bounds" radio button. Since the
+   data for both curves should be similar, event equalization is enforced.
 
 #. Now enough information has been entered to produce a graph. To do this,
    click the "Generate Plot" button at the top of the METviewer window

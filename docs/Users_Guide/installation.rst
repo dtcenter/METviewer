@@ -162,7 +162,7 @@ Configure and Build METviewer
         * Set **db.user** and **db.password** to the database username
           and password
         * Set **db.management.system** to the database type - mysql or mariadb
-        * Set redirect to the application name in URL (ex. if the
+        * Set redirect to the application name in URL (e.g., if the
           application URL is :code:`https://www.dtcenter.org/met/metviewer/`
           redirect is "metviewer")
         * Set **output.dir** to the absolute path of the output directory

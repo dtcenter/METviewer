@@ -306,7 +306,7 @@ These directories are specified by the testdir and compare dir.
 Plot specification files and expected output are located in the
 *<test_dir>/test_data_test_cases/<test_type>* directories.
 
-**TestMVServlet** simulates POST intermediate requests (ex. get a list of
+**TestMVServlet** simulates POST intermediate requests (e.g., get a list of
 variables), sends them to MVServlet and compares the servlet's response
 with the expected output. Request files and expected response are located
 in the *<test_dir>/servlet/* directory.

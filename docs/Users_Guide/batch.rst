@@ -177,7 +177,7 @@ Template values have the syntax
 the database fields that is used in the plot fixed variables or agg
 variables. When the template is applied, the current plot values for each
 variable replace the tag in the template. The parameters can be used to
-format, convert or map the values. The dependent variables forecast
+format, convert or map the values. The forecast variables for the dependent
 variables are represented using the syntax {depY_N}, where Y is the
 y-axis (either 1 or 2) and N is the index of the fcst_var in the
 **<dep>** structure, starting with 1. The dependent variable statistics

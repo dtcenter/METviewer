@@ -189,7 +189,7 @@ system folders.
 
   Attributes
           **name:** the database field name whose values are contained in the child tags
-          **equalize: TRUE** or **FALSE**, indicating whether or not to include this field to the Event Equalization case. The default value is FALSE (do not include)
+          **equalize: TRUE** or **FALSE**, indicating whether or not to include this field in the Event Equalization case. The default value is FALSE (do not include)
 
                 Model field contains:
 
