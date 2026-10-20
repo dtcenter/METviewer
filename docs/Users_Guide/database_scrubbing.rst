@@ -7,7 +7,7 @@ databases that meets some user-specified selection criteria. The usage
 statement:
 
 .. code-block:: none
-		
+
   ---- Database Scrubbing ----
 
   Usage: mv_prune.sh prune_db_spec_file
