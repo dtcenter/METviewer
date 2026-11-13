@@ -24,6 +24,14 @@ Version 13.0.0 RC1 Release Notes (20261113)
 
      * Update METviewer to work with Java 17 and Tomcat 10 (`#613 <https://github.com/dtcenter/METviewer/issues/613>`_)
 
+  .. dropdown:: Repository, build, and test
+
+     * METplus #3247 Automate link checking with Sphinx (`#670 <https://github.com/dtcenter/METviewer/pull/670>`_)
+
+     * main_v6.2 - turn off weekly build of v6.1.Z release of Docker image (`#678 <https://github.com/dtcenter/METviewer/pull/678>`_)
+
+     * develop - turn off weekly build of v6.1.Z release of Docker image (`#679 <https://github.com/dtcenter/METviewer/pull/679>`_)
+
   .. dropdown:: Bugfixes
 
      * Bugfix: Errors with running METviewer on M1/M2 Mac OS in Docker container (`#587 <https://github.com/dtcenter/METviewer/issues/587>`_)
@@ -33,7 +41,6 @@ Version 13.0.0 RC1 Release Notes (20261113)
 
   .. dropdown:: Documentation
 
-     * METplus #3247 link check (`#670 <https://github.com/dtcenter/METviewer/pull/670>`_)
 
      * Enhance the documentation by correcting broken links and typos (`#671 <https://github.com/dtcenter/METviewer/issues/671>`_)
 
@@ -48,6 +55,10 @@ Version 13.0.0 Beta 2 Release Notes (20260507)
 
 
   .. dropdown::  Enhancements
+
+     None
+
+  .. dropdown:: Repository, build, and test
 
      None
 
@@ -71,6 +82,10 @@ Version 13.0.0 Beta 1 Release Notes (20260205)
 
 
   .. dropdown::  Enhancements
+
+     None
+
+  .. dropdown:: Repository, build, and test
 
      None
 
