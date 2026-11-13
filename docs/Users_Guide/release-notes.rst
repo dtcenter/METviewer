@@ -9,9 +9,8 @@ When applicable, release notes are followed by the GitHub issue number which
 describes the bugfix, enhancement, or new feature:
 https://github.com/dtcenter/METviewer/issues
 
-
 Version 13.0.0 RC1 Release Notes (20261113)
-----------------------------------------------
+-------------------------------------------
 
 
   .. dropdown:: New Features
@@ -23,14 +22,13 @@ Version 13.0.0 RC1 Release Notes (20261113)
 
      * METplus #3262 develop update ubuntu (`#669 <https://github.com/dtcenter/METviewer/pull/669>`_)
 
-     * Update METviewer to work with Java 16 and Tomcat 10 (`#613 <https://github.com/dtcenter/METviewer/issues/613>`_)
-
+     * Update METviewer to work with Java 17 and Tomcat 10 (`#613 <https://github.com/dtcenter/METviewer/issues/613>`_)
 
   .. dropdown:: Bugfixes
 
-    * Bugfix: Errors with running METviewer on M1/M2 Mac OS in Docker container  (`#587 <https://github.com/dtcenter/METviewer/issues/587>`_)
+     * Bugfix: Errors with running METviewer on M1/M2 Mac OS in Docker container (`#587 <https://github.com/dtcenter/METviewer/issues/587>`_)
 
-    * Bugfix: Update jar versions in METviewer/bin scripts  (`#603 <https://github.com/dtcenter/METviewer/issues/603>`_)
+     * Bugfix: Update jar versions in METviewer/bin scripts (`#603 <https://github.com/dtcenter/METviewer/issues/603>`_)
 
 
   .. dropdown:: Documentation
@@ -38,11 +36,6 @@ Version 13.0.0 RC1 Release Notes (20261113)
      * METplus #3247 link check (`#670 <https://github.com/dtcenter/METviewer/pull/670>`_)
 
      * Enhance the documentation by correcting broken links and typos (`#671 <https://github.com/dtcenter/METviewer/issues/671>`_)
- 
-
-
-
-
 
 
 Version 13.0.0 Beta 2 Release Notes (20260507)
