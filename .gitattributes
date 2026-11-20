@@ -1,0 +1,9 @@
+# Exclude folders and files from the source archive attached to each
+# GitHub release. Each pattern is anchored with a leading slash so that
+# it matches only at the top level.
+/.github/ export-ignore
+/.gitattributes export-ignore
+/.readthedocs.yaml export-ignore
+/.idea/ export-ignore
+/AGENTS.md export-ignore
+/.claude/ export-ignore
