@@ -1,347 +1,347 @@
 {
   "https://ant.apache.org/bindownload.cgi": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://dev.mysql.com/downloads/mysql/": {
-    "last_seen": "2026-11-24T08:52:13Z"
+    "last_seen": "2026-11-25T08:52:04Z"
   },
   "https://doi.org/10.1002/qj.49712656313": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://doi.org/10.1017/S1350482701002092": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://doi.org/10.1029/2000JD900719": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://doi.org/10.1175/2008WAF2222159.1": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://dtcenter.org/": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://dtcenter.org/news/2024/04#3031": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://dtcenter.org/news/2024/04#3032": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://dtcenter.org/software-tools/metplus/download": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://dtcenter.org/software-tools/model-evaluation-tools-met/documentation": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://dtcenter.ucar.edu/met/metviewer/metviewer1.jsp?db=name_of_database": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://dtcenter.ucar.edu/met/metviewer/servlet": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/ESMCI/manage_externals": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METcalcpy": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METdataio": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METplotpy": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METplus/discussions": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/issues": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/issues/587": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/issues/603": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/issues/613": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/issues/640": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/issues/671": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/pull/669": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/pull/670": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/pull/678": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/pull/679": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://github.com/dtcenter/METviewer/releases": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://mariadb.org/download/": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/en/latest/Users_Guide/overview.html#user-support": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/bar_plots_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/boxplots_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/contour_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/eclv_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/etb_plot_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/perfdiag_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/reliability_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/roc_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/scorecard_example.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/seriesplot_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/spreadskill_xml.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://metplus.readthedocs.io/projects/metviewer/en/latest/_static/xml/taylor_diagram.xml": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://ral.ucar.edu/": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://tomcat.apache.org/download-80.cgi": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://www.apache.org/licenses/LICENSE-2.0": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   },
   "https://www.r-project.org/": {
-    "last_seen": "2026-11-24T08:52:13Z",
-    "last_checked": "2026-11-24T08:52:13Z",
-    "last_success": "2026-11-24T08:52:13Z",
+    "last_seen": "2026-11-25T08:52:04Z",
+    "last_checked": "2026-11-25T08:52:04Z",
+    "last_success": "2026-11-25T08:52:04Z",
     "failure_count": 0,
     "last_status": "ok"
   }
